@@ -163,7 +163,7 @@ class Smd(DefaultLogging, BlueprintUtils):
 	def iteritems(self):
 		"""
 
-		@rtype: tuple(tuple(int,int,int), SmdBlock)
+		@rtype: tuple(tuple[int,int,int], SmdBlock)
 		"""
 		for position_region, region in self.position_to_region.iteritems():
 			assert isinstance(region, SmdRegion), type(region)
@@ -175,9 +175,9 @@ class Smd(DefaultLogging, BlueprintUtils):
 		"""
 
 		@param direction_vector:
-		@type direction_vector: tuple(int,int,int)
+		@type direction_vector: tuple[int,int,int]
 
-		@rtype: tuple(tuple(int,int,int),tuple(int,int,int))
+		@rtype: tuple[tuple[int,int,int],tuple[int,int,int]]
 		"""
 		new_smd = Smd()
 		min_vector = [16, 16, 16]
@@ -196,6 +196,22 @@ class Smd(DefaultLogging, BlueprintUtils):
 					max_vector[index] = value
 		del self.position_to_region
 		self.position_to_region = new_smd.position_to_region
+		return tuple(min_vector), tuple(max_vector)
+
+	def get_min_max_vector(self):
+		"""
+
+		@rtype: tuple[tuple[int,int,int],tuple[int,int,int]]
+		"""
+		min_vector = [16, 16, 16]
+		max_vector = [16, 16, 16]
+		for position_block, block in self.iteritems():
+			assert isinstance(block, SmdBlock)
+			for index, value in enumerate(position_block):
+				if value < min_vector[index]:
+					min_vector[index] = value
+				if value > max_vector[index]:
+					max_vector[index] = value
 		return tuple(min_vector), tuple(max_vector)
 
 	def set_type(self, entity_type):
