@@ -88,6 +88,8 @@ class Blueprint(DefaultLogging, BlueprintUtils):
 		# self.header.update()
 		self.logic.update()
 		self.smd3.update(entity_type)
+		min_vector, max_vector = self.smd3.get_min_max_vector()
+		self.header.set_box(min_vector, max_vector)
 		self.header.set_quantities(self.smd3.get_block_id_to_quantity())
 
 	def move_center_by_vector(self, direction_vector):
