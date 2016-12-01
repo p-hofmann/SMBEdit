@@ -36,6 +36,12 @@ class SmdSegment(DefaultLogging, BlueprintUtils, BitAndBytes):
 
 
 class Smd3Segment(SmdSegment):
+	"""
+	Each segment represents an area the size of 32 x 32 x 32 (smd3) and contains 32768 blocks
+	A Segment position is the lowest coordinate of an area.
+	The Position coordinates are always a multiple of 32, like (32, 0, 128)
+	The core, or center of a blueprint is (16,16,16) and the position of its segment is (0,0,0)
+	"""
 
 	def __init__(self, logfile=None, verbose=False, debug=False):
 		self._label = "Smd3Segment {}".format(datetime.time)
@@ -51,8 +57,9 @@ class Smd3Segment(SmdSegment):
 
 	def read(self, input_stream):
 		"""
+		Read segment data from a byte stream.
 
-		@param input_stream:
+		@param input_stream: input byte stream
 		@type input_stream: fileIO
 		"""
 		# always total size 49152 byte
@@ -89,8 +96,9 @@ class Smd3Segment(SmdSegment):
 
 	def write(self, output_stream):
 		"""
+		Write segment as binary data to any kind of stream.
 
-		@param output_stream:
+		@param output_stream: Output byte stream
 		@type output_stream: fileIO
 		"""
 		# always total size 49152 byte
@@ -125,17 +133,21 @@ class Smd3Segment(SmdSegment):
 
 	def get_number_of_blocks(self):
 		"""
+		Get number of blocks of this segment
 
+		@return: number of blocks in segment
 		@rtype: int
 		"""
 		return len(self.block_index_to_block)
 
 	def get_position_by_block_index(self, block_index):
 		"""
+		Get global position based on local index
 
 		@param block_index:
 		@ptype block_index: int
 
+		@return: (x,y,z), a global position
 		@rtype: tuple[int,int,int]
 		"""
 		# block size z 1024
@@ -148,10 +160,12 @@ class Smd3Segment(SmdSegment):
 
 	def get_block_index_by_position(self, position):
 		"""
+		Get block index of position in this segment
 
-		@param position:
+		@param position: x,y,z position of block
 		@type position: tuple[int,int,int]
 
+		@return: index of block of this segment 0:32767
 		@rtype: int
 		"""
 		# max_blocks 32768
@@ -163,10 +177,12 @@ class Smd3Segment(SmdSegment):
 
 	def update(self, entity_type=0):
 		"""
+		Remove invalid/outdated blocks and exchange docking modules with rails
 
-		@param entity_type:
+		@param entity_type: ship=0/station=2/etc
 		@type entity_type: int
 		"""
+		assert entity_type in self._entity_types
 		list_of_block_index = self.block_index_to_block.keys()
 		for block_index in list_of_block_index:
 			block = self.block_index_to_block[block_index]
@@ -183,8 +199,9 @@ class Smd3Segment(SmdSegment):
 
 	def remove_block(self, block_position):
 		"""
+		Remove Block at specific position.
 
-		@param block_position:
+		@param block_position: x,z,y position of a block
 		@type block_position: tuple[int,int,int]
 		"""
 		assert isinstance(block_position, tuple)
@@ -198,10 +215,11 @@ class Smd3Segment(SmdSegment):
 
 	def add(self, block_position, block):
 		"""
+		Add a block to the segment based on its global position
 
-		@param block_position:
+		@param block_position: x,y,z position of block
 		@type block_position: tuple[int,int,int]
-		@param block:
+		@param block: A block! :)
 		@type block: SmdBlock
 		"""
 		assert isinstance(block, SmdBlock)
@@ -213,10 +231,13 @@ class Smd3Segment(SmdSegment):
 
 	def search(self, block_id):
 		"""
+		Search and return the global position of the first occurance of a block
+		If no block is found, return None
 
-		@param block_id:
+		@param block_id: Block id as found in utils class
 		@type block_id: int
 
+		@return: None or (x,y,z)
 		@rtype: None | tuple[int,int,int]
 		"""
 		for block_index, block in self.block_index_to_block.iteritems():
@@ -226,7 +247,9 @@ class Smd3Segment(SmdSegment):
 
 	def iteritems(self):
 		"""
+		Iterate over each block and its global position, not the position within the segment
 
+		@return: (x,y,z), block
 		@rtype: tuple[tuple[int,int,int], SmdBlock]
 		"""
 		for block_index, block in self.block_index_to_block.iteritems():
@@ -234,10 +257,11 @@ class Smd3Segment(SmdSegment):
 
 	def to_stream(self, output_stream=sys.stdout, summary=True):
 		"""
+		Stream segment values
 
 		@param output_stream:
 		@type output_stream: fileIO
-		@param summary:
+		@param summary: If true the output is reduced
 		@type summary: bool
 		"""
 		output_stream.write("Segment: {} '{}' ({})\n".format(
