@@ -238,7 +238,7 @@ class SmdSegment(DefaultLogging, BlueprintUtils, BitAndBytes):
 		Iterate over each block and its global position, not the position within the segment
 
 		@return: (x,y,z), block
-		@rtype: generator(tuple[int,int,int], SmdBlock)
+		@rtype: tuple[int,int,int], SmdBlock
 		"""
 		for block_index, block in self.block_index_to_block.iteritems():
 			yield self.get_block_position_by_block_index(block_index), block
