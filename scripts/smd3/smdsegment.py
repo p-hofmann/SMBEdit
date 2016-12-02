@@ -11,16 +11,15 @@ from smdblock import SmdBlock
 
 class SmdSegment(DefaultLogging, BlueprintUtils, BitAndBytes):
 
-	def __init__(self, segment_size, logfile=None, verbose=False, debug=False):
+	def __init__(self, blocks_in_a_line, logfile=None, verbose=False, debug=False):
 		self._label = "SmdSegment"
 		super(SmdSegment, self).__init__(
 			logfile=logfile,
 			verbose=verbose,
 			debug=debug)
-		self._segment_size = segment_size
-		self._blocksize_y = self._segment_size
-		self._blocksize_z = self._segment_size * self._segment_size
-		self._max_blocks = self._segment_size * self._segment_size * self._segment_size
+		self._blocks_in_a_line = blocks_in_a_line
+		self._blocks_in_an_area = self._blocks_in_a_line * self._blocks_in_a_line
+		self._blocks_in_a_cube = self._blocks_in_an_area * self._blocks_in_a_line
 		self.version = 2
 		self.timestamp = 0
 		self.position = None
@@ -115,7 +114,7 @@ class Smd3Segment(SmdSegment):
 		else:
 			byte_string = ""
 			set_of_valid_block_index = set(self.block_index_to_block.keys())
-			for block_index in range(0, self._blocksize_y * self._blocksize_y * self._blocksize_y):
+			for block_index in range(0, self._blocks_in_a_line * self._blocks_in_a_line * self._blocks_in_a_line):
 				if block_index in set_of_valid_block_index:
 					byte_string += self.block_index_to_block[block_index].get_data_byte_string()
 					continue
@@ -140,7 +139,7 @@ class Smd3Segment(SmdSegment):
 		"""
 		return len(self.block_index_to_block)
 
-	def get_position_by_block_index(self, block_index):
+	def get_block_position_by_block_index(self, block_index):
 		"""
 		Get global position based on local index
 
@@ -152,13 +151,13 @@ class Smd3Segment(SmdSegment):
 		"""
 		# block size z 1024
 		# block size y 32
-		z = block_index / self._blocksize_z
-		rest = block_index % self._blocksize_z
-		y = rest / self._blocksize_y
-		x = rest % self._blocksize_y
+		z = block_index / self._blocks_in_an_area
+		rest = block_index % self._blocks_in_an_area
+		y = rest / self._blocks_in_a_line
+		x = rest % self._blocks_in_a_line
 		return x+self.position[0], y+self.position[1], z+self.position[2]
 
-	def get_block_index_by_position(self, position):
+	def get_block_index_by_block_position(self, position):
 		"""
 		Get block index of position in this segment
 
@@ -173,7 +172,7 @@ class Smd3Segment(SmdSegment):
 		# block size y 32
 		assert isinstance(position, (list, tuple))
 		# return (position[0] + self._blocksize_y*position[1] + self._blocksize_z*position[2]) % self._max_blocks
-		return (position[0] % self._blocksize_y) + self._blocksize_y*(position[1] % self._blocksize_y) + self._blocksize_z*(position[2] % self._blocksize_y)
+		return (position[0] % self._blocks_in_a_line) + self._blocks_in_a_line*(position[1] % self._blocks_in_a_line) + self._blocks_in_an_area*(position[2] % self._blocks_in_a_line)
 
 	def update(self, entity_type=0):
 		"""
@@ -187,13 +186,13 @@ class Smd3Segment(SmdSegment):
 		for block_index in list_of_block_index:
 			block = self.block_index_to_block[block_index]
 			if not self._is_valid_block_id(block.get_id(), entity_type):
-				self.remove_block(self.get_position_by_block_index(block_index))
+				self.remove_block(self.get_block_position_by_block_index(block_index))
 				continue
 			if block.get_id() not in self._docking_to_rails:
 				continue
 			updated_block_id = self._docking_to_rails[block.get_id()]
 			if updated_block_id is None:
-				self.remove_block(self.get_position_by_block_index(block_index))
+				self.remove_block(self.get_block_position_by_block_index(block_index))
 				continue
 			self.block_index_to_block[block_index].set_id(updated_block_id)
 
@@ -205,8 +204,8 @@ class Smd3Segment(SmdSegment):
 		@type block_position: tuple[int,int,int]
 		"""
 		assert isinstance(block_position, tuple)
-		block_index = self.get_block_index_by_position(block_position)
-		assert block_index in self.block_index_to_block, (block_index, block_position, self.get_position_by_block_index(block_index))
+		block_index = self.get_block_index_by_block_position(block_position)
+		assert block_index in self.block_index_to_block, (block_index, block_position, self.get_block_position_by_block_index(block_index))
 		# print "deleting", self.get_block_name_by_id(self.block_index_to_block[block_index].get_id())
 		self.block_index_to_block.pop(block_index)
 		if self.get_number_of_blocks() == 0:
@@ -225,7 +224,7 @@ class Smd3Segment(SmdSegment):
 		assert isinstance(block, SmdBlock)
 		if self.position is None:
 			self.position = self.get_segment_position_of_position(block_position)
-		block_index = self.get_block_index_by_position(block_position)
+		block_index = self.get_block_index_by_block_position(block_position)
 		self.block_index_to_block[block_index] = block
 		self.has_valid_data = 1
 
@@ -242,7 +241,7 @@ class Smd3Segment(SmdSegment):
 		"""
 		for block_index, block in self.block_index_to_block.iteritems():
 			if block.get_id() == block_id:
-				return self.get_position_by_block_index(block_index)
+				return self.get_block_position_by_block_index(block_index)
 		return None
 
 	def iteritems(self):
@@ -253,13 +252,13 @@ class Smd3Segment(SmdSegment):
 		@rtype: tuple[tuple[int,int,int], SmdBlock]
 		"""
 		for block_index, block in self.block_index_to_block.iteritems():
-			yield self.get_position_by_block_index(block_index), block
+			yield self.get_block_position_by_block_index(block_index), block
 
 	def to_stream(self, output_stream=sys.stdout, summary=True):
 		"""
 		Stream segment values
 
-		@param output_stream:
+		@param output_stream: Output stream
 		@type output_stream: fileIO
 		@param summary: If true the output is reduced
 		@type summary: bool
@@ -275,7 +274,7 @@ class Smd3Segment(SmdSegment):
 		if summary:
 			return
 		for block_index in sorted(self.block_index_to_block.keys()):
-			output_stream.write("{}\t".format(self.get_position_by_block_index(block_index)))
+			output_stream.write("{}\t".format(self.get_block_position_by_block_index(block_index)))
 			# output_stream.write("{}\t".format(block_index))
 			self.block_index_to_block[block_index].to_stream(output_stream)
 		output_stream.flush()
