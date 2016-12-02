@@ -189,21 +189,8 @@ class SmdRegion(DefaultLogging, BlueprintUtils, BitAndBytes):
 			self._write_file(output_stream)
 
 	# #######################################
-	# ###  Else
+	# ###  Index and positions
 	# #######################################
-
-	def get_number_of_blocks(self):
-		"""
-		Get number of blocks of this region
-
-		@return: number of blocks in segment
-		@rtype: int
-		"""
-		number_of_blocks = 0
-		for position, segment in self.position_to_segment.iteritems():
-			assert isinstance(segment, SmdSegment)
-			number_of_blocks += segment.get_number_of_blocks()
-		return number_of_blocks
 
 	def get_segment_position_of_position(self, position):
 		"""
@@ -252,6 +239,23 @@ class SmdRegion(DefaultLogging, BlueprintUtils, BitAndBytes):
 			(tmp[0] % self._segments_in_a_line) + \
 			(tmp[1] % self._segments_in_a_line) * self._segments_in_a_line + \
 			(tmp[2] % self._segments_in_a_line) * self._segments_in_an_area
+
+	# #######################################
+	# ###  Else
+	# #######################################
+
+	def get_number_of_blocks(self):
+		"""
+		Get number of blocks of this region
+
+		@return: number of blocks in segment
+		@rtype: int
+		"""
+		number_of_blocks = 0
+		for position, segment in self.position_to_segment.iteritems():
+			assert isinstance(segment, SmdSegment)
+			number_of_blocks += segment.get_number_of_blocks()
+		return number_of_blocks
 
 	def update(self, entity_type=0):
 		"""
