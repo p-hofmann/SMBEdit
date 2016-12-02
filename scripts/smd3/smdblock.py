@@ -8,9 +8,16 @@ from scripts.blueprintutils import BlueprintUtils
 
 class SmdBlock(BitAndBytes, BlueprintUtils):
 
-	_label = "SmdBlock"
+	# https://starmadepedia.net/wiki/Blueprint_File_Formats#Block_Data
+	_block_type = {
+		1: (0, 11, 20, 21),
+		2: (0, 11, 20, 20),  # no active bit
+		3: (0, 11, 19, 19),  # no active bit
+	}
 
 	def __init__(self):
+		self._label = "SmdBlock"
+		# todo: take _block_type into account
 		super(SmdBlock, self).__init__()
 		self._id = 0
 		self._hitpoints = 0
@@ -40,7 +47,6 @@ class SmdBlock(BitAndBytes, BlueprintUtils):
 
 		@rtype: int
 		"""
-		# Todo: No idea what this is, logic maybe?
 		return self._active == 1
 
 	def get_orientation(self):
@@ -124,7 +130,7 @@ class SmdBlock(BitAndBytes, BlueprintUtils):
 		bit_array = struct.unpack('>i', '\x00' + self._byte_string)[0]
 		self._id = self.parse_bits(bit_array, 0, 11)
 		self._hitpoints = self.parse_bits(bit_array, 11, 9)
-		self._active = self.parse_bits(bit_array, 20, 1)
+		self._active = self.parse_bits(bit_array, 20, 1)  # For blocks with an activation status
 		self._orientation = self.parse_bits(bit_array, 21, 3)
 
 	def _refresh_data_byte_string(self):
@@ -135,7 +141,7 @@ class SmdBlock(BitAndBytes, BlueprintUtils):
 		bit_array = 0
 		bit_array = self.combine_bits(self._id, bit_array, 0)
 		bit_array = self.combine_bits(self._hitpoints, bit_array, 11)
-		bit_array = self.combine_bits(self._active, bit_array, 20)
+		bit_array = self.combine_bits(self._active, bit_array, 20)  # For blocks with an activation status
 		bit_array = self.combine_bits(self._orientation, bit_array, 21)
 		self._byte_string = struct.pack('>i', bit_array)[1:]
 
