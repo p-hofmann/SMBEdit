@@ -17,6 +17,14 @@ class Smd(DefaultLogging, BlueprintUtils):
 
 	def __init__(
 		self, segments_in_a_line_of_a_region=16, blocks_in_a_line_of_a_segment=32, logfile=None, verbose=False, debug=False):
+		"""
+		Constructor
+
+		@param blocks_in_a_line_of_a_segment: The number of blocks that fit beside each other within a segment
+		@type blocks_in_a_line_of_a_segment: int
+		@param segments_in_a_line_of_a_region: The number of segments that fit beside each other within a region
+		@type segments_in_a_line_of_a_region: int
+		"""
 		self._label = "Smd"
 		super(Smd, self).__init__(
 			logfile=logfile,
@@ -34,8 +42,9 @@ class Smd(DefaultLogging, BlueprintUtils):
 
 	def read(self, directory_blueprint):
 		"""
+		Read smd data from files in the blueprint/data/ directory
 
-		@param directory_blueprint:
+		@param directory_blueprint: input directory path
 		@type directory_blueprint: str
 		"""
 		directory_data = os.path.join(directory_blueprint, "DATA")
@@ -56,10 +65,11 @@ class Smd(DefaultLogging, BlueprintUtils):
 
 	def write(self, directory_blueprint, blueprint_name):
 		"""
+		Write smd data to files in the blueprint/data/ directory
 
-		@param directory_blueprint:
+		@param directory_blueprint: output directory path
 		@type directory_blueprint: str
-		@param blueprint_name:
+		@param blueprint_name: name of blueprint
 		@type blueprint_name: str
 		"""
 		directory_data = os.path.join(directory_blueprint, "DATA")
@@ -78,7 +88,7 @@ class Smd(DefaultLogging, BlueprintUtils):
 
 	def get_region_position_of_position(self, position):
 		"""
-		Return the position of a segment a position belongs to.
+		Return the position of a region a position belongs to.
 
 		@param position: Any global position like that of a block
 		@type position: int, int, int
@@ -90,7 +100,7 @@ class Smd(DefaultLogging, BlueprintUtils):
 
 	def _get_region_position_of(self, value):
 		"""
-		Return the segment coordinate
+		Return the region coordinate
 
 		@param value: any x or y or z coordinate
 		@param value: int
@@ -107,7 +117,9 @@ class Smd(DefaultLogging, BlueprintUtils):
 
 	def get_number_of_blocks(self):
 		"""
+		Get number of blocks of this region
 
+		@return: number of blocks in segment
 		@rtype: int
 		"""
 		number_of_blocks = 0
@@ -118,8 +130,9 @@ class Smd(DefaultLogging, BlueprintUtils):
 
 	def update(self, entity_type=0):
 		"""
+		Remove invalid/outdated blocks and exchange docking modules with rails
 
-		@param entity_type:
+		@param entity_type: ship=0/station=2/etc
 		@type entity_type: int
 		"""
 		for position_region in self.position_to_region.keys():
@@ -129,6 +142,9 @@ class Smd(DefaultLogging, BlueprintUtils):
 		self._remove_empty_regions()
 
 	def _remove_empty_regions(self):
+		"""
+		Search for and remove regions with no blocks
+		"""
 		list_of_position_region = self.position_to_region.keys()
 		for position_region in list_of_position_region:
 			if self.position_to_region[position_region].get_number_of_blocks() == 0:
@@ -137,22 +153,24 @@ class Smd(DefaultLogging, BlueprintUtils):
 
 	def remove_block(self, block_position):
 		"""
+		Remove Block at specific position.
 
-		@param block_position:
-		@type block_position: tuple(int,int,int)
+		@param block_position: x,z,y position of a block
+		@type block_position: int,int,int
 		"""
 		assert isinstance(block_position, tuple), block_position
 		position_region = self.get_region_position_of_position(block_position)
 		assert position_region in self.position_to_region, block_position
 		self.position_to_region[position_region].remove_block(block_position)
 
-	def add(self, block_position, block_data):
+	def add(self, block_position, block):
 		"""
+		Add a block to the segment based on its global position
 
-		@param block_position:
-		@type block_position: tuple(int,int,int)
-		@param block_data:
-		@type block_data: SmdBlock
+		@param block_position: x,y,z position of block
+		@type block_position: int,int,int
+		@param block: A block! :)
+		@type block: SmdBlock
 		"""
 		assert isinstance(block_position, tuple)
 		position_region = self.get_region_position_of_position(block_position)
@@ -161,13 +179,18 @@ class Smd(DefaultLogging, BlueprintUtils):
 				logfile=self._logfile,
 				verbose=self._verbose,
 				debug=self._debug)
-		self.position_to_region[position_region].add(block_position, block_data)
+		self.position_to_region[position_region].add(block_position, block)
 
 	def search(self, block_id):
 		"""
+		Search and return the global position of the first occurrence of a block
+		If no block is found, return None
 
-		@param block_id:
+		@param block_id: Block id as found in utils class
 		@type block_id: int
+
+		@return: None or (x,y,z)
+		@rtype: None | int,int,int
 		"""
 		for position, region in self.position_to_region.iteritems():
 			block_position = region.search(block_id)
@@ -177,7 +200,9 @@ class Smd(DefaultLogging, BlueprintUtils):
 
 	def get_block_id_to_quantity(self):
 		"""
+		Return the quantity of each block type
 
+		@return: dictionary of block id to the quantity of that block type
 		@rtype: dict[int, int]
 		"""
 		block_id_to_quantity = {}
@@ -189,8 +214,10 @@ class Smd(DefaultLogging, BlueprintUtils):
 
 	def iteritems(self):
 		"""
+		Iterate over each block and its global position, not the position within the segment
 
-		@rtype: tuple(tuple[int,int,int], SmdBlock)
+		@return: (x,y,z), block
+		@rtype: tuple[int,int,int], SmdBlock
 		"""
 		for position_region, region in self.position_to_region.iteritems():
 			assert isinstance(region, SmdRegion), type(region)
@@ -200,11 +227,13 @@ class Smd(DefaultLogging, BlueprintUtils):
 
 	def move_center(self, direction_vector):
 		"""
+		Move center (core) in a specific direction
 
-		@param direction_vector:
-		@type direction_vector: tuple[int,int,int]
+		@param direction_vector: (x,y,z)
+		@type direction_vector: int,int,int
 
-		@rtype: tuple[tuple[int,int,int],tuple[int,int,int]]
+		@return: new minimum and maximum coordinates of the blueprint
+		@rtype: tuple[int,int,int], tuple[int,int,int]
 		"""
 		new_smd = Smd()
 		min_vector = [16, 16, 16]
@@ -227,8 +256,10 @@ class Smd(DefaultLogging, BlueprintUtils):
 
 	def get_min_max_vector(self):
 		"""
+		Get the minimum and maximum coordinates of the blueprint
 
-		@rtype: tuple[tuple[int,int,int],tuple[int,int,int]]
+		@return: Minimum(x,y,z), Maximum(x,y,z)
+		@rtype: tuple[int,int,int], tuple[int,int,int]
 		"""
 		min_vector = [16, 16, 16]
 		max_vector = [16, 16, 16]
@@ -243,7 +274,9 @@ class Smd(DefaultLogging, BlueprintUtils):
 
 	def set_type(self, entity_type):
 		"""
+		Change entity type of blueprint
 		0: "Ship",
+		2: "Station",
 
 		@param entity_type:
 		@type entity_type: int
@@ -268,10 +301,11 @@ class Smd(DefaultLogging, BlueprintUtils):
 
 	def to_stream(self, output_stream=sys.stdout, summary=True):
 		"""
+		Stream smd values
 
-		@param output_stream:
+		@param output_stream: Output stream
 		@type output_stream: fileIO
-		@param summary:
+		@param summary: If true the output is reduced
 		@type summary: bool
 		"""
 		output_stream.write("####\nSMD\n####\n\n")
