@@ -316,7 +316,7 @@ class SmdRegion(DefaultLogging, BlueprintUtils, BitAndBytes):
 
 	def search(self, block_id):
 		"""
-		Search and return the global position of the first occurance of a block
+		Search and return the global position of the first occurrence of a block
 		If no block is found, return None
 
 		@param block_id: Block id as found in utils class
