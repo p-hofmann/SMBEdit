@@ -23,7 +23,7 @@ class Header(BlueprintUtils, BitAndBytes):
 		self.box_max = [0., 0., 0.]
 		self.block_id_to_quantity = {}
 		# unknown = None
-		self.tail_data = None  # unknown data at the end of header file
+		self.tail_data = ""  # unknown data at the end of header file
 		return
 
 	# #######################################
