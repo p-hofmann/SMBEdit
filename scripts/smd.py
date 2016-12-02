@@ -2,6 +2,7 @@ __author__ = 'Peter Hofmann'
 
 import sys
 import os
+import math
 from scripts.loggingwrapper import DefaultLogging
 from blueprintutils import BlueprintUtils
 from smd3.smdregion import SmdRegion
@@ -14,19 +15,16 @@ class Smd(DefaultLogging, BlueprintUtils):
 	# ###  smd
 	# #######################################
 
-	# 	_ext_to_segment = {
-	# 		".smd2": Smd2Segment,
-	# 		".smd3": Smd3Segment
-	# 	}
-
-	_label = "Smd"
-	_file_name_prefix = ""
-
-	def __init__(self, logfile=None, verbose=False, debug=False):
+	def __init__(
+		self, segments_in_a_line_of_a_region=16, blocks_in_a_line_of_a_segment=32, logfile=None, verbose=False, debug=False):
+		self._label = "Smd"
 		super(Smd, self).__init__(
 			logfile=logfile,
 			verbose=verbose,
 			debug=debug)
+		self._blocks_in_a_line_in_a_segment = blocks_in_a_line_of_a_segment
+		self._segments_in_a_line_of_a_region = segments_in_a_line_of_a_region
+		self._file_name_prefix = ""
 		self.position_to_region = {}
 		return
 
@@ -73,6 +71,35 @@ class Smd(DefaultLogging, BlueprintUtils):
 			file_name = blueprint_name + "." + ".".join(map(str, position)) + ".smd3"
 			file_path = os.path.join(directory_data, file_name)
 			region.write(file_path)
+
+	# #######################################
+	# ###  Index and positions
+	# #######################################
+
+	def get_region_position_of_position(self, position):
+		"""
+		Return the position of a segment a position belongs to.
+
+		@param position: Any global position like that of a block
+		@type position: int, int, int
+
+		@return:
+		@rtype: int, int, int
+		"""
+		return self._get_region_position_of(position[0]), self._get_region_position_of(position[1]), self._get_region_position_of(position[2])
+
+	def _get_region_position_of(self, value):
+		"""
+		Return the segment coordinate
+
+		@param value: any x or y or z coordinate
+		@param value: int
+
+		@return: segment x or y or z coordinate
+		@rtype: int
+		"""
+		blocks_in_a_line_in_a_region = self._blocks_in_a_line_in_a_segment * self._segments_in_a_line_of_a_region
+		return int(math.floor((value+blocks_in_a_line_in_a_region/2) / float(blocks_in_a_line_in_a_region)))
 
 	# #######################################
 	# ###  Else
