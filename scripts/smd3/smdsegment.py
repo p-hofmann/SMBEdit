@@ -10,9 +10,15 @@ from smdblock import SmdBlock
 
 
 class SmdSegment(DefaultLogging, BlueprintUtils, BitAndBytes):
+	"""
+	Each segment represents an area the size of 32 x 32 x 32 (smd3) and contains 32768 blocks
+	A Segment position is the lowest coordinate of an area.
+	The Position coordinates are always a multiple of 32, like (32, 0, 128)
+	The core, or center of a blueprint is (16,16,16) and the position of its segment is (0,0,0)
+	"""
 
-	def __init__(self, blocks_in_a_line, logfile=None, verbose=False, debug=False):
-		self._label = "SmdSegment"
+	def __init__(self, blocks_in_a_line=32, logfile=None, verbose=False, debug=False):
+		self._label = "SmdSegment {}".format(datetime.time)
 		super(SmdSegment, self).__init__(
 			logfile=logfile,
 			verbose=verbose,
@@ -26,29 +32,6 @@ class SmdSegment(DefaultLogging, BlueprintUtils, BitAndBytes):
 		self.has_valid_data = 0
 		self.compressed_size = 0
 		self.block_index_to_block = {}
-
-	def read(self, input_stream):
-		return
-
-	def to_stream(self, output_stream=sys.stdout, summary=False):
-		return
-
-
-class Smd3Segment(SmdSegment):
-	"""
-	Each segment represents an area the size of 32 x 32 x 32 (smd3) and contains 32768 blocks
-	A Segment position is the lowest coordinate of an area.
-	The Position coordinates are always a multiple of 32, like (32, 0, 128)
-	The core, or center of a blueprint is (16,16,16) and the position of its segment is (0,0,0)
-	"""
-
-	def __init__(self, logfile=None, verbose=False, debug=False):
-		self._label = "Smd3Segment {}".format(datetime.time)
-		super(Smd3Segment, self).__init__(
-			32,
-			logfile=logfile,
-			verbose=verbose,
-			debug=debug)
 
 	# #######################################
 	# ###  Read
