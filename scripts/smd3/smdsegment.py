@@ -110,26 +110,8 @@ class SmdSegment(DefaultLogging, BlueprintUtils, BitAndBytes):
 		output_stream.write("\0")
 
 	# #######################################
-	# ###  Else
+	# ###  Index and positions
 	# #######################################
-
-	def set_position(self, segment_position):
-		"""
-		Set position of segment
-
-		@param segment_position: x,y,z position of segment
-		@type segment_position: int, int, int
-		"""
-		self.position = segment_position
-
-	def get_number_of_blocks(self):
-		"""
-		Get number of blocks of this segment
-
-		@return: number of blocks in segment
-		@rtype: int
-		"""
-		return len(self.block_index_to_block)
 
 	def get_block_position_by_block_index(self, block_index):
 		"""
@@ -164,6 +146,28 @@ class SmdSegment(DefaultLogging, BlueprintUtils, BitAndBytes):
 			(position[0] % self._blocks_in_a_line) + \
 			(position[1] % self._blocks_in_a_line) * self._blocks_in_a_line + \
 			(position[2] % self._blocks_in_a_line) * self._blocks_in_an_area
+
+	# #######################################
+	# ###  Else
+	# #######################################
+
+	def set_position(self, segment_position):
+		"""
+		Set position of segment
+
+		@param segment_position: x,y,z position of segment
+		@type segment_position: int, int, int
+		"""
+		self.position = segment_position
+
+	def get_number_of_blocks(self):
+		"""
+		Get number of blocks of this segment
+
+		@return: number of blocks in segment
+		@rtype: int
+		"""
+		return len(self.block_index_to_block)
 
 	def update(self, entity_type=0):
 		"""
