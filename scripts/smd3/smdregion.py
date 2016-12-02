@@ -345,7 +345,7 @@ class SmdRegion(DefaultLogging, BlueprintUtils, BitAndBytes):
 
 	def to_stream(self, output_stream=sys.stdout, summary=True):
 		"""
-		Stream segment values
+		Stream region values
 
 		@param output_stream: Output stream
 		@type output_stream: fileIO
