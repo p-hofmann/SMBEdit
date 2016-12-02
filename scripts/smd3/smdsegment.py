@@ -118,7 +118,7 @@ class SmdSegment(DefaultLogging, BlueprintUtils, BitAndBytes):
 		Set position of segment
 
 		@param segment_position: x,y,z position of segment
-		@type segment_position: tuple[int,int,int]
+		@type segment_position: int, int, int
 		"""
 		self.position = segment_position
 
@@ -139,7 +139,7 @@ class SmdSegment(DefaultLogging, BlueprintUtils, BitAndBytes):
 		@ptype block_index: int
 
 		@return: (x,y,z), a global position
-		@rtype: tuple[int,int,int]
+		@rtype: int, int, int
 		"""
 		# block size z 1024
 		# block size y 32
@@ -154,17 +154,16 @@ class SmdSegment(DefaultLogging, BlueprintUtils, BitAndBytes):
 		Get block index of position in this segment
 
 		@param position: x,y,z position of block
-		@type position: tuple[int,int,int]
+		@type position: int, int, int
 
 		@return: index of block of this segment 0:32767
 		@rtype: int
 		"""
-		# max_blocks 32768
-		# block size z 1024
-		# block size y 32
 		assert isinstance(position, (list, tuple))
-		# return (position[0] + self._blocksize_y*position[1] + self._blocksize_z*position[2]) % self._max_blocks
-		return (position[0] % self._blocks_in_a_line) + self._blocks_in_a_line*(position[1] % self._blocks_in_a_line) + self._blocks_in_an_area*(position[2] % self._blocks_in_a_line)
+		return \
+			(position[0] % self._blocks_in_a_line) + \
+			(position[1] % self._blocks_in_a_line) * self._blocks_in_a_line + \
+			(position[2] % self._blocks_in_a_line) * self._blocks_in_an_area
 
 	def update(self, entity_type=0):
 		"""
@@ -193,7 +192,7 @@ class SmdSegment(DefaultLogging, BlueprintUtils, BitAndBytes):
 		Remove Block at specific position.
 
 		@param block_position: x,z,y position of a block
-		@type block_position: tuple[int,int,int]
+		@type block_position: int,int,int
 		"""
 		assert isinstance(block_position, tuple)
 		block_index = self.get_block_index_by_block_position(block_position)
@@ -227,7 +226,7 @@ class SmdSegment(DefaultLogging, BlueprintUtils, BitAndBytes):
 		@type block_id: int
 
 		@return: None or (x,y,z)
-		@rtype: None | tuple[int,int,int]
+		@rtype: None | int,int,int
 		"""
 		for block_index, block in self.block_index_to_block.iteritems():
 			if block.get_id() == block_id:
@@ -239,7 +238,7 @@ class SmdSegment(DefaultLogging, BlueprintUtils, BitAndBytes):
 		Iterate over each block and its global position, not the position within the segment
 
 		@return: (x,y,z), block
-		@rtype: tuple[tuple[int,int,int], SmdBlock]
+		@rtype: generator(tuple[int,int,int], SmdBlock)
 		"""
 		for block_index, block in self.block_index_to_block.iteritems():
 			yield self.get_block_position_by_block_index(block_index), block
