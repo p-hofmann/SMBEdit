@@ -11,6 +11,83 @@ from smd import Smd
 # ###  HEADER smbph
 # #######################################
 
+
+class Statistics(BitAndBytes):
+
+	def __init__(self):
+		super(Statistics, self).__init__()
+		self.has_statistics = 0
+		self.version = 0
+		self.offensive0 = 0.
+		self.defensive = 0.
+		self.power = 0.
+		self.mobility = 0.
+		self.danger = 0.
+		self.survivability = 0.
+		self.offensive1 = 0.
+		self.support = 0
+
+	def read_statistics(self, input_stream):
+		"""
+		Read statistic data from a byte stream
+
+		@param input_stream: input stream
+		@type input_stream: fileIO
+		"""
+		self.has_statistics = self._read_char(input_stream)
+		if self.has_statistics == 0:
+			return
+		self.version = self._read_short_int_unassigned(input_stream)
+		self.offensive0 = self._read_double(input_stream)
+		self.defensive = self._read_double(input_stream)
+		self.power = self._read_double(input_stream)
+		self.mobility = self._read_double(input_stream)
+		self.danger = self._read_double(input_stream)
+		self.survivability = self._read_double(input_stream)
+		self.offensive1 = self._read_double(input_stream)
+		self.support = self._read_double(input_stream)
+
+	def write_statistics(self, output_stream):
+		"""
+		Write statistic data to a byte stream
+
+		@param output_stream: input stream
+		@type output_stream: fileIO
+		"""
+		self._write_char(self.has_statistics, output_stream)
+		if self.has_statistics == 0:
+			return
+		self._write_short_int_unassigned(self.version, output_stream)
+		self._write_double(self.offensive0, output_stream)
+		self._write_double(self.defensive, output_stream)
+		self._write_double(self.power, output_stream)
+		self._write_double(self.mobility, output_stream)
+		self._write_double(self.danger, output_stream)
+		self._write_double(self.survivability, output_stream)
+		self._write_double(self.offensive1, output_stream)
+		self._write_double(self.support, output_stream)
+
+	def to_stream(self, output_stream):
+		"""
+		Write statistic values to a stream
+
+		@param output_stream: input stream
+		@type output_stream: fileIO
+		"""
+		if self.has_statistics == 0:
+			return
+		output_stream.write("Version: {}\n".format(self.version))
+		output_stream.write("Offensive0: {}\n".format(self.offensive0))
+		output_stream.write("Offensive1: {}\n".format(self.offensive1))
+		output_stream.write("Defensive: {}\n".format(self.defensive))
+		output_stream.write("Power: {}\n".format(self.power))
+		output_stream.write("Mobility: {}\n".format(self.mobility))
+		output_stream.write("Danger: {}\n".format(self.danger))
+		output_stream.write("Survivability: {}\n".format(self.survivability))
+		output_stream.write("Support: {}\n".format(self.support))
+		output_stream.write("\n")
+
+
 class Header(BlueprintUtils, BitAndBytes):
 
 	_file_name = "header.smbph"
@@ -22,8 +99,7 @@ class Header(BlueprintUtils, BitAndBytes):
 		self.box_min = [0., 0., 0.]
 		self.box_max = [0., 0., 0.]
 		self.block_id_to_quantity = {}
-		# unknown = None
-		self.tail_data = ""  # unknown data at the end of header file
+		self.statistics = Statistics()
 		return
 
 	# #######################################
@@ -60,7 +136,8 @@ class Header(BlueprintUtils, BitAndBytes):
 			identifier = self._read_short_int_unassigned(input_stream)
 			quantity = self._read_int_unassigned(input_stream)
 			self.block_id_to_quantity[identifier] = quantity
-		self.tail_data = input_stream.read()
+
+		self.statistics.read_statistics(input_stream)
 
 	# #######################################
 	# ###  Write
@@ -95,7 +172,8 @@ class Header(BlueprintUtils, BitAndBytes):
 		for identifier, quantity in self.block_id_to_quantity.iteritems():
 			self._write_short_int_unassigned(identifier, output_stream)
 			self._write_int_unassigned(quantity, output_stream)
-		output_stream.write(self.tail_data)
+
+		self.statistics.write_statistics(output_stream)
 
 	# #######################################
 	# ###  Else
@@ -270,4 +348,5 @@ class Header(BlueprintUtils, BitAndBytes):
 			output_stream.write("{}: {}\n".format(self.get_block_name_by_id(identifier), quantity))
 		# stream.write("{}\n".format(self.unknown))
 		output_stream.write("\n")
+		self.statistics.to_stream(output_stream)
 		output_stream.flush()
