@@ -113,6 +113,15 @@ class SmdSegment(DefaultLogging, BlueprintUtils, BitAndBytes):
 	# ###  Else
 	# #######################################
 
+	def set_position(self, segment_position):
+		"""
+		Set position of segment
+
+		@param segment_position: x,y,z position of segment
+		@type segment_position: tuple[int,int,int]
+		"""
+		self.position = segment_position
+
 	def get_number_of_blocks(self):
 		"""
 		Get number of blocks of this segment
@@ -205,8 +214,6 @@ class SmdSegment(DefaultLogging, BlueprintUtils, BitAndBytes):
 		@type block: SmdBlock
 		"""
 		assert isinstance(block, SmdBlock)
-		if self.position is None:
-			self.position = self.get_segment_position_of_position(block_position)
 		block_index = self.get_block_index_by_block_position(block_position)
 		self.block_index_to_block[block_index] = block
 		self.has_valid_data = 1
