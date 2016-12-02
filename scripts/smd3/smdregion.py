@@ -14,18 +14,24 @@ class SmdRegion(DefaultLogging, BlueprintUtils, BitAndBytes):
 	# ###  SmdRegion
 	# #######################################
 
-	_label = "SmdRegion"
+	def __init__(self, segments_in_a_line=16, logfile=None, verbose=False, debug=False):
+		"""
+		Constructor
 
-	# _file_name = "Defence_Platform_Missiles.0.0.0.smd3"
-	def __init__(self, logfile=None, verbose=False, debug=False):
+		@param segments_in_a_line: The number of segments that fit beside each other within a region
+		@type segments_in_a_line: int
+		"""
+		self._label = "SmdRegion"
 		super(SmdRegion, self).__init__(
 			logfile=logfile,
 			verbose=verbose,
 			debug=debug)
+		self._segments_in_a_line = segments_in_a_line  # 16
+		self._segments_in_an_area = self._segments_in_a_line * self._segments_in_a_line  # 256
+		self._segments_in_a_cube = self._segments_in_an_area * self._segments_in_a_line  # 4096
 		self.version = 33554432
 		self.position_to_segment = {}
-		self.tail_data = ""
-		return
+		# self.tail_data = ""
 
 	# #######################################
 	# ###  Read
@@ -33,6 +39,13 @@ class SmdRegion(DefaultLogging, BlueprintUtils, BitAndBytes):
 
 	def _read_segment_index(self, input_stream):
 		"""
+		Read a segment index from a byte stream
+		The identifier is used to tell where in the file a segment is found.
+		An identifier = 1 points to the first segment in the file and so on.
+		segment position in file 	= (region header size) + (identifier - 1) * (segment data size)
+									= (4+4096*4) + (identifier-1) * 49152
+
+		The size is the actual size of the segment data, header (26 bytes) + size of compressed block data
 
 		@param input_stream:
 		@type input_stream: file
@@ -45,8 +58,10 @@ class SmdRegion(DefaultLogging, BlueprintUtils, BitAndBytes):
 
 	def _read_region_header(self, input_stream):
 		"""
+		Read region header to a byte stream
+		The index of a segment is the linear representation of the location of a segment within a region.
 
-		@param input_stream:
+		@param input_stream: input stream
 		@type input_stream: fileIO
 
 		@rtype: int
@@ -54,7 +69,7 @@ class SmdRegion(DefaultLogging, BlueprintUtils, BitAndBytes):
 		self.version = self._read_int_unassigned(input_stream)
 		# for _ in range(0, 16*16*16):
 		number_of_segments = 0
-		for index in range(0, 4096):
+		for index in range(0, self._segments_in_a_cube):
 			identifier, size = self._read_segment_index(input_stream)
 			# assert identifier == 0, index
 			if identifier > 0:
@@ -63,8 +78,9 @@ class SmdRegion(DefaultLogging, BlueprintUtils, BitAndBytes):
 
 	def _read_file(self, input_stream):
 		"""
+		Read region data from a byte stream
 
-		@param input_stream:
+		@param input_stream: input stream
 		@type input_stream: fileIO
 		"""
 		number_of_segments = self._read_region_header(input_stream)
@@ -77,12 +93,13 @@ class SmdRegion(DefaultLogging, BlueprintUtils, BitAndBytes):
 			if segment.has_valid_data == 0:
 				continue
 			self.position_to_segment[tuple(segment.position)] = segment
-		self.tail_data = input_stream.read()
+		# self.tail_data = input_stream.read()
 
 	def read(self, file_path):
 		"""
+		Read region data from a file
 
-		@param file_path:
+		@param file_path: region file path
 		@type file_path: str
 		"""
 		# print file_path
@@ -96,12 +113,19 @@ class SmdRegion(DefaultLogging, BlueprintUtils, BitAndBytes):
 
 	def _write_segment_index(self, identifier, size, output_stream):
 		"""
+		Write a segment index to a byte stream
+		The identifier is used to tell where in the file a segment is found.
+		An identifier = 1 points to the first segment in the file and so on.
+		segment position in file 	= (region header size) + (identifier - 1) * (segment data size)
+									= 16388 + (identifier-1) * 49152
 
-		@param identifier:
+		The size is the actual size of the segment data, header (26 bytes) + size of compressed block data
+
+		@param identifier: segment position indicator within file
 		@type identifier: int
-		@param size:
+		@param size: actual size of segment data
 		@type size: int
-		@param output_stream:
+		@param output_stream: output stream
 		@type output_stream: fileIO
 		"""
 		self._write_short_int_unassigned(identifier, output_stream)
@@ -109,11 +133,16 @@ class SmdRegion(DefaultLogging, BlueprintUtils, BitAndBytes):
 
 	def _write_region_header(self, output_stream):
 		"""
+		Write region header to a byte stream
+		The index of a segment is the linear representation of the location of a segment within a region.
 
-		@param output_stream:
+		@param output_stream: output stream
 		@type output_stream: fileIO
 		"""
+		# Version
 		self._write_int_unassigned(self.version, output_stream)
+
+		# segment index
 		segment_header_size = 26
 		# for _ in range(0, 16*16*16):
 		segment_index_to_size = dict()
@@ -121,10 +150,8 @@ class SmdRegion(DefaultLogging, BlueprintUtils, BitAndBytes):
 			segment_index = self.get_segment_index_by_position(position)
 			segment_index_to_size[segment_index] = self.position_to_segment[position].compressed_size + segment_header_size
 
-		# print len(segment_index_to_size), len(self.position_to_segment)
-
 		seg_id = 0
-		for segment_index in range(0, 4096):
+		for segment_index in range(0, self._segments_in_a_cube):
 			if segment_index not in segment_index_to_size:
 				self._write_segment_index(0, 0, output_stream)
 				continue
@@ -133,11 +160,12 @@ class SmdRegion(DefaultLogging, BlueprintUtils, BitAndBytes):
 
 	def _write_file(self, output_stream):
 		"""
+		Write region data to a byte stream
 
-		@param output_stream:
+		@param output_stream: output stream
 		@type output_stream: fileIO
 		"""
-		output_stream.seek(4+4096*4)  # skip header
+		output_stream.seek(4+self._segments_in_a_cube*4)  # skip header: version(4byte) + 4096 segment index (4 byte)
 		for position in sorted(self.position_to_segment.keys(), key=lambda tup: (tup[2], tup[1], tup[0])):
 			segment = self.position_to_segment[position]
 			assert isinstance(segment, Smd3Segment)
@@ -147,8 +175,9 @@ class SmdRegion(DefaultLogging, BlueprintUtils, BitAndBytes):
 
 	def write(self, file_path):
 		"""
+		Write region data to a file
 
-		@param file_path:
+		@param file_path: region file path
 		@type file_path: str
 		"""
 		# print file_path
@@ -161,7 +190,9 @@ class SmdRegion(DefaultLogging, BlueprintUtils, BitAndBytes):
 
 	def get_number_of_blocks(self):
 		"""
+		Get number of blocks of this region
 
+		@return: number of blocks in segment
 		@rtype: int
 		"""
 		number_of_blocks = 0
@@ -172,8 +203,9 @@ class SmdRegion(DefaultLogging, BlueprintUtils, BitAndBytes):
 
 	def update(self, entity_type=0):
 		"""
+		Remove invalid/outdated blocks and exchange docking modules with rails
 
-		@param entity_type:
+		@param entity_type: ship=0/station=2/etc
 		@type entity_type: int
 		"""
 		list_of_position_segment = self.position_to_segment.keys()
@@ -182,6 +214,9 @@ class SmdRegion(DefaultLogging, BlueprintUtils, BitAndBytes):
 		self._remove_empty_segments()
 
 	def _remove_empty_segments(self):
+		"""
+		Search for and remove segments with no blocks
+		"""
 		list_of_positions = self.position_to_segment.keys()
 		for position_segment in list_of_positions:
 			if self.position_to_segment[position_segment].get_number_of_blocks() == 0:
@@ -193,8 +228,9 @@ class SmdRegion(DefaultLogging, BlueprintUtils, BitAndBytes):
 
 	def remove_block(self, block_position):
 		"""
+		Remove Block at specific position.
 
-		@param block_position:
+		@param block_position: x,z,y position of a block
 		@type block_position: tuple[int,int,int]
 		"""
 		assert isinstance(block_position, tuple), block_position
@@ -204,11 +240,12 @@ class SmdRegion(DefaultLogging, BlueprintUtils, BitAndBytes):
 
 	def add(self, block_position, block):
 		"""
+		Add a block to the segment based on its global position
 
-		@param block_position:
+		@param block_position: x,y,z position of block
 		@type block_position: tuple[int,int,int]
-		@param block:
-		@type block_position: SmdBlock
+		@param block: A block! :)
+		@type block: SmdBlock
 		"""
 		assert isinstance(block, SmdBlock)
 		position_segment = self.get_segment_position_of_position(block_position)
@@ -222,9 +259,14 @@ class SmdRegion(DefaultLogging, BlueprintUtils, BitAndBytes):
 
 	def search(self, block_id):
 		"""
+		Search and return the global position of the first occurance of a block
+		If no block is found, return None
 
-		@param block_id:
+		@param block_id: Block id as found in utils class
 		@type block_id: int
+
+		@return: None or (x,y,z)
+		@rtype: None | tuple[int,int,int]
 		"""
 		for position, segment in self.position_to_segment.iteritems():
 			block_position = segment.search(block_id)
@@ -234,7 +276,9 @@ class SmdRegion(DefaultLogging, BlueprintUtils, BitAndBytes):
 
 	def iteritems(self):
 		"""
+		Iterate over each block and its global position, not the position within the segment
 
+		@return: (x,y,z), block
 		@rtype: generator(tuple[tuple[int,int,int], SmdBlock])
 		"""
 		for position_segment, segment in self.position_to_segment.iteritems():
@@ -243,10 +287,18 @@ class SmdRegion(DefaultLogging, BlueprintUtils, BitAndBytes):
 				yield position_block, block
 
 	def to_stream(self, output_stream=sys.stdout, summary=True):
+		"""
+		Stream segment values
+
+		@param output_stream: Output stream
+		@type output_stream: fileIO
+		@param summary: If true the output is reduced
+		@type summary: bool
+		"""
 		output_stream.write("Version: {}\n".format(self.version))
 		# output_stream.write("Segments: {}\n{}\n".format(len(self._segment_to_size), sorted(self._segment_to_size.keys())))
 		output_stream.write("Segments: {}\n".format(len(self.position_to_segment)))
-		output_stream.write("Tail: {} bytes\n\n".format(len(self.tail_data)))
+		# output_stream.write("Tail: {} bytes\n\n".format(len(self.tail_data)))
 		if self._debug:
 			for position in sorted(self.position_to_segment.keys(), key=lambda tup: (tup[2], tup[1], tup[0])):
 				self.position_to_segment[position].to_stream(output_stream, summary)
