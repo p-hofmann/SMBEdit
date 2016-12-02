@@ -212,7 +212,7 @@ class SmdSegment(DefaultLogging, BlueprintUtils, BitAndBytes):
 		Add a block to the segment based on its global position
 
 		@param block_position: x,y,z position of block
-		@type block_position: tuple[int,int,int]
+		@type block_position: int,int,int
 		@param block: A block! :)
 		@type block: SmdBlock
 		"""
