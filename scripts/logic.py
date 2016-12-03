@@ -235,7 +235,7 @@ class Logic(BlueprintUtils):
 			if len(self.controller_position_to_block_id_to_block_positions[controller_position]) == 0:
 				self.controller_position_to_block_id_to_block_positions.pop(controller_position)
 
-	def set_type(self, entity_type, smd):
+	def set_type(self, entity_type):
 		"""
 		Change entity type
 		0: "Ship",
@@ -247,7 +247,6 @@ class Logic(BlueprintUtils):
 		assert isinstance(entity_type, (int, long))
 		assert 0 <= entity_type <= 4
 
-		self.update(smd)
 		position_core = (16, 16, 16)
 		if entity_type == 0:
 			return

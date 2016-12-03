@@ -111,17 +111,18 @@ class Blueprint(DefaultLogging, BlueprintUtils):
 		@type entity_type: int
 		"""
 		assert isinstance(entity_type, (int, long))
-		self.header.set_type(entity_type)
-		self.logic.set_type(entity_type)
 		self.smd3.set_type(entity_type)
+		self.logic.set_type(entity_type)
+		self.header.set_type(entity_type)
+		self.update()
 
 	def update(self):
 		"""
 		Remove invalid/outdated blocks and exchange docking modules with rails
 		"""
 		entity_type = self.header.type
-		self.logic.update()
 		self.smd3.update(entity_type)
+		self.logic.update(self.smd3)
 		self.header.update(self.smd3)
 
 	def move_center_by_vector(self, direction_vector):
