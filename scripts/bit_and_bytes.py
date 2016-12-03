@@ -79,8 +79,10 @@ class ByteStream(object):
 		byte_string = self.pack(value, data_type)
 		if not padded:
 			self._bytestream.write(byte_string)
+			return
 		if self._byte_order == '>' or self._byte_order == '!':
 			self._bytestream.write(byte_string[1:])
+			return
 		self._bytestream.write(byte_string[:-1])  # todo: check if this is right
 
 	def unpack(self, byte_string, data_type):
