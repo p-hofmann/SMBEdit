@@ -265,7 +265,7 @@ class Header(BlueprintUtils):
 			self.block_id_to_quantity[block_id] = 0
 		self.block_id_to_quantity[block_id] += quantity
 
-	def set_type(self, entity_type):
+	def set_type(self, entity_type, smd=None):
 		"""
 		Change entity type of header
 		0: "Ship",
@@ -283,7 +283,7 @@ class Header(BlueprintUtils):
 			self.remove(block_id_core)
 		elif block_id_core not in self.block_id_to_quantity:
 			self.add(block_id_core, 1)
-		self.update()
+		self.update(smd)
 
 	def set_quantities(self, block_id_to_quantity):
 		"""
