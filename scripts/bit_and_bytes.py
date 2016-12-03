@@ -107,6 +107,9 @@ class ByteStream(object):
 	# ###  Reading bytes
 	# #######################################
 
+	def read(self):
+		return self._bytestream.read()
+
 	def read_bool(self):
 		return self._unpack(1, '?')
 
@@ -199,6 +202,9 @@ class ByteStream(object):
 	# #######################################
 	# ###  Writing bytes
 	# #######################################
+
+	def write(self, value):
+		self._bytestream.write(value)
 
 	def write_bool(self, value):
 		self._pack(value, '?')
