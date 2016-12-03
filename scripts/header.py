@@ -35,7 +35,7 @@ class Statistics(object):
 		@type input_stream: ByteStream
 		"""
 		self.has_statistics = input_stream.read_bool()
-		if self.has_statistics:
+		if not self.has_statistics:
 			return
 		self.version = input_stream.read_int16_unassigned()
 		self.offensive0 = input_stream.read_double()
@@ -55,7 +55,7 @@ class Statistics(object):
 		@type output_stream: ByteStream
 		"""
 		output_stream.write_bool(self.has_statistics)
-		if self.has_statistics:
+		if not self.has_statistics:
 			return
 		output_stream.write_int16_unassigned(self.version)
 		output_stream.write_double(self.offensive0)
@@ -74,7 +74,7 @@ class Statistics(object):
 		@param output_stream: input stream
 		@type output_stream: fileIO
 		"""
-		if self.has_statistics:
+		if not self.has_statistics:
 			return
 		output_stream.write("Version: {}\n".format(self.version))
 		output_stream.write("Offensive0: {}\n".format(self.offensive0))
