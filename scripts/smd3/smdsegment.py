@@ -272,6 +272,19 @@ class SmdSegment(DefaultLogging, BlueprintUtils):
 				return self.get_block_position_by_block_index(block_index)
 		return None
 
+	def has_block_at_position(self, position):
+		"""
+		Returns true if a block exists at a position
+
+		@param position: (x,y,z)
+		@type position: int,int,int
+
+		@return:
+		@rtype: bool
+		"""
+		block_index = self.get_block_index_by_block_position(position)
+		return block_index in self.block_index_to_block
+
 	def iteritems(self):
 		"""
 		Iterate over each block and its global position, not the position within the segment
