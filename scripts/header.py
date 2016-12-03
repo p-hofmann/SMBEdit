@@ -16,7 +16,7 @@ class Statistics(object):
 
 	def __init__(self):
 		super(Statistics, self).__init__()
-		self.has_statistics = 0
+		self.has_statistics = False
 		self.version = 0
 		self.offensive0 = 0.
 		self.defensive = 0.
@@ -74,7 +74,7 @@ class Statistics(object):
 		@param output_stream: input stream
 		@type output_stream: fileIO
 		"""
-		if self.has_statistics == 0:
+		if self.has_statistics:
 			return
 		output_stream.write("Version: {}\n".format(self.version))
 		output_stream.write("Offensive0: {}\n".format(self.offensive0))
