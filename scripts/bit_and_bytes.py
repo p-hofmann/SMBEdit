@@ -43,6 +43,7 @@ class ByteStream(object):
 		@param byte_order:
 		@type byte_order: str
 		"""
+		assert isinstance(bytestream, file)
 		self._bytestream = bytestream
 		self._byte_order = byte_order
 		return
@@ -107,8 +108,8 @@ class ByteStream(object):
 	# ###  Reading bytes
 	# #######################################
 
-	def read(self):
-		return self._bytestream.read()
+	def read(self, size=None):
+		return self._bytestream.read(size)
 
 	def read_bool(self):
 		return self._unpack(1, '?')
