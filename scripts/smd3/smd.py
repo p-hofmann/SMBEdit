@@ -198,6 +198,19 @@ class Smd(DefaultLogging, BlueprintUtils):
 				return block_position
 		return None
 
+	def has_block_at_position(self, position):
+		"""
+		Returns true if a block exists at a position
+
+		@param position: (x,y,z)
+		@type position: int,int,int
+
+		@return:
+		@rtype: bool
+		"""
+		region_position = self.get_region_position_of_position(position)
+		return self.position_to_region[region_position].has_block_at_position(position)
+
 	def get_block_id_to_quantity(self):
 		"""
 		Return the quantity of each block type
