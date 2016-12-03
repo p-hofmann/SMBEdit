@@ -280,6 +280,13 @@ class ByteStream(object):
 		self.write_char(values[1]),
 		self.write_char(values[2]),
 
+	# #######################################
+	# ###  Navigate bytes
+	# #######################################
+
+	def seek(self, offset, whence=None):
+		return self._bytestream.seek(offset, whence)
+
 
 class BitAndBytes(object):
 
