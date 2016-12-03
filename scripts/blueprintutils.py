@@ -1,15 +1,22 @@
 __author__ = 'Peter Hofmann'
 
 
+SHIP = 0
+SHOP = 1
+SPACE_STATION = 2
+ASTEROID = 3
+PLANET = 4
+
+
 class BlueprintUtils(object):
 
 	_entity_types = {
 		-1: "",
-		0: "Ship",
-		1: "Shop",
-		2: "Space Station",
-		3: "Asteroid",
-		4: "Planet",
+		SHIP: "Ship",
+		SHOP: "Shop",
+		SPACE_STATION: "Space Station",
+		ASTEROID: "Asteroid",
+		PLANET: "Planet",
 	}
 
 	_block_ids = dict()
@@ -561,21 +568,51 @@ class BlueprintUtils(object):
 	}
 
 	def get_block_name_by_id(self, block_id):
+		"""
+		Return block name of a block id
+
+		@param block_id:
+		@type block_id: int
+
+		@return: block name
+		@rtype: str
+		"""
 		for category_name, category_ids in self._block_ids.iteritems():
 			if block_id in category_ids:
 				return category_ids[block_id]
 		return "unknown ({})".format(block_id)
 
 	def _is_valid_block_id(self, block_id, entity_type=0):
+		"""
+		Test if an id is outdated or not valid for a specific entity type
+
+		@param block_id:
+		@type block_id: int
+		@param entity_type:
+		@type entity_type: int
+
+		@return:
+		@rtype: bool
+		"""
+		assert entity_type in self._entity_types
 		if block_id in self._block_ids["outdated"]:
 			return False
-		if entity_type == 0 and block_id in self._block_ids["station"]:
+		if entity_type == SHIP and block_id in self._block_ids["station"]:
 			return False
-		if entity_type != 0 and block_id == 1:
+		if entity_type != SHIP and block_id == 1:
 			return False
 		return True
 
 	def _is_activatable_block(self, block_id):
+		"""
+		Test if an id is of am activatable block (type 1 block)
+
+		@param block_id:
+		@type block_id: int
+
+		@return:
+		@rtype: bool
+		"""
 		assert isinstance(block_id, int)
 		activatable_block_id = {
 			# system
@@ -595,19 +632,39 @@ class BlueprintUtils(object):
 		return False
 
 	def _is_corner_block(self, block_id):
+		"""
+		Test if an id is of a corner block with 24 orientations (type 3 block)
+
+		@param block_id:
+		@type block_id: int
+
+		@return:
+		@rtype: bool
+		"""
 		assert isinstance(block_id, int)
 		if block_id not in self._block_ids["hull"]:
 			return False
 		if "corner" in self._block_ids["hull"][block_id].lower():
 			return True
-		if "tetra" in self._block_ids["hull"][block_id].lower():
-			return True
-		if "hepta" in self._block_ids["hull"][block_id].lower():
-			return True
+		# if "tetra" in self._block_ids["hull"][block_id].lower():
+		# 	return True
+		# if "hepta" in self._block_ids["hull"][block_id].lower():
+		# 	return True
 		return False
 
 	@staticmethod
 	def vector_addition(vector1, vector2):
+		"""
+		Add one vector to another
+
+		@param vector1: (x,y,z)
+		@type vector1: int, int, int
+		@param vector2: (x,y,z)
+		@type vector2: int, int, int
+
+		@return:
+		@rtype: int, int, int
+		"""
 		assert len(vector1) == len(vector2)
 		result = [0] * len(vector1)
 		for index in range(0, len(vector1)):
@@ -616,6 +673,17 @@ class BlueprintUtils(object):
 
 	@staticmethod
 	def vector_subtraction(vector1, vector2):
+		"""
+		Subtract vector2 from vector1
+
+		@param vector1: (x,y,z)
+		@type vector1: int, int, int
+		@param vector2: (x,y,z)
+		@type vector2: int, int, int
+
+		@return:
+		@rtype: int, int, int
+		"""
 		assert len(vector1) == len(vector2)
 		result = [0] * len(vector1)
 		for index in range(0, len(vector1)):
@@ -624,6 +692,17 @@ class BlueprintUtils(object):
 
 	@staticmethod
 	def vector_distance(vector1, vector2):
+		"""
+		Calculate distance between two vectors
+
+		@param vector1: (x,y,z)
+		@type vector1: int, int, int
+		@param vector2: (x,y,z)
+		@type vector2: int, int, int
+
+		@return: Distance between two vectors
+		@rtype: int
+		"""
 		assert len(vector1) == len(vector2)
 		distance = 0
 		for index in range(0, len(vector1)):
