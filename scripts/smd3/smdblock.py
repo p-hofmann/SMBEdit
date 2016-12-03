@@ -9,16 +9,16 @@ from scripts.blueprintutils import BlueprintUtils
 class SmdBlock(BitAndBytes, BlueprintUtils):
 
 	# https://starmadepedia.net/wiki/Blueprint_File_Formats#Block_Data
-	_block_type = {
-		1: (0, 11, 20, 21),
-		2: (0, 11, 20, 20),  # no active bit
-		3: (0, 11, 19, 19),  # no active bit
+	_block_type_bit_positions = {
+		1: (0, 11, 20, 21),  # logic block
+		2: (0, 11, 20, 20),  # normal block
+		3: (0, 11, 19, 19),  # corner block
 	}
 
 	def __init__(self):
 		self._label = "SmdBlock"
-		# todo: take _block_type into account
 		super(SmdBlock, self).__init__()
+		self._type = 0
 		self._id = 0
 		self._hitpoints = 0
 		self._active = 0
@@ -66,6 +66,7 @@ class SmdBlock(BitAndBytes, BlueprintUtils):
 		@type value: int
 		"""
 		self._id = value
+		self._refresh_block_type()
 		self._refresh_data_byte_string()
 
 	def set_hitpoints(self, value):
@@ -128,10 +129,12 @@ class SmdBlock(BitAndBytes, BlueprintUtils):
 		"""
 		# bit_array = self._read_int24_unassigned(input_stream)
 		bit_array = struct.unpack('>i', '\x00' + self._byte_string)[0]
-		self._id = self.parse_bits(bit_array, 0, 11)
-		self._hitpoints = self.parse_bits(bit_array, 11, 9)
-		self._active = self.parse_bits(bit_array, 20, 1)  # For blocks with an activation status
-		self._orientation = self.parse_bits(bit_array, 21, 3)
+		self._id = self.bits_parse(bit_array, 0, 11)
+		self._refresh_block_type()
+		self._hitpoints = self.bits_parse(bit_array, self._block_type_bit_positions[self._type][1], self._block_type_bit_positions[self._type][2]-self._block_type_bit_positions[self._type][1])
+		if self._type == 0:  # For blocks with an activation status
+			self._active = self.bits_parse(bit_array, self._block_type_bit_positions[self._type][2], self._block_type_bit_positions[self._type][3]-self._block_type_bit_positions[self._type][2])  # For blocks with an activation status
+		self._orientation = self.bits_parse(bit_array, self._block_type_bit_positions[self._type][3], 24-self._block_type_bit_positions[self._type][3])
 
 	def _refresh_data_byte_string(self):
 		"""
@@ -139,11 +142,21 @@ class SmdBlock(BitAndBytes, BlueprintUtils):
 		'[1:]' since only the last three bytes of an integer are used for block information.
 		"""
 		bit_array = 0
-		bit_array = self.combine_bits(self._id, bit_array, 0)
-		bit_array = self.combine_bits(self._hitpoints, bit_array, 11)
-		bit_array = self.combine_bits(self._active, bit_array, 20)  # For blocks with an activation status
-		bit_array = self.combine_bits(self._orientation, bit_array, 21)
+		bit_array = self.bits_combine(self._id, bit_array, 0)
+		bit_array = self.bits_combine(self._hitpoints, bit_array, self._block_type_bit_positions[self._type][1])
+		if self._type == 0:  # For blocks with an activation status
+			bit_array = self.bits_combine(self._active, bit_array, self._block_type_bit_positions[self._type][2])
+		bit_array = self.bits_combine(self._orientation, bit_array, self._block_type_bit_positions[self._type][3])
 		self._byte_string = struct.pack('>i', bit_array)[1:]
+
+	def _refresh_block_type(self):
+		if self._is_activatable_block(self._id):
+			self._type = 1
+			return
+		if self._is_corner_block(self._id):
+			self._type = 3
+			return
+		self._type = 2
 
 	def to_stream(self, output_stream=sys.stdout):
 		"""
@@ -152,6 +165,7 @@ class SmdBlock(BitAndBytes, BlueprintUtils):
 		@param output_stream:
 		@type output_stream: fileIO
 		"""
+		output_stream.write("({})\t".format(self._type))
 		output_stream.write("HP: {}\t".format(self._hitpoints))
 		output_stream.write("Active: {}\t".format(self._active))
 		output_stream.write("Or.: {}\t".format(self._orientation))
