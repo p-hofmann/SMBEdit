@@ -287,7 +287,10 @@ class ByteStream(object):
 	# #######################################
 
 	def seek(self, offset, whence=None):
-		return self._bytestream.seek(offset, whence)
+		if whence is None:
+			return self._bytestream.seek(offset)
+		else:
+			return self._bytestream.seek(offset, whence)
 
 
 class BitAndBytes(object):
