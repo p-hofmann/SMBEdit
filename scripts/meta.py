@@ -50,15 +50,15 @@ class Meta(object):
 		# string_length = self._read_int_unassigned(input_stream)
 		# entry["name"] = input_stream.read(string_length).decode('utf-8')
 		name = input_stream.read_string()
-		print name
+		# print name
 		data["position"] = input_stream.read_vector_3_int16()
-		print data["position"]
+		# print data["position"]
 		data["size"] = input_stream.read_vector_3_int32()
-		print data["size"]
+		# print data["size"]
 		data["style"] = input_stream.read_int16_unassigned()
-		print data["style"]
+		# print data["style"]
 		data["orientation"] = input_stream.read_char()
-		print data["orientation"]
+		# print data["orientation"]
 		return name, data
 
 	def _read_docked_blueprints(self, input_stream):
@@ -72,7 +72,7 @@ class Meta(object):
 		"""
 		data = {}
 		num_docked = input_stream.read_int32_unassigned()
-		print "Docked", num_docked
+		# print "Docked", num_docked
 		assert 0 <= num_docked < 1000, num_docked  # debug sanity check
 		for index in range(0, num_docked):
 			name, dock_entry = self._read_dock_entry(input_stream)
@@ -199,7 +199,7 @@ class Meta(object):
 		version = input_stream.read_int16_unassigned()
 		if version == 0x1f8b:
 			self.is_compressed = True
-			print "compressed file"
+			# print "compressed file"
 		input_stream = gzip.GzipFile(fileobj=input_stream)
 		tag = self._read_tag(input_stream)
 		return version, tag
@@ -215,7 +215,7 @@ class Meta(object):
 		self.version = input_stream.read_int32_unassigned()
 		while True:
 			data_type = input_stream.read_char()
-			print "data_type", data_type  # debug
+			# print "data_type", data_type  # debug
 			# input_stream.read(38)
 			if data_type == 1:  # Finish
 				break
@@ -226,7 +226,7 @@ class Meta(object):
 			elif data_type == 3:  # Docking
 				self.blueprints = self._read_docked_blueprints(input_stream)
 			else:
-				print "unknown data type {}".format(data_type)
+				# print "unknown data type {}".format(data_type)
 				break
 		self.tail_data = input_stream.read()  # any data left?
 
