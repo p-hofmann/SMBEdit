@@ -161,7 +161,7 @@ class ByteStream(object):
 			self.read_int16(),
 			self.read_int16(),
 			]
-		return vector
+		return tuple(vector)
 
 	def read_vector_3_int32(self):
 		vector = [
@@ -169,7 +169,7 @@ class ByteStream(object):
 			self.read_int32(),
 			self.read_int32(),
 			]
-		return vector
+		return tuple(vector)
 
 	def read_vector_3_float(self):
 		vector = [
@@ -177,7 +177,7 @@ class ByteStream(object):
 			self.read_float(),
 			self.read_float(),
 			]
-		return vector
+		return tuple(vector)
 
 	def read_vector_4_float(self):
 		vector = [
@@ -186,7 +186,7 @@ class ByteStream(object):
 			self.read_float(),
 			self.read_float(),
 			]
-		return vector
+		return tuple(vector)
 
 	def read_vector_3_byte(self):
 		vector = [
@@ -194,7 +194,7 @@ class ByteStream(object):
 			self.read_char(),
 			self.read_char(),
 			]
-		return vector
+		return tuple(vector)
 
 	# #######################################
 	# ###  Writing bytes
