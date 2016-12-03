@@ -708,3 +708,14 @@ class BlueprintUtils(object):
 		for index in range(0, len(vector1)):
 			distance += abs(vector1[index] - vector2[index])
 		return distance
+
+	def _get_direction_vector_to_center(self, position):
+		"""
+		Relocate center/core in a direction
+
+		@param position: vector
+		@type position: int, int, int
+
+		@rtype: int, int, int
+		"""
+		return self.vector_subtraction(position, (16, 16, 16))
