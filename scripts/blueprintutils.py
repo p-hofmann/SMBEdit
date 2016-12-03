@@ -1,7 +1,5 @@
 __author__ = 'Peter Hofmann'
 
-import math
-
 
 class BlueprintUtils(object):
 
@@ -577,6 +575,37 @@ class BlueprintUtils(object):
 			return False
 		return True
 
+	def _is_activatable_block(self, block_id):
+		assert isinstance(block_id, int)
+		activatable_block_id = {
+			# system
+			120: "Storage",
+			# station
+			211: "Basic Factory",
+			217: "Standard Factory",
+			259: "Advanced Factory",
+			213: "Capsule Refinery",
+			215: "Micro Assembler",
+			212: "Factory Enhancer",
+		}
+		if block_id in self._block_ids["logic"]:
+			return True
+		if block_id in activatable_block_id:
+			return True
+		return False
+
+	def _is_corner_block(self, block_id):
+		assert isinstance(block_id, int)
+		if block_id not in self._block_ids["hull"]:
+			return False
+		if "corner" in self._block_ids["hull"][block_id].lower():
+			return True
+		if "tetra" in self._block_ids["hull"][block_id].lower():
+			return True
+		if "hepta" in self._block_ids["hull"][block_id].lower():
+			return True
+		return False
+
 	@staticmethod
 	def vector_addition(vector1, vector2):
 		assert len(vector1) == len(vector2)
@@ -600,51 +629,3 @@ class BlueprintUtils(object):
 		for index in range(0, len(vector1)):
 			distance += abs(vector1[index] - vector2[index])
 		return distance
-
-	# #######################################
-	# ###  Index and positions
-	# #######################################
-
-	# def get_block_index_of(self, position):
-	# 	return self._get_segment_of(position[0]), self._get_segment_of(position[1]), self._get_segment_of(position[2])
-
-	def get_segment_position_of_position(self, position):
-		return self._get_segment_of(position[0]), self._get_segment_of(position[1]), self._get_segment_of(position[2])
-
-	@staticmethod
-	def _get_segment_of(value):
-		return int(math.floor(value / 32.0) * 32)
-
-	def get_region_position_of_position(self, position):
-		return self._get_region_of(position[0]), self._get_region_of(position[1]), self._get_region_of(position[2])
-
-	@staticmethod
-	def _get_region_of(value):
-		return int(math.floor((value+256) / 512.0))
-
-	def get_segment_index_by_position(self, position):
-		"""
-
-		@param position:
-		@type position: tuple(int, int, int)
-
-		@rtype: int
-		"""
-		assert isinstance(position, (list, tuple))
-		# max_blocks 32768
-		size_y = 16
-		size_z = 256
-		offset = size_z
-		tmp = [0, 0, 0]
-		tmp[0] = int(math.floor((position[0]+offset) / 32.0))
-		tmp[1] = int(math.floor((position[1]+offset) / 32.0))
-		tmp[2] = int(math.floor((position[2]+offset) / 32.0))
-		return \
-			self._transform_to_index(tmp[0], size_y, 1) + \
-			self._transform_to_index(tmp[1], size_y, size_y) + \
-			self._transform_to_index(tmp[2], size_y, size_z)
-
-	@staticmethod
-	def _transform_to_index(value, modulo, factor=1):
-		# assert isinstance(value, int)
-		return factor * (value % modulo)
