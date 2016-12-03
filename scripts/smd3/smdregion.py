@@ -3,13 +3,13 @@ __author__ = 'Peter Hofmann'
 import sys
 import math
 from scripts.loggingwrapper import DefaultLogging
-from scripts.bit_and_bytes import BitAndBytes
+from scripts.bit_and_bytes import ByteStream
 from scripts.blueprintutils import BlueprintUtils
 from smdblock import SmdBlock
 from smdsegment import SmdSegment
 
 
-class SmdRegion(DefaultLogging, BlueprintUtils, BitAndBytes):
+class SmdRegion(DefaultLogging, BlueprintUtils):
 
 	# #######################################
 	# ###  SmdRegion
@@ -41,7 +41,8 @@ class SmdRegion(DefaultLogging, BlueprintUtils, BitAndBytes):
 	# ###  Read
 	# #######################################
 
-	def _read_segment_index(self, input_stream):
+	@staticmethod
+	def _read_segment_index(input_stream):
 		"""
 		Read a segment index from a byte stream
 		The identifier is used to tell where in the file a segment is found.
@@ -51,13 +52,13 @@ class SmdRegion(DefaultLogging, BlueprintUtils, BitAndBytes):
 
 		The size is the actual size of the segment data, header (26 bytes) + size of compressed block data
 
-		@param input_stream:
-		@type input_stream: file
+		@param input_stream: input stream
+		@type input_stream: ByteStream
 
 		@rtype: int, int
 		"""
-		identifier = self._read_short_int_unassigned(input_stream)
-		size = self._read_short_int_unassigned(input_stream)
+		identifier = input_stream.read_int16_unassigned()
+		size = input_stream.read_int16_unassigned()
 		return identifier, size
 
 	def _read_region_header(self, input_stream):
@@ -66,15 +67,14 @@ class SmdRegion(DefaultLogging, BlueprintUtils, BitAndBytes):
 		The index of a segment is the linear representation of the location of a segment within a region.
 
 		@param input_stream: input stream
-		@type input_stream: fileIO
+		@type input_stream: ByteStream
 
 		@rtype: int
 		"""
-		self.version = self._read_int_unassigned(input_stream)
+		self.version = input_stream.read_int32_unassigned()
 		number_of_segments = 0
 		for index in range(0, self._segments_in_a_cube):
 			identifier, size = self._read_segment_index(input_stream)
-			# assert identifier == 0, index
 			if identifier > 0:
 				number_of_segments += 1
 		return number_of_segments
@@ -84,7 +84,7 @@ class SmdRegion(DefaultLogging, BlueprintUtils, BitAndBytes):
 		Read region data from a byte stream
 
 		@param input_stream: input stream
-		@type input_stream: fileIO
+		@type input_stream: ByteStream
 		"""
 		number_of_segments = self._read_region_header(input_stream)
 		for _ in xrange(number_of_segments):
@@ -94,10 +94,9 @@ class SmdRegion(DefaultLogging, BlueprintUtils, BitAndBytes):
 				verbose=self._verbose,
 				debug=self._debug)
 			segment.read(input_stream)
-			if segment.has_valid_data == 0:
+			if not segment.has_valid_data:
 				continue
-			self.position_to_segment[tuple(segment.position)] = segment
-		# self.tail_data = input_stream.read()
+			self.position_to_segment[segment.position] = segment
 
 	def read(self, file_path):
 		"""
@@ -109,13 +108,14 @@ class SmdRegion(DefaultLogging, BlueprintUtils, BitAndBytes):
 		# print file_path
 		self._logger.debug("Reading file '{}'".format(file_path))
 		with open(file_path, 'rb') as input_stream:
-			self._read_file(input_stream)
+			self._read_file(ByteStream(input_stream))
 
 	# #######################################
 	# ###  Write
 	# #######################################
 
-	def _write_segment_index(self, identifier, size, output_stream):
+	@staticmethod
+	def _write_segment_index(identifier, size, output_stream):
 		"""
 		Write a segment index to a byte stream
 		The identifier is used to tell where in the file a segment is found.
@@ -127,13 +127,13 @@ class SmdRegion(DefaultLogging, BlueprintUtils, BitAndBytes):
 
 		@param identifier: segment position indicator within file
 		@type identifier: int
-		@param size: actual size of segment data
+		@param size: actual size of segment data: segment_header_size + compressed_size
 		@type size: int
 		@param output_stream: output stream
-		@type output_stream: fileIO
+		@type output_stream: ByteStream
 		"""
-		self._write_short_int_unassigned(identifier, output_stream)
-		self._write_short_int_unassigned(size, output_stream)
+		output_stream.write_int16_unassigned(identifier)
+		output_stream.write_int16_unassigned(size)
 
 	def _write_region_header(self, output_stream):
 		"""
@@ -141,10 +141,10 @@ class SmdRegion(DefaultLogging, BlueprintUtils, BitAndBytes):
 		The index of a segment is the linear representation of the location of a segment within a region.
 
 		@param output_stream: output stream
-		@type output_stream: fileIO
+		@type output_stream: ByteStream
 		"""
 		# Version
-		self._write_int_unassigned(self.version, output_stream)
+		output_stream.write_int32_unassigned(self.version)
 
 		# segment index
 		segment_header_size = 26
@@ -167,7 +167,7 @@ class SmdRegion(DefaultLogging, BlueprintUtils, BitAndBytes):
 		Write region data to a byte stream
 
 		@param output_stream: output stream
-		@type output_stream: fileIO
+		@type output_stream: ByteStream
 		"""
 		output_stream.seek(4+self._segments_in_a_cube*4)  # skip header: version(4byte) + 4096 segment index (4 byte)
 		for position in sorted(self.position_to_segment.keys(), key=lambda tup: (tup[2], tup[1], tup[0])):
@@ -186,7 +186,7 @@ class SmdRegion(DefaultLogging, BlueprintUtils, BitAndBytes):
 		"""
 		# print file_path
 		with open(file_path, 'wb') as output_stream:
-			self._write_file(output_stream)
+			self._write_file(ByteStream(output_stream))
 
 	# #######################################
 	# ###  Index and positions
@@ -276,9 +276,6 @@ class SmdRegion(DefaultLogging, BlueprintUtils, BitAndBytes):
 		list_of_positions = self.position_to_segment.keys()
 		for position_segment in list_of_positions:
 			if self.position_to_segment[position_segment].get_number_of_blocks() == 0:
-				if self.position_to_segment[position_segment].has_valid_data == 1:
-					self._logger.debug("'remove' NOT Removing empty segment {} WTF?.".format(position_segment))
-					continue
 				self._logger.debug("'remove' Removing empty segment {}.".format(position_segment))
 				self.position_to_segment.pop(position_segment)
 
