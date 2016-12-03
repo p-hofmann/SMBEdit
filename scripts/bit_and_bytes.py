@@ -109,6 +109,8 @@ class ByteStream(object):
 	# #######################################
 
 	def read(self, size=None):
+		if size is None:
+			return self._bytestream.read()
 		return self._bytestream.read(size)
 
 	def read_bool(self):
