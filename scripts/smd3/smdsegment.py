@@ -4,17 +4,17 @@ import sys
 import zlib
 import datetime
 from scripts.loggingwrapper import DefaultLogging
-from scripts.bit_and_bytes import BitAndBytes
+from scripts.bit_and_bytes import ByteStream
 from scripts.blueprintutils import BlueprintUtils
 from smdblock import SmdBlock
 
 
-class SmdSegment(DefaultLogging, BlueprintUtils, BitAndBytes):
+class SmdSegment(DefaultLogging, BlueprintUtils):
 	"""
 	Each segment represents an area the size of 32 x 32 x 32 (smd3) and contains 32768 blocks
-	A Segment position is the lowest coordinate of an area.
+	A Segment position is the lowest coordinate of a segment area.
 	The Position coordinates are always a multiple of 32, like (32, 0, 128)
-	The core, or center of a blueprint is (16,16,16) and the position of its segment is (0,0,0)
+	Example: The core, or center of a blueprint is (16,16,16) and the position of its segment is (0,0,0)
 	"""
 
 	def __init__(self, blocks_in_a_line=32, logfile=None, verbose=False, debug=False):
@@ -29,7 +29,7 @@ class SmdSegment(DefaultLogging, BlueprintUtils, BitAndBytes):
 		self.version = 2
 		self.timestamp = 0
 		self.position = None
-		self.has_valid_data = 0
+		self.has_valid_data = False
 		self.compressed_size = 0
 		self.block_index_to_block = {}
 
@@ -37,77 +37,112 @@ class SmdSegment(DefaultLogging, BlueprintUtils, BitAndBytes):
 	# ###  Read
 	# #######################################
 
+	def _read_header(self, input_stream):
+		"""
+		Read segment header data from a byte stream.
+		Size: 26 byte
+
+		@param input_stream: input byte stream
+		@type input_stream: ByteStream
+		"""
+		self.version = input_stream.read_char()  # 1 byte
+		self.timestamp = input_stream.read_int64_unassigned()
+		self.position = input_stream.read_vector_3_int32()  # 12 byte
+		self.has_valid_data = input_stream.read_bool()  # 1 byte
+		self.compressed_size = input_stream.read_int32_unassigned()  # 4 byte
+
+	def _read_block_data(self, input_stream):
+		"""
+		Read segment block data from a byte stream.
+		Size: 49126 byte
+
+		@param input_stream: input byte stream
+		@type input_stream: ByteStream
+		"""
+		decompressed_data = zlib.decompress(input_stream.read(self.compressed_size))
+		self.block_index_to_block = {}
+		for block_index in range(0, len(decompressed_data)/3):
+			position = block_index * 3
+			block = SmdBlock()
+			block.set_data_byte_string(decompressed_data[position:position+3])
+			if block.get_id() > 0:
+				self.block_index_to_block[block_index] = block
+		input_stream.seek(49126-self.compressed_size, 1)  # skip unused bytes
+
 	def read(self, input_stream):
 		"""
 		Read segment data from a byte stream.
+		Always total size 49152 byte
 
 		@param input_stream: input byte stream
-		@type input_stream: fileIO
+		@type input_stream: ByteStream
 		"""
-		# always total size 49152 byte
-		self.version = self._read_char(input_stream)  # 1 byte
-		self.timestamp = self._read_double(input_stream)  # 8 byte
-		# data["timestamp"] = self._read_long_long_unassigned(input_stream)
-		self.position = self._read_vector_3i(input_stream)  # 12 byte
-		self.has_valid_data = self._read_char(input_stream)  # 1 byte
-		self.compressed_size = self._read_int_unassigned(input_stream)  # 4 byte
-		if self.has_valid_data != 1:
-			# print "invalid data", self.has_valid_data
-			self.to_stream()
-			assert isinstance(input_stream, file)
-			input_stream.seek(49126, 1)
-			# input_stream.read(49126)
+		assert isinstance(input_stream, ByteStream)
+		self._read_header(input_stream)
+		if not self.has_valid_data:
+			input_stream.seek(49126, 1)  # skip presumably empty bytes
 		else:
-			decompressed_data = zlib.decompress(input_stream.read(self.compressed_size))
-			self.block_index_to_block = {}
-			for block_index in range(0, len(decompressed_data)/3):
-				position = block_index * 3
-				block = SmdBlock()
-				block.set_data_byte_string(decompressed_data[position:position+3])
-				if block.get_id() > 0:
-					self.block_index_to_block[block_index] = block
-			input_stream.seek(49126-self.compressed_size, 1)
-			# input_stream.read(49126-compressed_size)
-		if self.has_valid_data == 1 and len(self.block_index_to_block) == 0:
-			# print "No blocks read"
-			self.has_valid_data = 0
+			self._read_block_data(input_stream)
+		if self.has_valid_data and len(self.block_index_to_block) == 0:
+			self.has_valid_data = False
 
 	# #######################################
 	# ###  Write
 	# #######################################
 
-	def write(self, output_stream):
+	def _write_block_data(self, output_stream):
 		"""
-		Write segment as binary data to any kind of stream.
+		Write segment block data to a byte stream.
+		Size: 49126 byte + 4 byte because of compressed_size
 
-		@param output_stream: Output byte stream
-		@type output_stream: fileIO
+		@param output_stream: input byte stream
+		@type output_stream: ByteStream
 		"""
-		# always total size 49152 byte
-		assert isinstance(output_stream, file)
-		self._write_char(self.version, output_stream)  # 1 byte
-		self._write_double(self.timestamp, output_stream)  # 8 byte
-		# self._write_long_long_unassigned(self.timestamp, output_stream)  # 8 byte
-		self._write_vector_3i(self.position, output_stream)  # 12 byte
-		self._write_char(self.has_valid_data, output_stream)  # 1 byte
-
-		if self.has_valid_data != 1:
+		if not self.has_valid_data:
 			self.compressed_size = 0
-			self._write_int_unassigned(self.compressed_size, output_stream)   # 4 byte
+			output_stream.write_int32_unassigned(self.compressed_size)   # 4 byte
 		else:
 			byte_string = ""
 			set_of_valid_block_index = set(self.block_index_to_block.keys())
-			for block_index in range(0, self._blocks_in_a_line * self._blocks_in_a_line * self._blocks_in_a_line):
+			for block_index in range(0, self._blocks_in_a_cube):
 				if block_index in set_of_valid_block_index:
 					byte_string += self.block_index_to_block[block_index].get_data_byte_string()
 					continue
 				byte_string += "\0" * 3
 			compressed_data = zlib.compress(byte_string)
 			self.compressed_size = len(compressed_data)
-			self._write_int_unassigned(self.compressed_size, output_stream)   # 4 byte
+			output_stream.write_int32_unassigned(self.compressed_size)   # 4 byte
 			output_stream.write(compressed_data)
+
 		output_stream.seek(49125-self.compressed_size, 1)
-		output_stream.write("\0")
+		output_stream.write("\0")  # this should fill the skipped positions with \0
+
+	def _write_header(self, output_stream):
+		"""
+		Write segment header data to a byte stream.
+		Size: 26 byte - 4 byte
+
+		@attention: compressed_size, 4 bytes, will be written later when the size is known
+
+		@param output_stream: input byte stream
+		@type output_stream: ByteStream
+		"""
+		output_stream.write_char(self.version)  # 1 byte
+		output_stream.write_int64_unassigned(self.timestamp)  # 8 byte
+		output_stream.write_vector_3_int32(self.position)  # 12 byte
+		output_stream.write_bool(self.has_valid_data)  # 1 byte
+
+	def write(self, output_stream):
+		"""
+		Write segment as binary data to any kind of stream.
+		Always total size 49152 byte
+
+		@param output_stream: Output byte stream
+		@type output_stream: ByteStream
+		"""
+		assert isinstance(output_stream, ByteStream)
+		self._write_header(output_stream)
+		self._write_block_data(output_stream)
 
 	# #######################################
 	# ###  Index and positions
@@ -205,7 +240,7 @@ class SmdSegment(DefaultLogging, BlueprintUtils, BitAndBytes):
 		self.block_index_to_block.pop(block_index)
 		if self.get_number_of_blocks() == 0:
 			self._logger.debug("Segment {} has no more blocks.".format(self.position))
-			self.has_valid_data = 0
+			self.has_valid_data = False
 
 	def add(self, block_position, block):
 		"""
@@ -219,7 +254,7 @@ class SmdSegment(DefaultLogging, BlueprintUtils, BitAndBytes):
 		assert isinstance(block, SmdBlock)
 		block_index = self.get_block_index_by_block_position(block_position)
 		self.block_index_to_block[block_index] = block
-		self.has_valid_data = 1
+		self.has_valid_data = True
 
 	def search(self, block_id):
 		"""
@@ -258,11 +293,9 @@ class SmdSegment(DefaultLogging, BlueprintUtils, BitAndBytes):
 		"""
 		output_stream.write("Segment: {} '{}' ({})\n".format(
 			self.position,
-			datetime.datetime.fromtimestamp(self.timestamp).strftime('%Y-%m-%d %H:%M:%S'),
-			# segment_data["timestamp"],
+			datetime.datetime.fromtimestamp(self.timestamp/1000.0).strftime('%Y-%m-%d %H:%M:%S'),
 			self.version,
 			))
-		# output_stream.write("Valid: {}\n".format(self.has_valid_data == 1))
 		output_stream.flush()
 		if summary:
 			return
