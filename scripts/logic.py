@@ -4,6 +4,7 @@ import os
 import sys
 from bit_and_bytes import ByteStream
 from blueprintutils import BlueprintUtils
+from scripts.smd3.smd import Smd
 
 
 # #######################################
@@ -170,20 +171,6 @@ class Logic(BlueprintUtils):
 	# ###  Else
 	# #######################################
 
-	def update(self):
-		"""
-		Delete links with invalid controller
-		"""
-		# todo: check if linked positions are valid, like storage to factory after changing to ship
-		for controller_position in self.controller_position_to_block_id_to_block_positions.keys():
-			groups = self.controller_position_to_block_id_to_block_positions[controller_position]
-			for block_id in groups.keys():
-				if self._is_valid_block_id(block_id):
-					continue
-				self.controller_position_to_block_id_to_block_positions[controller_position].pop(block_id)
-			if len(self.controller_position_to_block_id_to_block_positions[controller_position]) == 0:
-				self.controller_position_to_block_id_to_block_positions.pop(controller_position)
-
 	def move_center(self, direction_vector, entity_type=0):
 		"""
 		Move center (core) in a specific direction and correct all links
@@ -215,7 +202,40 @@ class Logic(BlueprintUtils):
 		del self.controller_position_to_block_id_to_block_positions
 		self.controller_position_to_block_id_to_block_positions = new_dict
 
-	def set_type(self, entity_type):
+	def _update_groups(self, controller_position, block_id, smd):
+		"""
+		Delete links to removed blocks
+
+		@param controller_position:
+		@type controller_position: int,int,int
+		@param block_id:
+		@type block_id: int
+		@param smd:
+		@type smd: Smd
+		"""
+		# todo: check if block at position is activatable if it exists
+		positions = list(self.controller_position_to_block_id_to_block_positions[controller_position][block_id])
+		for position in positions:
+			if not smd.has_block_at_position(position):
+				self.controller_position_to_block_id_to_block_positions[controller_position][block_id].pop(position)
+		if len(self.controller_position_to_block_id_to_block_positions[controller_position][block_id]) == 0:
+			self.controller_position_to_block_id_to_block_positions[controller_position].pop(block_id)
+
+	def update(self, smd):
+		"""
+		Delete links with invalid controller
+		"""
+		for controller_position in self.controller_position_to_block_id_to_block_positions.keys():
+			groups = self.controller_position_to_block_id_to_block_positions[controller_position]
+			for block_id in groups.keys():
+				if self._is_valid_block_id(block_id):
+					self._update_groups(controller_position, block_id, smd)
+					continue
+				self.controller_position_to_block_id_to_block_positions[controller_position].pop(block_id)
+			if len(self.controller_position_to_block_id_to_block_positions[controller_position]) == 0:
+				self.controller_position_to_block_id_to_block_positions.pop(controller_position)
+
+	def set_type(self, entity_type, smd):
 		"""
 		Change entity type
 		0: "Ship",
@@ -227,6 +247,7 @@ class Logic(BlueprintUtils):
 		assert isinstance(entity_type, (int, long))
 		assert 0 <= entity_type <= 4
 
+		self.update(smd)
 		position_core = (16, 16, 16)
 		if entity_type == 0:
 			return
