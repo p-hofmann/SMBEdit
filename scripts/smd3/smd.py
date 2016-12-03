@@ -4,9 +4,9 @@ import sys
 import os
 import math
 from scripts.loggingwrapper import DefaultLogging
-from blueprintutils import BlueprintUtils
-from smd3.smdregion import SmdRegion
-from smd3.smdblock import SmdBlock
+from scripts.blueprintutils import BlueprintUtils
+from scripts.smd3.smdregion import SmdRegion
+from scripts.smd3.smdblock import SmdBlock
 
 
 class Smd(DefaultLogging, BlueprintUtils):
@@ -25,7 +25,7 @@ class Smd(DefaultLogging, BlueprintUtils):
 		@param segments_in_a_line_of_a_region: The number of segments that fit beside each other within a region
 		@type segments_in_a_line_of_a_region: int
 		"""
-		self._label = "Smd"
+		self._label = "Smd3"
 		super(Smd, self).__init__(
 			logfile=logfile,
 			verbose=verbose,
