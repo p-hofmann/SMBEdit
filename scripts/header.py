@@ -3,8 +3,8 @@ __author__ = 'Peter Hofmann'
 import os
 import sys
 from blueprintutils import BlueprintUtils
-from bit_and_bytes import BitAndBytes
-from smd import Smd
+from bit_and_bytes import ByteStream
+from smd3.smd import Smd
 
 
 # #######################################
@@ -12,7 +12,7 @@ from smd import Smd
 # #######################################
 
 
-class Statistics(BitAndBytes):
+class Statistics(object):
 
 	def __init__(self):
 		super(Statistics, self).__init__()
@@ -32,42 +32,42 @@ class Statistics(BitAndBytes):
 		Read statistic data from a byte stream
 
 		@param input_stream: input stream
-		@type input_stream: fileIO
+		@type input_stream: ByteStream
 		"""
-		self.has_statistics = self._read_char(input_stream)
-		if self.has_statistics == 0:
+		self.has_statistics = input_stream.read_bool()
+		if self.has_statistics:
 			return
-		self.version = self._read_short_int_unassigned(input_stream)
-		self.offensive0 = self._read_double(input_stream)
-		self.defensive = self._read_double(input_stream)
-		self.power = self._read_double(input_stream)
-		self.mobility = self._read_double(input_stream)
-		self.danger = self._read_double(input_stream)
-		self.survivability = self._read_double(input_stream)
-		self.offensive1 = self._read_double(input_stream)
-		self.support = self._read_double(input_stream)
+		self.version = input_stream.read_int16_unassigned()
+		self.offensive0 = input_stream.read_double()
+		self.defensive = input_stream.read_double()
+		self.power = input_stream.read_double()
+		self.mobility = input_stream.read_double()
+		self.danger = input_stream.read_double()
+		self.survivability = input_stream.read_double()
+		self.offensive1 = input_stream.read_double()
+		self.support = input_stream.read_double()
 
 	def write_statistics(self, output_stream):
 		"""
 		Write statistic data to a byte stream
 
 		@param output_stream: input stream
-		@type output_stream: fileIO
+		@type output_stream: ByteStream
 		"""
-		self._write_char(self.has_statistics, output_stream)
-		if self.has_statistics == 0:
+		output_stream.write_bool(self.has_statistics)
+		if self.has_statistics:
 			return
-		self._write_short_int_unassigned(self.version, output_stream)
-		self._write_double(self.offensive0, output_stream)
-		self._write_double(self.defensive, output_stream)
-		self._write_double(self.power, output_stream)
-		self._write_double(self.mobility, output_stream)
-		self._write_double(self.danger, output_stream)
-		self._write_double(self.survivability, output_stream)
-		self._write_double(self.offensive1, output_stream)
-		self._write_double(self.support, output_stream)
+		output_stream.write_int16_unassigned(self.version)
+		output_stream.write_double(self.offensive0)
+		output_stream.write_double(self.defensive)
+		output_stream.write_double(self.power)
+		output_stream.write_double(self.mobility)
+		output_stream.write_double(self.danger)
+		output_stream.write_double(self.survivability)
+		output_stream.write_double(self.offensive1)
+		output_stream.write_double(self.support)
 
-	def to_stream(self, output_stream):
+	def to_stream(self, output_stream=sys.stdout):
 		"""
 		Write statistic values to a stream
 
@@ -88,7 +88,7 @@ class Statistics(BitAndBytes):
 		output_stream.write("\n")
 
 
-class Header(BlueprintUtils, BitAndBytes):
+class Header(BlueprintUtils):
 
 	_file_name = "header.smbph"
 
@@ -106,6 +106,45 @@ class Header(BlueprintUtils, BitAndBytes):
 	# ###  Read
 	# #######################################
 
+	def _read_block_quantities(self, input_stream):
+		"""
+		Read block quantities from a byte stream
+
+		@param input_stream: input stream
+		@type input_stream: ByteStream
+		"""
+		assert isinstance(input_stream, ByteStream)
+		num_of_block_types = input_stream.read_int32_unassigned()
+		for index in range(0, num_of_block_types):
+			block_identifier = input_stream.read_int16_unassigned()
+			quantity = input_stream.read_int32_unassigned()
+			self.block_id_to_quantity[block_identifier] = quantity
+
+	def _read_header(self, input_stream):
+		"""
+		Read header data from a byte stream
+
+		@param input_stream: input stream
+		@type input_stream: ByteStream
+		"""
+		assert isinstance(input_stream, ByteStream)
+		self.version = input_stream.read_int32_unassigned()
+		self.type = input_stream.read_int32_unassigned()
+		self.box_min = input_stream.read_vector_3_float()
+		self.box_max = input_stream.read_vector_3_float()
+
+	def _read_file(self, input_stream):
+		"""
+		Read blueprint header data from a byte stream
+
+		@param input_stream: input stream
+		@type input_stream: ByteStream
+		"""
+		assert isinstance(input_stream, ByteStream)
+		self._read_header(input_stream)
+		self._read_block_quantities(input_stream)
+		self.statistics.read_statistics(input_stream)
+
 	def read(self, directory_blueprint):
 		"""
 		Read header data from the header file of a blueprint
@@ -115,33 +154,50 @@ class Header(BlueprintUtils, BitAndBytes):
 		"""
 		file_path = os.path.join(directory_blueprint, self._file_name)
 		with open(file_path, 'rb') as input_stream:
-			self._read_file(input_stream)
-
-	def _read_file(self, input_stream):
-		"""
-		Read header data from a byte stream
-
-		@param input_stream: input stream
-		@type input_stream: fileIO
-		"""
-		assert isinstance(input_stream, file)
-		self.version = self._read_int_unassigned(input_stream)
-		self.type = self._read_int_unassigned(input_stream)
-		self.box_min = self._read_vector_3f(input_stream)
-		self.box_max = self._read_vector_3f(input_stream)
-		num_of_block_types = self._read_int_unassigned(input_stream)
-		assert 0 < num_of_block_types < 1000, num_of_block_types
-
-		for index in range(0, num_of_block_types):
-			identifier = self._read_short_int_unassigned(input_stream)
-			quantity = self._read_int_unassigned(input_stream)
-			self.block_id_to_quantity[identifier] = quantity
-
-		self.statistics.read_statistics(input_stream)
+			self._read_file(ByteStream(input_stream))
 
 	# #######################################
 	# ###  Write
 	# #######################################
+
+	def _write_block_quantities(self, output_stream):
+		"""
+		Write block quantities to a byte stream
+
+		@param output_stream: input stream
+		@type output_stream: ByteStream
+		"""
+		assert isinstance(output_stream, ByteStream)
+		num_of_block_types = len(self.block_id_to_quantity)
+		output_stream.write_int32_unassigned(num_of_block_types)
+		for identifier, quantity in self.block_id_to_quantity.iteritems():
+			output_stream.write_int16_unassigned(identifier)
+			output_stream.write_int32_unassigned(quantity)
+
+	def _write_header(self, output_stream):
+		"""
+		Write header data to a byte stream
+
+		@param output_stream: input stream
+		@type output_stream: ByteStream
+		"""
+		assert isinstance(output_stream, ByteStream)
+		output_stream.write_int32_unassigned(self.version)
+		output_stream.write_int32_unassigned(self.type)
+		output_stream.write_vector_3_float(self.box_min)
+		output_stream.write_vector_3_float(self.box_max)
+
+	def _write_file(self, output_stream):
+		"""
+		Write header data to a byte stream
+
+		@param output_stream: output stream
+		@type output_stream: ByteStream
+		"""
+		assert isinstance(output_stream, ByteStream)
+		self._write_header(output_stream)
+		self._write_block_quantities(output_stream)
+		self.statistics.write_statistics(output_stream)
 
 	def write(self, directory_blueprint):
 		"""
@@ -152,28 +208,7 @@ class Header(BlueprintUtils, BitAndBytes):
 		"""
 		file_path = os.path.join(directory_blueprint, self._file_name)
 		with open(file_path, 'wb') as output_stream:
-			self._write_file(output_stream)
-
-	def _write_file(self, output_stream):
-		"""
-		Write header data to a byte stream
-
-		@param output_stream: output stream
-		@type output_stream: fileIO
-		"""
-		assert isinstance(output_stream, file)
-		self._write_int_unassigned(self.version, output_stream)
-		self._write_int_unassigned(self.type, output_stream)
-		self._write_vector_3f(self.box_min, output_stream)
-		self._write_vector_3f(self.box_max, output_stream)
-
-		num_of_block_types = len(self.block_id_to_quantity)
-		self._write_int_unassigned(num_of_block_types, output_stream)
-		for identifier, quantity in self.block_id_to_quantity.iteritems():
-			self._write_short_int_unassigned(identifier, output_stream)
-			self._write_int_unassigned(quantity, output_stream)
-
-		self.statistics.write_statistics(output_stream)
+			self._write_file(ByteStream(output_stream))
 
 	# #######################################
 	# ###  Else
@@ -339,7 +374,6 @@ class Header(BlueprintUtils, BitAndBytes):
 			self.box_max,
 			))
 		output_stream.write("Blocks: {}\n".format(sum(self.block_id_to_quantity.values())))
-		output_stream.write("Tail: {} bytes\n".format(len(self.tail_data)))
 		output_stream.write("\n")
 		if summary:
 			output_stream.flush()
