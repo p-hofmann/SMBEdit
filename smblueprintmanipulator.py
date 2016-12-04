@@ -164,7 +164,7 @@ class SMBlueprintManipulator(DefaultLogging):
 
 			if summary:
 				self._logger.info("Summary of blueprint:")
-				blueprint.to_stream(summary=not self._verbose)
+				blueprint.to_stream(summary=not self._debug)
 
 			if directory_output is not None:
 				self._logger.info("Saving blueprint to:\n{}".format(directory_output))
