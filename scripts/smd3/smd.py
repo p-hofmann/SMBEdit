@@ -248,7 +248,12 @@ class Smd(DefaultLogging, BlueprintUtils):
 		@return: new minimum and maximum coordinates of the blueprint
 		@rtype: tuple[int,int,int], tuple[int,int,int]
 		"""
-		new_smd = Smd()
+		new_smd = Smd(
+			segments_in_a_line_of_a_region=self._segments_in_a_line_of_a_region,
+			blocks_in_a_line_of_a_segment=self._blocks_in_a_line_in_a_segment,
+			logfile=self._logfile,
+			verbose=self._verbose,
+			debug=self._debug)
 		min_vector = [16, 16, 16]
 		max_vector = [16, 16, 16]
 		for position_block, block in self.iteritems():
