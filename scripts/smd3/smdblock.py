@@ -2,9 +2,9 @@ __author__ = 'Peter Hofmann'
 
 import sys
 import struct
-from scripts.bit_and_bytes import BitAndBytes
+from scripts.bit_and_bytes import BitAndBytes, ByteStream
 from scripts.blueprintutils import BlueprintUtils
-
+from blockorientation import BlockOrientation
 
 class SmdBlock(BitAndBytes, BlueprintUtils):
 
@@ -22,7 +22,7 @@ class SmdBlock(BitAndBytes, BlueprintUtils):
 		self._id = 0
 		self._hitpoints = 0
 		self._active = 0
-		self._orientation = 0
+		self._orientation = BlockOrientation(self._type)
 		self._byte_string = ""
 
 	def get_id(self):
@@ -53,7 +53,7 @@ class SmdBlock(BitAndBytes, BlueprintUtils):
 		"""
 		Returns the orientation of the block as integer.
 
-		@rtype: int
+		@rtype: BlockOrientation
 		"""
 		# Todo: find out what integer is what direction.
 		return self._orientation
@@ -97,7 +97,7 @@ class SmdBlock(BitAndBytes, BlueprintUtils):
 		Change orientation of block
 
 		@param value:
-		@type value: int
+		@type value: BlockOrientation
 		"""
 		self._orientation = value
 		self._refresh_data_byte_string()
@@ -129,12 +129,15 @@ class SmdBlock(BitAndBytes, BlueprintUtils):
 		"""
 		# bit_array = self._read_int24_unassigned(input_stream)
 		bit_array = struct.unpack('>i', '\x00' + self._byte_string)[0]
+		# bit_array = ByteStream.unpack('\x00' + self._byte_string, 'i')
 		self._id = self.bits_parse(bit_array, 0, 11)
 		self._refresh_block_type()
 		self._hitpoints = self.bits_parse(bit_array, self._block_type_bit_positions[self._type][1], self._block_type_bit_positions[self._type][2]-self._block_type_bit_positions[self._type][1])
 		if self._type == 0:  # For blocks with an activation status
 			self._active = self.bits_parse(bit_array, self._block_type_bit_positions[self._type][2], self._block_type_bit_positions[self._type][3]-self._block_type_bit_positions[self._type][2])  # For blocks with an activation status
-		self._orientation = self.bits_parse(bit_array, self._block_type_bit_positions[self._type][3], 24-self._block_type_bit_positions[self._type][3])
+		self._orientation = BlockOrientation(self._type)
+		self._orientation.set_bit_array(bit_array)
+		# = self.bits_parse(bit_array, self._block_type_bit_positions[self._type][3], 24-self._block_type_bit_positions[self._type][3])
 
 	def _refresh_data_byte_string(self):
 		"""
@@ -146,7 +149,8 @@ class SmdBlock(BitAndBytes, BlueprintUtils):
 		bit_array = self.bits_combine(self._hitpoints, bit_array, self._block_type_bit_positions[self._type][1])
 		if self._type == 0:  # For blocks with an activation status
 			bit_array = self.bits_combine(self._active, bit_array, self._block_type_bit_positions[self._type][2])
-		bit_array = self.bits_combine(self._orientation, bit_array, self._block_type_bit_positions[self._type][3])
+		# bit_array = self.bits_combine(self._orientation, bit_array, self._block_type_bit_positions[self._type][3])
+		bit_array = self._orientation.get_bit_array(bit_array)
 		self._byte_string = struct.pack('>i', bit_array)[1:]
 
 	def _refresh_block_type(self):
@@ -168,5 +172,5 @@ class SmdBlock(BitAndBytes, BlueprintUtils):
 		output_stream.write("({})\t".format(self._type))
 		output_stream.write("HP: {}\t".format(self._hitpoints))
 		output_stream.write("Active: {}\t".format(self._active))
-		output_stream.write("Or.: {}\t".format(self._orientation))
+		output_stream.write("Or.: {}\t".format(self._orientation.to_string()))
 		output_stream.write("{}\n".format(self.get_block_name_by_id(self._id)))
