@@ -616,7 +616,7 @@ class BlueprintUtils(object):
 		assert isinstance(block_id, int)
 		activatable_block_id = {
 			# system
-			120: "Storage",
+			# 120: "Storage",
 			# station
 			211: "Basic Factory",
 			217: "Standard Factory",
@@ -627,6 +627,8 @@ class BlueprintUtils(object):
 		}
 		if block_id in self._block_ids["logic"]:
 			return True
+		# if block_id in self._block_ids["lighting"]:
+		# 	return True
 		if block_id in activatable_block_id:
 			return True
 		return False
@@ -642,14 +644,22 @@ class BlueprintUtils(object):
 		@rtype: bool
 		"""
 		assert isinstance(block_id, int)
+		orientations_x24_block_id = {
+			# station
+			678: "Shipyard Module",
+			679: "Shipyard Core Anchor",
+			# decorative
+			976: "Pipe",
+			975: "Decorative Console (Blue)",
+		}
+		if block_id in self._block_ids["rails"]:
+			return True
+		if block_id in orientations_x24_block_id:
+			return True
 		if block_id not in self._block_ids["hull"]:
 			return False
 		if "corner" in self._block_ids["hull"][block_id].lower():
 			return True
-		# if "tetra" in self._block_ids["hull"][block_id].lower():
-		# 	return True
-		# if "hepta" in self._block_ids["hull"][block_id].lower():
-		# 	return True
 		return False
 
 	@staticmethod
