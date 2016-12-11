@@ -15,6 +15,12 @@ class SmdBlock(BitAndBytes, BlueprintUtils):
 		3: (0, 11, 19, 19),  # corner block
 	}
 
+	# _block_type_bit_positions = {
+	# 	1: (0, 10, 18, 19),  # logic block
+	# 	2: (0, 10, 18, 19),  # logic block
+	# 	3: (0, 10, 18, 19),  # logic block
+	# }
+
 	def __init__(self):
 		self._label = "SmdBlock"
 		super(SmdBlock, self).__init__()
@@ -174,3 +180,189 @@ class SmdBlock(BitAndBytes, BlueprintUtils):
 		output_stream.write("Active: {}\t".format(self._active))
 		output_stream.write("Or.: {}\t".format(self._orientation.to_string()))
 		output_stream.write("{}\n".format(self.get_block_name_by_id(self._id)))
+	#
+	#Element.class
+	#
+    # private static void createOrientationMapping() {
+    #     (orientationMapping = new byte[24])[4] = 0;
+    #     orientationMapping[5] = 1;
+    #     orientationMapping[2] = 2;
+    #     orientationMapping[3] = 3;
+    #     orientationMapping[0] = 4;
+    #     orientationMapping[1] = 5;
+    #     orientationMapping[6] = 6;
+    #     orientationMapping[7] = 7;
+    #     orientationMapping[12] = 8;
+    #     orientationMapping[13] = 9;
+    #     orientationMapping[10] = 10;
+    #     orientationMapping[11] = 11;
+    #     orientationMapping[8] = 12;
+    #     orientationMapping[9] = 13;
+    #     orientationMapping[14] = 14;
+    #     orientationMapping[15] = 15;
+    #     orientationMapping[20] = 16;
+    #     orientationMapping[21] = 17;
+    #     orientationMapping[18] = 18;
+    #     orientationMapping[19] = 19;
+    #     orientationMapping[16] = 20;
+    #     orientationMapping[17] = 21;
+    #     orientationMapping[22] = 22;
+    #     orientationMapping[23] = 23;
+    #     (orientationBackMapping = new byte[24])[0] = 4;
+    #     orientationBackMapping[1] = 5;
+    #     orientationBackMapping[2] = 2;
+    #     orientationBackMapping[3] = 3;
+    #     orientationBackMapping[4] = 0;
+    #     orientationBackMapping[5] = 1;
+    #     orientationBackMapping[6] = 6;
+    #     orientationBackMapping[7] = 7;
+    #     orientationBackMapping[8] = 12;
+    #     orientationBackMapping[9] = 13;
+    #     orientationBackMapping[10] = 10;
+    #     orientationBackMapping[11] = 11;
+    #     orientationBackMapping[12] = 8;
+    #     orientationBackMapping[13] = 9;
+    #     orientationBackMapping[14] = 14;
+    #     orientationBackMapping[15] = 15;
+    #     orientationBackMapping[16] = 20;
+    #     orientationBackMapping[17] = 21;
+    #     orientationBackMapping[18] = 18;
+    #     orientationBackMapping[19] = 19;
+    #     orientationBackMapping[20] = 16;
+    #     orientationBackMapping[21] = 17;
+    #     orientationBackMapping[22] = 22;
+    #     orientationBackMapping[23] = 23;
+    # }
+	#
+    # public static int getOpposite(int var0) {
+    #     switch(var0) {
+    #     case 0:
+    #         return 1;
+    #     case 1:
+    #         return 0;
+    #     case 2:
+    #         return 3;
+    #     case 3:
+    #         return 2;
+    #     case 4:
+    #         return 5;
+    #     case 5:
+    #         return 4;
+    #     default:
+    #         throw new RuntimeException("SIDE NOT FOUND: " + var0);
+    #     }
+    # }
+	#
+    # public static int getClockWiseZ(int var0) {
+    #     switch(var0) {
+    #     case 0:
+    #         return 0;
+    #     case 1:
+    #         return 1;
+    #     case 2:
+    #         return 4;
+    #     case 3:
+    #         return 5;
+    #     case 4:
+    #         return 3;
+    #     case 5:
+    #         return 2;
+    #     default:
+    #         throw new RuntimeException("SIDE NOT FOUND: " + var0);
+    #     }
+    # }
+	#
+    # public static int getCounterClockWiseZ(int var0) {
+    #     switch(var0) {
+    #     case 0:
+    #         return 0;
+    #     case 1:
+    #         return 1;
+    #     case 2:
+    #         return 5;
+    #     case 3:
+    #         return 4;
+    #     case 4:
+    #         return 2;
+    #     case 5:
+    #         return 3;
+    #     default:
+    #         throw new RuntimeException("SIDE NOT FOUND: " + var0);
+    #     }
+    # }
+	#
+    # public static int getClockWiseX(int var0) {
+    #     switch(var0) {
+    #     case 0:
+    #         return 3;
+    #     case 1:
+    #         return 2;
+    #     case 2:
+    #         return 0;
+    #     case 3:
+    #         return 1;
+    #     case 4:
+    #         return 4;
+    #     case 5:
+    #         return 5;
+    #     default:
+    #         throw new RuntimeException("SIDE NOT FOUND: " + var0);
+    #     }
+    # }
+	#
+    # public static int getCounterClockWiseX(int var0) {
+    #     switch(var0) {
+    #     case 0:
+    #         return 2;
+    #     case 1:
+    #         return 3;
+    #     case 2:
+    #         return 1;
+    #     case 3:
+    #         return 0;
+    #     case 4:
+    #         return 0;
+    #     case 5:
+    #         return 5;
+    #     default:
+    #         throw new RuntimeException("SIDE NOT FOUND: " + var0);
+    #     }
+    # }
+	#
+    # public static int getCounterClockWiseY(int var0) {
+    #     switch(var0) {
+    #     case 0:
+    #         return 4;
+    #     case 1:
+    #         return 5;
+    #     case 2:
+    #         return 2;
+    #     case 3:
+    #         return 3;
+    #     case 4:
+    #         return 1;
+    #     case 5:
+    #         return 0;
+    #     default:
+    #         throw new RuntimeException("SIDE NOT FOUND: " + var0);
+    #     }
+    # }
+	#
+    # public static int getClockWiseY(int var0) {
+    #     switch(var0) {
+    #     case 0:
+    #         return 5;
+    #     case 1:
+    #         return 4;
+    #     case 2:
+    #         return 2;
+    #     case 3:
+    #         return 3;
+    #     case 4:
+    #         return 0;
+    #     case 5:
+    #         return 1;
+    #     default:
+    #         throw new RuntimeException("SIDE NOT FOUND: " + var0);
+    #     }
+    # }

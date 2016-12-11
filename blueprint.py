@@ -32,7 +32,10 @@ class Blueprint(DefaultLogging, BlueprintUtils):
 			debug=debug)
 		self.header = Header()
 		self.logic = Logic()
-		self.meta = Meta()
+		self.meta = Meta(
+			logfile=logfile,
+			verbose=verbose,
+			debug=debug)
 		self.smd3 = Smd()
 		return
 
@@ -49,7 +52,7 @@ class Blueprint(DefaultLogging, BlueprintUtils):
 		"""
 		self.header = Header()
 		self.logic = Logic()
-		self.meta = Meta()
+		self.meta = Meta(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
 		self.smd3 = Smd(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
 
 		self.header.read(directory_blueprint)
@@ -146,7 +149,7 @@ class Blueprint(DefaultLogging, BlueprintUtils):
 		@param summary: If true the output is reduced
 		@type summary: bool
 		"""
-		self.header.to_stream(output_stream, summary=summary)
-		self.logic.to_stream(output_stream, summary=summary)
-		# self.meta.to_stream(output_stream, summary=summary)
-		self.smd3.to_stream(output_stream, summary=summary)
+		# self.header.to_stream(output_stream, summary=summary)
+		# self.logic.to_stream(output_stream, summary=summary)
+		self.meta.to_stream(output_stream, summary=summary)
+		# self.smd3.to_stream(output_stream, summary=summary)
