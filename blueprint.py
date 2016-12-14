@@ -52,7 +52,7 @@ class Blueprint(DefaultLogging, BlueprintUtils):
 		"""
 		self.header = Header()
 		self.logic = Logic()
-		self.meta = Meta(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
+		# self.meta = Meta(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
 		self.smd3 = Smd(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
 
 		self.header.read(directory_blueprint)
@@ -140,6 +140,74 @@ class Blueprint(DefaultLogging, BlueprintUtils):
 		self.logic.move_center(direction_vector, self.header.type)
 		self.header.set_box(min_vector, max_vector)
 
+	def turn_tilt(self, index_turn_tilt):
+		"""
+
+		@param index_turn_tilt:
+		@type index_turn_tilt: int
+		"""
+		# TODO: logic needs to be updated!
+		if index_turn_tilt == 0:
+			self._tilt_up()
+		elif index_turn_tilt == 1:
+			self._tilt_down()
+		elif index_turn_tilt == 2:
+			self._turn_right()
+		elif index_turn_tilt == 3:
+			self._turn_left()
+		elif index_turn_tilt == 4:
+			self._tilt_right()
+		elif index_turn_tilt == 5:
+			self._tilt_left()
+
+	def _tilt_up(self):
+		"""
+
+		"""
+		min_vector, max_vector = self.smd3.tilt_up()
+		# self.logic.tilt_up(self.header.type)
+		self.header.set_box(min_vector, max_vector)
+
+	def _tilt_down(self):
+		"""
+
+		"""
+		min_vector, max_vector = self.smd3.tilt_down()
+		# self.logic.tilt_up(self.header.type)
+		self.header.set_box(min_vector, max_vector)
+
+	def _turn_right(self):
+		"""
+
+		"""
+		min_vector, max_vector = self.smd3.turn_right()
+		# self.logic.tilt_up(self.header.type)
+		self.header.set_box(min_vector, max_vector)
+
+	def _turn_left(self):
+		"""
+
+		"""
+		min_vector, max_vector = self.smd3.turn_left()
+		# self.logic.tilt_up(self.header.type)
+		self.header.set_box(min_vector, max_vector)
+
+	def _tilt_right(self):
+		"""
+
+		"""
+		min_vector, max_vector = self.smd3.tilt_right()
+		# self.logic.tilt_up(self.header.type)
+		self.header.set_box(min_vector, max_vector)
+
+	def _tilt_left(self):
+		"""
+
+		"""
+		min_vector, max_vector = self.smd3.tilt_left()
+		# self.logic.tilt_up(self.header.type)
+		self.header.set_box(min_vector, max_vector)
+
 	def to_stream(self, output_stream=sys.stdout, summary=True):
 		"""
 		Stream blueprint values
@@ -152,4 +220,4 @@ class Blueprint(DefaultLogging, BlueprintUtils):
 		# self.header.to_stream(output_stream, summary=summary)
 		# self.logic.to_stream(output_stream, summary=summary)
 		self.meta.to_stream(output_stream, summary=summary)
-		# self.smd3.to_stream(output_stream, summary=summary)
+		self.smd3.to_stream(output_stream, summary=summary)
