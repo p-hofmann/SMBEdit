@@ -86,21 +86,33 @@ class BlockOrientation(BitAndBytes, BlueprintUtils):
 	# https://starmadepedia.net/wiki/Blueprint_File_Formats#Block_Data
 
 	def __init__(self, block_type):
+		"""
+		Constructor
+
+		@param block_type:
+		@type block_type: int
+		"""
 		self._label = "BlockOrientation"
 		super(BlockOrientation, self).__init__()
 		self._type = block_type
-		self._bit_array = 0
+		self._int_24bit = 0
 		self._block_side_id = 0
 		self._x = 0
 		self._y = 0
 		self._z = 0
 		self._clockwise_rotations = 0
 
-	def set_bit_array(self, bit_array):
-		self._bit_array = bit_array
-		self._parse_bit_array()
+	def set_bit_array(self, int_24bit):
+		"""
+		Set bit array
 
-	def get_bit_array(self, bit_array):
+		@param int_24bit:
+		@type int_24bit: int
+		"""
+		self._int_24bit = int_24bit
+		self._parse_int_24bit()
+
+	def get_int_24bit(self, bit_array):
 		if self._type == 1:
 			return self.bits_combine(self._x, bit_array, 20)
 		if self._type != 1:
@@ -110,7 +122,7 @@ class BlockOrientation(BitAndBytes, BlueprintUtils):
 		bit_array = self.bits_combine(self._z, bit_array, 23)
 		return bit_array
 
-	def _parse_bit_array(self):
+	def _parse_int_24bit(self):
 		"""
 		The byte string is turned into an integer so bit operations can pick out each value.
 		An integer is 4 byte (32 bit) but a block is only 3 byte long. THis is why '\x00' is added.
@@ -122,13 +134,13 @@ class BlockOrientation(BitAndBytes, BlueprintUtils):
 		self._z = 0
 		self._clockwise_rotations = 0
 		if self._type == 1:
-			self._block_side_id = self.bits_parse(self._bit_array, 20, 4)
+			self._block_side_id = self.bits_parse(self._int_24bit, 20, 4)
 			return
 		if self._type != 1:
-			self._x = self.bits_parse(self._bit_array, 19, 1)
-		self._clockwise_rotations = self.bits_parse(self._bit_array, 20, 2)
-		self._y = self.bits_parse(self._bit_array, 22, 1)
-		self._z = self.bits_parse(self._bit_array, 23, 1)
+			self._x = self.bits_parse(self._int_24bit, 19, 1)
+		self._clockwise_rotations = self.bits_parse(self._int_24bit, 20, 2)
+		self._y = self.bits_parse(self._int_24bit, 22, 1)
+		self._z = self.bits_parse(self._int_24bit, 23, 1)
 
 	def to_stream(self, output_stream=sys.stdout):
 		"""
@@ -140,6 +152,8 @@ class BlockOrientation(BitAndBytes, BlueprintUtils):
 
 	def to_string(self):
 		"""
+		Return orientation data as string
+
 		@rtype: str
 		"""
 		# return str(self.bits_parse(self._bit_array, 19, 4))
