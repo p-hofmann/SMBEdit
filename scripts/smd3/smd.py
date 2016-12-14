@@ -96,7 +96,10 @@ class Smd(DefaultLogging, BlueprintUtils):
 		@return:
 		@rtype: int, int, int
 		"""
-		return self._get_region_position_of(position[0]), self._get_region_position_of(position[1]), self._get_region_position_of(position[2])
+		return (
+			self._get_region_position_of(position[0]),
+			self._get_region_position_of(position[1]),
+			self._get_region_position_of(position[2]))
 
 	def _get_region_position_of(self, value):
 		"""
@@ -110,6 +113,124 @@ class Smd(DefaultLogging, BlueprintUtils):
 		"""
 		blocks_in_a_line_in_a_region = self._blocks_in_a_line_in_a_segment * self._segments_in_a_line_of_a_region
 		return int(math.floor((value+blocks_in_a_line_in_a_region/2) / float(blocks_in_a_line_in_a_region)))
+
+	# #######################################
+	# ###  moving blocks
+	# #######################################
+
+	def move_center(self, direction_vector):
+		"""
+		Move center (core) in a specific direction
+
+		@param direction_vector: (x,y,z)
+		@type direction_vector: int,int,int
+
+		@return: new minimum and maximum coordinates of the blueprint
+		@rtype: tuple[int,int,int], tuple[int,int,int]
+		"""
+		new_smd = Smd(
+			segments_in_a_line_of_a_region=self._segments_in_a_line_of_a_region,
+			blocks_in_a_line_of_a_segment=self._blocks_in_a_line_in_a_segment,
+			logfile=self._logfile,
+			verbose=self._verbose,
+			debug=self._debug)
+		min_vector = [16, 16, 16]
+		max_vector = [16, 16, 16]
+		for position_block, block in self.iteritems():
+			assert isinstance(block, SmdBlock)
+			new_block_position = self.vector_subtraction(position_block, direction_vector)
+			if block.get_id() == 1:  # core
+				new_block_position = position_block
+			new_smd.add(new_block_position, block)
+
+			for index, value in enumerate(new_block_position):
+				if value < min_vector[index]:
+					min_vector[index] = value
+				if value > max_vector[index]:
+					max_vector[index] = value
+		del self.position_to_region
+		self.position_to_region = new_smd.position_to_region
+		return tuple(min_vector), tuple(max_vector)
+
+	def _tilt_turn(self, tilt_index, indexes, multiplicator):
+		"""
+		Turn or tilt this entity.
+
+		@param tilt_index: integer representing a specific turn
+		@type tilt_index: int
+		@param indexes: indicate which axis need to be switch for a turn
+		@type indexes: tuple
+		@param multiplicator: tuple contains a combination of three 1, -1
+		@type multiplicator: tuple
+
+		@return: new minimum and maximum coordinates of the blueprint
+		@rtype: tuple[int,int,int], tuple[int,int,int]
+		"""
+		new_smd = Smd(
+			segments_in_a_line_of_a_region=self._segments_in_a_line_of_a_region,
+			blocks_in_a_line_of_a_segment=self._blocks_in_a_line_in_a_segment,
+			logfile=self._logfile,
+			verbose=self._verbose,
+			debug=self._debug)
+		min_vector = [16, 16, 16]
+		max_vector = [16, 16, 16]
+		for position_block, block in self.iteritems():
+			assert isinstance(block, SmdBlock)
+			new_block_position = position_block
+			if block.get_id() != 1:  # core
+				new_block_position = self.vector_subtraction(position_block, (16, 16, 16))
+				new_block_position = (
+					multiplicator[0]*new_block_position[indexes[0]],
+					multiplicator[1]*new_block_position[indexes[1]],
+					multiplicator[2]*new_block_position[indexes[2]])
+				new_block_position = self.vector_addition(new_block_position, (16, 16, 16))
+				# block.tilt_turn(tilt_index)  # todo: needs fixing
+			new_smd.add(new_block_position, block)
+
+			for index, value in enumerate(new_block_position):
+				if value < min_vector[index]:
+					min_vector[index] = value
+				if value > max_vector[index]:
+					max_vector[index] = value
+		del self.position_to_region
+		self.position_to_region = new_smd.position_to_region
+		return tuple(min_vector), tuple(max_vector)
+
+	def tilt_up(self):
+		tilt_index = 0
+		indexes = (0, 2, 1)
+		multiplicator = (1, 1, -1)
+		return self._tilt_turn(tilt_index, indexes, multiplicator)
+
+	def tilt_down(self):
+		tilt_index = 1
+		indexes = (0, 2, 1)
+		multiplicator = (1, -1, 1)
+		return self._tilt_turn(tilt_index, indexes, multiplicator)
+
+	def turn_right(self):
+		tilt_index = 2
+		indexes = (2, 1, 0)
+		multiplicator = (1, 1, -1)
+		return self._tilt_turn(tilt_index, indexes, multiplicator)
+
+	def turn_left(self):
+		tilt_index = 3
+		indexes = (2, 1, 0)
+		multiplicator = (-1, 1, 1)
+		return self._tilt_turn(tilt_index, indexes, multiplicator)
+
+	def tilt_right(self):
+		tilt_index = 4
+		indexes = (1, 0, 2)
+		multiplicator = (1, -1, 1)
+		return self._tilt_turn(tilt_index, indexes, multiplicator)
+
+	def tilt_left(self):
+		tilt_index = 5
+		indexes = (1, 0, 2)
+		multiplicator = (-1, 1, 1)
+		return self._tilt_turn(tilt_index, indexes, multiplicator)
 
 	# #######################################
 	# ###  Else
@@ -237,40 +358,6 @@ class Smd(DefaultLogging, BlueprintUtils):
 			for position_block, block in region.iteritems():
 				assert isinstance(block, SmdBlock), type(block)
 				yield position_block, block
-
-	def move_center(self, direction_vector):
-		"""
-		Move center (core) in a specific direction
-
-		@param direction_vector: (x,y,z)
-		@type direction_vector: int,int,int
-
-		@return: new minimum and maximum coordinates of the blueprint
-		@rtype: tuple[int,int,int], tuple[int,int,int]
-		"""
-		new_smd = Smd(
-			segments_in_a_line_of_a_region=self._segments_in_a_line_of_a_region,
-			blocks_in_a_line_of_a_segment=self._blocks_in_a_line_in_a_segment,
-			logfile=self._logfile,
-			verbose=self._verbose,
-			debug=self._debug)
-		min_vector = [16, 16, 16]
-		max_vector = [16, 16, 16]
-		for position_block, block in self.iteritems():
-			assert isinstance(block, SmdBlock)
-			new_block_position = self.vector_subtraction(position_block, direction_vector)
-			if block.get_id() == 1:  # core
-				new_block_position = position_block
-			new_smd.add(new_block_position, block)
-
-			for index, value in enumerate(new_block_position):
-				if value < min_vector[index]:
-					min_vector[index] = value
-				if value > max_vector[index]:
-					max_vector[index] = value
-		del self.position_to_region
-		self.position_to_region = new_smd.position_to_region
-		return tuple(min_vector), tuple(max_vector)
 
 	def get_min_max_vector(self):
 		"""
