@@ -6,6 +6,7 @@ from scripts.bit_and_bytes import BitAndBytes
 from scripts.blueprintutils import BlueprintUtils
 from blockorientation import BlockOrientation
 
+
 class SmdBlock(BitAndBytes, BlueprintUtils):
 
 	# https://starmadepedia.net/wiki/Blueprint_File_Formats#Block_Data
