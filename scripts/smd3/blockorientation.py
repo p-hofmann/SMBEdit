@@ -184,17 +184,17 @@ class BlockOrientation(BitAndBytes, BlueprintUtils):
 			return 1
 		raise Exception("Bad direction: {}".format(direction))
 
-	def turn_upside_down(self):
-		if self._type == 1:
-			self._turn_facing_180()
-			return
-		self._turn_direction_180()
-
-	def turn_180(self):
-		if self._type == 1:
-			self._turn_facing_180()
-			return
-		self._turn_direction_180()
+	# def turn_upside_down(self):
+	# 	if self._type == 1:
+	# 		self._turn_facing_180()
+	# 		return
+	# 	self._turn_direction_180()
+	#
+	# def turn_180(self):
+	# 	if self._type == 1:
+	# 		self._turn_facing_180()
+	# 		return
+	# 	self._turn_direction_180()
 
 	def turn_90_x(self):
 		if self._type == 1:
