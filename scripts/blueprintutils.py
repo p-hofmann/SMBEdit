@@ -41,7 +41,7 @@ class BlueprintUtils(object):
 		56: "Gravity Unit",
 		120: "Storage",
 		689: "Cargo Space",
-		123: "Build SmdBlock",
+		123: "Build Block",
 		22: "Cloaker",
 		15: "RadarJammer",
 		47: "Camera",
@@ -616,8 +616,11 @@ class BlueprintUtils(object):
 		assert isinstance(block_id, int)
 		activatable_block_id = {
 			# system
-			# 120: "Storage",
+			# 56: "Gravity Unit",
+			120: "Storage",
+			# 121: "BOBBY AI Module",
 			# station
+			# 113: "Plex Lift",
 			211: "Basic Factory",
 			217: "Standard Factory",
 			259: "Advanced Factory",
@@ -627,8 +630,24 @@ class BlueprintUtils(object):
 		}
 		if block_id in self._block_ids["logic"]:
 			return True
-		# if block_id in self._block_ids["lighting"]:
+		if block_id in self._block_ids["doors"]:
+			return True
+		if block_id in self._block_ids["lighting"]:
+			return True
+		# if block_id in self._block_ids["medical"]:
 		# 	return True
+		# if block_id in self._block_ids["factions"]:
+		# 	return True
+		if block_id in self._block_ids["systems"]:
+			return True
+		# if block_id in self._block_ids["effects"]:
+		# 	return True
+		# if block_id in self._block_ids["tools"]:
+		# 	return True
+		# if block_id in self._block_ids["weapons"]:
+		# 	return True
+		if block_id in self._block_ids["station"]:
+			return True
 		if block_id in activatable_block_id:
 			return True
 		return False
