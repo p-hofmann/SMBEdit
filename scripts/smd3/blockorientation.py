@@ -102,7 +102,7 @@ class BlockOrientation(BitAndBytes, BlueprintUtils):
 		self._z = 0
 		self._clockwise_rotations = 0
 
-	def set_bit_array(self, int_24bit):
+	def set_int_24bit(self, int_24bit):
 		"""
 		Set bit array
 
