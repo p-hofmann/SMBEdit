@@ -235,6 +235,25 @@ class Logic(BlueprintUtils):
 			if len(self._controller_position_to_block_id_to_block_positions[controller_position]) == 0:
 				self._controller_position_to_block_id_to_block_positions.pop(controller_position)
 
+	def update_link(self, old_position, new_position):
+		"""
+		Update the link from or to a block that moved position
+
+		@param old_position:
+		@type old_position: int,int,int
+		@param new_position:
+		@type new_position: int,int,int
+		"""
+		if old_position in self._controller_position_to_block_id_to_block_positions:
+			groups = self._controller_position_to_block_id_to_block_positions.pop(old_position)
+			self._controller_position_to_block_id_to_block_positions[new_position] = groups
+		for controller_position in self._controller_position_to_block_id_to_block_positions.keys():
+			groups = self._controller_position_to_block_id_to_block_positions[controller_position]
+			for block_id, positions in groups.iteritems():
+				if old_position in positions:
+					positions.pop(old_position)
+					positions.add(new_position)
+
 	def set_type(self, entity_type):
 		"""
 		Change entity type
