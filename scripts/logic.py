@@ -3,8 +3,8 @@ __author__ = 'Peter Hofmann'
 import os
 import sys
 from scripts.loggingwrapper import DefaultLogging
-from bit_and_bytes import ByteStream
-from blueprintutils import BlueprintUtils
+from scripts.bit_and_bytes import ByteStream
+from scripts.blueprintutils import BlueprintUtils
 # from scripts.smd3.smd import Smd
 
 

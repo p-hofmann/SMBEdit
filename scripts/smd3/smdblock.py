@@ -4,7 +4,7 @@ import sys
 import struct
 from scripts.bit_and_bytes import BitAndBytes
 from scripts.blueprintutils import BlueprintUtils
-from blockorientation import BlockOrientation
+from scripts.smd3.blockorientation import BlockOrientation
 
 
 class SmdBlock(BitAndBytes, BlueprintUtils):

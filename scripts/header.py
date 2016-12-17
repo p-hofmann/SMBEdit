@@ -2,9 +2,9 @@ __author__ = 'Peter Hofmann'
 
 import os
 import sys
-from blueprintutils import BlueprintUtils
-from bit_and_bytes import ByteStream
-from smd3.smd import Smd
+from scripts.blueprintutils import BlueprintUtils
+from scripts.bit_and_bytes import ByteStream
+from scripts.smd3.smd import Smd
 
 
 # #######################################

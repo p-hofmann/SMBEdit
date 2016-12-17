@@ -3,7 +3,6 @@ __author__ = 'Peter Hofmann'
 import sys
 import os
 import math
-from scripts.logic import Logic
 from scripts.loggingwrapper import DefaultLogging
 from scripts.blueprintutils import BlueprintUtils
 from scripts.smd3.smdregion import SmdRegion

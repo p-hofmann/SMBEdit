@@ -6,7 +6,7 @@ import datetime
 from scripts.loggingwrapper import DefaultLogging
 from scripts.bit_and_bytes import ByteStream
 from scripts.blueprintutils import BlueprintUtils
-from smdblock import SmdBlock
+from scripts.smd3.smdblock import SmdBlock
 
 
 class SmdSegment(DefaultLogging, BlueprintUtils):

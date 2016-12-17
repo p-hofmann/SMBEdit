@@ -4,8 +4,8 @@ import os
 import sys
 import zlib
 import gzip
-from bit_and_bytes import ByteStream
-from loggingwrapper import DefaultLogging
+from scripts.bit_and_bytes import ByteStream
+from scripts.loggingwrapper import DefaultLogging
 
 
 # #######################################
