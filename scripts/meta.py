@@ -25,7 +25,7 @@ class Meta(DefaultLogging):
 	def __init__(self, logfile=None, verbose=False, debug=False):
 		self._label = "Meta"
 		super(Meta, self).__init__(logfile, verbose, debug)
-		self.version = ""
+		self.version = 0
 		self.root_tag = None
 		self.is_compressed = False
 		self.blueprints = {}
