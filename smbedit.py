@@ -48,9 +48,9 @@ class SMBEdit(DefaultLogging):
 		"""
 		Parsing of passed arguments.
 
-		@param args: Passed arguemnts
+		@param args: Arguments like sys.argv
 
-		@return: any
+		@rtype: any
 		"""
 		parser = argparse.ArgumentParser(
 			usage="python %(prog)s directory_blueprint",
