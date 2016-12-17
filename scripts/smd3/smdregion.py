@@ -353,21 +353,17 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
 			for position_block, block in segment.iteritems():
 				yield position_block, block
 
-	def to_stream(self, output_stream=sys.stdout, summary=True):
+	def to_stream(self, output_stream=sys.stdout):
 		"""
 		Stream region values
 
 		@param output_stream: Output stream
 		@type output_stream: fileIO
-		@param summary: If true the output is reduced
-		@type summary: bool
 		"""
 		output_stream.write("Version: {}\n".format(self.version))
-		# output_stream.write("Segments: {}\n{}\n".format(len(self._segment_to_size), sorted(self._segment_to_size.keys())))
 		output_stream.write("Segments: {}\n".format(len(self.position_to_segment)))
-		# output_stream.write("Tail: {} bytes\n\n".format(len(self.tail_data)))
-		if self._debug:
+		if self._debug or self._verbose:
 			for position in sorted(self.position_to_segment.keys(), key=lambda tup: (tup[2], tup[1], tup[0])):
-				self.position_to_segment[position].to_stream(output_stream, summary)
+				self.position_to_segment[position].to_stream(output_stream)
 		output_stream.write("\n")
 		output_stream.flush()
