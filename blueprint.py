@@ -26,20 +26,11 @@ class Blueprint(DefaultLogging, BlueprintUtils):
 		@rtype: None
 		"""
 		self._label = "Blueprint"
-		super(Blueprint, self).__init__(
-			logfile=logfile,
-			verbose=verbose,
-			debug=debug)
-		self.header = Header()
-		self.logic = Logic(
-			logfile=logfile,
-			verbose=verbose,
-			debug=debug)
-		self.meta = Meta(
-			logfile=logfile,
-			verbose=verbose,
-			debug=debug)
-		self.smd3 = Smd()
+		super(Blueprint, self).__init__(logfile=logfile, verbose=verbose, debug=debug)
+		self.header = Header(logfile=logfile, verbose=verbose, debug=debug)
+		self.logic = Logic(logfile=logfile, verbose=verbose, debug=debug)
+		self.meta = Meta(logfile=logfile, verbose=verbose, debug=debug)
+		self.smd3 = Smd(logfile=logfile, verbose=verbose, debug=debug)
 		return
 
 	# #######################################
@@ -53,7 +44,7 @@ class Blueprint(DefaultLogging, BlueprintUtils):
 		@param directory_blueprint: /../StarMade/blueprints/blueprint_name/
 		@type directory_blueprint: str
 		"""
-		self.header = Header()
+		self.header = Header(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
 		self.logic = Logic(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
 		# self.meta = Meta(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
 		self.smd3 = Smd(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
@@ -154,7 +145,7 @@ class Blueprint(DefaultLogging, BlueprintUtils):
 		min_vector, max_vector = self.smd3.tilt_turn(index_turn_tilt)
 		self.header.set_box(min_vector, max_vector)
 
-	def to_stream(self, output_stream=sys.stdout, summary=True):
+	def to_stream(self, output_stream=sys.stdout):
 		"""
 		Stream blueprint values
 
@@ -163,7 +154,7 @@ class Blueprint(DefaultLogging, BlueprintUtils):
 		@param summary: If true the output is reduced
 		@type summary: bool
 		"""
-		# self.header.to_stream(output_stream, summary=summary)
-		self.logic.to_stream(output_stream, summary=summary)
-		self.meta.to_stream(output_stream, summary=summary)
-		self.smd3.to_stream(output_stream, summary=summary)
+		self.header.to_stream(output_stream)
+		self.logic.to_stream(output_stream)
+		self.meta.to_stream(output_stream)
+		self.smd3.to_stream(output_stream)
