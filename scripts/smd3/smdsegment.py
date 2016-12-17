@@ -295,14 +295,12 @@ class SmdSegment(DefaultLogging, BlueprintUtils):
 		for block_index, block in self.block_index_to_block.iteritems():
 			yield self.get_block_position_by_block_index(block_index), block
 
-	def to_stream(self, output_stream=sys.stdout, summary=True):
+	def to_stream(self, output_stream=sys.stdout):
 		"""
 		Stream segment values
 
 		@param output_stream: Output stream
 		@type output_stream: fileIO
-		@param summary: If true the output is reduced
-		@type summary: bool
 		"""
 		output_stream.write("Segment: {} '{}' ({})\n".format(
 			self.position,
@@ -310,10 +308,9 @@ class SmdSegment(DefaultLogging, BlueprintUtils):
 			self.version,
 			))
 		output_stream.flush()
-		if summary:
-			return
-		for block_index in sorted(self.block_index_to_block.keys()):
-			output_stream.write("{}\t".format(self.get_block_position_by_block_index(block_index)))
-			# output_stream.write("{}\t".format(block_index))
-			self.block_index_to_block[block_index].to_stream(output_stream)
+		if self._debug:
+			for block_index in sorted(self.block_index_to_block.keys()):
+				output_stream.write("{}\t".format(self.get_block_position_by_block_index(block_index)))
+				# output_stream.write("{}\t".format(block_index))
+				self.block_index_to_block[block_index].to_stream(output_stream)
 		output_stream.flush()
