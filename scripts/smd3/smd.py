@@ -3,6 +3,7 @@ __author__ = 'Peter Hofmann'
 import sys
 import os
 import math
+from scripts.logic import Logic
 from scripts.loggingwrapper import DefaultLogging
 from scripts.blueprintutils import BlueprintUtils
 from scripts.smd3.smdregion import SmdRegion
@@ -152,16 +153,16 @@ class Smd(DefaultLogging, BlueprintUtils):
 		self.position_to_region = new_smd.position_to_region
 		return tuple(min_vector), tuple(max_vector)
 
-	def _tilt_turn(self, tilt_index, indexes, multiplicator):
+	# #######################################
+	# ###  Turning
+	# #######################################
+
+	def tilt_turn(self, tilt_index):
 		"""
 		Turn or tilt this entity.
 
 		@param tilt_index: integer representing a specific turn
 		@type tilt_index: int
-		@param indexes: indicate which axis need to be switch for a turn
-		@type indexes: tuple
-		@param multiplicator: tuple contains a combination of three 1, -1
-		@type multiplicator: tuple
 
 		@return: new minimum and maximum coordinates of the blueprint
 		@rtype: tuple[int,int,int], tuple[int,int,int]
@@ -178,12 +179,7 @@ class Smd(DefaultLogging, BlueprintUtils):
 			assert isinstance(block, SmdBlock)
 			new_block_position = position_block
 			if block.get_id() != 1:  # core
-				new_block_position = self.vector_subtraction(position_block, (16, 16, 16))
-				new_block_position = (
-					multiplicator[0]*new_block_position[indexes[0]],
-					multiplicator[1]*new_block_position[indexes[1]],
-					multiplicator[2]*new_block_position[indexes[2]])
-				new_block_position = self.vector_addition(new_block_position, (16, 16, 16))
+				new_block_position = self._tilt_turn_position(position_block, tilt_index)
 				# block.tilt_turn(tilt_index)  # todo: needs fixing
 			new_smd.add(new_block_position, block)
 
@@ -195,42 +191,6 @@ class Smd(DefaultLogging, BlueprintUtils):
 		del self.position_to_region
 		self.position_to_region = new_smd.position_to_region
 		return tuple(min_vector), tuple(max_vector)
-
-	def tilt_up(self):
-		tilt_index = 0
-		indexes = (0, 2, 1)
-		multiplicator = (1, 1, -1)
-		return self._tilt_turn(tilt_index, indexes, multiplicator)
-
-	def tilt_down(self):
-		tilt_index = 1
-		indexes = (0, 2, 1)
-		multiplicator = (1, -1, 1)
-		return self._tilt_turn(tilt_index, indexes, multiplicator)
-
-	def turn_right(self):
-		tilt_index = 2
-		indexes = (2, 1, 0)
-		multiplicator = (1, 1, -1)
-		return self._tilt_turn(tilt_index, indexes, multiplicator)
-
-	def turn_left(self):
-		tilt_index = 3
-		indexes = (2, 1, 0)
-		multiplicator = (-1, 1, 1)
-		return self._tilt_turn(tilt_index, indexes, multiplicator)
-
-	def tilt_right(self):
-		tilt_index = 4
-		indexes = (1, 0, 2)
-		multiplicator = (1, -1, 1)
-		return self._tilt_turn(tilt_index, indexes, multiplicator)
-
-	def tilt_left(self):
-		tilt_index = 5
-		indexes = (1, 0, 2)
-		multiplicator = (-1, 1, 1)
-		return self._tilt_turn(tilt_index, indexes, multiplicator)
 
 	# #######################################
 	# ###  Else
