@@ -738,6 +738,8 @@ class BlueprintUtils(object):
 			distance += abs(vector1[index] - vector2[index])
 		return distance
 
+	_core_position = (16, 16, 16)
+
 	def _get_direction_vector_to_center(self, position):
 		"""
 		Relocate center/core in a direction
@@ -747,4 +749,48 @@ class BlueprintUtils(object):
 
 		@rtype: int, int, int
 		"""
-		return self.vector_subtraction(position, (16, 16, 16))
+		return self.vector_subtraction(position, self._core_position)
+
+	# #######################################
+	# ###  Turning
+	# #######################################
+
+	_turn_indexes = {
+		0: (0, 2, 1),  # tilt up
+		1: (0, 2, 1),  # tilt down
+		2: (2, 1, 0),  # turn right
+		3: (2, 1, 0),  # turn left
+		4: (1, 0, 2),  # tilt right
+		5: (1, 0, 2),  # tilt left
+	}
+
+	_turn_multiplicator = {
+		0: (1, 1, -1),  # tilt up
+		1: (1, -1, 1),  # tilt down
+		2: (-1, 1, 1),  # turn right
+		3: (1, 1, -1),  # turn left
+		4: (-1, 1, 1),  # tilt right
+		5: (1, -1, 1),  # tilt left
+	}
+
+	def _tilt_turn_position(self, position, tilt_index):
+		"""
+		Turn or tilt this entity.
+
+		@param position:
+		@type position: tuple
+		@param tilt_index: integer representing a specific turn
+		@type tilt_index: int
+
+		@return: new minimum and maximum coordinates of the blueprint
+		@rtype: tuple[int,int,int], tuple[int,int,int]
+		"""
+		multiplicator = self._turn_multiplicator[tilt_index]
+		indexes = self._turn_indexes[tilt_index]
+		new_block_position = self.vector_subtraction(position, self._core_position)
+		new_block_position = (
+			multiplicator[0]*new_block_position[indexes[0]],
+			multiplicator[1]*new_block_position[indexes[1]],
+			multiplicator[2]*new_block_position[indexes[2]])
+		new_block_position = self.vector_addition(new_block_position, self._core_position)
+		return new_block_position
