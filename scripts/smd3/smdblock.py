@@ -168,19 +168,6 @@ class SmdBlock(BitAndBytes, BlueprintUtils):
 			return
 		self._type = 2
 
-	def to_stream(self, output_stream=sys.stdout):
-		"""
-		Stream block values
-
-		@param output_stream:
-		@type output_stream: fileIO
-		"""
-		output_stream.write("({})\t".format(self._type))
-		output_stream.write("HP: {}\t".format(self._hitpoints))
-		output_stream.write("Active: {}\t".format(self.is_active()))
-		output_stream.write("Or.: {}\t".format(self._orientation.to_string()))
-		output_stream.write("{}\n".format(self.get_block_name_by_id(self._id)))
-
 	# #######################################
 	# ###  Turning
 	# #######################################
@@ -225,3 +212,20 @@ class SmdBlock(BitAndBytes, BlueprintUtils):
 
 	def tilt_left(self):
 		self._orientation.turn_270_z()
+
+	# #######################################
+	# ###  Stream
+	# #######################################
+
+	def to_stream(self, output_stream=sys.stdout):
+		"""
+		Stream block values
+
+		@param output_stream:
+		@type output_stream: fileIO
+		"""
+		output_stream.write("({})\t".format(self._type))
+		output_stream.write("HP: {}\t".format(self._hitpoints))
+		output_stream.write("Active: {}\t".format(self.is_active()))
+		output_stream.write("Or.: {}\t".format(self._orientation.to_string()))
+		output_stream.write("{}\n".format(self.get_block_name_by_id(self._id)))
