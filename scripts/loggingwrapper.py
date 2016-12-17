@@ -1,10 +1,13 @@
 __author__ = 'hofmann'
-__version__ = '0.1.3'
+__version__ = '0.1.4'
 
 import sys
 import io
-import StringIO
 import logging
+if sys.version_info <= (2, 8):
+	from StringIO import StringIO  # python 2.7
+else:
+	from io import StringIO  # python 3
 
 
 class LoggingWrapper(object):
@@ -17,7 +20,11 @@ class LoggingWrapper(object):
 	DEBUG = logging.DEBUG
 	NOTSET = logging.NOTSET
 
-	_levelNames = logging._levelNames
+	if sys.version_info <= (2, 8):
+		_levelNames = logging._levelNames
+	else:
+		_levelNames = logging._levelToName  # python 3
+
 	_map_logfile_handler = dict()
 
 	def __init__(self, label="", verbose=True, message_format=None, date_format=None, stream=sys.stderr):
@@ -27,23 +34,23 @@ class LoggingWrapper(object):
 		@attention: 'labels' are unique, LoggingWrapper with the same label will have the same streams!
 
 		@param label: unique label for a LoggingWrapper
-		@type label: basestring
+		@type label: str
 		@param verbose: Not verbose means that only warnings and errors will be past to stream
 		@type verbose: bool
 		@param message_format: "%(asctime)s %(levelname)s: [%(name)s] %(message)s"
-		@type message_format: basestring
+		@type message_format: str
 		@param date_format: "%Y-%m-%d %H:%M:%S"
-		@type date_format: basestring
+		@type date_format: str
 		@param stream: To have no output at all, use "stream=None", stderr by default
 		@type stream: file | FileIO | StringIO | None
 
 		@return: None
 		@rtype: None
 		"""
-		assert isinstance(label, basestring)
+		assert isinstance(label, str)
 		assert isinstance(verbose, bool)
-		assert message_format is None or isinstance(message_format, basestring)
-		assert message_format is None or isinstance(date_format, basestring)
+		assert message_format is None or isinstance(message_format, str)
+		assert message_format is None or isinstance(date_format, str)
 		assert stream is None or self.is_stream(stream)
 
 		if message_format is None:
@@ -114,7 +121,7 @@ class LoggingWrapper(object):
 		Log general informative messages, that might be useful for the user.
 
 		@param message: Message to be logged
-		@type message: basestring
+		@type message: str
 
 		@return: None
 		@rtype: None
@@ -126,7 +133,7 @@ class LoggingWrapper(object):
 		Log an significant error that occured.
 
 		@param message: Message to be logged
-		@type message: basestring
+		@type message: str
 
 		@return: None
 		@rtype: None
@@ -138,7 +145,7 @@ class LoggingWrapper(object):
 		Log a message for debugging puposes only.
 
 		@param message: Message to be logged
-		@type message: basestring
+		@type message: str
 
 		@return: None
 		@rtype: None
@@ -150,7 +157,7 @@ class LoggingWrapper(object):
 		Log a catastrophic error!
 
 		@param message: Message to be logged
-		@type message: basestring
+		@type message: str
 
 		@return: None
 		@rtype: None
@@ -164,7 +171,7 @@ class LoggingWrapper(object):
 		@attention: Call this only after an exception occurred, like in a "try..except.."!
 
 		@param message: Message to be logged
-		@type message: basestring
+		@type message: str
 
 		@return: None
 		@rtype: None
@@ -176,7 +183,7 @@ class LoggingWrapper(object):
 		Log warning messages, that the user should pay attention to.
 
 		@param message: Message to be logged
-		@type message: basestring
+		@type message: str
 
 		@return: None
 		@rtype: None
@@ -235,16 +242,16 @@ class LoggingWrapper(object):
 		@attention: file stream will only be closed if a file path is given!
 
 		@param log_file: file stream or file path of logfile
-		@type log_file: file | FileIO | StringIO | basestring
+		@type log_file: file | FileIO | StringIO | str
 		@param mode: opening mode for logfile, if a file path is given
-		@type mode: basestring
+		@type mode: str
 		@param level: minimum level of messages to be logged
 		@type level: int or long
 
 		@return: None
 		@rtype: None
 		"""
-		assert isinstance(log_file, basestring) or self.is_stream(log_file)
+		assert isinstance(log_file, str) or self.is_stream(log_file)
 		assert level in self._levelNames
 
 		if LoggingWrapper._map_logfile_handler[self._label] is not None:
@@ -278,7 +285,7 @@ class DefaultLogging(object):
 		@attention:
 
 		@param logfile: file handler or file path to a log file
-		@type logfile: file | FileIO | StringIO | basestring
+		@type logfile: file | FileIO | StringIO | str
 		@param verbose: Not verbose means that only warnings and errors will be past to stream
 		@type verbose: bool
 		@param debug: Display debug messages
@@ -298,10 +305,15 @@ class DefaultLogging(object):
 			self._logger.set_level(self._logger.DEBUG)
 
 		self._logfile = None
-		if isinstance(logfile, basestring):
+		if isinstance(logfile, str):
 			self._logfile = logfile
-		elif isinstance(logfile, (file, io.FileIO)):
-			self._logfile = logfile.name
+		else:
+			if sys.version_info <= (2, 8):
+				if isinstance(logfile, (file, io.FileIO)):
+					self._logfile = logfile.name
+			else:
+				if isinstance(logfile, (io.IOBase, io.FileIO)):
+					self._logfile = logfile.name
 		self._verbose = verbose
 
 	def __exit__(self, type, value, traceback):
@@ -348,4 +360,7 @@ class DefaultLogging(object):
 		@return: True if stream
 		@rtype: bool
 		"""
-		return isinstance(stream, (file, io.FileIO, StringIO.StringIO)) or stream.__class__ is StringIO.StringIO
+		if sys.version_info <= (2, 8):
+			return isinstance(stream, (file, io.FileIO, StringIO)) or stream.__class__ is StringIO
+		else:
+			return isinstance(stream, (io.IOBase, io.FileIO, StringIO)) or stream.__class__ is StringIO
