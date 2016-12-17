@@ -1,8 +1,8 @@
 __author__ = 'Peter Hofmann'
 
 import sys
-from scripts.bit_and_bytes import BitAndBytes
-from scripts.blueprintutils import BlueprintUtils
+from lib.bits_and_bytes import BitAndBytes
+from lib.blueprintutils import BlueprintUtils
 
 
 class BlockOrientation(BitAndBytes, BlueprintUtils):

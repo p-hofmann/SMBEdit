@@ -83,7 +83,7 @@ class ByteStream(object):
 		if self._byte_order == '>' or self._byte_order == '!':
 			self._bytestream.write(byte_string[1:])
 			return
-		self._bytestream.write(byte_string[:-1])  # todo: check if this is right
+		self._bytestream.write(byte_string[:-1])
 
 	def unpack(self, byte_string, data_type):
 		"""
@@ -153,7 +153,6 @@ class ByteStream(object):
 
 	def read_string(self):
 		length = self.read_int16_unassigned()
-		# return struct.unpack(str(length) + 's', self._bytestream.read(length))[0]
 		return self._unpack(length, str(length) + 's')
 
 	def read_byte_array(self):

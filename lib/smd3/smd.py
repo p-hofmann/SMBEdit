@@ -3,10 +3,10 @@ __author__ = 'Peter Hofmann'
 import sys
 import os
 import math
-from scripts.loggingwrapper import DefaultLogging
-from scripts.blueprintutils import BlueprintUtils
-from scripts.smd3.smdregion import SmdRegion
-from scripts.smd3.smdblock import SmdBlock
+from lib.loggingwrapper import DefaultLogging
+from lib.blueprintutils import BlueprintUtils
+from lib.smd3.smdregion import SmdRegion
+from lib.smd3.smdblock import SmdBlock
 
 
 class Smd(DefaultLogging, BlueprintUtils):

@@ -2,12 +2,12 @@ __author__ = 'Peter Hofmann'
 
 import os
 import sys
-from scripts.loggingwrapper import DefaultLogging
-from scripts.blueprintutils import BlueprintUtils
-from scripts.header import Header
-from scripts.logic import Logic
-from scripts.meta import Meta
-from scripts.smd3.smd import Smd
+from lib.loggingwrapper import DefaultLogging
+from lib.blueprintutils import BlueprintUtils
+from lib.header import Header
+from lib.logic import Logic
+from lib.meta import Meta
+from lib.smd3.smd import Smd
 
 
 class Blueprint(DefaultLogging, BlueprintUtils):

@@ -2,9 +2,9 @@ __author__ = 'Peter Hofmann'
 
 import sys
 import struct
-from scripts.bit_and_bytes import BitAndBytes
-from scripts.blueprintutils import BlueprintUtils
-from scripts.smd3.blockorientation import BlockOrientation
+from lib.bits_and_bytes import BitAndBytes
+from lib.blueprintutils import BlueprintUtils
+from lib.smd3.blockorientation import BlockOrientation
 
 
 class SmdBlock(BitAndBytes, BlueprintUtils):

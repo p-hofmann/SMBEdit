@@ -3,10 +3,10 @@ __author__ = 'Peter Hofmann'
 import sys
 import zlib
 import datetime
-from scripts.loggingwrapper import DefaultLogging
-from scripts.bit_and_bytes import ByteStream
-from scripts.blueprintutils import BlueprintUtils
-from scripts.smd3.smdblock import SmdBlock
+from lib.loggingwrapper import DefaultLogging
+from lib.bits_and_bytes import ByteStream
+from lib.blueprintutils import BlueprintUtils
+from lib.smd3.smdblock import SmdBlock
 
 
 class SmdSegment(DefaultLogging, BlueprintUtils):

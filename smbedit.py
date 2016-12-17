@@ -3,15 +3,20 @@ __author__ = 'Peter Hofmann'
 import os
 import argparse
 import traceback
-from scripts.loggingwrapper import DefaultLogging
-from blueprint import Blueprint
+
+from lib.loggingwrapper import DefaultLogging
+from lib.blueprint import Blueprint
 
 
-class SMBlueprintManipulator(DefaultLogging):
+class SMBEdit(DefaultLogging):
+
+	# #######################################
+	# ###  Starmade Blueprint Editor
+	# #######################################
 
 	def __init__(self, logfile=None, verbose=False, debug=False):
 		"""
-		Constructor
+		Constructor of Starmade Blueprint Editor
 
 		@param logfile: file handler or file path to a log file
 		@type logfile: file | FileIO | StringIO | basestring
@@ -22,8 +27,8 @@ class SMBlueprintManipulator(DefaultLogging):
 
 		@rtype: None
 		"""
-		self._label = "SMBlueprintManipulator"
-		super(SMBlueprintManipulator, self).__init__(
+		self._label = "SMBEdit"
+		super(SMBEdit, self).__init__(
 			logfile=logfile,
 			verbose=verbose,
 			debug=debug)
@@ -47,7 +52,7 @@ class SMBlueprintManipulator(DefaultLogging):
 			version="BlueprintManipulator {}".format(version),
 			description="""
 	#######################################
-	#    SMBlueprintManipulator             #
+	#    SMBEdit             #
 	#    Version: {}#
 	#######################################
 
@@ -201,11 +206,11 @@ class SMBlueprintManipulator(DefaultLogging):
 
 
 def main():
-	options = SMBlueprintManipulator.get_parser_options()
+	options = SMBEdit.get_parser_options()
 	verbose = options.verbose
 	debug = options.debug_mode
 	logfile = options.logfile
-	manipulator = SMBlueprintManipulator(
+	manipulator = SMBEdit(
 		logfile=logfile,
 		verbose=verbose,
 		debug=debug)
