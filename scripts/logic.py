@@ -316,7 +316,7 @@ class Logic(DefaultLogging, BlueprintUtils):
 		@param summary: If true the output is reduced
 		@type summary: bool
 		"""
-		output_stream.write("####\nLOGIC ({})\n####\n\n".format(self.version))
+		output_stream.write("####\nLOGIC v{}\n####\n\n".format(self.version))
 		# stream.write("UNKNOWN: {}\n\n".format(self.unknown_int))
 		output_stream.write("Controllers: {}\n".format(len(self._controller_position_to_block_id_to_block_positions)))
 		output_stream.write("\n")

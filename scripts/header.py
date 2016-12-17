@@ -363,7 +363,7 @@ class Header(BlueprintUtils):
 		@param summary: If true the output is reduced
 		@type summary: bool
 		"""
-		output_stream.write("####\nHEADER ({})\n####\n\n".format(self.version))
+		output_stream.write("####\nHEADER v{}\n####\n\n".format(self.version))
 		output_stream.write("{} (w:{} , h:{}, l:{})\t{}, {}\n".format(
 			self.get_type_name(),
 			self.get_width(),

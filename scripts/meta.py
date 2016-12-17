@@ -400,11 +400,14 @@ class Meta(DefaultLogging):
 		@param summary: If true the output is reduced
 		@type summary: bool
 		"""
-		output_stream.write("####\nMETA ({})\n####\n\n".format(self.version))
-		output_stream.write("CompressedTag: {}\n\n".format(self.is_compressed))
-		output_stream.write("Blueprints: {}\n\n".format(len(self.blueprints)))
+		output_stream.write("####\nMETA v{}\n####\n\n".format(self.version))
+		if self._debug:
+			output_stream.write("CompressedTag: {}\n\n".format(self.is_compressed))
+		if self._debug:
+			output_stream.write("Blueprints: {}\n\n".format(len(self.blueprints)))
 		for name, blueprint in self.blueprints.iteritems():
 			output_stream.write("{}: #{}\n".format(name, blueprint["position"]))
 			output_stream.write("\n")
-		output_stream.write("Tail: {} bytes\n".format(len(self.tail_data)))
+		if self._debug:
+			output_stream.write("Tail: {} bytes\n".format(len(self.tail_data)))
 		output_stream.write("\n")
