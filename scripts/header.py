@@ -2,6 +2,7 @@ __author__ = 'Peter Hofmann'
 
 import os
 import sys
+from scripts.loggingwrapper import DefaultLogging
 from scripts.blueprintutils import BlueprintUtils
 from scripts.bit_and_bytes import ByteStream
 from scripts.smd3.smd import Smd
@@ -76,7 +77,7 @@ class Statistics(object):
 		"""
 		if not self.has_statistics:
 			return
-		output_stream.write("Version: {}\n".format(self.version))
+		output_stream.write("Statistics:\nVersion: {}\n".format(self.version))
 		output_stream.write("Offensive0: {}\n".format(self.offensive0))
 		output_stream.write("Offensive1: {}\n".format(self.offensive1))
 		output_stream.write("Defensive: {}\n".format(self.defensive))
@@ -88,12 +89,12 @@ class Statistics(object):
 		output_stream.write("\n")
 
 
-class Header(BlueprintUtils):
+class Header(DefaultLogging, BlueprintUtils):
 
 	_file_name = "header.smbph"
 
-	def __init__(self):
-		super(Header, self).__init__()
+	def __init__(self, logfile=None, verbose=False, debug=False):
+		super(Header, self).__init__(logfile, verbose, debug)
 		self.version = ""
 		self.type = -1
 		self.box_min = [0., 0., 0.]
@@ -354,32 +355,31 @@ class Header(BlueprintUtils):
 		self.box_min = self.vector_subtraction(min_vector, (16, 16, 16))
 		self.box_max = self.vector_subtraction(max_vector, (16, 16, 16))
 
-	def to_stream(self, output_stream=sys.stdout, summary=True):
+	def to_stream(self, output_stream=sys.stdout):
 		"""
 		Stream header values
 
 		@param output_stream: Output stream
 		@type output_stream: fileIO
-		@param summary: If true the output is reduced
-		@type summary: bool
 		"""
 		output_stream.write("####\nHEADER v{}\n####\n\n".format(self.version))
-		output_stream.write("{} (w:{} , h:{}, l:{})\t{}, {}\n".format(
+		output_stream.write("{} (w:{} , h:{}, l:{})\n".format(
 			self.get_type_name(),
 			self.get_width(),
 			self.get_height(),
-			self.get_length(),
-			self.box_min,
-			self.box_max,
+			self.get_length()
 			))
+		if self._verbose or self._debug:
+			output_stream.write("Box min: {}, Box max: {}\n".format(
+				self.box_min,
+				self.box_max,
+				))
 		output_stream.write("Blocks: {}\n".format(sum(self.block_id_to_quantity.values())))
 		output_stream.write("\n")
-		if summary:
-			output_stream.flush()
-			return
-		for identifier, quantity in self.block_id_to_quantity.iteritems():
-			output_stream.write("{}: {}\n".format(self.get_block_name_by_id(identifier), quantity))
-		# stream.write("{}\n".format(self.unknown))
-		output_stream.write("\n")
-		self.statistics.to_stream(output_stream)
+
+		if self._verbose or self._debug:
+			for identifier, quantity in self.block_id_to_quantity.iteritems():
+				output_stream.write("{}: {}\n".format(self.get_block_name_by_id(identifier), quantity))
+			output_stream.write("\n")
+			self.statistics.to_stream(output_stream)
 		output_stream.flush()
