@@ -19,7 +19,7 @@ class Logic(BlueprintUtils):
 		super(Logic, self).__init__()
 		self.version = ""
 		self.unknown_int = None
-		self.controller_position_to_block_id_to_block_positions = {}
+		self._controller_position_to_block_id_to_block_positions = {}
 		# tail_data = None
 		return
 
@@ -87,7 +87,7 @@ class Logic(BlueprintUtils):
 		"""
 		self.version = input_stream.read_int32_unassigned()
 		self.unknown_int = input_stream.read_int32_unassigned()
-		self.controller_position_to_block_id_to_block_positions = self._read_list_of_controllers(input_stream)
+		self._controller_position_to_block_id_to_block_positions = self._read_list_of_controllers(input_stream)
 
 	def read(self, directory_blueprint):
 		"""
@@ -139,9 +139,9 @@ class Logic(BlueprintUtils):
 		@param output_stream: output stream
 		@type output_stream: ByteStream
 		"""
-		num_controllers = len(self.controller_position_to_block_id_to_block_positions)
+		num_controllers = len(self._controller_position_to_block_id_to_block_positions)
 		output_stream.write_int32_unassigned(num_controllers)
-		for controller_position, groups in self.controller_position_to_block_id_to_block_positions.iteritems():
+		for controller_position, groups in self._controller_position_to_block_id_to_block_positions.iteritems():
 			output_stream.write_vector_3_int16(controller_position)
 			self._write_list_of_groups(groups, output_stream)
 
@@ -179,7 +179,7 @@ class Logic(BlueprintUtils):
 		@type direction_vector: int,int,int
 		"""
 		new_dict = {}
-		for controller_position, groups in self.controller_position_to_block_id_to_block_positions.iteritems():
+		for controller_position, groups in self._controller_position_to_block_id_to_block_positions.iteritems():
 			new_controller_position = self.vector_subtraction(controller_position, direction_vector)
 			if entity_type == 0 and new_controller_position == (16, 16, 16):  # replaced block
 				continue
@@ -199,8 +199,8 @@ class Logic(BlueprintUtils):
 					new_dict[new_controller_position].pop(block_id)
 			if len(new_dict[new_controller_position]) == 0:
 				new_dict.pop(new_controller_position)
-		del self.controller_position_to_block_id_to_block_positions
-		self.controller_position_to_block_id_to_block_positions = new_dict
+		del self._controller_position_to_block_id_to_block_positions
+		self._controller_position_to_block_id_to_block_positions = new_dict
 
 	def _update_groups(self, controller_position, block_id, smd):
 		"""
@@ -214,26 +214,26 @@ class Logic(BlueprintUtils):
 		@type smd: Smd
 		"""
 		# todo: check if block at position is activatable if it exists
-		positions = list(self.controller_position_to_block_id_to_block_positions[controller_position][block_id])
+		positions = list(self._controller_position_to_block_id_to_block_positions[controller_position][block_id])
 		for position in positions:
 			if not smd.has_block_at_position(position):
-				self.controller_position_to_block_id_to_block_positions[controller_position][block_id].pop(position)
-		if len(self.controller_position_to_block_id_to_block_positions[controller_position][block_id]) == 0:
-			self.controller_position_to_block_id_to_block_positions[controller_position].pop(block_id)
+				self._controller_position_to_block_id_to_block_positions[controller_position][block_id].pop(position)
+		if len(self._controller_position_to_block_id_to_block_positions[controller_position][block_id]) == 0:
+			self._controller_position_to_block_id_to_block_positions[controller_position].pop(block_id)
 
 	def update(self, smd):
 		"""
 		Delete links with invalid controller
 		"""
-		for controller_position in self.controller_position_to_block_id_to_block_positions.keys():
-			groups = self.controller_position_to_block_id_to_block_positions[controller_position]
+		for controller_position in self._controller_position_to_block_id_to_block_positions.keys():
+			groups = self._controller_position_to_block_id_to_block_positions[controller_position]
 			for block_id in groups.keys():
 				if self._is_valid_block_id(block_id):
 					self._update_groups(controller_position, block_id, smd)
 					continue
-				self.controller_position_to_block_id_to_block_positions[controller_position].pop(block_id)
-			if len(self.controller_position_to_block_id_to_block_positions[controller_position]) == 0:
-				self.controller_position_to_block_id_to_block_positions.pop(controller_position)
+				self._controller_position_to_block_id_to_block_positions[controller_position].pop(block_id)
+			if len(self._controller_position_to_block_id_to_block_positions[controller_position]) == 0:
+				self._controller_position_to_block_id_to_block_positions.pop(controller_position)
 
 	def set_type(self, entity_type):
 		"""
@@ -250,8 +250,15 @@ class Logic(BlueprintUtils):
 		position_core = (16, 16, 16)
 		if entity_type == 0:
 			return
-		if position_core in self.controller_position_to_block_id_to_block_positions:
-			self.controller_position_to_block_id_to_block_positions.pop(position_core)
+		if position_core in self._controller_position_to_block_id_to_block_positions:
+			self._controller_position_to_block_id_to_block_positions.pop(position_core)
+
+	def remove_all(self):
+		"""
+		Remove all links from controllers
+
+		"""
+		self._controller_position_to_block_id_to_block_positions = {}
 
 	def to_stream(self, output_stream=sys.stdout, summary=True):
 		"""
@@ -264,12 +271,12 @@ class Logic(BlueprintUtils):
 		"""
 		output_stream.write("####\nLOGIC ({})\n####\n\n".format(self.version))
 		# stream.write("UNKNOWN: {}\n\n".format(self.unknown_int))
-		output_stream.write("Controllers: {}\n".format(len(self.controller_position_to_block_id_to_block_positions)))
+		output_stream.write("Controllers: {}\n".format(len(self._controller_position_to_block_id_to_block_positions)))
 		output_stream.write("\n")
 		if summary:
 			output_stream.flush()
 			return
-		for controller_position, groups in self.controller_position_to_block_id_to_block_positions.iteritems():
+		for controller_position, groups in self._controller_position_to_block_id_to_block_positions.iteritems():
 			output_stream.write("{}: #{}\n".format(controller_position, len(groups.keys())))
 			for block_id, positions in groups.iteritems():
 				if len(positions) < 5:
