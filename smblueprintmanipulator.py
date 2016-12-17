@@ -181,7 +181,7 @@ class SMBlueprintManipulator(DefaultLogging):
 				blueprint.update()
 
 			if summary:
-				self._logger.info("Summary of blueprint:")
+				self._logger.info("Summary of blueprint to stdout")
 				blueprint.to_stream()
 
 			if directory_output is not None:
