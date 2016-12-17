@@ -1,4 +1,4 @@
-__author__ = 'hofmann'
+__author__ = 'Peter Hofmann'
 __version__ = '0.1.4'
 
 import sys
