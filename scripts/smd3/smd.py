@@ -361,18 +361,16 @@ class Smd(DefaultLogging, BlueprintUtils):
 				self._logger.debug("'set_type' exception: {}".format(exception_object.message))
 		self.update(entity_type)  # remove blocks invalid for ships and other cleanup
 
-	def to_stream(self, output_stream=sys.stdout, summary=True):
+	def to_stream(self, output_stream=sys.stdout):
 		"""
 		Stream smd values
 
 		@param output_stream: Output stream
 		@type output_stream: fileIO
-		@param summary: If true the output is reduced
-		@type summary: bool
 		"""
 		output_stream.write("####\nSMD\n####\n\n")
 		output_stream.write("Total blocks: {}\n\n".format(self.get_number_of_blocks()))
 		for position in sorted(self.position_to_region.keys(), key=lambda tup: (tup[2], tup[1], tup[0])):
 			output_stream.write("SmdRegion: {}\n".format(list(position)))
-			self.position_to_region[position].to_stream(output_stream, summary)
+			self.position_to_region[position].to_stream(output_stream)
 			output_stream.write("\n")
