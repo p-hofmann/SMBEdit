@@ -391,14 +391,12 @@ class Meta(DefaultLogging):
 	# ###  Else
 	# #######################################
 
-	def to_stream(self, output_stream=sys.stdout, summary=True):
+	def to_stream(self, output_stream=sys.stdout):
 		"""
 		Stream logic values
 
 		@param output_stream: Output stream
 		@type output_stream: fileIO
-		@param summary: If true the output is reduced
-		@type summary: bool
 		"""
 		output_stream.write("####\nMETA v{}\n####\n\n".format(self.version))
 		if self._debug:
