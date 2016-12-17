@@ -199,7 +199,6 @@ class SMBEdit(DefaultLogging):
 
 			if directory_output is not None:
 				self._logger.info("Saving blueprint to:\n{}".format(directory_output))
-				# Todo: validate parent dir
 				blueprint.write(directory_output)
 
 		except (KeyboardInterrupt, SystemExit, Exception, ValueError, RuntimeError) as e:
