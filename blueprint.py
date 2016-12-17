@@ -31,8 +31,14 @@ class Blueprint(DefaultLogging, BlueprintUtils):
 			verbose=verbose,
 			debug=debug)
 		self.header = Header()
-		self.logic = Logic()
-		self.meta = Meta()
+		self.logic = Logic(
+			logfile=logfile,
+			verbose=verbose,
+			debug=debug)
+		self.meta = Meta(
+			logfile=logfile,
+			verbose=verbose,
+			debug=debug)
 		self.smd3 = Smd()
 		return
 
@@ -48,8 +54,8 @@ class Blueprint(DefaultLogging, BlueprintUtils):
 		@type directory_blueprint: str
 		"""
 		self.header = Header()
-		self.logic = Logic()
-		self.meta = Meta()
+		self.logic = Logic(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
+		# self.meta = Meta(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
 		self.smd3 = Smd(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
 
 		self.header.read(directory_blueprint)
@@ -137,6 +143,17 @@ class Blueprint(DefaultLogging, BlueprintUtils):
 		self.logic.move_center(direction_vector, self.header.type)
 		self.header.set_box(min_vector, max_vector)
 
+	def turn_tilt(self, index_turn_tilt):
+		"""
+
+		@param index_turn_tilt:
+		@type index_turn_tilt: int
+		"""
+		assert 0 <= index_turn_tilt <= 5
+		self.logic.tilt_turn(index_turn_tilt)
+		min_vector, max_vector = self.smd3.tilt_turn(index_turn_tilt)
+		self.header.set_box(min_vector, max_vector)
+
 	def to_stream(self, output_stream=sys.stdout, summary=True):
 		"""
 		Stream blueprint values
@@ -146,7 +163,7 @@ class Blueprint(DefaultLogging, BlueprintUtils):
 		@param summary: If true the output is reduced
 		@type summary: bool
 		"""
-		self.header.to_stream(output_stream, summary=summary)
+		# self.header.to_stream(output_stream, summary=summary)
 		self.logic.to_stream(output_stream, summary=summary)
-		# self.meta.to_stream(output_stream, summary=summary)
+		self.meta.to_stream(output_stream, summary=summary)
 		self.smd3.to_stream(output_stream, summary=summary)

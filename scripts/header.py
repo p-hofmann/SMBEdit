@@ -2,9 +2,9 @@ __author__ = 'Peter Hofmann'
 
 import os
 import sys
-from blueprintutils import BlueprintUtils
-from bit_and_bytes import ByteStream
-from smd3.smd import Smd
+from scripts.blueprintutils import BlueprintUtils
+from scripts.bit_and_bytes import ByteStream
+from scripts.smd3.smd import Smd
 
 
 # #######################################
@@ -363,7 +363,7 @@ class Header(BlueprintUtils):
 		@param summary: If true the output is reduced
 		@type summary: bool
 		"""
-		output_stream.write("####\nHEADER ({})\n####\n\n".format(self.version))
+		output_stream.write("####\nHEADER v{}\n####\n\n".format(self.version))
 		output_stream.write("{} (w:{} , h:{}, l:{})\t{}, {}\n".format(
 			self.get_type_name(),
 			self.get_width(),

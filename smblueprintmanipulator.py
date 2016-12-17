@@ -84,7 +84,21 @@ class SMBlueprintManipulator(DefaultLogging):
 			help="Remove outdated blocks and replace old docking blocks")
 
 		group_input.add_argument(
-			"-t", "--entity_type",
+			"-t", "--turn",
+			default=None,
+			type=int,
+			choices=[0, 1, 2, 3, 4, 5],
+			help='''turn the ship/station:
+		0: "tilt up",
+		1: "tilt down",
+		2: "turn right",
+		3: "turn left",
+		4: "tilt right",
+		5: "tilt left"
+	''')
+
+		group_input.add_argument(
+			"-et", "--entity_type",
 			default=None,
 			type=int,
 			choices=[0, 1, 2, 3, 4],
@@ -122,6 +136,7 @@ class SMBlueprintManipulator(DefaultLogging):
 		try:
 			directory_blueprint = options.directory_blueprint
 			directory_output = options.directory_output
+			index_turn_tilt = options.turn
 			move_center = options.move_center
 			update = options.update
 			entity_type = options.entity_type
@@ -153,6 +168,9 @@ class SMBlueprintManipulator(DefaultLogging):
 				else:  # block id
 					assert move_center.isdigit(), "Bad block id: '{}'".format(move_center)
 					blueprint.move_center_by_block_id(int(move_center))
+
+			if index_turn_tilt is not None:
+				blueprint.turn_tilt(index_turn_tilt)
 
 			if entity_type is not None:
 				self._logger.info("Changing entity type and updating blueprint...")

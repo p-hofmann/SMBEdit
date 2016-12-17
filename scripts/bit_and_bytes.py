@@ -43,7 +43,7 @@ class ByteStream(object):
 		@param byte_order:
 		@type byte_order: str
 		"""
-		assert isinstance(bytestream, file)
+		# assert isinstance(bytestream, file)
 		self._bytestream = bytestream
 		self._byte_order = byte_order
 		return
@@ -159,6 +159,9 @@ class ByteStream(object):
 	def read_byte_array(self):
 		array = []
 		length = self.read_int32_unassigned()
+		assert 0 <= length < 1000000000
+		if length == 0:
+			return []
 		for index in range(0, length):
 			array.append(self.read_char())
 		return array
@@ -203,6 +206,18 @@ class ByteStream(object):
 			self.read_char(),
 			]
 		return tuple(vector)
+
+	def read_matrix_4_float(self):
+		matrix = []
+		for _ in range(0, 4):
+			matrix.append(
+				[
+					self.read_float(),
+					self.read_float(),
+					self.read_float(),
+					self.read_float(),
+				])
+		return
 
 	# #######################################
 	# ###  Writing bytes
@@ -293,6 +308,9 @@ class ByteStream(object):
 			return self._bytestream.seek(offset)
 		else:
 			return self._bytestream.seek(offset, whence)
+
+	def tell(self):
+		return self._bytestream.tell()
 
 
 class BitAndBytes(object):

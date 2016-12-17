@@ -41,7 +41,7 @@ class BlueprintUtils(object):
 		56: "Gravity Unit",
 		120: "Storage",
 		689: "Cargo Space",
-		123: "Build SmdBlock",
+		123: "Build Block",
 		22: "Cloaker",
 		15: "RadarJammer",
 		47: "Camera",
@@ -616,8 +616,11 @@ class BlueprintUtils(object):
 		assert isinstance(block_id, int)
 		activatable_block_id = {
 			# system
+			# 56: "Gravity Unit",
 			120: "Storage",
+			# 121: "BOBBY AI Module",
 			# station
+			# 113: "Plex Lift",
 			211: "Basic Factory",
 			217: "Standard Factory",
 			259: "Advanced Factory",
@@ -626,6 +629,24 @@ class BlueprintUtils(object):
 			212: "Factory Enhancer",
 		}
 		if block_id in self._block_ids["logic"]:
+			return True
+		if block_id in self._block_ids["doors"]:
+			return True
+		if block_id in self._block_ids["lighting"]:
+			return True
+		# if block_id in self._block_ids["medical"]:
+		# 	return True
+		# if block_id in self._block_ids["factions"]:
+		# 	return True
+		if block_id in self._block_ids["systems"]:
+			return True
+		# if block_id in self._block_ids["effects"]:
+		# 	return True
+		# if block_id in self._block_ids["tools"]:
+		# 	return True
+		# if block_id in self._block_ids["weapons"]:
+		# 	return True
+		if block_id in self._block_ids["station"]:
 			return True
 		if block_id in activatable_block_id:
 			return True
@@ -642,14 +663,22 @@ class BlueprintUtils(object):
 		@rtype: bool
 		"""
 		assert isinstance(block_id, int)
+		orientations_x24_block_id = {
+			# station
+			678: "Shipyard Module",
+			679: "Shipyard Core Anchor",
+			# decorative
+			976: "Pipe",
+			975: "Decorative Console (Blue)",
+		}
+		if block_id in self._block_ids["rails"]:
+			return True
+		if block_id in orientations_x24_block_id:
+			return True
 		if block_id not in self._block_ids["hull"]:
 			return False
 		if "corner" in self._block_ids["hull"][block_id].lower():
 			return True
-		# if "tetra" in self._block_ids["hull"][block_id].lower():
-		# 	return True
-		# if "hepta" in self._block_ids["hull"][block_id].lower():
-		# 	return True
 		return False
 
 	@staticmethod
@@ -709,6 +738,8 @@ class BlueprintUtils(object):
 			distance += abs(vector1[index] - vector2[index])
 		return distance
 
+	_core_position = (16, 16, 16)
+
 	def _get_direction_vector_to_center(self, position):
 		"""
 		Relocate center/core in a direction
@@ -718,4 +749,48 @@ class BlueprintUtils(object):
 
 		@rtype: int, int, int
 		"""
-		return self.vector_subtraction(position, (16, 16, 16))
+		return self.vector_subtraction(position, self._core_position)
+
+	# #######################################
+	# ###  Turning
+	# #######################################
+
+	_turn_indexes = {
+		0: (0, 2, 1),  # tilt up
+		1: (0, 2, 1),  # tilt down
+		2: (2, 1, 0),  # turn right
+		3: (2, 1, 0),  # turn left
+		4: (1, 0, 2),  # tilt right
+		5: (1, 0, 2),  # tilt left
+	}
+
+	_turn_multiplicator = {
+		0: (1, 1, -1),  # tilt up
+		1: (1, -1, 1),  # tilt down
+		2: (-1, 1, 1),  # turn right
+		3: (1, 1, -1),  # turn left
+		4: (-1, 1, 1),  # tilt right
+		5: (1, -1, 1),  # tilt left
+	}
+
+	def _tilt_turn_position(self, position, tilt_index):
+		"""
+		Turn or tilt this entity.
+
+		@param position:
+		@type position: tuple
+		@param tilt_index: integer representing a specific turn
+		@type tilt_index: int
+
+		@return: new minimum and maximum coordinates of the blueprint
+		@rtype: tuple[int,int,int], tuple[int,int,int]
+		"""
+		multiplicator = self._turn_multiplicator[tilt_index]
+		indexes = self._turn_indexes[tilt_index]
+		new_block_position = self.vector_subtraction(position, self._core_position)
+		new_block_position = (
+			multiplicator[0]*new_block_position[indexes[0]],
+			multiplicator[1]*new_block_position[indexes[1]],
+			multiplicator[2]*new_block_position[indexes[2]])
+		new_block_position = self.vector_addition(new_block_position, self._core_position)
+		return new_block_position

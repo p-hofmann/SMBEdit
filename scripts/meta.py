@@ -3,16 +3,16 @@ __author__ = 'Peter Hofmann'
 import os
 import sys
 import zlib
-import struct
 import gzip
-from bit_and_bytes import ByteStream
+from scripts.bit_and_bytes import ByteStream
+from scripts.loggingwrapper import DefaultLogging
 
 
 # #######################################
 # ###  META
 # #######################################
 
-class Meta(object):
+class Meta(DefaultLogging):
 
 	_file_name = "meta.smbpm"
 
@@ -22,8 +22,9 @@ class Meta(object):
 		3: "Docking"
 	}
 
-	def __init__(self):
-		super(Meta, self).__init__()
+	def __init__(self, logfile=None, verbose=False, debug=False):
+		self._label = "Meta"
+		super(Meta, self).__init__(logfile, verbose, debug)
 		self.version = ""
 		self.root_tag = None
 		self.is_compressed = False
@@ -35,8 +36,7 @@ class Meta(object):
 	# ###  Read
 	# #######################################
 
-	@staticmethod
-	def _read_dock_entry(input_stream):
+	def _read_dock_entry(self, input_stream):
 		"""
 
 		@param input_stream:
@@ -50,15 +50,10 @@ class Meta(object):
 		# string_length = self._read_int_unassigned(input_stream)
 		# entry["name"] = input_stream.read(string_length).decode('utf-8')
 		name = input_stream.read_string()
-		# print name
 		data["position"] = input_stream.read_vector_3_int16()
-		# print data["position"]
 		data["size"] = input_stream.read_vector_3_int32()
-		# print data["size"]
 		data["style"] = input_stream.read_int16_unassigned()
-		# print data["style"]
 		data["orientation"] = input_stream.read_char()
-		# print data["orientation"]
 		return name, data
 
 	def _read_docked_blueprints(self, input_stream):
@@ -72,10 +67,11 @@ class Meta(object):
 		"""
 		data = {}
 		num_docked = input_stream.read_int32_unassigned()
-		# print "Docked", num_docked
+		self._logger.debug("docked_blueprints num_docked: '{}'".format(num_docked))
 		assert 0 <= num_docked < 1000, num_docked  # debug sanity check
 		for index in range(0, num_docked):
 			name, dock_entry = self._read_dock_entry(input_stream)
+			self._logger.debug("docked_blueprints docked: '{}': {}".format(name, dock_entry))
 			assert name not in data
 			data[name] = dock_entry
 		return data
@@ -97,7 +93,7 @@ class Meta(object):
 		"""
 		assert isinstance(input_stream, ByteStream)
 		entry = dict()
-		entry["type"] = input_stream.read_char()
+		entry["type"] = abs(input_stream.read_char())
 		if entry["type"] > 0:
 			entry["name"] = input_stream.read_string()
 		if entry["type"] != 0:
@@ -137,6 +133,7 @@ class Meta(object):
 		count = 0
 		while True:
 			tag = self._read_tag(input_stream)
+			self._logger.debug("tag_list tag: '{}'".format(tag))
 			if tag["type"] == 0:
 				break
 			data[count] = tag
@@ -154,6 +151,7 @@ class Meta(object):
 		@return:
 		@rtype: any
 		"""
+		self._logger.debug("payload data_type: '{}'".format(data_type))
 		if data_type == 0:
 			return None
 		elif data_type == 1:  # Byte
@@ -171,7 +169,7 @@ class Meta(object):
 		elif data_type == 7:  # Byte array
 			return input_stream.read_byte_array()
 		elif data_type == 8:  # String
-			return input_stream.read_string()
+			return input_stream.read_string()  # utf?
 		elif data_type == 9:  # Float vector
 			return input_stream.read_vector_3_float()
 		elif data_type == 10:  # int vector
@@ -186,25 +184,140 @@ class Meta(object):
 			return input_stream.read_char()
 		elif data_type == 15:  # Float4 vector
 			return input_stream.read_vector_4_float()
-		else:
+		elif data_type == 16:  # Float 4x4 matrix
+			return input_stream.read_matrix_4_float()
+		elif data_type == 17:  # null
 			return None
+		else:
+			raise Exception("Bad payload data type: {}".format(data_type))
+			# return None
 
-	def _read_tag_root(self, input_stream):
+	def _read_tag_root(self, input_stream, var1, var2):  # aLt.class
 		"""
 		Read tag root from byte stream
 
 		@param input_stream: input stream
 		@type input_stream: ByteStream
 		"""
-		version = input_stream.read_int16_unassigned()
-		if version == 0x1f8b:
+		version = input_stream.read_int16_unassigned()  # version or tag?
+		self._logger.debug("tag_root version: '{}'".format(version))
+
+		input_stream.seek(-2, 1)
+		if version == 0x1f8b:  # if(var4[0] == 31 && var4[1] == -117)
 			self.is_compressed = True
-			# print "compressed file"
-		input_stream = gzip.GzipFile(fileobj=input_stream)
+			self._logger.debug("tag_root compressed data: '{}'".format(self.is_compressed))
+			input_stream = ByteStream(gzip.GzipFile(fileobj=input_stream))  # new GZIPInputStream(var15, 4096)
+		else:
+			self._logger.debug("tag_root compressed data: '{}'".format(self.is_compressed))
+			if var2:
+				self._logger.debug("tag_root var2: '{}'".format("RECORDING SIZE!!!"))
 		tag = self._read_tag(input_stream)
+		self._logger.debug("tag_root tag: '{}'".format(tag))
 		return version, tag
 
-	def _read_file(self, input_stream):
+	@staticmethod
+	def get_index(var0, var1, var2):
+		"""
+
+		@param var0:
+		@param var0: long
+		@param var1:
+		@param var1: long
+		@param var2:
+		@param var2: long
+
+		@return:
+		@rtype: int
+		"""
+		return long((var2 & unicode('ffff')) << 32) + long((var1 & unicode('ffff')) << 16) + long(var0 & unicode('ffff'))
+
+	@staticmethod
+	def get_pos(var0, shift=0):
+		"""
+
+		@param var0:
+		@param var0: long
+		@return:
+		@rtype: int
+		"""
+		if shift == 0:
+			return int(var0 & 65535L)
+		return int(var0 >> shift & 65535L)
+
+	def shift_index(self, var0, var2, var3, var4):
+		"""
+
+		@param var0:
+		@param var2:
+		@param var3:
+		@param var4:
+
+		@return:
+		@rtype: long
+		"""
+		return self.get_index(self.get_pos(var0) + var2, self.get_pos(var0, 16) + var3, self.get_pos(var0, 32) + var4)
+
+	def _read_unknown_d4_stuff(self, input_stream, unknown_number):
+		"""
+		Read tag root from byte stream
+
+		@param input_stream: input stream
+		@type input_stream: ByteStream
+		"""
+		unknown_string = input_stream.read_string()  # utf
+		self._logger.debug("unknown_d4_stuff string: '{}'".format(unknown_string))
+		unknown_long0 = input_stream.read_int64()
+		unknown_long1 = input_stream.read_int64()
+		if unknown_number != 0:
+			unknown_long0 = self.shift_index(unknown_long0, unknown_number, unknown_number, unknown_number)
+			unknown_long1 = self.shift_index(unknown_long1, unknown_number, unknown_number, unknown_number)
+
+	def _read_datatype_4(self, input_stream):
+		"""
+		Read tag root from byte stream
+
+		@param input_stream: input stream
+		@type input_stream: ByteStream
+		"""
+		vector_float_0 = input_stream.read_vector_3_float()
+		vector_float_1 = input_stream.read_vector_3_float()
+		self._logger.debug("datatype_4 vector: '{}', '{}'".format(vector_float_0, vector_float_1))
+		unknown_number = 0
+		if self.version < 4:
+			unknown_number = 8
+		if self.version >= 2:
+			unknown_string = input_stream.read_string()  # utf
+			unknown_int = input_stream.read_int32()
+			self._logger.debug("datatype_4 string main: '{}', num d4 data:'{}'".format(unknown_string, unknown_int))
+			for _ in range(0, unknown_int):
+				self._read_unknown_d4_stuff(input_stream, unknown_number)
+
+		unknown_int1 = input_stream.read_int32()
+		unknown_counter = 0
+		self._logger.debug("datatype_4 number of byte arrays: '{}'".format(unknown_int1))
+		while True:
+			if unknown_counter >= unknown_int1:
+				return
+			unknown_string = input_stream.read_string()  # utf
+			# new avt(var15, var1.a);
+			byte_array = input_stream.read_byte_array()
+			# aLt.a(new FastByteArrayInputStream(var7), true, false); root tag?
+			self._logger.debug("datatype_4 length of '{}' byte array: '{}'".format(unknown_string, len(byte_array)))
+			unknown_counter += 1
+
+	def _read_datatype_5(self, input_stream):
+		"""
+		Read tag root from byte stream
+
+		@param input_stream: input stream
+		@type input_stream: ByteStream
+		"""
+		byte_array = input_stream.read_byte_array()
+		self._logger.debug("datatype_5 length of byte array: '{}'".format(len(byte_array)))
+		# aLt.a(new FastByteArrayInputStream(var7), true, false); root tag?
+		return len(byte_array)
+
+	def _read_file(self, input_stream):  # avt.class
 		"""
 		Read data from byte stream
 
@@ -215,20 +328,26 @@ class Meta(object):
 		self.version = input_stream.read_int32_unassigned()
 		while True:
 			data_type = input_stream.read_char()
-			# print "data_type", data_type  # debug
+			self._logger.debug("read_file data_type: {}".format(data_type))
 			# input_stream.read(38)
 			if data_type == 1:  # Finish
 				break
-			elif data_type == 2:  # SegManager
-				self.root_tag = self._read_tag_root(input_stream)
-			elif data_type == 4:  # Unknown stuff
-				pass
+			elif data_type == 2:  # SegManager # aLt.class
+				self.root_tag = self._read_tag_root(input_stream, False, False)
+				break
 			elif data_type == 3:  # Docking
 				self.blueprints = self._read_docked_blueprints(input_stream)
+			elif data_type == 4:  # Unknown stuff
+				self._read_datatype_4(input_stream)
+			elif data_type == 5:  # Unknown byte array
+				byte_array_length = self._read_datatype_5(input_stream)  # aLt.class
+				if byte_array_length > 1:
+					break
 			else:
-				# print "unknown data type {}".format(data_type)
+				self._logger.debug("read_file unknown data type: {}".format(data_type))
 				break
 		self.tail_data = input_stream.read()  # any data left?
+		self._logger.debug("read_file tail_data: {}".format(len(self.tail_data)))
 
 	def read(self, directory_blueprint):
 		"""
@@ -281,11 +400,14 @@ class Meta(object):
 		@param summary: If true the output is reduced
 		@type summary: bool
 		"""
-		output_stream.write("####\nMETA ({})\n####\n\n".format(self.version))
-		output_stream.write("CompressedTag: {}\n\n".format(self.is_compressed))
-		output_stream.write("Blueprints: {}\n\n".format(len(self.blueprints)))
+		output_stream.write("####\nMETA v{}\n####\n\n".format(self.version))
+		if self._debug:
+			output_stream.write("CompressedTag: {}\n\n".format(self.is_compressed))
+		if self._debug:
+			output_stream.write("Blueprints: {}\n\n".format(len(self.blueprints)))
 		for name, blueprint in self.blueprints.iteritems():
 			output_stream.write("{}: #{}\n".format(name, blueprint["position"]))
 			output_stream.write("\n")
-		output_stream.write("Tail: {} bytes\n".format(len(self.tail_data)))
+		if self._debug:
+			output_stream.write("Tail: {} bytes\n".format(len(self.tail_data)))
 		output_stream.write("\n")
