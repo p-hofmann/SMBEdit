@@ -2,21 +2,23 @@ __author__ = 'Peter Hofmann'
 
 import os
 import sys
+from scripts.loggingwrapper import DefaultLogging
 from bit_and_bytes import ByteStream
 from blueprintutils import BlueprintUtils
-from scripts.smd3.smd import Smd
+# from scripts.smd3.smd import Smd
 
 
 # #######################################
 # ###  LOGIC
 # #######################################
 
-class Logic(BlueprintUtils):
+class Logic(DefaultLogging, BlueprintUtils):
 
 	_file_name = "logic.smbpl"
 
-	def __init__(self):
-		super(Logic, self).__init__()
+	def __init__(self, logfile=None, verbose=False, debug=False):
+		self._label = "Logic"
+		super(Logic, self).__init__(logfile, verbose, debug)
 		self.version = ""
 		self.unknown_int = None
 		self._controller_position_to_block_id_to_block_positions = {}
@@ -168,6 +170,29 @@ class Logic(BlueprintUtils):
 			self._write_file(ByteStream(output_stream))
 
 	# #######################################
+	# ###  Turning
+	# #######################################
+
+	def tilt_turn(self, index_turn_tilt):
+		"""
+		Turn or tilt this entity.
+
+		@param index_turn_tilt: integer representing a specific turn
+		@type index_turn_tilt: int
+
+		"""
+		new_data = {}
+		for controller_position, groups in self._controller_position_to_block_id_to_block_positions.iteritems():
+			new_controller_position = self._tilt_turn_position(controller_position, index_turn_tilt)
+			new_data[new_controller_position] = {}
+			for block_id, positions in groups.iteritems():
+				new_data[new_controller_position][block_id] = set()
+				for position in positions:
+					new_position = self._tilt_turn_position(position, index_turn_tilt)
+					new_data[new_controller_position][block_id].add(new_position)
+		self._controller_position_to_block_id_to_block_positions = new_data
+
+	# #######################################
 	# ###  Else
 	# #######################################
 
@@ -217,7 +242,7 @@ class Logic(BlueprintUtils):
 		positions = list(self._controller_position_to_block_id_to_block_positions[controller_position][block_id])
 		for position in positions:
 			if not smd.has_block_at_position(position):
-				self._controller_position_to_block_id_to_block_positions[controller_position][block_id].pop(position)
+				self._controller_position_to_block_id_to_block_positions[controller_position][block_id].remove(position)
 		if len(self._controller_position_to_block_id_to_block_positions[controller_position][block_id]) == 0:
 			self._controller_position_to_block_id_to_block_positions[controller_position].pop(block_id)
 
@@ -244,15 +269,18 @@ class Logic(BlueprintUtils):
 		@param new_position:
 		@type new_position: int,int,int
 		"""
+		assert isinstance(old_position, tuple)
+		assert isinstance(new_position, tuple)
+		if self._debug:
+			self._logger.debug("update_link: {} -> {}".format(old_position, new_position))
 		if old_position in self._controller_position_to_block_id_to_block_positions:
 			groups = self._controller_position_to_block_id_to_block_positions.pop(old_position)
 			self._controller_position_to_block_id_to_block_positions[new_position] = groups
-		for controller_position in self._controller_position_to_block_id_to_block_positions.keys():
-			groups = self._controller_position_to_block_id_to_block_positions[controller_position]
+		for controller_position, groups in self._controller_position_to_block_id_to_block_positions.iteritems():
 			for block_id, positions in groups.iteritems():
 				if old_position in positions:
-					positions.pop(old_position)
-					positions.add(new_position)
+					self._controller_position_to_block_id_to_block_positions[controller_position][block_id].remove(old_position)
+					self._controller_position_to_block_id_to_block_positions[controller_position][block_id].add(new_position)
 
 	def set_type(self, entity_type):
 		"""
@@ -297,6 +325,8 @@ class Logic(BlueprintUtils):
 			return
 		for controller_position, groups in self._controller_position_to_block_id_to_block_positions.iteritems():
 			output_stream.write("{}: #{}\n".format(controller_position, len(groups.keys())))
+			if not self._debug:
+				continue
 			for block_id, positions in groups.iteritems():
 				if len(positions) < 5:
 					output_stream.write("\t{}: {}\n".format(block_id, positions))
