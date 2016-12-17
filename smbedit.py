@@ -61,7 +61,7 @@ class SMBEdit(DefaultLogging):
 	#    Version: {version}#
 	#######################################
 
-	Manipulation of Starmade blueprints""".format(
+	A StarMade blueprints editor""".format(
 				label=SMBEdit._label.ljust(33),
 				version=version.ljust(24)
 			),
