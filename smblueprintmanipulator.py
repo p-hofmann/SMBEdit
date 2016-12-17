@@ -75,7 +75,7 @@ class SMBlueprintManipulator(DefaultLogging):
 			"-s", "--summary",
 			action='store_true',
 			default=False,
-			help="display summary of blueprint")
+			help="Display summary of blueprint")
 
 		group_input.add_argument(
 			"-u", "--update",
@@ -182,7 +182,7 @@ class SMBlueprintManipulator(DefaultLogging):
 
 			if summary:
 				self._logger.info("Summary of blueprint:")
-				blueprint.to_stream(summary=not self._debug)
+				blueprint.to_stream()
 
 			if directory_output is not None:
 				self._logger.info("Saving blueprint to:\n{}".format(directory_output))
