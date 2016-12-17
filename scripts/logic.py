@@ -307,31 +307,27 @@ class Logic(DefaultLogging, BlueprintUtils):
 		"""
 		self._controller_position_to_block_id_to_block_positions = {}
 
-	def to_stream(self, output_stream=sys.stdout, summary=True):
+	def to_stream(self, output_stream=sys.stdout):
 		"""
 		Stream logic values
 
 		@param output_stream: Output stream
 		@type output_stream: fileIO
-		@param summary: If true the output is reduced
-		@type summary: bool
 		"""
 		output_stream.write("####\nLOGIC v{}\n####\n\n".format(self.version))
 		# stream.write("UNKNOWN: {}\n\n".format(self.unknown_int))
 		output_stream.write("Controllers: {}\n".format(len(self._controller_position_to_block_id_to_block_positions)))
 		output_stream.write("\n")
-		if summary:
-			output_stream.flush()
-			return
-		for controller_position, groups in self._controller_position_to_block_id_to_block_positions.iteritems():
-			output_stream.write("{}: #{}\n".format(controller_position, len(groups.keys())))
-			if not self._debug:
-				continue
-			for block_id, positions in groups.iteritems():
-				if len(positions) < 5:
-					output_stream.write("\t{}: {}\n".format(block_id, positions))
-				else:
-					output_stream.write("\t{}: #{}\n".format(block_id, len(positions)))
+		if self._debug or self._verbose:
+			for controller_position, groups in self._controller_position_to_block_id_to_block_positions.iteritems():
+				output_stream.write("{}: #{}\n".format(controller_position, len(groups.keys())))
+				if not self._debug:
+					continue
+				for block_id, positions in groups.iteritems():
+					if len(positions) < 5:
+						output_stream.write("\t{}: {}\n".format(block_id, positions))
+					else:
+						output_stream.write("\t{}: #{}\n".format(block_id, len(positions)))
+				output_stream.write("\n")
 			output_stream.write("\n")
-		output_stream.write("\n")
 		output_stream.flush()
