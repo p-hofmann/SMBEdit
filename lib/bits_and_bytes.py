@@ -318,11 +318,20 @@ class BitAndBytes(object):
 		return
 
 	@staticmethod
-	def bits_parse(bit_array, start, length):
+	def bits_parse(some_integer, start, length):
 		"""
-		Parse a portion of a bitfield.
+		Parse a section of bits from an integer.
+
+		@param some_integer: value to be parsed
+		@type some_integer: int
+		@param start: starting bit
+		@type start: int
+		@param length: Number of bits belonging to a value
+		@type length: int
+
+		@rtype: int
 		"""
-		tmp = bit_array >> start
+		tmp = some_integer >> start
 		return tmp & (2 ** length - 1)
 
 	@staticmethod
