@@ -70,7 +70,8 @@ class Blueprint(DefaultLogging, BlueprintUtils):
 
 		blueprint_name = os.path.basename(directory_blueprint)
 		directory_blueprint_unique = directory_blueprint
-		assert not os.path.exists(directory_blueprint_unique), "Output folder exists, aborting."
+		assert not os.path.exists(directory_blueprint_unique), "Output directory exists, not writing blueprint to exiting folder to prevent overwriting."
+		assert os.path.exists(os.path.dirname(directory_blueprint_unique)), "Parent folder of output dir does not exist, can not write blueprint."
 		os.mkdir(directory_blueprint_unique)
 
 		self.header.write(directory_blueprint_unique)

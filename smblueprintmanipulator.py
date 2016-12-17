@@ -142,8 +142,8 @@ class SMBlueprintManipulator(DefaultLogging):
 			entity_type = options.entity_type
 			summary = options.summary
 
-			assert os.path.exists(directory_blueprint), "Blueprint folder does not exists, aborting."
-			assert directory_output is None or not os.path.exists(directory_output), "Output folder exists, aborting."
+			assert os.path.exists(directory_blueprint), "Blueprint directory does not exist, aborting."
+			assert directory_output is None or not os.path.exists(directory_output), "Output directory exists, not writing blueprint to exiting folder to prevent overwriting."
 
 			blueprint = Blueprint(
 				logfile=self._logfile,
