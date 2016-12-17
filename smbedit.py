@@ -1,4 +1,5 @@
 __author__ = 'Peter Hofmann'
+__version__ = '0.0.2'
 
 import os
 import argparse
@@ -9,10 +10,15 @@ from lib.blueprint import Blueprint
 
 
 class SMBEdit(DefaultLogging):
+	"""
+	# #######################################
+	# ###  StarMade Blueprint Editor
+	# #######################################
 
-	# #######################################
-	# ###  Starmade Blueprint Editor
-	# #######################################
+	Works with StarMade v0.199.253 build 20161011_173324
+	"""
+
+	_label = "SMBEdit"
 
 	def __init__(self, logfile=None, verbose=False, debug=False):
 		"""
@@ -27,7 +33,6 @@ class SMBEdit(DefaultLogging):
 
 		@rtype: None
 		"""
-		self._label = "SMBEdit"
 		super(SMBEdit, self).__init__(
 			logfile=logfile,
 			verbose=verbose,
@@ -49,14 +54,17 @@ class SMBEdit(DefaultLogging):
 		"""
 		parser = argparse.ArgumentParser(
 			usage="python %(prog)s directory_blueprint",
-			version="BlueprintManipulator {}".format(version),
+			version="{label} {version}".format(label=SMBEdit._label, version=version),
 			description="""
 	#######################################
-	#    SMBEdit             #
-	#    Version: {}#
+	#    {label}#
+	#    Version: {version}#
 	#######################################
 
-	Manipulation of Starmade blueprints""".format(version.ljust(24)),
+	Manipulation of Starmade blueprints""".format(
+				label=SMBEdit._label.ljust(33),
+				version=version.ljust(24)
+			),
 			formatter_class=argparse.RawTextHelpFormatter)
 
 		parser.add_argument(
@@ -206,7 +214,7 @@ class SMBEdit(DefaultLogging):
 
 
 def main():
-	options = SMBEdit.get_parser_options()
+	options = SMBEdit.get_parser_options(version=__version__)
 	verbose = options.verbose
 	debug = options.debug_mode
 	logfile = options.logfile
