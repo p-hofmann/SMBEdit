@@ -116,46 +116,85 @@ class ByteStream(object):
 		return self._bytestream.read(size)
 
 	def read_bool(self):
+		"""
+		@rtype: bool
+		"""
 		return self._unpack(1, '?')
 
 	def read_char(self):
 		return self._unpack(1, 'b')
 
 	def read_int16(self):
+		"""
+		@rtype: int
+		"""
 		return self._unpack(2, 'h')
 
 	def read_int16_unassigned(self):
+		"""
+		@rtype: int
+		"""
 		return self._unpack(2, 'H')
 
 	def read_int24(self):
+		"""
+		@rtype: int
+		"""
 		return self._unpack(3, 'i', '\x00')
 
 	def read_int24_unassigned(self):
+		"""
+		@rtype: int
+		"""
 		return self._unpack(3, 'I', '\x00')
 
 	def read_int32(self):
+		"""
+		@rtype: int
+		"""
 		return self._unpack(4, 'i')
 
 	def read_int32_unassigned(self):
+		"""
+		@rtype: int
+		"""
 		return self._unpack(4, 'I')
 
 	def read_float(self):
+		"""
+		@rtype: float
+		"""
 		return self._unpack(4, 'f')
 
 	def read_double(self):
+		"""
+		@rtype: float
+		"""
 		return self._unpack(8, 'd')
 
 	def read_int64(self):
+		"""
+		@rtype: int
+		"""
 		return self._unpack(8, 'q')
 
 	def read_int64_unassigned(self):
+		"""
+		@rtype: int
+		"""
 		return self._unpack(8, 'Q')
 
 	def read_string(self):
+		"""
+		@rtype: str
+		"""
 		length = self.read_int16_unassigned()
 		return self._unpack(length, str(length) + 's')
 
 	def read_byte_array(self):
+		"""
+		@rtype: list
+		"""
 		array = []
 		length = self.read_int32_unassigned()
 		assert 0 <= length < 1000000000
@@ -166,6 +205,9 @@ class ByteStream(object):
 		return array
 
 	def read_vector_3_int16(self):
+		"""
+		@rtype: tuple
+		"""
 		vector = [
 			self.read_int16(),
 			self.read_int16(),
@@ -174,6 +216,9 @@ class ByteStream(object):
 		return tuple(vector)
 
 	def read_vector_3_int32(self):
+		"""
+		@rtype: tuple
+		"""
 		vector = [
 			self.read_int32(),
 			self.read_int32(),
@@ -182,6 +227,9 @@ class ByteStream(object):
 		return tuple(vector)
 
 	def read_vector_3_float(self):
+		"""
+		@rtype: tuple
+		"""
 		vector = [
 			self.read_float(),
 			self.read_float(),
@@ -190,6 +238,9 @@ class ByteStream(object):
 		return tuple(vector)
 
 	def read_vector_4_float(self):
+		"""
+		@rtype: tuple
+		"""
 		vector = [
 			self.read_float(),
 			self.read_float(),
@@ -199,6 +250,9 @@ class ByteStream(object):
 		return tuple(vector)
 
 	def read_vector_3_byte(self):
+		"""
+		@rtype: tuple
+		"""
 		vector = [
 			self.read_char(),
 			self.read_char(),
@@ -207,6 +261,9 @@ class ByteStream(object):
 		return tuple(vector)
 
 	def read_matrix_4_float(self):
+		"""
+		@rtype: tuple
+		"""
 		matrix = []
 		for _ in range(0, 4):
 			matrix.append(
@@ -216,7 +273,7 @@ class ByteStream(object):
 					self.read_float(),
 					self.read_float(),
 				])
-		return
+		return tuple(matrix)
 
 	# #######################################
 	# ###  Writing bytes
