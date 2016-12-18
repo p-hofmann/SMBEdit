@@ -132,7 +132,7 @@ class SMBEdit(DefaultLogging):
 			"-o", "--directory_output",
 			default=None,
 			type=str,
-			help="Directory of modified blueprint. Will be used as prefix for unique directory name.")
+			help="Output directory of modified blueprint.")
 
 		group_input = parser.add_argument_group('required')
 		group_input.add_argument(
