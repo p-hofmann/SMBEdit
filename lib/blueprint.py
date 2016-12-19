@@ -51,7 +51,7 @@ class Blueprint(DefaultLogging, BlueprintUtils):
 
 		self.header.read(directory_blueprint)
 		self.logic.read(directory_blueprint)
-		self.meta.read(directory_blueprint)
+		# self.meta.read(directory_blueprint)
 		self.smd3.read(directory_blueprint)
 
 	# #######################################
@@ -113,6 +113,13 @@ class Blueprint(DefaultLogging, BlueprintUtils):
 		self.logic.set_type(entity_type)
 		self.header.set_type(entity_type)
 		self.update()
+
+	def replace_blocks(self, block_id, replace_id, replace_hp):
+		"""
+		Replace all blocks of a specific id
+		"""
+		compatible = self.are_compatible_blocks(block_id, replace_id)
+		self.smd3.replace_blocks(block_id, replace_id, replace_hp, compatible)
 
 	def update(self):
 		"""
