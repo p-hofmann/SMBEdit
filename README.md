@@ -9,26 +9,26 @@ The script was written for python2.7 and is not compatible with python3, but sho
 Several command line arguments are available and (most) can be used all at once.  
 
 ### Display all available command line arguments
-
-    -h, --help
-
+```
+	-h, --help
+```
 ### Print summary of blueprint
-
-    -s, --summary
-
+```
+	-s, --summary
+```
 This can be combined with '-verbose' to display more information.  
 Using '-debug' detailed information about ALL blocks will be shown and is not recommended unless the entity contains but a few blocks. 
 
 ### Update entity
-
-    -u, --update
-
+```
+	-u, --update
+```
 Removes outdated blocks and replaces old docking blocks with basic rails
 
 ###Change entity type
-
+```
 	-et {0,1,2,3,4}, --entity_type {0,1,2,3,4}
-
+```
 Only 0 and 2 can be used for a blueprint as far I know.  
 Available entity types are:  
 0: "Ship",
@@ -40,9 +40,9 @@ Available entity types are:
 Changing entity type will automatically update the entity.
 
 ### Relocate core/center
-
-    -m MOVE_CENTER, --move_center MOVE_CENTER
-
+```
+	-m MOVE_CENTER, --move_center MOVE_CENTER
+```
 The argument can be either a block id or a directional vector like '0,0,1'.
 
 #### Move core/center in the direction of x,y,z 
@@ -54,16 +54,29 @@ A positive z moves the core forward.
 It is possible move the core/center to the position of another block.
 If several have the same id, the first hit is used.
 In case of a ship, the core will replace the block.  
-The ids of blocks can be found in lib/blueprintutils and on various websites.
+The ids of blocks can be found at [starmadepedia](https://starmadepedia.net/wiki/ID_list) and on various other websites.
 
 For example, if you have problems finding the core anchor of your huge shipyard, why not moving the station indicator directly on top of it? The id of the shipyard core anchor is 679.
-
+```
 	python directory/my_blueprint -m 679 -o directory/new_blueprint
+```
+
+### Replace blocks
+```
+	-r, --replace
+```
+Replace a block of a specific id with another one. Hit points are also required.
+Id and Hp can be looked for at [starmadepedia](https://starmadepedia.net/wiki/ID_list).
+
+Hit points - Hull type  
+75 - Basic Hull  
+100 - Standard Armor  
+250 - Advanced Armor  
 
 ### Turn/Tilt entity
-
+```
 	-t {0,1,2,3,4,5}, --turn {0,1,2,3,4,5}
-
+```
 A specific change is represented by a number:  
 0: "tilt up",
 1: "tilt down",
@@ -95,7 +108,7 @@ The "Undeathinator" block  is replaced with a core.
 '-o' The modified blueprint is saved at 'directory/new_blueprint'.
 
 # Restrictions
-This editor works with StarMade v0.199.253 build 20161011_173324.  
+This editor works with StarMade v0.199.253 to v0.199.351.  
 Older blueprint versions, smd2 including some old smd3, can not be read.
 Use the StarMade client to update a blueprint if required.
 

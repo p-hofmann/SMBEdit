@@ -122,6 +122,7 @@ class SMBEdit(DefaultLogging):
 		3: "Asteroid",
 		4: "Planet",
 	''')
+
 		group_input.add_argument(
 			"-m", "--move_center",
 			default=None,
