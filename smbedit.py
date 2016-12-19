@@ -199,9 +199,9 @@ class SMBEdit(DefaultLogging):
 				old_block_id = int(old_block_id)
 
 				assert ':' in suffix, "Bad replace: '{}'".format(replace)
-				replace_id, replace_hp = replace.split(':')
-				assert replace_id.isdigit(), "Bad replace block id: '{}'".format(suffix)
-				assert replace_hp.isdigit(), "Bad replace block hp: '{}'".format(suffix)
+				replace_id, replace_hp = suffix.split(':')
+				assert replace_id.isdigit(), "Bad replace block id: '{}'".format(replace_id)
+				assert replace_hp.isdigit(), "Bad replace block hp: '{}'".format(replace_hp)
 				replace_id = int(replace_id)
 				replace_hp = int(replace_hp)
 				blueprint.replace_blocks(old_block_id, replace_id, replace_hp)

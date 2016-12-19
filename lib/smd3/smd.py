@@ -118,7 +118,7 @@ class Smd(DefaultLogging, BlueprintUtils):
 	# ###  moving blocks
 	# #######################################
 
-	def move_center(self, direction_vector):
+	def move_center(self, direction_vector, entity_type):
 		"""
 		Move center (core) in a specific direction
 
@@ -139,6 +139,8 @@ class Smd(DefaultLogging, BlueprintUtils):
 		for position_block, block in self.iteritems():
 			assert isinstance(block, SmdBlock)
 			new_block_position = self.vector_subtraction(position_block, direction_vector)
+			if entity_type == 0 and new_block_position == (16, 16, 16):
+				continue
 			if block.get_id() == 1:  # core
 				new_block_position = position_block
 			new_smd.add(new_block_position, block)

@@ -83,22 +83,6 @@ class Blueprint(DefaultLogging, BlueprintUtils):
 	# ###  Else
 	# #######################################
 
-	def move_center_by_block_id(self, block_id):
-		"""
-		Relocate center/core to the position of a hopefully unique block
-
-		@param block_id: block id
-		@type block_id: int
-		"""
-		assert isinstance(block_id, (int, long))
-		position = self.smd3.search(block_id)
-		assert position is not None, "Block id not found: {}".format(block_id)
-		distance = self.vector_distance(position, (16, 16, 16))
-		if distance == 0:
-			return
-		direction_vector = self._get_direction_vector_to_center(position)
-		self.move_center_by_vector(direction_vector)
-
 	def set_entity_type(self, entity_type):
 		"""
 		Change entity type
@@ -135,6 +119,22 @@ class Blueprint(DefaultLogging, BlueprintUtils):
 		self.logic.update(self.smd3)
 		self.header.update(self.smd3)
 
+	def move_center_by_block_id(self, block_id):
+		"""
+		Relocate center/core to the position of a hopefully unique block
+
+		@param block_id: block id
+		@type block_id: int
+		"""
+		assert isinstance(block_id, (int, long))
+		position = self.smd3.search(block_id)
+		assert position is not None, "Block id not found: {}".format(block_id)
+		distance = self.vector_distance(position, (16, 16, 16))
+		if distance == 0:
+			return
+		direction_vector = self._get_direction_vector_to_center(position)
+		self.move_center_by_vector(direction_vector)
+
 	def move_center_by_vector(self, direction_vector):
 		"""
 		Relocate center/core in a direction
@@ -143,7 +143,7 @@ class Blueprint(DefaultLogging, BlueprintUtils):
 		@type direction_vector: int, int, int
 		"""
 		assert isinstance(direction_vector, tuple)
-		min_vector, max_vector = self.smd3.move_center(direction_vector)
+		min_vector, max_vector = self.smd3.move_center(direction_vector, self.header.type)
 		self.logic.move_center(direction_vector, self.header.type)
 		self.header.set_box(min_vector, max_vector)
 		self.header.update(self.smd3)
