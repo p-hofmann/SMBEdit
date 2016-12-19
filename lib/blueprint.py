@@ -124,6 +124,7 @@ class Blueprint(DefaultLogging, BlueprintUtils):
 		"""
 		compatible = self.are_compatible_blocks(block_id, replace_id)
 		self.smd3.replace_blocks(block_id, replace_id, replace_hp, compatible)
+		self.header.update(self.smd3)
 
 	def update(self):
 		"""
@@ -145,6 +146,7 @@ class Blueprint(DefaultLogging, BlueprintUtils):
 		min_vector, max_vector = self.smd3.move_center(direction_vector)
 		self.logic.move_center(direction_vector, self.header.type)
 		self.header.set_box(min_vector, max_vector)
+		self.header.update(self.smd3)
 
 	def turn_tilt(self, index_turn_tilt):
 		"""
