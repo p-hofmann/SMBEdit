@@ -108,6 +108,8 @@ class SmdBlock(BlockOrientation, BitAndBytes, BlueprintUtils):
 		int_24bit = struct.unpack('>i', '\x00' + self._byte_string)[0]
 		# bit_array = ByteStream.unpack('\x00' + self._byte_string, 'i')
 		self._id = self.bits_parse(int_24bit, 0, 11)
+		if self._id == 0:
+			return
 		self._style = self.get_block_style(self._id)
 		self._hit_points = self.bits_parse(int_24bit, 11, 8)
 		if self._style == 0:  # For blocks with an activation status
