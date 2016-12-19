@@ -4,6 +4,7 @@ __version__ = '0.1.4'
 import sys
 import io
 import logging
+import random
 if sys.version_info <= (2, 8):
 	from StringIO import StringIO  # python 2.7
 else:
@@ -61,9 +62,9 @@ class LoggingWrapper(object):
 		old_label = label
 		index = 0
 		while label in logging.Logger.manager.loggerDict:
-			index += 1
+			index = random.randint(0, 99999999999)
 			label = old_label
-			label = label + " ({})".format(index)
+			label = label + " {}".format(index)
 
 		self._label = label
 		self._logger = logging.getLogger(label)
