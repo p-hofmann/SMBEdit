@@ -11,12 +11,23 @@ PLANET = 4
 class BlueprintUtils(object):
 
 	_entity_types = {
-		-1: "",
 		SHIP: "Ship",
 		SHOP: "Shop",
 		SPACE_STATION: "Space Station",
 		ASTEROID: "Asteroid",
 		PLANET: "Planet",
+	}
+
+	_ship_classification = {
+		0: "General",
+		1: "Mining",
+		2: "Support",
+		3: "Cargo",
+		4: "Attack",
+		5: "Defence",
+		6: "Carrier",
+		7: "Scout",
+		8: "Scavenger",
 	}
 
 	_block_ids = dict()
@@ -493,6 +504,30 @@ class BlueprintUtils(object):
 		281: "Snowbuds",
 		}
 
+	_block_ids["plants"] = {
+		# Subset of Nature
+		93: "Blue Flowers",
+		95: "Small Cactus",
+		96: "Coral",
+		97: "Fan Flower",
+		98: "Long Grass",
+		99: "Desert Flowers",
+		100: "Fungal Growth",
+		101: "Glow Trap",
+		102: "Small Berry Bush",
+		103: "Arched Cactus",
+		104: "Mushroom",
+		105: "Purple Weeds",
+		106: "Yellow Flowers",
+		107: "Stone Fragment",
+		108: "Funal Trap",
+		109: "Yhole",
+		278: "Ice Fan Flower",
+		279: "Ice Crag",
+		280: "Ice Coral",
+		281: "Snowbuds",
+		}
+
 	_block_ids["minerals"] = {
 		# Minerals
 		143: "Larimar",
@@ -567,6 +602,173 @@ class BlueprintUtils(object):
 		343: "Gold Bar",
 	}
 
+	def _is_slab(self, block_id):
+		"""
+		Return True if it is a slap
+		Slab have block style 0
+
+		@param block_id:
+		@type block_id: int
+
+		@return:
+		@rtype: bool
+		"""
+		slab_shapes = ["1/4", "1/2", "3/4"]
+		block_name = self.get_block_name_by_id(block_id)
+		for shape in slab_shapes:
+			if shape in block_name:
+				return True
+		return False
+
+	def _is_block_style_6(self, block_id):
+		"""
+		# 6: rails/White Light Bar/Pipe/Decorative Console/Shipyard Module/Core Anchor/Mushroom/
+
+		@param block_id:
+		@type block_id: int
+
+		@return:
+		@rtype: bool
+		"""
+		if block_id in self._block_ids["rails"]:
+			return True
+		if block_id == 977:  # White Light Bar
+			return True
+		if block_id == 976:  # Pipe
+			return True
+		if block_id == 975:  # Decorative Console (Blue)
+			return True
+		if block_id == 678:  # Shipyard Module
+			return True
+		if block_id == 679:  # Shipyard Core Anchor
+			return True
+		if block_id == 104:  # Mushroom
+			return True
+		return False
+
+	def _is_block_style_3(self, block_id):
+		"""
+		# 3: Rod/Paint/Capsules/Hardener/Plants/Shards
+
+		@param block_id:
+		@type block_id: int
+
+		@return:
+		@rtype: bool
+		"""
+		if block_id in self._block_ids["rails"]:
+			return True
+		if block_id in self._block_ids["plants"] and block_id != 104:  # and not Mushroom
+			return True
+
+		if block_id == 977:  # White Light Bar
+			return True
+		if block_id == 976:  # Pipe
+			return True
+		if block_id == 975:  # Decorative Console (Blue)
+			return True
+		if block_id == 678:  # Shipyard Module
+			return True
+		if block_id == 679:  # Shipyard Core Anchor
+			return True
+		if block_id == 104:  # Mushroom
+			return True
+		return False
+
+	def _is_block_style_0(self, block_id):
+		"""
+		# 0: slabs
+		#    activatable: doors/weapons/station/logic/medical/factions/systems/effects/tools/lighting*:
+		#        lights blocks and slabs but not light rods or 'White Light Bar'
+		#    nature blocks, except plants
+		#    standard armor/hull
+
+		@param block_id:
+		@type block_id: int
+
+		@return:
+		@rtype: bool
+		"""
+		if self._is_slab(block_id):
+			return True
+		if self._is_activatable_block(block_id):
+			return True
+		if block_id in self._block_ids["nature"] and block_id not in self._block_ids["plants"]:
+			return True
+		if block_id in self._block_ids["hull"]:
+			shapes = ["wedge", "corner", "tetra", "hepta"]
+			block_name = self.get_block_name_by_id(block_id).lower()
+			for shape in shapes:
+				if shape in block_name:
+					return False
+			return True
+		return False
+
+	def get_block_style(self, block_id):
+		"""
+		Return style of block
+
+		# 0: slabs/doors/weapons/station/logic/lighting/medical/factions/systems/effects/tools:
+		# 1: Wedge
+		# 2: Corner
+		# 3: Rod/Paint/Capsules/Hardener/Plants/Shards
+		# 4: Tetra
+		# 5: Hepta
+		# 6: Rail/Pickup/White Light Bar/Pipe/Decorative Console/Shipyard Module/Core Anchor/Mushroom/
+
+		@param block_id:
+		@type block_id: int
+
+		@return: style
+		@rtype: int
+		"""
+		assert self.is_known_id(block_id), "Unknown block id: {}".format(block_id)
+		block_name = self.get_block_name_by_id(block_id).lower()
+		if "wedge" in block_name:
+			return 1
+		if "corner" in block_name:
+			return 2
+		if "tetra" in block_name:
+			return 4
+		if "hepta" in block_name:
+			return 5
+		if self._is_block_style_6(block_id):
+			return 6
+		if self._is_block_style_0(block_id):
+			return 0
+		raise Exception("Unknown block style for id: {}".format(block_id))
+
+	def are_compatible_blocks(self, block_id_1, block_id_2):
+		"""
+		Return True if two blocks can be replace each other without orientation issues
+
+		@param block_id_1:
+		@type block_id_1: int
+		@param block_id_2:
+		@type block_id_2: int
+
+		@return:
+		@rtype: bool
+		"""
+		if self.get_block_style(block_id_1) == self.get_block_style(block_id_2):
+				return True
+		return False
+
+	def is_known_id(self, block_id):
+		"""
+		Return block name of a block id
+
+		@param block_id:
+		@type block_id: int
+
+		@return: block name
+		@rtype: str
+		"""
+		for category_name, category_ids in self._block_ids.iteritems():
+			if block_id in category_ids:
+				return True
+		return False
+
 	def get_block_name_by_id(self, block_id):
 		"""
 		Return block name of a block id
@@ -582,7 +784,7 @@ class BlueprintUtils(object):
 				return category_ids[block_id]
 		return "unknown ({})".format(block_id)
 
-	def _is_valid_block_id(self, block_id, entity_type=0):
+	def is_valid_block_id(self, block_id, entity_type=0):
 		"""
 		Test if an id is outdated or not valid for a specific entity type
 
@@ -605,7 +807,7 @@ class BlueprintUtils(object):
 
 	def _is_activatable_block(self, block_id):
 		"""
-		Test if an id is of am activatable block (type 1 block)
+		Test if an id is of am activatable block (style 0 block)
 
 		@param block_id:
 		@type block_id: int
@@ -614,70 +816,34 @@ class BlueprintUtils(object):
 		@rtype: bool
 		"""
 		assert isinstance(block_id, int)
-		activatable_block_id = {
-			# system
-			# 56: "Gravity Unit",
-			120: "Storage",
-			# 121: "BOBBY AI Module",
-			# station
-			# 113: "Plex Lift",
-			211: "Basic Factory",
-			217: "Standard Factory",
-			259: "Advanced Factory",
-			213: "Capsule Refinery",
-			215: "Micro Assembler",
-			212: "Factory Enhancer",
-		}
 		if block_id in self._block_ids["logic"]:
 			return True
 		if block_id in self._block_ids["doors"]:
 			return True
 		if block_id in self._block_ids["lighting"]:
+			block_name = self.get_block_name_by_id(block_id).lower()
+			if "Rod".lower() in block_name:
+				return False
+			if block_id == 977:  # White Light Bar
+				return False
 			return True
-		# if block_id in self._block_ids["medical"]:
-		# 	return True
-		# if block_id in self._block_ids["factions"]:
-		# 	return True
+		if block_id in self._block_ids["medical"]:
+			return True
+		if block_id in self._block_ids["factions"]:
+			return True
 		if block_id in self._block_ids["systems"]:
 			return True
-		# if block_id in self._block_ids["effects"]:
-		# 	return True
-		# if block_id in self._block_ids["tools"]:
-		# 	return True
-		# if block_id in self._block_ids["weapons"]:
-		# 	return True
+		if block_id in self._block_ids["effects"]:
+			return True
+		if block_id in self._block_ids["tools"]:
+			return True
+		if block_id in self._block_ids["weapons"]:
+			return True
 		if block_id in self._block_ids["station"]:
-			return True
-		if block_id in activatable_block_id:
-			return True
-		return False
-
-	def _is_corner_block(self, block_id):
-		"""
-		Test if an id is of a corner block with 24 orientations (type 3 block)
-
-		@param block_id:
-		@type block_id: int
-
-		@return:
-		@rtype: bool
-		"""
-		assert isinstance(block_id, int)
-		orientations_x24_block_id = {
-			# station
-			678: "Shipyard Module",
-			679: "Shipyard Core Anchor",
-			# decorative
-			976: "Pipe",
-			975: "Decorative Console (Blue)",
-		}
-		if block_id in self._block_ids["rails"]:
-			return True
-		if block_id in orientations_x24_block_id:
-			return True
-		if block_id not in self._block_ids["hull"]:
-			return False
-		if "corner" in self._block_ids["hull"][block_id].lower():
+			if block_id == 678:  # Shipyard Module
+				return False
+			if block_id == 679:  # Shipyard Core Anchor
+				return False
 			return True
 		return False
 
