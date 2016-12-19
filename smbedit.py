@@ -129,6 +129,12 @@ class SMBEdit(DefaultLogging):
 			help="Either a block id or a directional vector like '0,0,1', for moving center (Core) one block forward.")
 
 		group_input.add_argument(
+			"-r", "--replace",
+			default=None,
+			type=str,
+			help="old_id,new_id:hit_points")
+
+		group_input.add_argument(
 			"-o", "--directory_output",
 			default=None,
 			type=str,
@@ -150,6 +156,7 @@ class SMBEdit(DefaultLogging):
 			directory_blueprint = options.directory_blueprint
 			directory_output = options.directory_output
 			index_turn_tilt = options.turn
+			replace = options.replace
 			move_center = options.move_center
 			update = options.update
 			entity_type = options.entity_type
@@ -181,6 +188,22 @@ class SMBEdit(DefaultLogging):
 				else:  # block id
 					assert move_center.isdigit(), "Bad block id: '{}'".format(move_center)
 					blueprint.move_center_by_block_id(int(move_center))
+
+			if replace is not None:
+				self._logger.info("Replacing blocks...")
+				assert isinstance(replace, str)
+				assert ',' in replace, "Bad replace: '{}'".format(replace)
+				old_block_id, suffix = replace.split(',')
+				assert old_block_id.isdigit(), "Bad old block id: '{}'".format(old_block_id)
+				old_block_id = int(old_block_id)
+
+				assert ':' in suffix, "Bad replace: '{}'".format(replace)
+				replace_id, replace_hp = replace.split(':')
+				assert replace_id.isdigit(), "Bad replace block id: '{}'".format(suffix)
+				assert replace_hp.isdigit(), "Bad replace block hp: '{}'".format(suffix)
+				replace_id = int(replace_id)
+				replace_hp = int(replace_hp)
+				blueprint.replace_blocks(old_block_id, replace_id, replace_hp)
 
 			if index_turn_tilt is not None:
 				blueprint.turn_tilt(index_turn_tilt)
