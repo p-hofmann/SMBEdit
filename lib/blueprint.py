@@ -117,6 +117,10 @@ class Blueprint(DefaultLogging, BlueprintUtils):
 	def replace_blocks(self, block_id, replace_id, replace_hp):
 		"""
 		Replace all blocks of a specific id
+
+		@type block_id: int
+		@type replace_id: int
+		@type replace_hp: int
 		"""
 		compatible = self.are_compatible_blocks(block_id, replace_id)
 		self.smd3.replace_blocks(block_id, replace_id, replace_hp, compatible)
