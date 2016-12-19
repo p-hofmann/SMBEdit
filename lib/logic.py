@@ -19,7 +19,7 @@ class Logic(DefaultLogging, BlueprintUtils):
 	def __init__(self, logfile=None, verbose=False, debug=False):
 		self._label = "Logic"
 		super(Logic, self).__init__(logfile, verbose, debug)
-		self.version = ""
+		self.version = 2
 		self.unknown_int = None
 		self._controller_position_to_block_id_to_block_positions = {}
 		# tail_data = None
@@ -88,6 +88,7 @@ class Logic(DefaultLogging, BlueprintUtils):
 		@type input_stream: ByteStream
 		"""
 		self.version = input_stream.read_int32_unassigned()
+		assert self.version == 0, self.version
 		self.unknown_int = input_stream.read_int32_unassigned()
 		self._controller_position_to_block_id_to_block_positions = self._read_list_of_controllers(input_stream)
 
@@ -253,7 +254,7 @@ class Logic(DefaultLogging, BlueprintUtils):
 		for controller_position in self._controller_position_to_block_id_to_block_positions.keys():
 			groups = self._controller_position_to_block_id_to_block_positions[controller_position]
 			for block_id in groups.keys():
-				if self._is_valid_block_id(block_id):
+				if self.is_valid_block_id(block_id):
 					self._update_groups(controller_position, block_id, smd)
 					continue
 				self._controller_position_to_block_id_to_block_positions[controller_position].pop(block_id)
