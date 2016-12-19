@@ -15,10 +15,12 @@ from lib.smd3.smd import Smd
 
 class Statistics(object):
 
+	_valid_versions = {0, 1}
+
 	def __init__(self):
 		super(Statistics, self).__init__()
 		self.has_statistics = False
-		self.version = 0
+		self.version = 1
 		self.offensive0 = 0.
 		self.defensive = 0.
 		self.power = 0.
@@ -27,6 +29,7 @@ class Statistics(object):
 		self.survivability = 0.
 		self.offensive1 = 0.
 		self.support = 0
+		self.mining = 0
 
 	def read_statistics(self, input_stream):
 		"""
@@ -39,6 +42,7 @@ class Statistics(object):
 		if not self.has_statistics:
 			return
 		self.version = input_stream.read_int16_unassigned()
+		assert self.version in self._valid_versions, "Unsupported Statistic v{}".format(self.version)
 		self.offensive0 = input_stream.read_double()
 		self.defensive = input_stream.read_double()
 		self.power = input_stream.read_double()
@@ -47,6 +51,8 @@ class Statistics(object):
 		self.survivability = input_stream.read_double()
 		self.offensive1 = input_stream.read_double()
 		self.support = input_stream.read_double()
+		if self.version > 0:
+			self.mining = input_stream.read_double()
 
 	def write_statistics(self, output_stream):
 		"""
@@ -67,6 +73,8 @@ class Statistics(object):
 		output_stream.write_double(self.survivability)
 		output_stream.write_double(self.offensive1)
 		output_stream.write_double(self.support)
+		if self.version > 0:
+			output_stream.write_double(self.mining)
 
 	def to_stream(self, output_stream=sys.stdout):
 		"""
@@ -86,6 +94,8 @@ class Statistics(object):
 		output_stream.write("Danger: {}\n".format(self.danger))
 		output_stream.write("Survivability: {}\n".format(self.survivability))
 		output_stream.write("Support: {}\n".format(self.support))
+		if self.version > 0:
+			output_stream.write("Mining: {}\n".format(self.mining))
 		output_stream.write("\n")
 
 
@@ -93,10 +103,12 @@ class Header(DefaultLogging, BlueprintUtils):
 
 	_file_name = "header.smbph"
 
+	_valid_versions = {2, 3}
+
 	def __init__(self, logfile=None, verbose=False, debug=False):
 		super(Header, self).__init__(logfile, verbose, debug)
-		self.version = ""
-		self.type = -1
+		self.version = 2
+		self.type = 2
 		self.box_min = [0., 0., 0.]
 		self.box_max = [0., 0., 0.]
 		self.block_id_to_quantity = {}
@@ -130,7 +142,10 @@ class Header(DefaultLogging, BlueprintUtils):
 		"""
 		assert isinstance(input_stream, ByteStream)
 		self.version = input_stream.read_int32_unassigned()
+		assert self.version in self._valid_versions, "Unsupported HEADER v{}".format(self.version)
 		self.type = input_stream.read_int32_unassigned()
+		if self.version > 2:
+			self.classification = input_stream.read_int32_unassigned()
 		self.box_min = input_stream.read_vector_3_float()
 		self.box_max = input_stream.read_vector_3_float()
 
@@ -185,6 +200,8 @@ class Header(DefaultLogging, BlueprintUtils):
 		assert isinstance(output_stream, ByteStream)
 		output_stream.write_int32_unassigned(self.version)
 		output_stream.write_int32_unassigned(self.type)
+		if self.version > 2:
+			output_stream.write_int32_unassigned(self.classification)
 		output_stream.write_vector_3_float(self.box_min)
 		output_stream.write_vector_3_float(self.box_max)
 
@@ -226,10 +243,17 @@ class Header(DefaultLogging, BlueprintUtils):
 
 	def get_type_name(self):
 		"""
-		@return: Type of bluprint
+		@return: Type of blueprint
 		@rtype: str
 		"""
 		return self._entity_types[self.type]
+
+	def get_classification_name(self):
+		"""
+		@return: classification of blueprint
+		@rtype: str
+		"""
+		return self._ship_classification[self.classification]
 
 	def get_width(self):
 		"""
@@ -280,8 +304,10 @@ class Header(DefaultLogging, BlueprintUtils):
 		self.type = entity_type
 
 		block_id_core = 1
-		if entity_type > 0 and block_id_core in self.block_id_to_quantity:
-			self.remove(block_id_core)
+		if entity_type > 0:
+			if block_id_core in self.block_id_to_quantity:
+				self.remove(block_id_core)
+			self.statistics.has_statistics = False  # statistics only for ships
 		elif block_id_core not in self.block_id_to_quantity:
 			self.add(block_id_core, 1)
 
@@ -310,7 +336,7 @@ class Header(DefaultLogging, BlueprintUtils):
 			# update manually and hope it reflects the smd data
 			block_id_list = self.block_id_to_quantity.keys()
 			for block_id in block_id_list:
-				if not self._is_valid_block_id(block_id, self.type):
+				if not self.is_valid_block_id(block_id, self.type):
 					self.remove(block_id)
 					continue
 				if block_id not in self._docking_to_rails:
@@ -363,12 +389,15 @@ class Header(DefaultLogging, BlueprintUtils):
 		@type output_stream: fileIO
 		"""
 		output_stream.write("####\nHEADER v{}\n####\n\n".format(self.version))
-		output_stream.write("{} (w:{} , h:{}, l:{})\n".format(
+		output_stream.write("Type: {} (w:{} , h:{}, l:{})\n".format(
 			self.get_type_name(),
 			self.get_width(),
 			self.get_height(),
 			self.get_length()
 			))
+		if self.version > 2:
+			output_stream.write("Classification: {}\n".format(self.get_classification_name()))
+
 		if self._verbose or self._debug:
 			output_stream.write("Box min: {}, Box max: {}\n".format(
 				self.box_min,
