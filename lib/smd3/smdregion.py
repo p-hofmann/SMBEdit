@@ -69,6 +69,7 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
 		@rtype: int
 		"""
 		self.version = input_stream.read_int32_unassigned()
+		assert self.version == 33554432, self.version
 		number_of_segments = 0
 		for index in range(0, self._segments_in_a_cube):
 			identifier, size = self._read_segment_index(input_stream)
@@ -253,6 +254,13 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
 			assert isinstance(segment, SmdSegment)
 			number_of_blocks += segment.get_number_of_blocks()
 		return number_of_blocks
+
+	def replace_blocks(self, block_id, replace_id, replace_hp, compatible=False):
+		"""
+		Replace all blocks of a specific id
+		"""
+		for segment_position in self.position_to_segment.keys():
+			self.position_to_segment[segment_position].replace_blocks(block_id, replace_id, replace_hp, compatible)
 
 	def update(self, entity_type=0):
 		"""

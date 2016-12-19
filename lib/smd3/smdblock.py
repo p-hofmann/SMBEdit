@@ -7,26 +7,15 @@ from lib.blueprintutils import BlueprintUtils
 from lib.smd3.blockorientation import BlockOrientation
 
 
-class SmdBlock(BitAndBytes, BlueprintUtils):
+class SmdBlock(BlockOrientation, BitAndBytes, BlueprintUtils):
 
-	# https://starmadepedia.net/wiki/Blueprint_File_Formats#Block_Data
-
-	# ZR.classs	-	logic blocks only?
-	# public final short a() { return (short)ByteUtil.a(ByteUtil.a(this.a, 0), 0, 11); }
-	# public final int a() { return (short)ByteUtil.a(ByteUtil.a(this.a, 0), 11, 19); }
-	# public final void a(int var1) { ByteUtil.a(this.a, var1, 11, 19); }
-	# public final boolean a() { return ByteUtil.a(ByteUtil.a(this.a, 0), 19, 20) == 0; }
-	# public final void a(boolean var1) { ByteUtil.a(this.a, var1?0:1, 19, 20); }
-	# public final byte b() { return (byte)ByteUtil.a(ByteUtil.a(this.a, 0), 20, 24); }
-
-	def __init__(self):
+	def __init__(self, logfile=None, verbose=False, debug=False):
 		self._label = "SmdBlock"
-		super(SmdBlock, self).__init__()
-		self._type = 0
+		super(SmdBlock, self).__init__(logfile=logfile, verbose=verbose, debug=debug)
+		self._style = 0
 		self._id = 0
-		self._hitpoints = 0
+		self._hit_points = 0
 		self._active = 0
-		self._orientation = BlockOrientation(self._type)
 		self._byte_string = ""
 
 	def get_id(self):
@@ -37,13 +26,13 @@ class SmdBlock(BitAndBytes, BlueprintUtils):
 		"""
 		return self._id
 
-	def get_hitpoints(self):
+	def get_hit_points(self):
 		"""
 		Returns the hit points of the block
 
 		@rtype: int
 		"""
-		return self._hitpoints
+		return self._hit_points
 
 	def is_active(self):
 		"""
@@ -51,37 +40,29 @@ class SmdBlock(BitAndBytes, BlueprintUtils):
 
 		@rtype: int
 		"""
-		if self._type != 1:
+		if self._style != 0:
 			return False
 		return self._active == 0
 
-	def get_orientation(self):
-		"""
-		Returns the orientation of the block as integer.
-
-		@rtype: BlockOrientation
-		"""
-		return self._orientation
-
-	def set_id(self, value):
+	def set_id(self, block_id):
 		"""
 		Change block id of block
 
-		@param value:
-		@type value: int
+		@param block_id:
+		@type block_id: int
 		"""
-		self._id = value
-		self._refresh_block_type()
+		self._id = block_id
+		self._style = self.get_block_style(self._id)
 		self._refresh_data_byte_string()
 
-	def set_hitpoints(self, value):
+	def set_hit_points(self, value):
 		"""
 		Change hit points of block
 
 		@param value:
 		@type value: int
 		"""
-		self._hitpoints = value
+		self._hit_points = value
 		self._refresh_data_byte_string()
 
 	def set_active(self, value):
@@ -91,20 +72,11 @@ class SmdBlock(BitAndBytes, BlueprintUtils):
 		@param value:
 		@type value: bool
 		"""
+		assert self._style == 0, "Block id {} has no 'active' status".format(self._id)
 		if value:
 			self._active = 0
 		else:
 			self._active = 1
-		self._refresh_data_byte_string()
-
-	def set_orientation(self, value):
-		"""
-		Change orientation of block
-
-		@param value:
-		@type value: BlockOrientation
-		"""
-		self._orientation = value
 		self._refresh_data_byte_string()
 
 	def set_data_byte_string(self, byte_string):
@@ -136,12 +108,11 @@ class SmdBlock(BitAndBytes, BlueprintUtils):
 		int_24bit = struct.unpack('>i', '\x00' + self._byte_string)[0]
 		# bit_array = ByteStream.unpack('\x00' + self._byte_string, 'i')
 		self._id = self.bits_parse(int_24bit, 0, 11)
-		self._refresh_block_type()
-		self._hitpoints = self.bits_parse(int_24bit, 11, 8)
-		if self._type == 1:  # For blocks with an activation status
+		self._style = self.get_block_style(self._id)
+		self._hit_points = self.bits_parse(int_24bit, 11, 8)
+		if self._style == 0:  # For blocks with an activation status
 			self._active = self.bits_parse(int_24bit, 19, 1)
-		self._orientation = BlockOrientation(self._type)
-		self._orientation.set_int_24bit(int_24bit)
+		self._set_int_24bit(int_24bit)
 
 	def _refresh_data_byte_string(self):
 		"""
@@ -149,24 +120,13 @@ class SmdBlock(BitAndBytes, BlueprintUtils):
 		"""
 		int_24bit = 0
 		int_24bit = self.bits_combine(self._id, int_24bit, 0)
-		int_24bit = self.bits_combine(self._hitpoints, int_24bit, 11)
-		if self._type == 1:  # For blocks with an activation status
+		int_24bit = self.bits_combine(self._hit_points, int_24bit, 11)
+		if self._style == 1:  # For blocks with an activation status
 			int_24bit = self.bits_combine(self._active, int_24bit, 19)
-		int_24bit = self._orientation.get_int_24bit(int_24bit)
+		int_24bit = self._get_int_24bit(int_24bit)
 		# '[1:]' since only the last three bytes of an integer are used for block information.
 		self._byte_string = struct.pack('>i', int_24bit)[1:]
-
-	def _refresh_block_type(self):
-		"""
-		When the block id changes, its type might be different too and must be found out
-		"""
-		if self._is_activatable_block(self._id):
-			self._type = 1
-			return
-		if self._is_corner_block(self._id):
-			self._type = 3
-			return
-		self._type = 2
+		self._parse_byte_string()
 
 	# #######################################
 	# ###  Turning
@@ -196,22 +156,22 @@ class SmdBlock(BitAndBytes, BlueprintUtils):
 		self._refresh_data_byte_string()
 
 	def tilt_up(self):
-		self._orientation.turn_90_x()
+		self.turn_270_x()
 
 	def tilt_down(self):
-		self._orientation.turn_270_x()
+		self.turn_90_x()
 
 	def turn_right(self):
-		self._orientation.turn_90_y()
+		self.turn_90_y()
 
 	def turn_left(self):
-		self._orientation.turn_270_y()
+		self.turn_270_y()
 
 	def tilt_right(self):
-		self._orientation.turn_90_z()
+		self.turn_90_z()
 
 	def tilt_left(self):
-		self._orientation.turn_270_z()
+		self.turn_270_z()
 
 	# #######################################
 	# ###  Stream
@@ -224,8 +184,8 @@ class SmdBlock(BitAndBytes, BlueprintUtils):
 		@param output_stream:
 		@type output_stream: fileIO
 		"""
-		output_stream.write("({})\t".format(self._type))
-		output_stream.write("HP: {}\t".format(self._hitpoints))
+		output_stream.write("({})\t".format(self._style))
+		output_stream.write("HP: {}\t".format(self._hit_points))
 		output_stream.write("Active: {}\t".format(self.is_active()))
-		output_stream.write("Or.: {}\t".format(self._orientation.to_string()))
+		output_stream.write("Or.: {}\t".format(self._orientation_to_string()))
 		output_stream.write("{}\n".format(self.get_block_name_by_id(self._id)))

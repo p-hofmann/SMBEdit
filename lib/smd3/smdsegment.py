@@ -63,7 +63,7 @@ class SmdSegment(DefaultLogging, BlueprintUtils):
 		self.block_index_to_block = {}
 		for block_index in range(0, len(decompressed_data)/3):
 			position = block_index * 3
-			block = SmdBlock()
+			block = SmdBlock(debug=self._debug)
 			block.set_data_byte_string(decompressed_data[position:position+3])
 			if block.get_id() > 0:
 				self.block_index_to_block[block_index] = block
@@ -204,6 +204,21 @@ class SmdSegment(DefaultLogging, BlueprintUtils):
 		"""
 		return len(self.block_index_to_block)
 
+	def replace_blocks(self, block_id, replace_id, replace_hp, compatible=False):
+		"""
+		Replace all blocks of a specific id
+		"""
+		for block_index in self.block_index_to_block.keys():
+			if self.block_index_to_block[block_index].get_id() == block_id:
+				if compatible:
+					self.block_index_to_block[block_index].set_id(replace_id)
+					self.block_index_to_block[block_index].set_hit_points(replace_hp)
+				else:
+					new_block = SmdBlock(debug=self._debug)
+					new_block.set_id(block_id)
+					new_block.set_hit_points(replace_hp)
+					self.block_index_to_block[block_index] = new_block
+
 	def update(self, entity_type=0):
 		"""
 		Remove invalid/outdated blocks and exchange docking modules with rails
@@ -215,7 +230,7 @@ class SmdSegment(DefaultLogging, BlueprintUtils):
 		list_of_block_index = self.block_index_to_block.keys()
 		for block_index in list_of_block_index:
 			block = self.block_index_to_block[block_index]
-			if not self._is_valid_block_id(block.get_id(), entity_type):
+			if not self.is_valid_block_id(block.get_id(), entity_type):
 				self.remove_block(self.get_block_position_by_block_index(block_index))
 				continue
 			if block.get_id() not in self._docking_to_rails:

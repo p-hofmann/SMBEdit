@@ -208,6 +208,13 @@ class Smd(DefaultLogging, BlueprintUtils):
 			number_of_blocks += region.get_number_of_blocks()
 		return number_of_blocks
 
+	def replace_blocks(self, block_id, replace_id, replace_hp, compatible=False):
+		"""
+		Replace all blocks of a specific id
+		"""
+		for region_position in self.position_to_region.keys():
+			self.position_to_region[region_position].replace_blocks(block_id, replace_id, replace_hp, compatible)
+
 	def update(self, entity_type=0):
 		"""
 		Remove invalid/outdated blocks and exchange docking modules with rails
@@ -352,7 +359,7 @@ class Smd(DefaultLogging, BlueprintUtils):
 		if entity_type == 0:  # Ship
 			core_block = SmdBlock()
 			core_block.set_id(1)
-			core_block.set_hitpoints(250)
+			core_block.set_hit_points(250)
 			self.add(position_core, core_block)
 		else:  # not a ship
 			try:
