@@ -700,6 +700,12 @@ class BlueprintUtils(object):
 			return True
 		if block_id in self._block_ids["nature"] and block_id not in self._block_ids["plants"]:
 			return True
+
+		if block_id == 976:  # Pipe
+			return False
+		if block_id == 975:  # Decorative Console (Blue)
+			return False
+
 		for category in style_0_categories:
 			if block_id in self._block_ids[category]:
 				shapes = ["wedge", "corner", "tetra", "hepta"]
