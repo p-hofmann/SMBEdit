@@ -691,7 +691,7 @@ class BlueprintUtils(object):
 		@return:
 		@rtype: bool
 		"""
-		style_0_categories = ["hull", "circuits", "motherboard", "ingots", "crystals", "decorative"]
+		style_0_categories = ["hull", "circuits", "motherboards", "ingots", "crystals", "decorative"]
 		if self._is_slab(block_id):
 			return True
 		if self._is_activatable_block(block_id):
