@@ -656,8 +656,10 @@ class BlueprintUtils(object):
 		@return:
 		@rtype: bool
 		"""
-		if block_id in self._block_ids["rails"]:
-			return True
+		style_3_categories = ["ores", "shards", "crafting", "minerals", "rails"]
+		for category in style_3_categories:
+			if block_id in self._block_ids[category]:
+				return True
 		if block_id in self._block_ids["plants"] and block_id != 104:  # and not Mushroom
 			return True
 
@@ -689,19 +691,23 @@ class BlueprintUtils(object):
 		@return:
 		@rtype: bool
 		"""
+		style_0_categories = ["hull", "circuits", "motherboard", "ingots", "crystals", "decorative"]
 		if self._is_slab(block_id):
 			return True
 		if self._is_activatable_block(block_id):
 			return True
+		if block_id in self._block_ids["docking"]:  # no wedges
+			return True
 		if block_id in self._block_ids["nature"] and block_id not in self._block_ids["plants"]:
 			return True
-		if block_id in self._block_ids["hull"]:
-			shapes = ["wedge", "corner", "tetra", "hepta"]
-			block_name = self.get_block_name_by_id(block_id).lower()
-			for shape in shapes:
-				if shape in block_name:
-					return False
-			return True
+		for category in style_0_categories:
+			if block_id in self._block_ids[category]:
+				shapes = ["wedge", "corner", "tetra", "hepta"]
+				block_name = self.get_block_name_by_id(block_id).lower()
+				for shape in shapes:
+					if shape in block_name:
+						return False
+				return True
 		return False
 
 	def get_block_style(self, block_id):
