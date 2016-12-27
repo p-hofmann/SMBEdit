@@ -287,6 +287,21 @@ class Smd(DefaultLogging, BlueprintUtils):
 				return block_position
 		return None
 
+	def search_all(self, block_id):
+		"""
+		Search and return the global position of block positions
+
+		@param block_id: Block id as found in utils class
+		@type block_id: int
+
+		@return: None or (x,y,z)
+		@rtype: set[tuple[int]]
+		"""
+		positions = set()
+		for position, region in self.position_to_region.iteritems():
+			positions = positions.union(region.search_all(block_id))
+		return positions
+
 	def has_block_at_position(self, position):
 		"""
 		Returns true if a block exists at a position

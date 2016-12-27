@@ -159,6 +159,30 @@ class Blueprint(DefaultLogging, BlueprintUtils):
 		min_vector, max_vector = self.smd3.tilt_turn(index_turn_tilt)
 		self.header.set_box(min_vector, max_vector)
 
+	def link_salvage_modules(self):
+		"""
+		Automatically link salvage computers to salvage modules
+		"""
+		position_salvage_computers = self.smd3.search_all(4)
+		assert len(position_salvage_computers) > 0, "No salvage computer found"
+		position_salvage_modules = self.smd3.search_all(24)
+		assert len(position_salvage_modules) > 0, "No salvage modules found"
+		groups = {}
+		salvage_computer_count = len(position_salvage_computers)
+
+		if salvage_computer_count == 1:
+			self.logic.set_link(position_salvage_computers.pop(), 24, position_salvage_modules)
+			return
+
+		for index in range(salvage_computer_count):
+			groups[index] = set()
+		for position in position_salvage_modules:
+			group_index = (position[0] + position[1]) % salvage_computer_count
+			groups[group_index].add(position)
+		position_salvage_computers = list(position_salvage_computers)
+		for group_index in groups.keys():
+			self.logic.set_link(position_salvage_computers[group_index], 24, groups[group_index])
+
 	def to_stream(self, output_stream=sys.stdout):
 		"""
 		Stream blueprint values

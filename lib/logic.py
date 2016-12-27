@@ -197,6 +197,27 @@ class Logic(DefaultLogging, BlueprintUtils):
 	# ###  Else
 	# #######################################
 
+	def set_link(self, controller_position, group_id, positions):
+		"""
+		Set a link from a controller to a group
+
+		@attention: existing links from this controller to this group id will be replaced
+
+		@param controller_position:
+		@type controller_position: tuple[int]
+		@param group_id:
+		@type group_id: int
+		@param positions:
+		@type positions: set[tuple[int]]
+		"""
+		assert isinstance(controller_position, tuple)
+		assert isinstance(group_id, int)
+		assert isinstance(positions, set)
+		assert len(positions) > 0
+		if controller_position not in self._controller_position_to_block_id_to_block_positions:
+			self._controller_position_to_block_id_to_block_positions[controller_position] = {}
+		self._controller_position_to_block_id_to_block_positions[controller_position][group_id] = positions
+
 	def move_center(self, direction_vector, entity_type=0):
 		"""
 		Move center (core) in a specific direction and correct all links

@@ -97,6 +97,12 @@ class SMBEdit(DefaultLogging):
 			help="Remove outdated blocks and replace old docking blocks")
 
 		group_input.add_argument(
+			"-ls", "--link_salvage",
+			action='store_true',
+			default=False,
+			help="Link salvage computers to salvage modules")
+
+		group_input.add_argument(
 			"-t", "--turn",
 			default=None,
 			type=int,
@@ -156,6 +162,7 @@ class SMBEdit(DefaultLogging):
 		try:
 			directory_blueprint = options.directory_blueprint
 			directory_output = options.directory_output
+			link_salvage = options.link_salvage
 			index_turn_tilt = options.turn
 			replace = options.replace
 			move_center = options.move_center
@@ -212,6 +219,10 @@ class SMBEdit(DefaultLogging):
 			if entity_type is not None:
 				self._logger.info("Changing entity type and updating blueprint...")
 				blueprint.set_entity_type(entity_type)
+
+			if link_salvage:
+				self._logger.info("Linking salvage computers/modules...")
+				blueprint.link_salvage_modules()
 
 			if update and entity_type is None:
 				self._logger.info("Updating blueprint...")

@@ -52,7 +52,7 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
 		@param input_stream: input stream
 		@type input_stream: ByteStream
 
-		@rtype: int, int
+		@rtype: list[int]
 		"""
 		identifier = input_stream.read_int16_unassigned()
 		size = input_stream.read_int16_unassigned()
@@ -195,10 +195,10 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
 		Return the position of a segment a position belongs to.
 
 		@param position: Any global position like that of a block
-		@type position: int, int, int
+		@type position: tuple[int]
 
 		@return:
-		@rtype: int, int, int
+		@rtype: tuple[int]
 		"""
 		return self._get_segment_position_of(position[0]), self._get_segment_position_of(position[1]), self._get_segment_position_of(position[2])
 
@@ -221,7 +221,7 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
 		The offset is half width of a region in number of blocks.
 
 		@param segment_position: x,y,z
-		@type segment_position: int, int, int
+		@type segment_position: tuple[int]
 
 		@rtype: int
 		"""
@@ -289,7 +289,7 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
 		Remove Block at specific position.
 
 		@param block_position: x,z,y position of a block
-		@type block_position: int,int,int
+		@type block_position: tuple[int]
 		"""
 		assert isinstance(block_position, tuple), block_position
 		position_segment = self.get_segment_position_of_position(block_position)
@@ -301,7 +301,7 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
 		Add a block to the segment based on its global position
 
 		@param block_position: x,y,z position of block
-		@type block_position: int, int, int
+		@type block_position: tuple[int]
 		@param block: A block! :)
 		@type block: SmdBlock
 		"""
@@ -325,7 +325,7 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
 		@type block_id: int
 
 		@return: None or (x,y,z)
-		@rtype: None | int,int,int
+		@rtype: None | tuple[int]
 		"""
 		for position, segment in self.position_to_segment.iteritems():
 			block_position = segment.search(block_id)
@@ -333,12 +333,27 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
 				return block_position
 		return None
 
+	def search_all(self, block_id):
+		"""
+		Search and return the global position of block positions
+
+		@param block_id: Block id as found in utils class
+		@type block_id: int
+
+		@return: None or (x,y,z)
+		@rtype: set[tuple[int]]
+		"""
+		positions = set()
+		for position, segment in self.position_to_segment.iteritems():
+			positions = positions.union(segment.search_all(block_id))
+		return positions
+
 	def has_block_at_position(self, position):
 		"""
 		Returns true if a block exists at a position
 
 		@param position: (x,y,z)
-		@type position: int,int,int
+		@type position: tuple[int]
 
 		@return:
 		@rtype: bool
@@ -351,7 +366,7 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
 		Iterate over each block and its global position, not the position within the segment
 
 		@return: (x,y,z), block
-		@rtype: tuple[int,int,int], SmdBlock
+		@rtype: tuple[int], SmdBlock
 		"""
 		for position_segment, segment in self.position_to_segment.iteritems():
 			assert isinstance(segment, SmdSegment)
