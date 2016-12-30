@@ -6,6 +6,11 @@ from lib.loggingwrapper import DefaultLogging
 
 
 class DataType3(DefaultLogging):
+	"""
+	Reading data type 2 meta data
+
+	@type _docked_entity: dict[str, dict[str, int]]
+	"""
 
 	def __init__(self, logfile=None, verbose=False, debug=False):
 		self._label = "DataType3"
