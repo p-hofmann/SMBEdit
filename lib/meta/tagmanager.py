@@ -8,12 +8,127 @@ from lib.loggingwrapper import DefaultLogging
 
 class TagUtil(object):
 
+	# #######################################
+	# ###  Read
+	# #######################################
+
 	@staticmethod
-	def _data_to_stream(data, output_stream=sys.stdout):
-		if isinstance(data, (TagPayload, TagList, TagPayloadList)):
-			data.to_stream(output_stream)
+	def _read_payload(payload_type, input_stream):
+		"""
+
+		@param payload_type:
+		@type payload_type: int
+		@param input_stream:
+		@type input_stream: ByteStream
+
+		@return:
+		@rtype: any
+		"""
+		# self._logger.debug("payload payload_type: '{}'".format(payload_type))
+		if payload_type == 0:
+			return None
+		elif payload_type == 1:  # Byte
+			return input_stream.read_byte()
+		elif payload_type == 2:  # Short
+			return input_stream.read_int16()
+		elif payload_type == 3:  # Int
+			return input_stream.read_int32()
+		elif payload_type == 4:  # Long
+			return input_stream.read_int64()
+		elif payload_type == 5:  # Float
+			return input_stream.read_float()
+		elif payload_type == 6:  # Double
+			return input_stream.read_double()
+		elif payload_type == 7:  # Byte array
+			return input_stream.read_byte_array()
+		elif payload_type == 8:  # String
+			return input_stream.read_string()  # utf?
+		elif payload_type == 9:  # Float vector
+			return input_stream.read_vector_3_float()
+		elif payload_type == 10:  # int vector
+			return input_stream.read_vector_3_int32()
+		elif payload_type == 11:  # Byte vector
+			return input_stream.read_vector_3_byte()
+		elif payload_type == 12:  # TagList -> Payload List
+			tag_payload_list = TagPayloadList()
+			tag_payload_list.read(input_stream)
+			return tag_payload_list
+		elif payload_type == 13:  # TagStructure -> Tag list
+			tag_list = TagList()
+			tag_list.read(input_stream)
+			return tag_list
+		elif payload_type == 14:  # Factory registration # factoryId
+			return input_stream.read_byte()
+		elif payload_type == 15:  # Float4 vector
+			return input_stream.read_vector_4_float()
+		elif payload_type == 16:  # Float 4x4 matrix
+			return input_stream.read_matrix_4_float()
+		elif payload_type == 17:  # null
+			return None
 		else:
-			output_stream.write("{}, ".format(data))
+			# return None
+			raise Exception("Unknown payload data type: {}".format(payload_type))
+
+	# #######################################
+	# ###  Write
+	# #######################################
+
+	@staticmethod
+	def _write_payload(payload, payload_type, output_stream=sys.stdout):
+		"""
+		Write payload
+
+		@param payload:
+		@type payload: any
+		@param payload_type:
+		@type payload_type: int
+		@param output_stream: Output stream
+		@type output_stream: ByteStream
+		"""
+		if isinstance(payload, (TagList, TagPayloadList)):
+			payload.write(output_stream)  # 12 / 13
+			return
+		if payload_type == 1:  # Byte
+			output_stream.write_byte(payload)
+		elif payload_type == 2:  # Short
+			output_stream.write_int16(payload)
+		elif payload_type == 3:  # Int
+			output_stream.write_int32(payload)
+		elif payload_type == 4:  # Long
+			output_stream.write_int64(payload)
+		elif payload_type == 5:  # Float
+			output_stream.write_float(payload)
+		elif payload_type == 6:  # Double
+			output_stream.write_double(payload)
+		elif payload_type == 7:  # Byte array
+			output_stream.write_byte_array(payload)
+		elif payload_type == 8:  # String
+			output_stream.write_string(payload)  # utf?
+		elif payload_type == 9:  # Float vector
+			output_stream.write_vector_3_float(payload)
+		elif payload_type == 10:  # int vector
+			output_stream.write_vector_3_int32(payload)
+		elif payload_type == 11:  # Byte vector
+			output_stream.write_vector_3_byte(payload)
+		# elif payload_type == 12:  # TagList -> Payload List
+		# 	payload.write(output_stream)
+		# elif payload_type == 13:  # TagStructure -> Tag list
+		# 	payload.write(output_stream)
+		elif payload_type == 14:  # Factory registration # factoryId
+			output_stream.write_byte(payload)
+		elif payload_type == 15:  # Float4 vector
+			output_stream.write_vector_4_float(payload)
+		elif payload_type == 16:  # Float 4x4 matrix
+			output_stream.write_matrix_4_float(payload)
+		else:
+			raise Exception("Unknown payload data type: {}".format(payload_type))
+
+	@staticmethod
+	def _payload_to_stream(payload, output_stream=sys.stdout):
+		if isinstance(payload, (TagPayload, TagList, TagPayloadList)):
+			payload.to_stream(output_stream)
+		else:
+			output_stream.write("{}, ".format(payload))
 
 
 class TagList(object):
@@ -22,8 +137,47 @@ class TagList(object):
 	@type tag_list: list[TagPayload]
 	"""
 
-	def __init__(self, tag_list):
-		self.tag_list = tag_list
+	def __init__(self):
+		self.tag_list = []
+
+	# #######################################
+	# ###  Read
+	# #######################################
+
+	def read(self, input_stream):
+		"""
+		Read a list of tags
+
+		@param input_stream:
+		@type input_stream: ByteStream
+
+		@return:
+		@rtype: TagList
+		"""
+		self.tag_list = []
+		while True:
+			tag = TagPayload()
+			tag.read(input_stream)
+			# self._logger.debug("tag_list tag: '{}'".format(tag))
+			if tag.id == 0:
+				break
+			self.tag_list.append(tag)
+
+	# #######################################
+	# ###  Write
+	# #######################################
+
+	def write(self, output_stream):
+		"""
+		write values
+
+		@param output_stream: Output stream
+		@type output_stream: ByteStream
+		"""
+		for tag in self.tag_list:
+			tag.write(output_stream)
+		# write 0 tag to mark end of list
+		output_stream.write_byte(0)
 
 	def to_stream(self, output_stream=sys.stdout):
 		output_stream.write(" {")
@@ -39,14 +193,51 @@ class TagPayloadList(TagUtil):
 	@type payload_list: list[any]
 	"""
 
-	def __init__(self, identifier, payload_list):
-		self.id = identifier
-		self.payload_list = payload_list
+	def __init__(self):
+		self.id = 0
+		self.payload_list = []
+
+	# #######################################
+	# ###  Read
+	# #######################################
+
+	def read(self, input_stream):
+		"""
+		Read list of data from the same tag type
+
+		@param input_stream:
+		@type input_stream: ByteStream
+
+		@return:
+		@rtype: TagPayloadList
+		"""
+		assert isinstance(input_stream, ByteStream)
+		self.id = input_stream.read_byte()
+		length_list = input_stream.read_int32_unassigned()
+		self.payload_list = []
+		for index in range(0, length_list):
+			self.payload_list.append(self._read_payload(abs(self.id), input_stream))
+
+	# #######################################
+	# ###  Write
+	# #######################################
+
+	def write(self, output_stream):
+		"""
+		write values
+
+		@param output_stream: Output stream
+		@type output_stream: ByteStream
+		"""
+		output_stream.write_byte(self.id)
+		output_stream.write_int32_unassigned(len(self.payload_list))
+		for payload in self.payload_list:
+			self._write_payload(payload, self.id, output_stream)
 
 	def to_stream(self, output_stream=sys.stdout):
 		output_stream.write("{}: [".format(self.id))
 		for payload in self.payload_list:
-			self._data_to_stream(payload, output_stream)
+			self._payload_to_stream(payload, output_stream)
 			output_stream.write("\t")
 		output_stream.write("] ".format(self.id))
 
@@ -59,14 +250,52 @@ class TagPayload(TagUtil):
 	@type payload: any
 	"""
 
-	def __init__(self, identifier, name, payload):
-		self.id = identifier
-		self.name = name
-		self.payload = payload
+	def __init__(self):
+		self.id = 0
+		self.name = None
+		self.payload = None
+
+	# #######################################
+	# ###  Read
+	# #######################################
+
+	def read(self, input_stream):
+		"""
+
+		@param input_stream:
+		@type input_stream: ByteStream
+
+		@return:
+		@rtype: TagPayload
+		"""
+		assert isinstance(input_stream, ByteStream)
+		self.id = input_stream.read_byte()
+		if self.id != 0:
+			if self.id > 0:
+				self.name = input_stream.read_string()
+			self.payload = self._read_payload(abs(self.id), input_stream)
+
+	# #######################################
+	# ###  Write
+	# #######################################
+
+	def write(self, output_stream):
+		"""
+		write values
+
+		@param output_stream: Output stream
+		@type output_stream: ByteStream
+		"""
+		output_stream.write_byte(self.id)
+		if self.id == 0:
+			return
+		if self.id > 0:
+			output_stream.write_string(self.name)
+		self._write_payload(self.payload, self.id, output_stream)
 
 	def to_stream(self, output_stream=sys.stdout):
 		output_stream.write("{}: ".format(self.id))
-		self._data_to_stream(self.payload, output_stream)
+		self._payload_to_stream(self.payload, output_stream)
 		# output_stream.write("\n")
 
 
@@ -93,114 +322,6 @@ class TagManager(DefaultLogging):
 	# ###  Read
 	# #######################################
 
-	def _read_tag_payload(self, input_stream):
-		"""
-
-		@param input_stream:
-		@type input_stream: ByteStream
-
-		@return:
-		@rtype: TagPayload
-		"""
-		assert isinstance(input_stream, ByteStream)
-		identifier = input_stream.read_byte()
-		name = None
-		payload = None
-		if identifier != 0:
-			if identifier > 0:
-				name = input_stream.read_string()
-			payload = self._read_payload(input_stream, abs(identifier))
-		return TagPayload(identifier, name, payload)
-
-	def _read_tag_payload_list(self, input_stream):
-		"""
-		Read list of data from the same tag type
-
-		@param input_stream:
-		@type input_stream: ByteStream
-
-		@return:
-		@rtype: TagPayloadList
-		"""
-		assert isinstance(input_stream, ByteStream)
-		identifier = input_stream.read_byte()
-		length_list = input_stream.read_int32_unassigned()
-		payload_list = []
-		for index in range(0, length_list):
-			payload_list.append(self._read_payload(input_stream, abs(identifier)))
-		return TagPayloadList(identifier, payload_list)
-
-	def _read_tag_list(self, input_stream):
-		"""
-		Read a list of tags
-
-		@param input_stream:
-		@type input_stream: ByteStream
-
-		@return:
-		@rtype: TagList
-		"""
-		data = []
-		while True:
-			tag = self._read_tag_payload(input_stream)
-			# self._logger.debug("tag_list tag: '{}'".format(tag))
-			if tag.id == 0:
-				break
-			data.append(tag)
-		return TagList(data)
-
-	def _read_payload(self, input_stream, data_type):
-		"""
-
-		@param input_stream:
-		@type input_stream: ByteStream
-		@param data_type:
-		@type data_type: int
-
-		@return:
-		@rtype: any
-		"""
-		# self._logger.debug("payload data_type: '{}'".format(data_type))
-		if data_type == 0:
-			return None
-		elif data_type == 1:  # Byte
-			return input_stream.read_byte()
-		elif data_type == 2:  # Short
-			return input_stream.read_int16()
-		elif data_type == 3:  # Int
-			return input_stream.read_int32()
-		elif data_type == 4:  # Long
-			return input_stream.read_int64()
-		elif data_type == 5:  # Float
-			return input_stream.read_float()
-		elif data_type == 6:  # Double
-			return input_stream.read_double()
-		elif data_type == 7:  # Byte array
-			return input_stream.read_byte_array()
-		elif data_type == 8:  # String
-			return input_stream.read_string()  # utf?
-		elif data_type == 9:  # Float vector
-			return input_stream.read_vector_3_float()
-		elif data_type == 10:  # int vector
-			return input_stream.read_vector_3_int32()
-		elif data_type == 11:  # Byte vector
-			return input_stream.read_vector_3_byte()
-		elif data_type == 12:  # TagList -> Payload List
-			return self._read_tag_payload_list(input_stream)
-		elif data_type == 13:  # TagStructure -> Tag list
-			return self._read_tag_list(input_stream)
-		elif data_type == 14:  # Factory registration # factoryId
-			return input_stream.read_byte()
-		elif data_type == 15:  # Float4 vector
-			return input_stream.read_vector_4_float()
-		elif data_type == 16:  # Float 4x4 matrix
-			return input_stream.read_matrix_4_float()
-		elif data_type == 17:  # null
-			return None
-		else:
-			raise Exception("Bad payload data type: {}".format(data_type))
-			# return None
-
 	def read(self, input_stream):  # aLt.class
 		"""
 		Read tag root from byte stream
@@ -208,7 +329,7 @@ class TagManager(DefaultLogging):
 		@param input_stream: input stream
 		@type input_stream: ByteStream
 		"""
-		self._version = input_stream.read_vector_x_byte(2)  # version or tag?
+		self._version = input_stream.read_vector_x_byte(2)
 
 		# if self.version == 0x1f8b:
 		if self._version[0] == 31 and self._version[1] == -117:
@@ -217,8 +338,8 @@ class TagManager(DefaultLogging):
 			raise NotImplementedError("not fully implemented, yet.")
 			# input_stream = ByteStream(gzip.GzipFile(fileobj=input_stream))  # new GZIPInputStream(var15, 4096)
 		# else:
-		self._root_tag = self._read_tag_payload(input_stream)
-		# self._tail_data = input_stream.read()
+		self._root_tag = TagPayload()
+		self._root_tag.read(input_stream)
 
 	# #######################################
 	# ###  Write
@@ -231,19 +352,14 @@ class TagManager(DefaultLogging):
 		@param output_stream: Output stream
 		@type output_stream: ByteStream
 		"""
-		if self._root_tag is None:
-			return
-		raise NotImplementedError("segmanager write is not implemented, yet.")
-		# output_stream.write_byte(2)
+		output_stream.write_vector_x_byte(self._version)
+		if compressed:
+			raise NotImplementedError("TagManager gzip is not implemented, yet.")
+		self._root_tag.write(output_stream)
 
 	# #######################################
 	# ###  Else
 	# #######################################
-
-	def get_size(self, compressed=False):
-		if not self.has_data():
-			return 0
-		raise NotImplementedError("not fully implemented, yet.")
 
 	def has_data(self):
 		return self._root_tag is not None
