@@ -30,7 +30,7 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
 		self._segments_in_a_line = segments_in_a_line  # 16
 		self._segments_in_an_area = self._segments_in_a_line * self._segments_in_a_line  # 256
 		self._segments_in_a_cube = self._segments_in_an_area * self._segments_in_a_line  # 4096
-		self.version = 33554432
+		self.version = (2, 0, 0, 0)
 		self.position_to_segment = {}
 		# self.tail_data = ""
 
@@ -68,8 +68,8 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
 
 		@rtype: int
 		"""
-		self.version = input_stream.read_int32_unassigned()
-		assert self.version == 33554432, self.version
+		self.version = input_stream.read_vector_4_byte()
+		assert self.version == (2, 0, 0, 0), "Unsupported smd version: {}".format(self.version)
 		number_of_segments = 0
 		for index in range(0, self._segments_in_a_cube):
 			identifier, size = self._read_segment_index(input_stream)
@@ -142,7 +142,8 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
 		@type output_stream: ByteStream
 		"""
 		# Version
-		output_stream.write_int32_unassigned(self.version)
+		output_stream.write_vector_4_byte(self.version)
+		# output_stream.write_int32_unassigned(self.version)
 
 		# segment index
 		segment_header_size = 26
@@ -254,6 +255,18 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
 			assert isinstance(segment, SmdSegment)
 			number_of_blocks += segment.get_number_of_blocks()
 		return number_of_blocks
+
+	def replace_hull(self, new_hull_type, hull_type=None):
+		"""
+		Replace all blocks of a specific hull type or all hull
+
+		@param new_hull_type:
+		@type new_hull_type: int
+		@param hull_type:
+		@type hull_type: int | None
+		"""
+		for segment_position in self.position_to_segment.keys():
+			self.position_to_segment[segment_position].replace_hull(new_hull_type, hull_type)
 
 	def replace_blocks(self, block_id, replace_id, replace_hp, compatible=False):
 		"""
