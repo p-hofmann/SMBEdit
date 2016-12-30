@@ -45,7 +45,7 @@ class SmdSegment(DefaultLogging, BlueprintUtils):
 		@param input_stream: input byte stream
 		@type input_stream: ByteStream
 		"""
-		self.version = input_stream.read_char()  # 1 byte
+		self.version = input_stream.read_byte()  # 1 byte
 		self.timestamp = input_stream.read_int64_unassigned()
 		self.position = input_stream.read_vector_3_int32()  # 12 byte
 		self.has_valid_data = input_stream.read_bool()  # 1 byte
@@ -127,7 +127,7 @@ class SmdSegment(DefaultLogging, BlueprintUtils):
 		@param output_stream: input byte stream
 		@type output_stream: ByteStream
 		"""
-		output_stream.write_char(self.version)  # 1 byte
+		output_stream.write_byte(self.version)  # 1 byte
 		output_stream.write_int64_unassigned(self.timestamp)  # 8 byte
 		output_stream.write_vector_3_int32(self.position)  # 12 byte
 		output_stream.write_bool(self.has_valid_data)  # 1 byte
@@ -219,6 +219,32 @@ class SmdSegment(DefaultLogging, BlueprintUtils):
 					new_block.set_hit_points(replace_hp)
 					self.block_index_to_block[block_index] = new_block
 
+	_replace_cache_positive = {}
+	_replace_cache_negative = set()
+
+	def replace_hull(self, new_hull_type, hull_type=None):
+		"""
+		Replace all blocks of a specific hull type or all hull
+
+		@param new_hull_type:
+		@type new_hull_type: int
+		@param hull_type:
+		@type hull_type: int | None
+		"""
+		for block_index in self.block_index_to_block.keys():
+			block_id = self.block_index_to_block[block_index].get_id()
+			if not self.is_hull(block_id or block_id in self._replace_cache_negative):
+				continue
+			if block_id not in self._replace_cache_positive:
+				block_hull_type, color, shape_id = self._get_hull_details(block_id)
+				if hull_type is not None and hull_type != block_hull_type:  # not replaced
+					self._replace_cache_negative.add(block_id)
+					continue
+				new_block_id = self.get_hull_id_by_details(new_hull_type, color, shape_id)
+				self._replace_cache_positive[block_id] = new_block_id
+			self.block_index_to_block[block_index].set_id(self._replace_cache_positive[block_id])
+			self.block_index_to_block[block_index].set_hit_points(self.get_hp_by_hull_type(new_hull_type))
+
 	def update(self, entity_type=0):
 		"""
 		Remove invalid/outdated blocks and exchange docking modules with rails
@@ -250,7 +276,8 @@ class SmdSegment(DefaultLogging, BlueprintUtils):
 		"""
 		assert isinstance(block_position, tuple)
 		block_index = self.get_block_index_by_block_position(block_position)
-		assert block_index in self.block_index_to_block, (block_index, block_position, self.get_block_position_by_block_index(block_index))
+		assert block_index in self.block_index_to_block, (
+			block_index, block_position, self.get_block_position_by_block_index(block_index))
 		# print "deleting", self.get_block_name_by_id(self.block_index_to_block[block_index].get_id())
 		self.block_index_to_block.pop(block_index)
 		if self.get_number_of_blocks() == 0:
