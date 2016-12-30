@@ -121,8 +121,11 @@ class ByteStream(object):
 		"""
 		return self._unpack(1, '?')
 
-	def read_char(self):
+	def read_byte(self):
 		return self._unpack(1, 'b')
+
+	def read_byte_unassigned(self):
+		return self._unpack(1, 'B')
 
 	def read_int16(self):
 		"""
@@ -201,7 +204,7 @@ class ByteStream(object):
 		if length == 0:
 			return []
 		for index in range(0, length):
-			array.append(self.read_char())
+			array.append(self.read_byte())
 		return array
 
 	def read_vector_3_int16(self):
@@ -254,10 +257,40 @@ class ByteStream(object):
 		@rtype: tuple
 		"""
 		vector = [
-			self.read_char(),
-			self.read_char(),
-			self.read_char(),
+			self.read_byte(),
+			self.read_byte(),
+			self.read_byte(),
 			]
+		return tuple(vector)
+
+	def read_vector_4_byte(self):
+		"""
+		@rtype: tuple
+		"""
+		vector = [
+			self.read_byte(),
+			self.read_byte(),
+			self.read_byte(),
+			self.read_byte(),
+			]
+		return tuple(vector)
+
+	def read_vector_x_byte(self, amount):
+		"""
+		@rtype: tuple
+		"""
+		vector = []
+		for _ in range(amount):
+			vector.append(self.read_byte_unassigned())
+		return tuple(vector)
+
+	def read_vector_x_int32(self, amount):
+		"""
+		@rtype: tuple
+		"""
+		vector = []
+		for _ in range(amount):
+			vector.append(self.read_int32())
 		return tuple(vector)
 
 	def read_matrix_4_float(self):
@@ -285,7 +318,7 @@ class ByteStream(object):
 	def write_bool(self, value):
 		self._pack(value, '?')
 
-	def write_char(self, value):
+	def write_byte(self, value):
 		self._pack(value, 'b')
 
 	def write_int16(self, value):
@@ -327,33 +360,51 @@ class ByteStream(object):
 		length = len(byte_array)
 		self.write_int32_unassigned(length)
 		for byte in byte_array:
-			self.write_char(byte)
+			self.write_byte(byte)
+
+	def write_vector_3_byte(self, values):
+		self.write_byte(values[0])
+		self.write_byte(values[1])
+		self.write_byte(values[2])
+
+	def write_vector_4_byte(self, values):
+		self.write_byte(values[0])
+		self.write_byte(values[1])
+		self.write_byte(values[2])
+		self.write_byte(values[3])
 
 	def write_vector_3_int16(self, values):
-		self.write_int16(values[0]),
-		self.write_int16(values[1]),
-		self.write_int16(values[2]),
+		self.write_int16(values[0])
+		self.write_int16(values[1])
+		self.write_int16(values[2])
 
 	def write_vector_3_int32(self, values):
-		self.write_int32(values[0]),
-		self.write_int32(values[1]),
-		self.write_int32(values[2]),
+		self.write_int32(values[0])
+		self.write_int32(values[1])
+		self.write_int32(values[2])
 
 	def write_vector_3_float(self, values):
-		self.write_float(values[0]),
-		self.write_float(values[1]),
-		self.write_float(values[2]),
+		self.write_float(values[0])
+		self.write_float(values[1])
+		self.write_float(values[2])
 
 	def write_vector_4_float(self, values):
-		self.write_float(values[0]),
-		self.write_float(values[1]),
-		self.write_float(values[2]),
-		self.write_float(values[3]),
+		self.write_float(values[0])
+		self.write_float(values[1])
+		self.write_float(values[2])
+		self.write_float(values[3])
 
 	def write_vector_3b(self, values):
-		self.write_char(values[0]),
-		self.write_char(values[1]),
-		self.write_char(values[2]),
+		self.write_byte(values[0])
+		self.write_byte(values[1])
+		self.write_byte(values[2])
+
+	def write_vector_x_int32(self, values):
+		"""
+		@type values: tuple[int]
+		"""
+		for value in values:
+			self.write_int32(value)
 
 	# #######################################
 	# ###  Navigate bytes
