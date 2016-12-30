@@ -109,8 +109,8 @@ class Header(DefaultLogging, BlueprintUtils):
 		super(Header, self).__init__(logfile, verbose, debug)
 		self.version = 2
 		self.type = 2
-		self.box_min = [0., 0., 0.]
-		self.box_max = [0., 0., 0.]
+		self.box_min = (0., 0., 0.)
+		self.box_max = (0., 0., 0.)
 		self.block_id_to_quantity = {}
 		self.statistics = Statistics()
 		return
