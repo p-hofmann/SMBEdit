@@ -481,6 +481,13 @@ class ByteStream(object):
 		for value in values:
 			self.write_int32(value)
 
+	def write_vector_x_byte(self, values):
+		"""
+		@type values: tuple[int]
+		"""
+		for value in values:
+			self.write_byte(value)
+
 	def write_matrix_4_float(self, matrix):
 		"""
 		@type matrix: list[list[float]]
