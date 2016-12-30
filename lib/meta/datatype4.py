@@ -172,8 +172,14 @@ class DataType4(DefaultLogging):
 			self._logger.debug(new_relative_directory)
 			output_stream.write_string(new_relative_directory)
 			tag_size = self._docked_entity[dock_index].get_size(compressed)
-			output_stream.write_int32_unassigned(tag_size)
+
+			file_position_size = output_stream.tell()
+			output_stream.seek(4, whence=1)  # skip size for later
 			self._docked_entity[dock_index].write(output_stream, compressed)
+			file_position_end = output_stream.tell()
+			output_stream.seek(file_position_size)
+			output_stream.write_int32_unassigned(file_position_end-file_position_size)
+			output_stream.seek(file_position_end)
 
 	# #######################################
 	# ###  Else
