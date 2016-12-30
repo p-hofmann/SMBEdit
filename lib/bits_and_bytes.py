@@ -304,7 +304,7 @@ class ByteStream(object):
 
 	def read_matrix_4_float(self):
 		"""
-		@rtype: tuple[float]
+		@rtype: list[list[float]]
 		"""
 		matrix = []
 		for _ in range(0, 4):
@@ -315,7 +315,7 @@ class ByteStream(object):
 					self.read_float(),
 					self.read_float(),
 				])
-		return tuple(matrix)
+		return matrix
 
 	# #######################################
 	# ###  Writing bytes
@@ -480,6 +480,14 @@ class ByteStream(object):
 		"""
 		for value in values:
 			self.write_int32(value)
+
+	def write_matrix_4_float(self, matrix):
+		"""
+		@type matrix: list[list[float]]
+		"""
+		for index_x in range(0, 4):
+			for index_y in range(0, 4):
+				self.write_float(matrix[index_x][index_y])
 
 	# #######################################
 	# ###  Navigate bytes
