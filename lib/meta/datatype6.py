@@ -11,7 +11,7 @@ class DataType6(DefaultLogging):
 	"""
 
 	def __init__(self, logfile=None, verbose=False, debug=False):
-		self._label = "Meta-DataType6"
+		self._label = "DataType6"
 		super(DataType6, self).__init__(logfile, verbose, debug)
 		self._has_data = 1
 		self._data = {}
@@ -103,5 +103,9 @@ class DataType6(DefaultLogging):
 		@type output_stream: fileIO
 		"""
 		if self._debug:
-			output_stream.write("DataType6: #{}\n".format(self._data))
+			output_stream.write("DataType6: #{}\n".format(len(self._data)))
+			for index in self._data.keys():
+				entry = self._data[index]
+				output_stream.write("{}\t{}\t{}\t{}\t{}\n".format(
+					entry["Pos"], entry["block_id"], entry["byte1"], entry["bool"], entry["byte1"]))
 			output_stream.write("\n")
