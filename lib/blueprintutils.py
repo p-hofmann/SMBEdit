@@ -18,7 +18,8 @@ class BlueprintUtils(object):
 		PLANET: "Planet",
 	}
 
-	_ship_classification = {
+	_entity_classification = {
+		# Ship
 		0: "General",
 		1: "Mining",
 		2: "Support",
@@ -28,6 +29,17 @@ class BlueprintUtils(object):
 		6: "Carrier",
 		7: "Scout",
 		8: "Scavenger",
+
+		# Station
+		9: "General",
+		10: "Shipyard",
+		11: "Outpost",
+		12: "Defense",
+		13: "Mining",
+		14: "Factory",
+		15: "Trade",
+		16: "Warp Gate",
+		17: "Shopping",
 	}
 
 	_block_ids = dict()
@@ -165,15 +177,8 @@ class BlueprintUtils(object):
 		833: "Dark Gray Hull 1/4", 834: "Dark Gray Hull 1/2", 835: "Dark Gray Hull 1/4",
 		836: "Dark Gray Standard Armor 1/4", 837: "Dark Gray Standard Armor 1/2", 838: "Dark Gray Standard Armor 3/4",
 		839: "Dark Gray Advanced Armor 1/4", 840: "Dark Gray Advanced Armor 1/2", 841: "Dark Gray Advanced Armor 3/4",
-		842: "Plex Door 1/4", 843: "Plex Door 1/2", 844: "Plex Door 3/4",
-		845: "Glass Door 1/4", 846: "Glass Door 1/2", 847: "Glass Door 3/4",
-		848: "Blast Door 1/4", 849: "Blast Door 1/2", 850: "Blast Door 3/4",
-		851: "Green Hazard 1/4", 852: "Green Hazard 1/2", 853: "Green Hazard 3/4",
-		854: "Forcefield (Red) 1/4", 855: "Forcefield (Red) 1/2", 856: "Forcefield (Red) 3/4",
-		857: "Forcefield (Blue) 1/4", 858: "Forcefield (Blue) 1/2", 859: "Forcefield (Blue) 3/4",
-		860: "Forcefield (Yellow) 1/4", 861: "Forcefield (Yellow) 1/2", 862: "Forcefield (Yellow) 3/4",
-		863: "Yellow Hazard 1/4", 864: "Yellow Hazard 1/2", 865: "Yellow Hazard 3/4",
-
+		851: "Green Hazard Armor 1/4", 852: "Green Hazard Armor 1/2", 853: "Green Hazard Armor 3/4",
+		863: "Yellow Hazard Armor 1/4", 864: "Yellow Hazard Armor 1/2", 865: "Yellow Hazard Armor 3/4",
 		890: "Teal Hull 1/4", 891: "Teal Hull 1/2", 892: "Teal Hull 3/4",
 		893: "Teal Standard Armor 1/4", 894: "Teal Standard Armor 1/2", 895: "Teal Standard Armor 3/4",
 		896: "Teal Advanced Armor 1/4", 897: "Teal Advanced Armor 1/2", 898: "Teal Advanced Armor 3/4",
@@ -189,9 +194,15 @@ class BlueprintUtils(object):
 		122: "Plex Door", 588: "Plex Door Wedge",
 		589: "Glass Door", 590: "Glass Door Wedge",
 		591: "Blast Door", 592: "Blast Door Wedge",
+		842: "Plex Door 1/4", 843: "Plex Door 1/2", 844: "Plex Door 3/4",
+		845: "Glass Door 1/4", 846: "Glass Door 1/2", 847: "Glass Door 3/4",
+		848: "Blast Door 1/4", 849: "Blast Door 1/2", 850: "Blast Door 3/4",
 		659: "Forcefield (Red)", 673: "Forcefield Wedge (Red)",
 		660: "Forcefield (Blue)", 674: "Forcefield Wedge (Blue)",
 		661: "Forcefield (Yellow)", 675: "Forcefield Wedge (Yellow)",
+		854: "Forcefield (Red) 1/4", 855: "Forcefield (Red) 1/2", 856: "Forcefield (Red) 3/4",
+		857: "Forcefield (Blue) 1/4", 858: "Forcefield (Blue) 1/2", 859: "Forcefield (Blue) 3/4",
+		860: "Forcefield (Yellow) 1/4", 861: "Forcefield (Yellow) 1/2", 862: "Forcefield (Yellow) 3/4",
 		}
 
 	_block_ids["docking"] = {
@@ -383,8 +394,8 @@ class BlueprintUtils(object):
 		285: "Yellow Light", 340: "Yellow Rod Light",
 		496: "Purple Light", 506: "Purple Rod Light",
 		497: "Orange Light", 502: "Orange Rod Light",
-		888: "Teal Light", 889: "Teal Light Rod",
-		922: "Pink Light", 923: "Pink Light Rod",
+		888: "Teal Light", 889: "Teal Rod Light",
+		922: "Pink Light", 923: "Pink Rod Light",
 
 		# slab
 		942: "White Light 1/4", 943: "White Light 1/2", 944: "White Light 3/4",
@@ -602,6 +613,80 @@ class BlueprintUtils(object):
 		343: "Gold Bar",
 	}
 
+	_hp_by_hull_type = {
+		0: 75,
+		1: 100,
+		2: 250,
+		3: 250,
+		4: 100,
+	}
+
+	_block_shapes = {
+		"": 0,
+		"1/4": 1,
+		"1/2": 2,
+		"3/4": 3,
+		"Wedge": 4,
+		"Corner": 5,
+		"Tetra": 6,
+		"Hepta": 7,
+	}
+
+	def get_hp_by_hull_type(self, hull_type):
+		return self._hp_by_hull_type[hull_type]
+
+	def _get_hull_details(self, block_id):
+		# "White Standard Armor Corner"
+		hull_name = self.get_block_name_by_id(block_id)
+		if "Hull" in hull_name:
+			hull_type = 0
+			color, shape = hull_name.split('Hull', 1)
+		elif "Standard Armor" in hull_name:
+			hull_type = 1
+			color, shape = hull_name.split('Standard Armor')
+		elif "Advanced Armor" in hull_name:
+			hull_type = 2
+			color, shape = hull_name.split('Advanced Armor')
+		elif "Crystal Armor" in hull_name:
+			hull_type = 3
+			color, shape = hull_name.split('Crystal Armor')
+		elif "Hazard Armor" in hull_name:
+			hull_type = 4
+			color, shape = hull_name.split('Hazard Armor')
+		else:
+			raise Exception("Unknown Hull: '{}'".format(hull_name))
+		shape = shape.strip()
+		assert shape in self._block_shapes, "Unknown Shape: '{}'".format(shape)
+		return hull_type, color.strip(), self._block_shapes[shape]
+
+	def _get_hulls_dict(self):
+		hull_dict = {}
+		for block_id in self._block_ids["hull"].keys():
+			hull_name = self.get_block_name_by_id(block_id)
+			if "Glass" in hull_name:
+				continue
+			hull_type, color, shape_id = self._get_hull_details(block_id)
+			if hull_type not in hull_dict:
+				hull_dict[hull_type] = {}
+			if color not in hull_dict[hull_type]:
+				hull_dict[hull_type][color] = [0] * 8
+			hull_dict[hull_type][color][shape_id] = block_id
+		return hull_dict
+
+	_glass_ids = {63, 329, 330, 368, 367, 815, 816, 817}
+
+	def is_hull(self, block_id):
+		if block_id in self._glass_ids:
+			return False
+		return block_id in self._block_ids["hull"]
+
+	_hulls_dict = None
+
+	def get_hull_id_by_details(self, hull_type, color, shape_id):
+		if self._hulls_dict is None:
+			self._hulls_dict = self._get_hulls_dict()
+		return self._hulls_dict[hull_type][color][shape_id]
+
 	def _is_slab(self, block_id):
 		"""
 		Return True if it is a slap
@@ -675,6 +760,10 @@ class BlueprintUtils(object):
 			return True
 		if block_id == 104:  # Mushroom
 			return True
+		if block_id in self._block_ids["lighting"]:
+			block_name = self.get_block_name_by_id(block_id).lower()
+			if "Rod".lower() in block_name:
+				return True
 		return False
 
 	def _is_block_style_0(self, block_id):
@@ -746,6 +835,8 @@ class BlueprintUtils(object):
 			return 5
 		if self._is_block_style_6(block_id):
 			return 6
+		if self._is_block_style_3(block_id):
+			return 3
 		if self._is_block_style_0(block_id):
 			return 0
 		raise Exception("Unknown block style for id: {}".format(block_id))

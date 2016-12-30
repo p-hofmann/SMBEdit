@@ -232,6 +232,10 @@ class Header(DefaultLogging, BlueprintUtils):
 	# ###  Else
 	# #######################################
 
+	def iteritems(self):
+		for block_id in self.block_id_to_quantity.keys():
+			yield block_id, self.block_id_to_quantity[block_id]
+
 	def _get_measure(self, index):
 		"""
 		@param index:
@@ -253,7 +257,7 @@ class Header(DefaultLogging, BlueprintUtils):
 		@return: classification of blueprint
 		@rtype: str
 		"""
-		return self._ship_classification[self.classification]
+		return self._entity_classification[self.classification]
 
 	def get_width(self):
 		"""
