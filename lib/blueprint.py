@@ -6,7 +6,7 @@ from lib.loggingwrapper import DefaultLogging
 from lib.blueprintutils import BlueprintUtils
 from lib.header import Header
 from lib.logic import Logic
-from lib.meta import Meta
+from lib.meta.meta import Meta
 from lib.smd3.smd import Smd
 
 
@@ -51,33 +51,27 @@ class Blueprint(DefaultLogging, BlueprintUtils):
 
 		self.header.read(directory_blueprint)
 		self.logic.read(directory_blueprint)
-		# self.meta.read(directory_blueprint)
+		self.meta.read(directory_blueprint)
 		self.smd3.read(directory_blueprint)
 
 	# #######################################
 	# ###  Write
 	# #######################################
 
-	def write(self, directory_blueprint):
+	def write(self, directory_blueprint, relative_path=None):
 		"""
 		Save blueprint to a directory
 
-		@param directory_blueprint: /../StarMade/blueprints/blueprint_name/
+		@param directory_blueprint: /../StarMade/blueprints/blueprint_name
 		@type directory_blueprint: str
 		"""
-		if directory_blueprint.endswith('/') or directory_blueprint.endswith('\\'):
-			directory_blueprint = directory_blueprint[:-1]
-
+		assert os.path.exists(directory_blueprint), "Output directory failed to be created."
 		blueprint_name = os.path.basename(directory_blueprint)
-		directory_blueprint_unique = directory_blueprint
-		assert not os.path.exists(directory_blueprint_unique), "Output directory exists, not writing blueprint to exiting folder to prevent overwriting."
-		assert os.path.exists(os.path.dirname(directory_blueprint_unique)), "Parent folder of output dir does not exist, can not write blueprint."
-		os.mkdir(directory_blueprint_unique)
 
-		self.header.write(directory_blueprint_unique)
-		self.logic.write(directory_blueprint_unique)
-		self.meta.write(directory_blueprint_unique)
-		self.smd3.write(directory_blueprint_unique, blueprint_name)
+		self.header.write(directory_blueprint)
+		self.logic.write(directory_blueprint)
+		self.meta.write(directory_blueprint, relative_path=relative_path)
+		self.smd3.write(directory_blueprint, blueprint_name)
 
 	# #######################################
 	# ###  Else
@@ -97,6 +91,18 @@ class Blueprint(DefaultLogging, BlueprintUtils):
 		self.logic.set_type(entity_type)
 		self.header.set_type(entity_type)
 		self.update()
+
+	def replace_hull(self, new_hull_type, hull_type=None):
+		"""
+		Replace all blocks of a specific hull type or all hull
+
+		@param new_hull_type:
+		@type new_hull_type: int
+		@param hull_type:
+		@type hull_type: int | None
+		"""
+		self.smd3.replace_hull(new_hull_type, hull_type)
+		self.header.update(self.smd3)
 
 	def replace_blocks(self, block_id, replace_id, replace_hp):
 		"""
