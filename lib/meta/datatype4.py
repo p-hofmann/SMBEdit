@@ -4,13 +4,23 @@ import sys
 import os
 from lib.bits_and_bytes import ByteStream
 from lib.loggingwrapper import DefaultLogging
+from lib.meta.tagmanager import TagManager
 
 
-class RailDocker(DefaultLogging):
+class DataType4(DefaultLogging):
+	"""
+	Reading data type 4 meta data
+
+	@type _vector_float_0: tuple[float]
+	@type _vector_float_1: tuple[float]
+	@type _entity_label: str
+	@type _entity_unknown_list_of_tuple: dict[list]
+	@type _docked_entity: dict[int,TagManager]
+	"""
 
 	def __init__(self, logfile=None, verbose=False, debug=False):
-		self._label = "Meta-DataType4"
-		super(RailDocker, self).__init__(logfile, verbose, debug)
+		self._label = "DataType4"
+		super(DataType4, self).__init__(logfile, verbose, debug)
 		self._vector_float_0 = (0, 0, 0)
 		self._vector_float_1 = (0, 0, 0)
 		self._entity_label = ""
@@ -27,11 +37,11 @@ class RailDocker(DefaultLogging):
 		"""
 
 		@param var0:
-		@param var0: long
+		@type var0: long
 		@param var1:
-		@param var1: long
+		@type var1: long
 		@param var2:
-		@param var2: long
+		@type var2: long
 
 		@return:
 		@rtype: int
@@ -43,7 +53,8 @@ class RailDocker(DefaultLogging):
 		"""
 
 		@param var0:
-		@param var0: long
+		@type var0: long
+
 		@return:
 		@rtype: int
 		"""
@@ -66,23 +77,23 @@ class RailDocker(DefaultLogging):
 
 	def _read_unknown_d4_stuff(self, input_stream, unknown_number):
 		"""
-		Read tag root from byte stream
+		Read unknown stuff from byte stream
 
 		@param input_stream: input stream
 		@type input_stream: ByteStream
 		"""
 		unknown_string = input_stream.read_string()  # utf
-		self._logger.debug("unknown_d4_stuff string: '{}'".format(unknown_string))
 		unknown_long0 = input_stream.read_int64()
 		unknown_long1 = input_stream.read_int64()
-		if unknown_number != 0:
-			unknown_long0 = self.shift_index(unknown_long0, unknown_number, unknown_number, unknown_number)
-			unknown_long1 = self.shift_index(unknown_long1, unknown_number, unknown_number, unknown_number)
-		return unknown_long0, unknown_long1
+		self._logger.debug("unknown_d4_stuff string: '{}'".format(unknown_string))
+		# if unknown_number != 0:
+		# 	unknown_long0 = self.shift_index(unknown_long0, unknown_number, unknown_number, unknown_number)
+		# 	unknown_long1 = self.shift_index(unknown_long1, unknown_number, unknown_number, unknown_number)
+		return [unknown_string, unknown_long0, unknown_long1]
 
 	def read(self, input_stream, version):
 		"""
-		Read tag root from byte stream
+		Read rail docker data?
 
 		@param input_stream: input stream
 		@type input_stream: ByteStream
@@ -95,10 +106,10 @@ class RailDocker(DefaultLogging):
 		if version >= (0, 0, 0, 2):
 			self._entity_label = input_stream.read_string()  # utf
 			list_size_of_unknown_stuff = input_stream.read_int32()
-			assert list_size_of_unknown_stuff < 10000
-			assert list_size_of_unknown_stuff == 0, "Unknown data there that I do not know how to save"
 			self._entity_unknown_list_of_tuple = {}
-			for some_index in range(0, list_size_of_unknown_stuff):
+			if list_size_of_unknown_stuff > 0:
+				self._logger.warning("Reading unknown stuff.")
+			for some_index in range(list_size_of_unknown_stuff):
 				self._entity_unknown_list_of_tuple[some_index] = self._read_unknown_d4_stuff(input_stream, unknown_number)
 
 		self._docked_entity = {}
@@ -106,17 +117,31 @@ class RailDocker(DefaultLogging):
 		for turret_index in range(amount_of_docked_entities):
 			relative_path = input_stream.read_string()  # utf
 			_, dock_index = relative_path.rsplit('_', 1)
-			# new avt(var15, var1.a);
-			byte_array = input_stream.read_byte_array()
-			# aLt.a(new FastByteArrayInputStream(var7), true, false); root tag?
-			self._docked_entity[int(dock_index)] = byte_array
-			self._logger.debug("Length of '{}' byte array: '{}'".format(relative_path, len(byte_array)))
+			tag_size = input_stream.read_int32_unassigned()
+			if tag_size > 0:
+				self._docked_entity[int(dock_index)] = TagManager(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
+				self._docked_entity[int(dock_index)].read(input_stream)
 
 	# #######################################
 	# ###  Write
 	# #######################################
 
-	def write(self, output_stream, version, relative_path):
+	@staticmethod
+	def _write_unknown_d4_stuff(output_stream, stuff, unknown_number):
+		"""
+		Write some stuff to byte stream
+
+		@param output_stream: output_stream
+		@type output_stream: ByteStream
+		"""
+		# if unknown_number != 0:
+		# 	unknown_long0 = self.shift_index(unknown_long0, unknown_number, unknown_number, unknown_number)
+		# 	unknown_long1 = self.shift_index(unknown_long1, unknown_number, unknown_number, unknown_number)
+		output_stream.write_string(stuff[0])  # utf
+		output_stream.write_int64(stuff[1])
+		output_stream.write_int64(stuff[2])
+
+	def write(self, output_stream, version, relative_path, compressed=False):
 		"""
 		write values
 
@@ -134,17 +159,22 @@ class RailDocker(DefaultLogging):
 			unknown_number = 8
 		if version >= (0, 0, 0, 2):
 			output_stream.write_string(self._entity_label)
-			output_stream.write_int32_unassigned(len(self._entity_unknown_list_of_tuple))
-			for _ in sorted(self._entity_unknown_list_of_tuple.keys()):
-				unknown_number = unknown_number
-				raise NotImplementedError("Docking write is not fully implemented, yet.")
+			list_size_of_unknown_stuff = len(self._entity_unknown_list_of_tuple)
+			output_stream.write_int32_unassigned(list_size_of_unknown_stuff)
+			if list_size_of_unknown_stuff > 0:
+				self._logger.warning("Writing unknown stuff.")
+			for index in sorted(self._entity_unknown_list_of_tuple.keys()):
+				self._write_unknown_d4_stuff(output_stream, self._entity_unknown_list_of_tuple[index], unknown_number)
 
 		output_stream.write_int32_unassigned(len(self._docked_entity))
 		for dock_index in sorted(self._docked_entity.keys()):
 			new_relative_directory = os.path.join(relative_path, "ATTACHED_{}".format(dock_index))
 			self._logger.debug(new_relative_directory)
 			output_stream.write_string(new_relative_directory)
-			output_stream.write_byte_array(self._docked_entity[dock_index])
+			tag_size = self._docked_entity[dock_index].get_size(compressed)
+			output_stream.write_int32_unassigned(tag_size)
+			self._docked_entity[dock_index].write(output_stream, compressed)
+			# output_stream.write_byte_array(self._docked_entity[dock_index])
 
 	# #######################################
 	# ###  Else
@@ -157,14 +187,14 @@ class RailDocker(DefaultLogging):
 		@param output_stream: Output stream
 		@type output_stream: fileIO
 		"""
+		output_stream.write("DataType4: {}\n".format(len(self._docked_entity)))
 		output_stream.write("Label: '{}'\t".format(self._entity_label))
 		output_stream.write("Vector: '{}', '{}'\n".format(self._vector_float_0, self._vector_float_1))
-		if self._debug:
-			output_stream.write("unknown tuple: {}\n".format(len(self._entity_unknown_list_of_tuple)))
+		list_size_of_unknown_stuff = len(self._entity_unknown_list_of_tuple)
+		if self._debug and list_size_of_unknown_stuff > 0:
+			output_stream.write("unknown tuple: #{}\n".format(len(self._entity_unknown_list_of_tuple)))
 
-		output_stream.write("RailDocker: {}\n".format(len(self._docked_entity)))
 		if self._debug:
 			for dock_index in sorted(self._docked_entity.keys()):
-				data_size = len(self._docked_entity[dock_index])
-				output_stream.write("{}: #{}\n".format(dock_index, data_size))
+				self._docked_entity[dock_index].to_stream(output_stream)
 		output_stream.write("\n")
