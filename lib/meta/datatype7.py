@@ -8,7 +8,7 @@ from lib.loggingwrapper import DefaultLogging
 class DataType7(DefaultLogging):
 
 	def __init__(self, logfile=None, verbose=False, debug=False):
-		self._label = "Meta-DataType6"
+		self._label = "DataType7"
 		super(DataType7, self).__init__(logfile, verbose, debug)
 		self._has_data = 1
 		self._data = {}
@@ -72,5 +72,4 @@ class DataType7(DefaultLogging):
 		@type output_stream: fileIO
 		"""
 		if self._debug:
-			output_stream.write("DataType7: {}\n".format(self._data))
-			output_stream.write("\n")
+			output_stream.write("DataType7: #{}\n".format(len(self._data)))
