@@ -20,7 +20,7 @@ class Logic(DefaultLogging, BlueprintUtils):
 		self._label = "Logic"
 		super(Logic, self).__init__(logfile, verbose, debug)
 		self.version = 2
-		self.unknown_int = None
+		self.unknown_int = 0
 		self._controller_position_to_block_id_to_block_positions = {}
 		# tail_data = None
 		return
