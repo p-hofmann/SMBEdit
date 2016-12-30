@@ -196,7 +196,7 @@ class ByteStream(object):
 
 	def read_byte_array(self):
 		"""
-		@rtype: list
+		@rtype: list[int]
 		"""
 		array = []
 		length = self.read_int32_unassigned()
@@ -209,7 +209,7 @@ class ByteStream(object):
 
 	def read_vector_3_int16(self):
 		"""
-		@rtype: tuple
+		@rtype: tuple[int]
 		"""
 		vector = [
 			self.read_int16(),
@@ -220,7 +220,7 @@ class ByteStream(object):
 
 	def read_vector_3_int32(self):
 		"""
-		@rtype: tuple
+		@rtype: tuple[int]
 		"""
 		vector = [
 			self.read_int32(),
@@ -231,7 +231,7 @@ class ByteStream(object):
 
 	def read_vector_3_float(self):
 		"""
-		@rtype: tuple
+		@rtype: tuple[float]
 		"""
 		vector = [
 			self.read_float(),
@@ -242,7 +242,7 @@ class ByteStream(object):
 
 	def read_vector_4_float(self):
 		"""
-		@rtype: tuple
+		@rtype: tuple[float]
 		"""
 		vector = [
 			self.read_float(),
@@ -254,7 +254,7 @@ class ByteStream(object):
 
 	def read_vector_3_byte(self):
 		"""
-		@rtype: tuple
+		@rtype: tuple[int]
 		"""
 		vector = [
 			self.read_byte(),
@@ -265,7 +265,7 @@ class ByteStream(object):
 
 	def read_vector_4_byte(self):
 		"""
-		@rtype: tuple
+		@rtype: tuple[int]
 		"""
 		vector = [
 			self.read_byte(),
@@ -277,7 +277,16 @@ class ByteStream(object):
 
 	def read_vector_x_byte(self, amount):
 		"""
-		@rtype: tuple
+		@rtype: tuple[int]
+		"""
+		vector = []
+		for _ in range(amount):
+			vector.append(self.read_byte())
+		return tuple(vector)
+
+	def read_vector_x_byte_unassigned(self, amount):
+		"""
+		@rtype: tuple[int]
 		"""
 		vector = []
 		for _ in range(amount):
@@ -286,7 +295,7 @@ class ByteStream(object):
 
 	def read_vector_x_int32(self, amount):
 		"""
-		@rtype: tuple
+		@rtype: tuple[int]
 		"""
 		vector = []
 		for _ in range(amount):
@@ -295,7 +304,7 @@ class ByteStream(object):
 
 	def read_matrix_4_float(self):
 		"""
-		@rtype: tuple
+		@rtype: tuple[float]
 		"""
 		matrix = []
 		for _ in range(0, 4):
@@ -313,88 +322,154 @@ class ByteStream(object):
 	# #######################################
 
 	def write(self, value):
+		"""
+		@type value: str
+		"""
 		self._bytestream.write(value)
 
 	def write_bool(self, value):
+		"""
+		@type value: bool
+		"""
 		self._pack(value, '?')
 
 	def write_byte(self, value):
+		"""
+		@type value: int
+		"""
 		self._pack(value, 'b')
 
 	def write_int16(self, value):
+		"""
+		@type value: int
+		"""
 		self._pack(value, 'h')
 
 	def write_int16_unassigned(self, value):
+		"""
+		@type value: int
+		"""
 		self._pack(value, 'H')
 
 	def write_int24(self, value):
+		"""
+		@type value: int
+		"""
 		self._pack(value, 'i', padded=True)
 
 	def write_int24_unassigned(self, value):
+		"""
+		@type value: int
+		"""
 		self._pack(value, 'I', padded=True)
 
 	def write_int32(self, value):
+		"""
+		@type value: int
+		"""
 		self._pack(value, 'i')
 
 	def write_int32_unassigned(self, value):
+		"""
+		@type value: int
+		"""
 		self._pack(value, 'I')
 
 	def write_int64(self, value):
+		"""
+		@type value: int
+		"""
 		self._pack(value, 'q')
 
 	def write_int64_unassigned(self, value):
+		"""
+		@type value: int
+		"""
 		self._pack(value, 'Q')
 
 	def write_float(self, value):
+		"""
+		@type value: float
+		"""
 		self._pack(value, 'f')
 
 	def write_double(self, value):
+		"""
+		@type value: float
+		"""
 		self._pack(value, 'd')
 
 	def write_string(self, value):
+		"""
+		@type value: str
+		"""
 		length = len(value)
 		self.write_int16_unassigned(length)
 		self._pack(value, str(length) + 's')
 
-	def write_byte_array(self, byte_array):
-		length = len(byte_array)
+	def write_byte_array(self, values):
+		"""
+		@type values: list[int]
+		"""
+		length = len(values)
 		self.write_int32_unassigned(length)
-		for byte in byte_array:
+		for byte in values:
 			self.write_byte(byte)
 
 	def write_vector_3_byte(self, values):
+		"""
+		@type values: tuple[int]
+		"""
 		self.write_byte(values[0])
 		self.write_byte(values[1])
 		self.write_byte(values[2])
 
 	def write_vector_4_byte(self, values):
+		"""
+		@type values: tuple[int]
+		"""
 		self.write_byte(values[0])
 		self.write_byte(values[1])
 		self.write_byte(values[2])
 		self.write_byte(values[3])
 
 	def write_vector_3_int16(self, values):
+		"""
+		@type values: tuple[int]
+		"""
 		self.write_int16(values[0])
 		self.write_int16(values[1])
 		self.write_int16(values[2])
 
 	def write_vector_3_int32(self, values):
+		"""
+		@type values: tuple[int]
+		"""
 		self.write_int32(values[0])
 		self.write_int32(values[1])
 		self.write_int32(values[2])
 
 	def write_vector_3_float(self, values):
+		"""
+		@type values: tuple[float]
+		"""
 		self.write_float(values[0])
 		self.write_float(values[1])
 		self.write_float(values[2])
 
 	def write_vector_4_float(self, values):
+		"""
+		@type values: tuple[float]
+		"""
 		self.write_float(values[0])
 		self.write_float(values[1])
 		self.write_float(values[2])
 		self.write_float(values[3])
 
 	def write_vector_3b(self, values):
+		"""
+		@type values: tuple[int]
+		"""
 		self.write_byte(values[0])
 		self.write_byte(values[1])
 		self.write_byte(values[2])
