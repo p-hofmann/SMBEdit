@@ -99,7 +99,7 @@ class DataType6(DefaultLogging):
 
 	def to_stream(self, output_stream=sys.stdout):
 		"""
-		Stream logic values
+		Stream values
 
 		@param output_stream: Output stream
 		@type output_stream: fileIO
