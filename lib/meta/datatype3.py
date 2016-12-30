@@ -5,11 +5,11 @@ from lib.bits_and_bytes import ByteStream
 from lib.loggingwrapper import DefaultLogging
 
 
-class Docking(DefaultLogging):
+class DataType3(DefaultLogging):
 
 	def __init__(self, logfile=None, verbose=False, debug=False):
-		self._label = "Meta-DataType3"
-		super(Docking, self).__init__(logfile, verbose, debug)
+		self._label = "DataType3"
+		super(DataType3, self).__init__(logfile, verbose, debug)
 		self._docked_entity = {}
 		return
 
@@ -60,6 +60,25 @@ class Docking(DefaultLogging):
 	# ###  Write
 	# #######################################
 
+	@staticmethod
+	def _write_dock_entry(output_stream, name, data):
+		"""
+
+		@param output_stream:
+		@type output_stream: ByteStream
+
+		@return:
+		@rtype: str, dict
+		"""
+		assert isinstance(output_stream, ByteStream)
+		# string_length = self._read_int_unassigned(input_stream)
+		# entry["name"] = input_stream.read(string_length).decode('utf-8')
+		output_stream.write_string(name)
+		output_stream.write_vector_3_int16(data["position"])
+		output_stream.write_vector_3_int32(data["size"])
+		output_stream.write_int16_unassigned(data["style"])
+		output_stream.write_byte(data["orientation"])
+
 	def write(self, output_stream):
 		"""
 		write values
@@ -70,8 +89,8 @@ class Docking(DefaultLogging):
 		self._logger.debug("Writing")
 		output_stream.write_byte(3)
 		output_stream.write_int32_unassigned(len(self._docked_entity))
-		for _ in self._docked_entity:
-			raise NotImplementedError("Docking write is not implemented, yet.")
+		for name in self._docked_entity.keys():
+			self._write_dock_entry(output_stream, name, self._docked_entity[name])
 
 	# #######################################
 	# ###  Else
@@ -84,9 +103,11 @@ class Docking(DefaultLogging):
 		@param output_stream: Output stream
 		@type output_stream: fileIO
 		"""
-		output_stream.write("Docked: {}\n".format(len(self._docked_entity)))
+		output_stream.write("DataType3: {}\n".format(len(self._docked_entity)))
 		if self._debug:
-			for relative_dir in self._docked_entity.keys():
-				data = len(self._docked_entity[relative_dir])
-				output_stream.write("{}: #{}\n".format(relative_dir, data))
+			for name in self._docked_entity.keys():
+				data = self._docked_entity[name]
+				output_stream.write("{}:\t".format(name))
+				output_stream.write("{}\t{}\t{}\t{}\n".format(
+					data["position"], data["size"], data["style"], data["orientation"]))
 		output_stream.write("\n")
