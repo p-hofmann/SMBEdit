@@ -4,9 +4,9 @@ import os
 import sys
 from lib.bits_and_bytes import ByteStream
 from lib.loggingwrapper import DefaultLogging
-from lib.meta.segmanager import SegManager
-from lib.meta.docking import Docking
-from lib.meta.raildocker import RailDocker
+from lib.meta.datatype2 import DataType2
+from lib.meta.datatype3 import DataType3
+from lib.meta.datatype4 import DataType4
 from lib.meta.datatype5 import DataType5
 from lib.meta.datatype6 import DataType6
 from lib.meta.datatype7 import DataType7
@@ -20,19 +20,23 @@ class Meta(DefaultLogging):
 
 	_file_name = "meta.smbpm"
 
-	_tag_type = {
+	_data_type = {
 		1: "Finish",
-		2: "SegManager",
-		3: "Docking"
+		2: "TagManager",
+		3: "Docking",
+		4: "unknown",
+		5: "unknown",
+		6: "unknown",
+		7: "unknown",
 	}
 
 	def __init__(self, logfile=None, verbose=False, debug=False):
 		self._label = "Meta"
 		super(Meta, self).__init__(logfile, verbose, debug)
 		self._version = (0, 0, 0, 0)
-		self.seg_manager = SegManager(logfile=logfile, verbose=verbose, debug=debug)
-		self.docked_outdated = Docking(logfile=logfile, verbose=verbose, debug=debug)
-		self.rail_docked = RailDocker(logfile=logfile, verbose=verbose, debug=debug)
+		self._data_type_2 = DataType2(logfile=logfile, verbose=verbose, debug=debug)
+		self._data_type_3 = DataType3(logfile=logfile, verbose=verbose, debug=debug)
+		self._data_type_4 = DataType4(logfile=logfile, verbose=verbose, debug=debug)
 		self._data_type_5 = DataType5(logfile=logfile, verbose=verbose, debug=debug)
 		self._data_type_6 = DataType6(logfile=logfile, verbose=verbose, debug=debug)
 		self._data_type_7 = DataType7(logfile=logfile, verbose=verbose, debug=debug)
@@ -59,21 +63,21 @@ class Meta(DefaultLogging):
 			# input_stream.read(38)
 			if data_type == 1:  # Finish
 				break
-			elif data_type == 2:  # SegManager # aLt.class
-				self.seg_manager = SegManager(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
-				self.seg_manager.read(input_stream, False, False)
+			elif data_type == 2:  # TagManager # aLt.class
+				self._data_type_2 = DataType2(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
+				self._data_type_2.read(input_stream)
 				break
 			elif data_type == 3:  # Docking
-				self.docked_outdated = Docking(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
-				self.docked_outdated.read(input_stream)
+				self._data_type_3 = DataType3(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
+				self._data_type_3.read(input_stream)
 			elif data_type == 4:  # Unknown stuff
-				self.rail_docked = RailDocker(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
-				self.rail_docked.read(input_stream, self._version)
+				self._data_type_4 = DataType4(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
+				self._data_type_4.read(input_stream, self._version)
 			elif data_type == 5:  # Unknown byte array
 				self._data_type_5 = DataType5(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
-				byte_array_length = self._data_type_5.read(input_stream)  # aLt.class
-				if byte_array_length > 0:
-					break
+				self._data_type_5.read(input_stream)  # aLt.class
+				# if self._data_type_5.has_data():
+				# 	break
 			elif data_type == 6:  # Unknown byte array
 				self._data_type_6 = DataType6(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
 				self._data_type_6.read(input_stream)  # aLt.class
@@ -85,7 +89,7 @@ class Meta(DefaultLogging):
 				self._logger.debug(msg)
 				raise Exception(msg)
 		self.tail_data = input_stream.read()  # any data left?
-		self._logger.debug("read_file tail_data: {}".format(len(self.tail_data)))
+		assert len(self.tail_data) == 0, "Unknown byte left: #{}".format(len(self.tail_data))
 
 	def read(self, directory_blueprint):
 		"""
@@ -123,10 +127,8 @@ class Meta(DefaultLogging):
 		"""
 		output_stream.write_vector_4_byte(self._version)
 
-		# data_type 2
-		self.seg_manager.write(output_stream)
 		# data_type 3
-		self.docked_outdated.write(output_stream)
+		self._data_type_3.write(output_stream)
 
 		if self._version > (0, 0, 0, 4):
 			# data_type 6
@@ -134,9 +136,11 @@ class Meta(DefaultLogging):
 			# data_type 7
 			self._data_type_7.write(output_stream)
 		# data_type 4
-		self.rail_docked.write(output_stream, self._version, relative_apth)
+		self._data_type_4.write(output_stream, self._version, relative_apth)
 		# data_type 5
 		self._data_type_5.write(output_stream)
+		# data_type 2
+		self._data_type_2.write(output_stream)
 
 	def write(self, directory_blueprint, relative_path=None):
 		"""
@@ -166,12 +170,12 @@ class Meta(DefaultLogging):
 		"""
 		output_stream.write("####\nMETA v{}\n####\n\n".format(self._version))
 		if self._debug:
-			self.seg_manager.to_stream(output_stream)
-			self.docked_outdated.to_stream(output_stream)
+			self._data_type_2.to_stream(output_stream)
+			self._data_type_3.to_stream(output_stream)
+			self._data_type_4.to_stream(output_stream)
+			self._data_type_5.to_stream(output_stream)
 			self._data_type_6.to_stream(output_stream)
 			self._data_type_7.to_stream(output_stream)
-			self.rail_docked.to_stream(output_stream)
-			self._data_type_5.to_stream(output_stream)
 		if self._debug:
 			output_stream.write("Tail: {} bytes\n".format(len(self.tail_data)))
 		output_stream.write("\n")
