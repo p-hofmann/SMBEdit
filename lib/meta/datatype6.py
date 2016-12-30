@@ -7,7 +7,9 @@ from lib.loggingwrapper import DefaultLogging
 
 class DataType6(DefaultLogging):
 	"""
-	Rail block meta data?
+	Reading data type 6 meta data
+
+	@type _data: dict[int,dict[str, any]]
 	"""
 
 	def __init__(self, logfile=None, verbose=False, debug=False):

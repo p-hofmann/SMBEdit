@@ -6,7 +6,11 @@ from lib.loggingwrapper import DefaultLogging
 
 
 class DataType7(DefaultLogging):
+	"""
+	Reading data type 7 meta data
 
+	@type _data: dict[int,float]
+	"""
 	def __init__(self, logfile=None, verbose=False, debug=False):
 		self._label = "DataType7"
 		super(DataType7, self).__init__(logfile, verbose, debug)
