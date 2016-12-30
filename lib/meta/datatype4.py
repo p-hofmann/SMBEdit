@@ -174,7 +174,6 @@ class DataType4(DefaultLogging):
 			tag_size = self._docked_entity[dock_index].get_size(compressed)
 			output_stream.write_int32_unassigned(tag_size)
 			self._docked_entity[dock_index].write(output_stream, compressed)
-			# output_stream.write_byte_array(self._docked_entity[dock_index])
 
 	# #######################################
 	# ###  Else
