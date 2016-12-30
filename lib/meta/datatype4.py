@@ -171,8 +171,6 @@ class DataType4(DefaultLogging):
 			new_relative_directory = os.path.join(relative_path, "ATTACHED_{}".format(dock_index))
 			self._logger.debug(new_relative_directory)
 			output_stream.write_string(new_relative_directory)
-			tag_size = self._docked_entity[dock_index].get_size(compressed)
-
 			file_position_size = output_stream.tell()
 			output_stream.seek(4, whence=1)  # skip size for later
 			self._docked_entity[dock_index].write(output_stream, compressed)
