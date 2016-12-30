@@ -33,6 +33,8 @@ class ByteStream(object):
 	s 	char[]          	string
 	p 	char[]          	string
 	P 	void *          	integer 	  	(5), (3)
+
+	@type _bytestream: file
 	"""
 
 	def __init__(self, bytestream, byte_order=">"):
