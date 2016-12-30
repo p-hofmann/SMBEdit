@@ -210,6 +210,18 @@ class Smd(DefaultLogging, BlueprintUtils):
 			number_of_blocks += region.get_number_of_blocks()
 		return number_of_blocks
 
+	def replace_hull(self, new_hull_type, hull_type=None):
+		"""
+		Replace all blocks of a specific hull type or all hull
+
+		@param new_hull_type:
+		@type new_hull_type: int
+		@param hull_type:
+		@type hull_type: int | None
+		"""
+		for region_position in self.position_to_region.keys():
+			self.position_to_region[region_position].replace_hull(new_hull_type, hull_type)
+
 	def replace_blocks(self, block_id, replace_id, replace_hp, compatible=False):
 		"""
 		Replace all blocks of a specific id
