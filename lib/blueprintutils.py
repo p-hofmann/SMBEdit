@@ -20,27 +20,46 @@ class BlueprintUtils(object):
 
 	_entity_classification = {
 		# Ship
-		0: "General",
-		1: "Mining",
-		2: "Support",
-		3: "Cargo",
-		4: "Attack",
-		5: "Defence",
-		6: "Carrier",
-		7: "Scout",
-		8: "Scavenger",
-
+		0: {
+			0: "General",
+			1: "Mining",
+			2: "Support",
+			3: "Cargo",
+			4: "Attack",
+			5: "Defence",
+			6: "Carrier",
+			7: "Scout",
+			8: "Scavenger",
+			},
 		# Station
-		9: "General",
-		10: "Shipyard",
-		11: "Outpost",
-		12: "Defense",
-		13: "Mining",
-		14: "Factory",
-		15: "Trade",
-		16: "Warp Gate",
-		17: "Shopping",
-	}
+		2: {
+			9: "General",
+			10: "Shipyard",
+			11: "Outpost",
+			12: "Defense",
+			13: "Mining",
+			14: "Factory",
+			15: "Trade",
+			16: "Warp Gate",
+			17: "Shopping",
+			}
+		}
+
+	@staticmethod
+	def get_entity_classification_name(entity_type, entity_classification):
+		"""
+		Return name of entity classification
+
+		@param entity_type:
+		@type entity_type: int
+		@param entity_classification:
+		@type entity_classification: int
+
+		@rtype: str
+		"""
+		assert entity_type in BlueprintUtils._entity_classification
+		assert entity_classification in BlueprintUtils._entity_classification[entity_type]
+		return BlueprintUtils._entity_classification[entity_type][entity_classification]
 
 	_block_ids = dict()
 
@@ -632,12 +651,14 @@ class BlueprintUtils(object):
 		"Hepta": 7,
 	}
 
-	def get_hp_by_hull_type(self, hull_type):
-		return self._hp_by_hull_type[hull_type]
+	@staticmethod
+	def get_hp_by_hull_type(hull_type):
+		return BlueprintUtils._hp_by_hull_type[hull_type]
 
-	def _get_hull_details(self, block_id):
+	@staticmethod
+	def _get_hull_details(block_id):
 		# "White Standard Armor Corner"
-		hull_name = self.get_block_name_by_id(block_id)
+		hull_name = BlueprintUtils.get_block_name_by_id(block_id)
 		if "Hull" in hull_name:
 			hull_type = 0
 			color, shape = hull_name.split('Hull', 1)
@@ -656,16 +677,17 @@ class BlueprintUtils(object):
 		else:
 			raise Exception("Unknown Hull: '{}'".format(hull_name))
 		shape = shape.strip()
-		assert shape in self._block_shapes, "Unknown Shape: '{}'".format(shape)
-		return hull_type, color.strip(), self._block_shapes[shape]
+		assert shape in BlueprintUtils._block_shapes, "Unknown Shape: '{}'".format(shape)
+		return hull_type, color.strip(), BlueprintUtils._block_shapes[shape]
 
-	def _get_hulls_dict(self):
+	@staticmethod
+	def _get_hulls_dict():
 		hull_dict = {}
-		for block_id in self._block_ids["hull"].keys():
-			hull_name = self.get_block_name_by_id(block_id)
+		for block_id in BlueprintUtils._block_ids["hull"].keys():
+			hull_name = BlueprintUtils.get_block_name_by_id(block_id)
 			if "Glass" in hull_name:
 				continue
-			hull_type, color, shape_id = self._get_hull_details(block_id)
+			hull_type, color, shape_id = BlueprintUtils._get_hull_details(block_id)
 			if hull_type not in hull_dict:
 				hull_dict[hull_type] = {}
 			if color not in hull_dict[hull_type]:
@@ -675,19 +697,22 @@ class BlueprintUtils(object):
 
 	_glass_ids = {63, 329, 330, 368, 367, 815, 816, 817}
 
-	def is_hull(self, block_id):
-		if block_id in self._glass_ids:
+	@staticmethod
+	def is_hull(block_id):
+		if block_id in BlueprintUtils._glass_ids:
 			return False
-		return block_id in self._block_ids["hull"]
+		return block_id in BlueprintUtils._block_ids["hull"]
 
 	_hulls_dict = None
 
-	def get_hull_id_by_details(self, hull_type, color, shape_id):
-		if self._hulls_dict is None:
-			self._hulls_dict = self._get_hulls_dict()
-		return self._hulls_dict[hull_type][color][shape_id]
+	@staticmethod
+	def get_hull_id_by_details(hull_type, color, shape_id):
+		if BlueprintUtils._hulls_dict is None:
+			BlueprintUtils._hulls_dict = BlueprintUtils._get_hulls_dict()
+		return BlueprintUtils._hulls_dict[hull_type][color][shape_id]
 
-	def _is_slab(self, block_id):
+	@staticmethod
+	def _is_slab(block_id):
 		"""
 		Return True if it is a slap
 		Slab have block style 0
@@ -699,13 +724,14 @@ class BlueprintUtils(object):
 		@rtype: bool
 		"""
 		slab_shapes = ["1/4", "1/2", "3/4"]
-		block_name = self.get_block_name_by_id(block_id)
+		block_name = BlueprintUtils.get_block_name_by_id(block_id)
 		for shape in slab_shapes:
 			if shape in block_name:
 				return True
 		return False
 
-	def _is_block_style_6(self, block_id):
+	@staticmethod
+	def _is_block_style_6(block_id):
 		"""
 		# 6: rails/White Light Bar/Pipe/Decorative Console/Shipyard Module/Core Anchor/Mushroom/
 
@@ -715,7 +741,7 @@ class BlueprintUtils(object):
 		@return:
 		@rtype: bool
 		"""
-		if block_id in self._block_ids["rails"]:
+		if block_id in BlueprintUtils._block_ids["rails"]:
 			return True
 		if block_id == 977:  # White Light Bar
 			return True
@@ -731,7 +757,8 @@ class BlueprintUtils(object):
 			return True
 		return False
 
-	def _is_block_style_3(self, block_id):
+	@staticmethod
+	def _is_block_style_3(block_id):
 		"""
 		# 3: Rod/Paint/Capsules/Hardener/Plants/Shards
 
@@ -743,9 +770,9 @@ class BlueprintUtils(object):
 		"""
 		style_3_categories = ["ores", "shards", "crafting", "minerals", "rails"]
 		for category in style_3_categories:
-			if block_id in self._block_ids[category]:
+			if block_id in BlueprintUtils._block_ids[category]:
 				return True
-		if block_id in self._block_ids["plants"] and block_id != 104:  # and not Mushroom
+		if block_id in BlueprintUtils._block_ids["plants"] and block_id != 104:  # and not Mushroom
 			return True
 
 		if block_id == 977:  # White Light Bar
@@ -760,13 +787,14 @@ class BlueprintUtils(object):
 			return True
 		if block_id == 104:  # Mushroom
 			return True
-		if block_id in self._block_ids["lighting"]:
-			block_name = self.get_block_name_by_id(block_id).lower()
+		if block_id in BlueprintUtils._block_ids["lighting"]:
+			block_name = BlueprintUtils.get_block_name_by_id(block_id).lower()
 			if "Rod".lower() in block_name:
 				return True
 		return False
 
-	def _is_block_style_0(self, block_id):
+	@staticmethod
+	def _is_block_style_0(block_id):
 		"""
 		# 0: slabs
 		#    activatable: doors/weapons/station/logic/medical/factions/systems/effects/tools/lighting*:
@@ -781,13 +809,13 @@ class BlueprintUtils(object):
 		@rtype: bool
 		"""
 		style_0_categories = ["hull", "circuits", "motherboards", "ingots", "crystals", "decorative"]
-		if self._is_slab(block_id):
+		if BlueprintUtils._is_slab(block_id):
 			return True
-		if self._is_activatable_block(block_id):
+		if BlueprintUtils._is_activatable_block(block_id):
 			return True
-		if block_id in self._block_ids["docking"]:  # no wedges
+		if block_id in BlueprintUtils._block_ids["docking"]:  # no wedges
 			return True
-		if block_id in self._block_ids["nature"] and block_id not in self._block_ids["plants"]:
+		if block_id in BlueprintUtils._block_ids["nature"] and block_id not in BlueprintUtils._block_ids["plants"]:
 			return True
 
 		if block_id == 976:  # Pipe
@@ -796,16 +824,17 @@ class BlueprintUtils(object):
 			return False
 
 		for category in style_0_categories:
-			if block_id in self._block_ids[category]:
+			if block_id in BlueprintUtils._block_ids[category]:
 				shapes = ["wedge", "corner", "tetra", "hepta"]
-				block_name = self.get_block_name_by_id(block_id).lower()
+				block_name = BlueprintUtils.get_block_name_by_id(block_id).lower()
 				for shape in shapes:
 					if shape in block_name:
 						return False
 				return True
 		return False
 
-	def get_block_style(self, block_id):
+	@staticmethod
+	def get_block_style(block_id):
 		"""
 		Return style of block
 
@@ -823,8 +852,8 @@ class BlueprintUtils(object):
 		@return: style
 		@rtype: int
 		"""
-		assert self.is_known_id(block_id), "Unknown block id: {}".format(block_id)
-		block_name = self.get_block_name_by_id(block_id).lower()
+		assert BlueprintUtils.is_known_id(block_id), "Unknown block id: {}".format(block_id)
+		block_name = BlueprintUtils.get_block_name_by_id(block_id).lower()
 		if "wedge" in block_name:
 			return 1
 		if "corner" in block_name:
@@ -833,15 +862,16 @@ class BlueprintUtils(object):
 			return 4
 		if "hepta" in block_name:
 			return 5
-		if self._is_block_style_6(block_id):
+		if BlueprintUtils._is_block_style_6(block_id):
 			return 6
-		if self._is_block_style_3(block_id):
+		if BlueprintUtils._is_block_style_3(block_id):
 			return 3
-		if self._is_block_style_0(block_id):
+		if BlueprintUtils._is_block_style_0(block_id):
 			return 0
 		raise Exception("Unknown block style for id: {}".format(block_id))
 
-	def are_compatible_blocks(self, block_id_1, block_id_2):
+	@staticmethod
+	def are_compatible_blocks(block_id_1, block_id_2):
 		"""
 		Return True if two blocks can be replace each other without orientation issues
 
@@ -853,11 +883,12 @@ class BlueprintUtils(object):
 		@return:
 		@rtype: bool
 		"""
-		if self.get_block_style(block_id_1) == self.get_block_style(block_id_2):
+		if BlueprintUtils.get_block_style(block_id_1) == BlueprintUtils.get_block_style(block_id_2):
 				return True
 		return False
 
-	def is_known_id(self, block_id):
+	@staticmethod
+	def is_known_id(block_id):
 		"""
 		Return block name of a block id
 
@@ -867,12 +898,13 @@ class BlueprintUtils(object):
 		@return: block name
 		@rtype: str
 		"""
-		for category_name, category_ids in self._block_ids.iteritems():
+		for category_name, category_ids in BlueprintUtils._block_ids.iteritems():
 			if block_id in category_ids:
 				return True
 		return False
 
-	def get_block_name_by_id(self, block_id):
+	@staticmethod
+	def get_block_name_by_id(block_id):
 		"""
 		Return block name of a block id
 
@@ -882,12 +914,13 @@ class BlueprintUtils(object):
 		@return: block name
 		@rtype: str
 		"""
-		for category_name, category_ids in self._block_ids.iteritems():
+		for category_name, category_ids in BlueprintUtils._block_ids.iteritems():
 			if block_id in category_ids:
 				return category_ids[block_id]
 		return "unknown ({})".format(block_id)
 
-	def is_valid_block_id(self, block_id, entity_type=0):
+	@staticmethod
+	def is_valid_block_id(block_id, entity_type=0):
 		"""
 		Test if an id is outdated or not valid for a specific entity type
 
@@ -899,16 +932,17 @@ class BlueprintUtils(object):
 		@return:
 		@rtype: bool
 		"""
-		assert entity_type in self._entity_types
-		if block_id in self._block_ids["outdated"]:
+		assert entity_type in BlueprintUtils._entity_types
+		if block_id in BlueprintUtils._block_ids["outdated"]:
 			return False
-		if entity_type == SHIP and block_id in self._block_ids["station"]:
+		if entity_type == SHIP and block_id in BlueprintUtils._block_ids["station"]:
 			return False
 		if entity_type != SHIP and block_id == 1:
 			return False
 		return True
 
-	def _is_activatable_block(self, block_id):
+	@staticmethod
+	def _is_activatable_block(block_id):
 		"""
 		Test if an id is of am activatable block (style 0 block)
 
@@ -919,30 +953,30 @@ class BlueprintUtils(object):
 		@rtype: bool
 		"""
 		assert isinstance(block_id, int)
-		if block_id in self._block_ids["logic"]:
+		if block_id in BlueprintUtils._block_ids["logic"]:
 			return True
-		if block_id in self._block_ids["doors"]:
+		if block_id in BlueprintUtils._block_ids["doors"]:
 			return True
-		if block_id in self._block_ids["lighting"]:
-			block_name = self.get_block_name_by_id(block_id).lower()
+		if block_id in BlueprintUtils._block_ids["lighting"]:
+			block_name = BlueprintUtils.get_block_name_by_id(block_id).lower()
 			if "Rod".lower() in block_name:
 				return False
 			if block_id == 977:  # White Light Bar
 				return False
 			return True
-		if block_id in self._block_ids["medical"]:
+		if block_id in BlueprintUtils._block_ids["medical"]:
 			return True
-		if block_id in self._block_ids["factions"]:
+		if block_id in BlueprintUtils._block_ids["factions"]:
 			return True
-		if block_id in self._block_ids["systems"]:
+		if block_id in BlueprintUtils._block_ids["systems"]:
 			return True
-		if block_id in self._block_ids["effects"]:
+		if block_id in BlueprintUtils._block_ids["effects"]:
 			return True
-		if block_id in self._block_ids["tools"]:
+		if block_id in BlueprintUtils._block_ids["tools"]:
 			return True
-		if block_id in self._block_ids["weapons"]:
+		if block_id in BlueprintUtils._block_ids["weapons"]:
 			return True
-		if block_id in self._block_ids["station"]:
+		if block_id in BlueprintUtils._block_ids["station"]:
 			if block_id == 678:  # Shipyard Module
 				return False
 			if block_id == 679:  # Shipyard Core Anchor
@@ -1009,7 +1043,8 @@ class BlueprintUtils(object):
 
 	_core_position = (16, 16, 16)
 
-	def _get_direction_vector_to_center(self, position):
+	@staticmethod
+	def _get_direction_vector_to_center(position):
 		"""
 		Relocate center/core in a direction
 
@@ -1018,7 +1053,7 @@ class BlueprintUtils(object):
 
 		@rtype: int, int, int
 		"""
-		return self.vector_subtraction(position, self._core_position)
+		return BlueprintUtils.vector_subtraction(position, BlueprintUtils._core_position)
 
 	# #######################################
 	# ###  Turning
@@ -1042,7 +1077,8 @@ class BlueprintUtils(object):
 		5: (1, -1, 1),  # tilt left
 	}
 
-	def _tilt_turn_position(self, position, tilt_index):
+	@staticmethod
+	def _tilt_turn_position(position, tilt_index):
 		"""
 		Turn or tilt this entity.
 
@@ -1054,12 +1090,12 @@ class BlueprintUtils(object):
 		@return: new minimum and maximum coordinates of the blueprint
 		@rtype: tuple[int,int,int], tuple[int,int,int]
 		"""
-		multiplicator = self._turn_multiplicator[tilt_index]
-		indexes = self._turn_indexes[tilt_index]
-		new_block_position = self.vector_subtraction(position, self._core_position)
+		multiplicator = BlueprintUtils._turn_multiplicator[tilt_index]
+		indexes = BlueprintUtils._turn_indexes[tilt_index]
+		new_block_position = BlueprintUtils.vector_subtraction(position, BlueprintUtils._core_position)
 		new_block_position = (
 			multiplicator[0]*new_block_position[indexes[0]],
 			multiplicator[1]*new_block_position[indexes[1]],
 			multiplicator[2]*new_block_position[indexes[2]])
-		new_block_position = self.vector_addition(new_block_position, self._core_position)
+		new_block_position = BlueprintUtils.vector_addition(new_block_position, BlueprintUtils._core_position)
 		return new_block_position
