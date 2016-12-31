@@ -294,7 +294,10 @@ class TagPayload(TagUtil):
 		self._write_payload(self.payload, abs(self.id), output_stream)
 
 	def to_stream(self, output_stream=sys.stdout):
-		output_stream.write("{}: ".format(self.id))
+		if self.id > 0:
+			output_stream.write("{}: '{}' ".format(self.id, self.name))
+		else:
+			output_stream.write("{}: ".format(self.id))
 		self._payload_to_stream(self.payload, output_stream)
 		# output_stream.write("\n")
 
