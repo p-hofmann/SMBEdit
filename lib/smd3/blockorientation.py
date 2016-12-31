@@ -1,12 +1,11 @@
 __author__ = 'Peter Hofmann'
 
 import sys
-# from lib.loggingwrapper import DefaultLogging
 from lib.bits_and_bytes import BitAndBytes
 from lib.blueprintutils import BlueprintUtils
 
 # DefaultLogging
-class BlockOrientation(BitAndBytes, BlueprintUtils):
+class BlockOrientation(object):
 	"""
 	Type    	Bits    	Description
 
@@ -28,6 +27,104 @@ class BlockOrientation(BitAndBytes, BlueprintUtils):
 							101 : +X
 				21 	20 		The amount of clockwise rotation around the axis of rotation, in 90-degree step
 	"""
+	# https://starmadepedia.net/wiki/Blueprint_File_Formats#Block_Data
+
+	def __init__(self, logfile=None, verbose=False, debug=False):
+		"""
+		Constructor
+
+		# Block styles:
+		# 0: slabs/doors/weapons/station/logic/lighting/medical/factions/systems/effects/tools:
+		# 1: Wedge
+		# 2: Corner
+		# 3: Rod/Paint/Capsules/Hardener/Plants/Shards
+		# 4: Tetra
+		# 5: Hepta
+		# 6: Rail/Pickup/White Light Bar/Pipe/Decorative Console/Shipyard Module/Core Anchor/Mushroom/
+		"""
+		self._label = "BlockOrientation"
+		# super(BlockOrientation, self).__init__(logfile=logfile, verbose=verbose, debug=debug)
+		self._verbose = verbose
+		self._debug = debug
+		super(BlockOrientation, self).__init__()
+		self._int_24bit = 0
+
+	# get
+
+	def get_int_24bit(self):
+		"""
+		Return integer representing block
+
+		@rtype: int
+		"""
+		return self._int_24bit
+
+	def get_id(self):
+		"""
+		Returns the block id
+
+		@rtype: int
+		"""
+		return BitAndBytes.bits_parse(self._int_24bit, 0, 11)
+
+	def get_style(self):
+		"""
+		Returns the block style
+
+		@rtype: int | None
+		"""
+		block_id = self.get_id()
+		if block_id == 0:
+			return None
+		return BlueprintUtils.get_block_style(block_id)
+
+	def _get_bit_19(self):
+		return BitAndBytes.bits_parse(self._int_24bit, 19, 1)
+
+	def _get_bit_22(self):
+		return BitAndBytes.bits_parse(self._int_24bit, 22, 1)
+
+	def _get_bit_23(self):
+		return BitAndBytes.bits_parse(self._int_24bit, 23, 1)
+
+	def _get_block_side_id(self):
+		return BitAndBytes.bits_parse(self._int_24bit, 20, 3)
+
+	def _get_clockwise_rotations(self):
+		return BitAndBytes.bits_parse(self._int_24bit, 20, 2)
+
+	# set
+
+	def set_int_24bit(self, int_24bit):
+		"""
+		Set integer representing block
+
+		@param int_24bit:
+		@type int_24bit: int
+		"""
+		self._int_24bit = int_24bit
+
+	def _bits_combine_orientation(self, new_int_24bit):
+		"""
+		Set orientation bits of an integer
+
+		@type new_int_24bit: int
+
+		@rtype: int
+		"""
+		style = self.get_style()
+		if style == 0:
+			return BitAndBytes.bits_combine(self._get_block_side_id(), new_int_24bit, 20)
+		if style != 0:
+			new_int_24bit = BitAndBytes.bits_combine(self._get_bit_19(), new_int_24bit, 19)
+		new_int_24bit = BitAndBytes.bits_combine(self._get_clockwise_rotations(), new_int_24bit, 20)
+		new_int_24bit = BitAndBytes.bits_combine(self._get_bit_22(), new_int_24bit, 22)
+		new_int_24bit = BitAndBytes.bits_combine(self._get_bit_23(), new_int_24bit, 23)
+		return new_int_24bit
+
+	# #######################################
+	# ###  Turning - Experimental
+	# #######################################
 
 	#   -Y  	    Z   	   Z
 	# -X   X	 -Y   Y 	-X   X
@@ -97,76 +194,6 @@ class BlockOrientation(BitAndBytes, BlueprintUtils):
 		5: "LEFT  ",
 	}
 
-	# https://starmadepedia.net/wiki/Blueprint_File_Formats#Block_Data
-
-	def __init__(self, logfile=None, verbose=False, debug=False):
-		"""
-		Constructor
-
-		# Block styles:
-		# 0: slabs/doors/weapons/station/logic/lighting/medical/factions/systems/effects/tools:
-		# 1: Wedge
-		# 2: Corner
-		# 3: Rod/Paint/Capsules/Hardener/Plants/Shards
-		# 4: Tetra
-		# 5: Hepta
-		# 6: Rail/Pickup/White Light Bar/Pipe/Decorative Console/Shipyard Module/Core Anchor/Mushroom/
-		"""
-		self._label = "BlockOrientation"
-		# super(BlockOrientation, self).__init__(logfile=logfile, verbose=verbose, debug=debug)
-		self._verbose = verbose
-		self._debug = debug
-		super(BlockOrientation, self).__init__()
-		self._orientation = 0
-		self._style = 0
-		self._int_24bit = 0
-		self._block_side_id = 0
-		self._bit_19 = 0
-		self._bit_22 = 0
-		self._bit_23 = 0
-		self._clockwise_rotations = 0
-
-	def _set_int_24bit(self, int_24bit):
-		"""
-		Set bit array
-
-		@param int_24bit:
-		@type int_24bit: int
-		"""
-		self._int_24bit = int_24bit
-		self._parse_int_24bit()
-
-	def _get_int_24bit(self, int_24bit):
-		if self._style == 0:
-			return self.bits_combine(self._block_side_id, int_24bit, 20)
-		if self._style != 0:
-			int_24bit = self.bits_combine(self._bit_19, int_24bit, 19)
-		int_24bit = self.bits_combine(self._clockwise_rotations, int_24bit, 20)
-		int_24bit = self.bits_combine(self._bit_22, int_24bit, 22)
-		int_24bit = self.bits_combine(self._bit_23, int_24bit, 23)
-		return int_24bit
-
-	def _parse_int_24bit(self):
-		"""
-		The byte string is turned into an integer so bit operations can pick out each value.
-		An integer is 4 byte (32 bit) but a block is only 3 byte long. THis is why '\x00' is added.
-		'\x00' is added first because of big endian.
-		"""
-		self._orientation = self.bits_parse(self._int_24bit, 19, 5)
-		self._block_side_id = 0
-		self._bit_19 = 0
-		self._bit_22 = 0
-		self._bit_23 = 0
-		self._clockwise_rotations = 0
-		if self._style == 0 or self._debug:
-			self._block_side_id = self.bits_parse(self._int_24bit, 20, 3)
-
-		if self._style != 0 or self._debug:
-			self._bit_19 = self.bits_parse(self._int_24bit, 19, 1)
-			self._clockwise_rotations = self.bits_parse(self._int_24bit, 20, 2)
-			self._bit_22 = self.bits_parse(self._int_24bit, 22, 1)
-			self._bit_23 = self.bits_parse(self._int_24bit, 23, 1)
-
 	def _orientation_to_stream(self, output_stream=sys.stdout):
 		"""
 
@@ -184,35 +211,32 @@ class BlockOrientation(BitAndBytes, BlueprintUtils):
 		if self._debug:
 			return self._bit_orientation_to_string()
 
-		if self._style == 0:
-			return "Side: {}".format(self._block_side_id_to_str[self._block_side_id])
+		if self.get_style == 0:
+			return "Side: {}".format(self._block_side_id_to_str[self._get_block_side_id()])
 
 		side = self._get_side_from_direction()
 		return_string = ""
 		return_string += "Side: {}".format(self._block_side_id_to_str[side])
-		return_string += " {}* ".format(self._clockwise_rotations * 90)
+		return_string += " {}* ".format(self._get_clockwise_rotations() * 90)
 		return return_string
 
 	def _bit_orientation_to_string(self):
-		return_string = "{}\t".format(self._orientation)
-		return_string += "({},{},{}) ".format(self._bit_19, self._bit_23, self._bit_22)
-		rotation = "{}*".format(self._clockwise_rotations * 90)
+		return_string = ""
+		# return_string += "{}\t".format(self._orientation)
+		return_string += "({},{},{}) ".format(self._get_bit_19(), self._get_bit_23(), self._get_bit_22())
+		rotation = "{}*".format(self._get_clockwise_rotations() * 90)
 		return_string += rotation.rjust(4) + "\t"
-		return_string += "F {}".format(self._block_side_id)
+		return_string += "F {}".format(self._get_block_side_id())
 		return return_string
-
-	# #######################################
-	# ###  Turning - Experimental
-	# #######################################
 
 	def _get_side_from_direction(self):
 		"""
 
 		@rtype: int
 		"""
-		orientation = (self._bit_19, self._bit_23, self._bit_22)
-		if self._style == 1:  # wedge
-			orientation = (0, self._bit_23, self._bit_22)
+		orientation = (self._get_bit_19(), self._get_bit_23(), self._get_bit_22())
+		if self.get_style == 1:  # wedge
+			orientation = (0, self._get_bit_23(), self._get_bit_22())
 		assert orientation in self._orientation_to_direction
 		direction = self._orientation_to_direction[orientation]
 		assert abs(direction[0]) + abs(direction[1]) + abs(direction[2]) == 1, "Bad direction: {}".format(direction)

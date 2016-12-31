@@ -15,6 +15,8 @@ class SmdSegment(DefaultLogging, BlueprintUtils):
 	A Segment position is the lowest coordinate of a segment area.
 	The Position coordinates are always a multiple of 32, like (32, 0, 128)
 	Example: The core, or center of a blueprint is (16,16,16) and the position of its segment is (0,0,0)
+
+	@type block_index_to_block: dict[int, SmdBlock]
 	"""
 
 	def __init__(self, blocks_in_a_line=32, logfile=None, verbose=False, debug=False):
@@ -64,7 +66,8 @@ class SmdSegment(DefaultLogging, BlueprintUtils):
 		for block_index in range(0, len(decompressed_data)/3):
 			position = block_index * 3
 			block = SmdBlock(debug=self._debug)
-			block.set_data_byte_string(decompressed_data[position:position+3])
+			int_24bit = ByteStream.unpack_int24(decompressed_data[position:position+3])
+			block.set_int_24bit(int_24bit)
 			if block.get_id() > 0:
 				self.block_index_to_block[block_index] = block
 		input_stream.seek(49126-self.compressed_size, 1)  # skip unused bytes
@@ -106,7 +109,8 @@ class SmdSegment(DefaultLogging, BlueprintUtils):
 			set_of_valid_block_index = set(self.block_index_to_block.keys())
 			for block_index in range(0, self._blocks_in_a_cube):
 				if block_index in set_of_valid_block_index:
-					byte_string += self.block_index_to_block[block_index].get_data_byte_string()
+					block_int_24 = self.block_index_to_block[block_index].get_int_24bit()
+					byte_string += ByteStream.pack_int24(block_int_24)
 					continue
 				byte_string += "\0" * 3
 			compressed_data = zlib.compress(byte_string)

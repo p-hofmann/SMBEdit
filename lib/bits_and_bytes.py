@@ -514,9 +514,6 @@ class ByteStream(object):
 
 class BitAndBytes(object):
 
-	def __init__(self):
-		return
-
 	@staticmethod
 	def bits_parse(some_integer, start, length):
 		"""

@@ -1,30 +1,18 @@
 __author__ = 'Peter Hofmann'
 
 import sys
-import struct
 from lib.bits_and_bytes import BitAndBytes
 from lib.blueprintutils import BlueprintUtils
 from lib.smd3.blockorientation import BlockOrientation
 
 
-class SmdBlock(BlockOrientation, BitAndBytes, BlueprintUtils):
+class SmdBlock(BlockOrientation):
 
 	def __init__(self, logfile=None, verbose=False, debug=False):
 		self._label = "SmdBlock"
 		super(SmdBlock, self).__init__(logfile=logfile, verbose=verbose, debug=debug)
-		self._style = 0
-		self._id = 0
-		self._hit_points = 0
-		self._active = 0
-		self._byte_string = ""
 
-	def get_id(self):
-		"""
-		Returns the block id
-
-		@rtype: int
-		"""
-		return self._id
+	# Get
 
 	def get_hit_points(self):
 		"""
@@ -32,17 +20,64 @@ class SmdBlock(BlockOrientation, BitAndBytes, BlueprintUtils):
 
 		@rtype: int
 		"""
-		return self._hit_points
+		if self.get_id() == 0:
+			return None
+		return BitAndBytes.bits_parse(self._int_24bit, 11, 8)
 
 	def is_active(self):
 		"""
 		Returns the 'active' status.
 
-		@rtype: int
+		@rtype: bool
 		"""
-		if self._style != 0:
+		style = self.get_style
+		if style != 0 or style is None:
 			return False
-		return self._active == 0
+		return self._get_active_value() == 0
+
+	def _get_active_value(self):
+		"""
+		Returns the 'active' bit value.
+
+		@rtype: bool
+		"""
+		return BitAndBytes.bits_parse(self._int_24bit, 19, 1)
+
+	# Set
+
+	def update(self, block_id=None, hit_points=None, active=None):
+		"""
+		In the rare case a block value is changed, they are turned into a byte string.
+
+		@type block_id: int | None
+		@type hit_points: int | None
+		@type active: bool | None
+		"""
+		if block_id is None:
+			block_id = self.get_id()
+		elif block_id == 0:
+			self._int_24bit = 0
+			return
+
+		if hit_points is None:
+			hit_points = self.get_hit_points()
+
+		if active is None:
+			active = self._get_active_value()
+		elif active:
+			active = 0
+		elif not active:
+			active = 1
+
+		style = BlueprintUtils.get_block_style(block_id)
+		int_24bit = 0
+		int_24bit = BitAndBytes.bits_combine(block_id, int_24bit, 0)
+		int_24bit = BitAndBytes.bits_combine(hit_points, int_24bit, 11)
+		if style == 1:  # For blocks with an activation status
+			int_24bit = BitAndBytes.bits_combine(active, int_24bit, 19)
+		self._int_24bit = self._bits_combine_orientation(int_24bit)
+		# '[1:]' since only the last three bytes of an integer are used for block information.
+		# self._byte_string = struct.pack('>i', int_24bit)[1:]
 
 	def set_id(self, block_id):
 		"""
@@ -51,84 +86,26 @@ class SmdBlock(BlockOrientation, BitAndBytes, BlueprintUtils):
 		@param block_id:
 		@type block_id: int
 		"""
-		self._id = block_id
-		self._style = self.get_block_style(self._id)
-		self._refresh_data_byte_string()
+		self.update(block_id=block_id)
 
-	def set_hit_points(self, value):
+	def set_hit_points(self, hit_points):
 		"""
 		Change hit points of block
 
-		@param value:
-		@type value: int
+		@param hit_points:
+		@type hit_points: int
 		"""
-		self._hit_points = value
-		self._refresh_data_byte_string()
+		self.update(hit_points=hit_points)
 
-	def set_active(self, value):
+	def set_active(self, active):
 		"""
 		Change 'active' status of of block
 
-		@param value:
-		@type value: bool
+		@param active:
+		@type active: bool
 		"""
-		assert self._style == 0, "Block id {} has no 'active' status".format(self._id)
-		if value:
-			self._active = 0
-		else:
-			self._active = 1
-		self._refresh_data_byte_string()
-
-	def set_data_byte_string(self, byte_string):
-		"""
-		Change the byte string representing the block and parse it for easy access.
-		The byte string is kept to speed up writing files.
-
-		@param byte_string:
-		@type byte_string: str
-		"""
-		self._byte_string = byte_string
-		self._parse_byte_string()
-
-	def get_data_byte_string(self):
-		"""
-		Returns the byte string representing a block.
-
-		@rtype: str
-		"""
-		return self._byte_string
-
-	def _parse_byte_string(self):
-		"""
-		The byte string is turned into an integer so bit operations can pick out each value.
-		An integer is 4 byte (32 bit) but a block is only 3 byte long. THis is why '\x00' is added.
-		'\x00' is added first because of big endian.
-		"""
-		# bit_array = self._read_int24_unassigned(input_stream)
-		int_24bit = struct.unpack('>i', '\x00' + self._byte_string)[0]
-		# bit_array = ByteStream.unpack('\x00' + self._byte_string, 'i')
-		self._id = self.bits_parse(int_24bit, 0, 11)
-		if self._id == 0:
-			return
-		self._style = self.get_block_style(self._id)
-		self._hit_points = self.bits_parse(int_24bit, 11, 8)
-		if self._style == 0:  # For blocks with an activation status
-			self._active = self.bits_parse(int_24bit, 19, 1)
-		self._set_int_24bit(int_24bit)
-
-	def _refresh_data_byte_string(self):
-		"""
-		In the rare case a block value is changed, they are turned into a byte string.
-		"""
-		int_24bit = 0
-		int_24bit = self.bits_combine(self._id, int_24bit, 0)
-		int_24bit = self.bits_combine(self._hit_points, int_24bit, 11)
-		if self._style == 1:  # For blocks with an activation status
-			int_24bit = self.bits_combine(self._active, int_24bit, 19)
-		int_24bit = self._get_int_24bit(int_24bit)
-		# '[1:]' since only the last three bytes of an integer are used for block information.
-		self._byte_string = struct.pack('>i', int_24bit)[1:]
-		self._parse_byte_string()
+		assert self.get_style() == 0, "Block id {} has no 'active' status".format(self.get_id())
+		self.update(active=active)
 
 	# #######################################
 	# ###  Turning
@@ -155,7 +132,6 @@ class SmdBlock(BlockOrientation, BitAndBytes, BlueprintUtils):
 			self.tilt_right()
 		elif index == 5:
 			self.tilt_left()
-		self._refresh_data_byte_string()
 
 	def tilt_up(self):
 		self.turn_270_x()
@@ -186,8 +162,8 @@ class SmdBlock(BlockOrientation, BitAndBytes, BlueprintUtils):
 		@param output_stream:
 		@type output_stream: fileIO
 		"""
-		output_stream.write("({})\t".format(self._style))
-		output_stream.write("HP: {}\t".format(self._hit_points))
+		output_stream.write("({})\t".format(self.get_style()))
+		output_stream.write("HP: {}\t".format(self.get_hit_points()))
 		output_stream.write("Active: {}\t".format(self.is_active()))
 		output_stream.write("Or.: {}\t".format(self._orientation_to_string()))
-		output_stream.write("{}\n".format(self.get_block_name_by_id(self._id)))
+		output_stream.write("{}\n".format(BlueprintUtils.get_block_name_by_id(self.get_id())))
