@@ -45,10 +45,12 @@ class DataType5(DefaultLogging):
 		output_stream.write_byte(5)
 		file_position_size = output_stream.tell()
 		output_stream.seek(4, whence=1)  # skip size for later
+		file_position_tag = output_stream.tell()
 		self._tag_data.write(output_stream, compressed)
 		file_position_end = output_stream.tell()
 		output_stream.seek(file_position_size)
-		output_stream.write_int32_unassigned(file_position_end-file_position_size)
+		tag_size = file_position_end-file_position_tag
+		output_stream.write_int32_unassigned(tag_size)
 		output_stream.seek(file_position_end)
 
 	# #######################################
