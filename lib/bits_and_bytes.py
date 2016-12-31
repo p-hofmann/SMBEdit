@@ -61,6 +61,22 @@ class ByteStream(object):
 	# ###  Packing and unpacking
 	# #######################################
 
+	@staticmethod
+	def pack_int24(int_24bit):
+		"""
+		@type int_24bit: int
+		@rtype: str
+		"""
+		return struct.pack('>i', int_24bit)[1:]
+
+	@staticmethod
+	def unpack_int24(byte_string):
+		"""
+		@type byte_string: str
+		@rtype: int
+		"""
+		return struct.unpack(">i", '\x00' + byte_string)[0]
+
 	def pack(self, value, data_type):
 		"""
 		Pack value to byte string
