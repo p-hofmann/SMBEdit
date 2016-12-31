@@ -232,7 +232,7 @@ class TagPayloadList(TagUtil):
 		output_stream.write_byte(self.id)
 		output_stream.write_int32_unassigned(len(self.payload_list))
 		for payload in self.payload_list:
-			self._write_payload(payload, self.id, output_stream)
+			self._write_payload(payload, abs(self.id), output_stream)
 
 	def to_stream(self, output_stream=sys.stdout):
 		output_stream.write("{}: [".format(self.id))
@@ -291,7 +291,7 @@ class TagPayload(TagUtil):
 			return
 		if self.id > 0:
 			output_stream.write_string(self.name)
-		self._write_payload(self.payload, self.id, output_stream)
+		self._write_payload(self.payload, abs(self.id), output_stream)
 
 	def to_stream(self, output_stream=sys.stdout):
 		output_stream.write("{}: ".format(self.id))
