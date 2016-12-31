@@ -161,6 +161,15 @@ class Meta(DefaultLogging):
 	# ###  Else
 	# #######################################
 
+	def move_center_by_vector(self, direction_vector):
+		"""
+		Relocate docked entities in a direction
+
+		@param direction_vector: vector
+		@type direction_vector: tuple[int]
+		"""
+		self._data_type_4.move_center_by_vector(direction_vector)
+
 	def to_stream(self, output_stream=sys.stdout):
 		"""
 		Stream logic values
