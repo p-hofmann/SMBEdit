@@ -364,6 +364,14 @@ class TagManager(DefaultLogging):
 	# ###  Else
 	# #######################################
 
+	def get_root_tag(self):
+		"""
+		Return Root TagPayload
+
+		@rtype: TagPayload
+		"""
+		return self._root_tag
+
 	def has_data(self):
 		return self._root_tag is not None
 
