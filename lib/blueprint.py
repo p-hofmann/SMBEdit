@@ -153,6 +153,7 @@ class Blueprint(DefaultLogging, BlueprintUtils):
 		self.logic.move_center(direction_vector, self.header.type)
 		self.header.set_box(min_vector, max_vector)
 		self.header.update(self.smd3)
+		self.meta.move_center_by_vector(direction_vector)
 
 	def turn_tilt(self, index_turn_tilt):
 		"""

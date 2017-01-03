@@ -110,19 +110,19 @@ class SMBEdit(DefaultLogging):
 			default=False,
 			help="Link salvage computers to salvage modules")
 
-		group_input.add_argument(
-			"-t", "--turn",
-			default=None,
-			type=int,
-			choices=[0, 1, 2, 3, 4, 5],
-			help='''turn the ship/station:
-		0: "tilt up",
-		1: "tilt down",
-		2: "turn right",
-		3: "turn left",
-		4: "tilt right",
-		5: "tilt left"
-	''')
+	# 	group_input.add_argument(
+	# 		"-t", "--turn",
+	# 		default=None,
+	# 		type=int,
+	# 		choices=[0, 1, 2, 3, 4, 5],
+	# 		help='''turn the ship/station:
+	# 	0: "tilt up",
+	# 	1: "tilt down",
+	# 	2: "turn right",
+	# 	3: "turn left",
+	# 	4: "tilt right",
+	# 	5: "tilt left"
+	# ''')
 
 		group_input.add_argument(
 			"-et", "--entity_type",
@@ -182,7 +182,7 @@ class SMBEdit(DefaultLogging):
 			directory_input = options.directory_blueprint
 			directory_output = options.directory_output
 			link_salvage = options.link_salvage
-			index_turn_tilt = options.turn
+			index_turn_tilt = None  # options.turn
 			replace_hull = options.replace_hull
 			replace = options.replace
 			move_center = options.move_center
@@ -194,7 +194,9 @@ class SMBEdit(DefaultLogging):
 			directory_input = self._clean_dir_path(directory_input)
 			if directory_output is not None:
 				directory_output = self._clean_dir_path(directory_output)
-			self.run_commands(directory_input, directory_output, link_salvage, index_turn_tilt, replace_hull, replace, move_center, update, entity_type, summary)
+			self.run_commands(
+				directory_input, directory_output,
+				link_salvage, index_turn_tilt, replace_hull, replace, move_center, update, entity_type, summary)
 
 		except (KeyboardInterrupt, SystemExit, Exception, ValueError, RuntimeError) as e:
 			self._logger.debug("\n{}\n".format(traceback.format_exc()))
@@ -209,7 +211,8 @@ class SMBEdit(DefaultLogging):
 			self._logger.info("Finished")
 
 	def run_commands(
-		self, directory_input, directory_output, link_salvage, index_turn_tilt, replace_hull, replace, move_center, update, entity_type, summary, blueprint_path=None):
+		self, directory_input, directory_output,
+		link_salvage, index_turn_tilt, replace_hull, replace, move_center, update, entity_type, summary, blueprint_path=None):
 		assert os.path.exists(directory_input), "Blueprint directory does not exist, aborting."
 		if directory_output is not None:
 			if os.path.exists(directory_output):
@@ -220,8 +223,8 @@ class SMBEdit(DefaultLogging):
 
 		if blueprint_path is None:
 			blueprint_path = directory_output
-		if move_center is None:
-			# if center position is kept, docker can be preserved
+
+		if index_turn_tilt is not None:  # if entity is turned, docked entities are removed
 			list_of_folders = os.listdir(directory_input)
 			for folder_name in list_of_folders:
 				if "ATTACHED_" not in folder_name:
@@ -232,7 +235,7 @@ class SMBEdit(DefaultLogging):
 					directory_dst = os.path.join(directory_output, folder_name)
 				self.run_commands(
 					directory_src, directory_dst,
-					link_salvage, index_turn_tilt, replace_hull, replace, move_center, update, entity_type, summary,
+					link_salvage, None, replace_hull, replace, None, update, entity_type, summary,
 					blueprint_path=blueprint_path)
 
 		blueprint = Blueprint(
