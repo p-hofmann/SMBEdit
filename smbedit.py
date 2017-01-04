@@ -153,7 +153,12 @@ class SMBEdit(DefaultLogging):
 			"-rh", "--replace_hull",
 			default=None,
 			type=str,
-			help="{0,1,2,3,4}:{0,1,2,3,4}")
+			help='''{h,s,a,c,z}:{h,s,a,c,z}
+			h: Hull
+			s: Standard armor
+			a: Advanced Armor
+			c: Crystal Armor
+			z: Hazard Armor''')
 
 		group_input.add_argument(
 			"-o", "--directory_output",
@@ -235,7 +240,7 @@ class SMBEdit(DefaultLogging):
 					directory_dst = os.path.join(directory_output, folder_name)
 				self.run_commands(
 					directory_src, directory_dst,
-					link_salvage, None, replace_hull, replace, None, update, entity_type, summary,
+					link_salvage, None, replace_hull, replace, None, update, None, summary,
 					blueprint_path=blueprint_path)
 
 		blueprint = Blueprint(
