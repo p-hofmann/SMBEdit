@@ -109,6 +109,7 @@ class Header(DefaultLogging, BlueprintUtils):
 		super(Header, self).__init__(logfile, verbose, debug)
 		self.version = 2
 		self.type = 2
+		self.classification = 0
 		self.box_min = (0., 0., 0.)
 		self.box_max = (0., 0., 0.)
 		self.block_id_to_quantity = {}
@@ -257,7 +258,7 @@ class Header(DefaultLogging, BlueprintUtils):
 		@return: classification of blueprint
 		@rtype: str
 		"""
-		return self._entity_classification[self.classification]
+		return self._entity_classification[self.type][self.classification]
 
 	def get_width(self):
 		"""
