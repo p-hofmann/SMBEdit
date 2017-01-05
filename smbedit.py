@@ -1,7 +1,10 @@
 __author__ = 'Peter Hofmann'
-__version__ = '0.0.5'
+__version__ = '0.0.6'
 
 import os
+import shutil
+import zipfile
+import tempfile
 import argparse
 import traceback
 
@@ -16,9 +19,12 @@ class SMBEdit(Validator):
 	# #######################################
 
 	Works with StarMade v0.199.257
+
+
+	@type _tmp_dir: str
 	"""
 
-	def __init__(self, logfile=None, verbose=False, debug=False):
+	def __init__(self, is_archived=False, temp_directory=None, logfile=None, verbose=False, debug=False):
 		"""
 		Constructor of Starmade Blueprint Editor
 
@@ -36,10 +42,25 @@ class SMBEdit(Validator):
 			logfile=logfile,
 			verbose=verbose,
 			debug=debug)
+		assert temp_directory is None or self.validate_dir(temp_directory)
+		assert isinstance(is_archived, bool)
+		self._is_archived = is_archived
+		if not is_archived:
+			self._tmp_dir = None
+			return
+		if temp_directory is None:
+			self._tmp_dir = tempfile.mkdtemp(prefix="{}_".format(self._label))
+		else:
+			self._tmp_dir = tempfile.mkdtemp(prefix="{}_".format(self._label), dir=temp_directory)
 		return
 
+	def __exit__(self, type, value, traceback):
+		super(SMBEdit, self).__exit__(type, value, traceback)
+		if self.validate_dir(self._tmp_dir, silent=True):
+			shutil.rmtree(self._tmp_dir)
+
 	# #######################################
-	# ###  Read
+	# ###  Read command line arguments
 	# #######################################
 
 	_char_to_hull_type = {
@@ -89,6 +110,11 @@ class SMBEdit(Validator):
 			default=None,
 			type=str,
 			help="output will also be written to this log file")
+		parser.add_argument(
+			"-tmp", "--tmp_dir",
+			default=None,
+			type=str,
+			help="Directory for temporary data in case of 'sment' files.")
 
 		group_input = parser.add_argument_group('optional arguments')
 		group_input.add_argument(
@@ -172,16 +198,16 @@ class SMBEdit(Validator):
 			z: Hazard Armor''')
 
 		group_input.add_argument(
-			"-o", "--directory_output",
+			"-o", "--path_output",
 			default=None,
 			type=str,
-			help="Output directory of modified blueprint.")
+			help="Output directory of modified blueprint or '*.sment' file path")
 
 		group_input = parser.add_argument_group('required')
 		group_input.add_argument(
-			"directory_blueprint",
+			"path_input",
 			type=str,
-			help="directory of a blue print")
+			help="Directory of a blue print or sment file path")
 
 		if args is None:
 			return parser.parse_args()
@@ -192,11 +218,36 @@ class SMBEdit(Validator):
 	def _clean_dir_path(directory):
 		return directory.rstrip('/').rstrip('\\')
 
+	@staticmethod
+	def zip_directory(src_dir, dst):
+		assert os.path.isdir(src_dir)
+		with zipfile.ZipFile(dst, 'w', zipfile.ZIP_DEFLATED) as write_handler:
+			SMBEdit.zip_stream(src_dir, write_handler)
+
+	@staticmethod
+	def zip_stream(src_dir, output_stream):
+		"""
+
+		@param src_dir:
+		@type src_dir: str
+		@param output_stream:
+		@type output_stream: zipfile.ZipFile
+		@return:
+		"""
+		root_path = os.path.dirname(src_dir)
+		assert os.path.isdir(src_dir)
+		for root, directories, files in os.walk(src_dir):
+			for file_name in files:
+				file_path = os.path.join(root, file_name)
+				relative_path = os.path.relpath(file_path, root_path)
+				print relative_path,
+				output_stream.write(file_path, arcname=relative_path)
+
 	def run(self, options):
 		try:
 
-			directory_input = options.directory_blueprint
-			directory_output = options.directory_output
+			path_input = options.path_input
+			path_output = options.path_output
 			link_salvage = options.link_salvage
 			index_turn_tilt = None  # options.turn
 			replace_hull = options.replace_hull
@@ -207,12 +258,36 @@ class SMBEdit(Validator):
 			entity_type = options.entity_type
 			summary = options.summary
 
-			directory_input = self._clean_dir_path(directory_input)
-			if directory_output is not None:
-				directory_output = self._clean_dir_path(directory_output)
+			assert path_output is None or self.validate_dir(path_output, only_parent=True)
+			directory_output = None
+			if self._is_archived:
+				assert self.validate_file(path_input)
+				directory_input = tempfile.mkdtemp(dir=self._tmp_dir)
+				with zipfile.ZipFile(path_input, "r") as read_handler:
+					read_handler.extractall(directory_input)
+				list_of_dir = os.listdir(directory_input)
+				assert len(list_of_dir) == 1, "Invalid sment file"
+				blueprint_name = list_of_dir[0]
+				directory_input = os.path.join(directory_input, blueprint_name)
+
+				if path_output is not None:
+					assert path_output.endswith(".sment"), "Expected '*.sment' file ending."
+					assert not self.validate_file(path_output, silent=True), "Output file exists. Overwriting files is not allowed, aborting."
+					directory_output = os.path.join(tempfile.mkdtemp(dir=self._tmp_dir), blueprint_name)
+			else:
+				directory_input = path_input
+				directory_input = self._clean_dir_path(directory_input)
+				if path_output is not None:
+					directory_output = self._clean_dir_path(path_output)
+
 			self.run_commands(
 				directory_input, directory_output,
 				link_salvage, index_turn_tilt, replace_hull, replace, move_center, update, auto_hull_shape, entity_type, summary)
+
+			if path_output is not None and self._is_archived:
+				self._logger.info("Exporting blueprint to:\n{}".format(path_output))
+				self.zip_directory(directory_output, path_output)
+				assert os.path.exists(path_output), [path_output, directory_output]
 
 		except (KeyboardInterrupt, SystemExit, Exception, ValueError, RuntimeError) as e:
 			self._logger.debug("\n{}\n".format(traceback.format_exc()))
@@ -348,11 +423,18 @@ def main():
 	verbose = options.verbose
 	debug = options.debug_mode
 	logfile = options.logfile
-	manipulator = SMBEdit(
+	tmp_dir = options.tmp_dir
+	path_input = options.path_input
+	is_archived = False
+	if path_input.endswith(".sment"):
+		is_archived = True
+	with SMBEdit(
+		is_archived=is_archived,
+		temp_directory=tmp_dir,
 		logfile=logfile,
 		verbose=verbose,
-		debug=debug)
-	manipulator.run(options)
+		debug=debug) as manipulator:
+		manipulator.run(options)
 
 if __name__ == "__main__":
 	main()

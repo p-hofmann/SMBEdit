@@ -4,8 +4,7 @@ StarMade Blueprint Editor
 Yet another editor since others have become outdated.  
 This is a command line tool, there is no gui!  
 The script was written for python2.7 and is not compatible with python3, but should work on all platforms.  
-Input and output are directories of raw blueprints as found in "/../StarMade/blueprints/".  
-"*.sment" files are not supported, yet.
+Input and output are either a directory of raw blueprints as found in "/../StarMade/blueprints/" or a path to a '.sment' file.  
 
 
 # Usage
@@ -24,14 +23,17 @@ This can be combined with '-verbose' to display more information.
 Using '-debug' detailed information about ALL blocks will be shown and is not recommended unless the entity contains but a few blocks. 
 
 ### Save the blueprint
+```
+   -o PATH_OUTPUT, --path_output PATH_OUTPUT
+```
 
-    -o DIRECTORY_OUTPUT, --directory_output DIRECTORY_OUTPUT
-    
+The path can be a directory or a '.sment' file path.  
 No modification is saved unless this argument is provided.
-Using this argument without any other will simply copy a blueprint, giving it a new name.  
-This is the output directory of a modified blueprint.
-The directory will be created.  
-If the directory exists the script will abort to prevent accidental overwriting of an existing blueprint.  
+Using this argument without any other will simply copy a blueprint.  
+Using a directory as output will giving a new name to the blueprint.
+When a '.sment' path, the blueprint name is kept.  
+A directory will be created if it does not exist.  
+If the directory or file exists the script will abort to prevent accidental overwriting of an existing blueprint.  
 __Important__: Manually changing a blueprint folder name will likely break it, use the this script to rename a blueprint or use the StarMade client.
 
 ### Update entity
