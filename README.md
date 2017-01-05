@@ -92,7 +92,6 @@ Hit points - Hull type
 
 
 ### Replace Hull
-### Replace blocks
 ```
 	-rh {old_hull_type}:{new_hull_type}
 ```
@@ -129,6 +128,15 @@ A specific change is represented by a number:
 
 The orientation of blocks is not changed.  
 A relocation of the core is always done before the entity is turned/tilted.
+
+### Auto-shape of hull/armor edges and corners
+```
+-aw, --auto_wedge
+-at, --auto_tetra
+```
+
+One can use either one or all at once and hull/armor blocks will be replaced automatically.  
+Previous shapes will be overwritten!
 
 # Example
 Here is a quick example of what can be done:
