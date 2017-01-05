@@ -104,7 +104,7 @@ class BlockOrientation(object):
 		"""
 		self._int_24bit = int_24bit
 
-	def _bits_combine_orientation(self, new_int_24bit):
+	def _bits_combine_orientation(self, new_int_24bit, style=None, block_side_id=None, bit_19=None, bit_22=None, bit_23=None, rotations=None):
 		"""
 		Set orientation bits of an integer
 
@@ -112,14 +112,26 @@ class BlockOrientation(object):
 
 		@rtype: int
 		"""
-		style = self.get_style()
+		if style is None:
+			style = self.get_style()
 		if style == 0:
-			return BitAndBytes.bits_combine(self._get_block_side_id(), new_int_24bit, 20)
+			if block_side_id is None:
+				block_side_id = self._get_block_side_id()
+			return BitAndBytes.bits_combine(block_side_id, new_int_24bit, 20)
 		if style != 0:
-			new_int_24bit = BitAndBytes.bits_combine(self._get_bit_19(), new_int_24bit, 19)
-		new_int_24bit = BitAndBytes.bits_combine(self._get_clockwise_rotations(), new_int_24bit, 20)
-		new_int_24bit = BitAndBytes.bits_combine(self._get_bit_22(), new_int_24bit, 22)
-		new_int_24bit = BitAndBytes.bits_combine(self._get_bit_23(), new_int_24bit, 23)
+			if bit_19 is None:
+				bit_19 = self._get_bit_19()
+			new_int_24bit = BitAndBytes.bits_combine(bit_19, new_int_24bit, 19)
+
+		if rotations is None:
+			rotations = self._get_clockwise_rotations()
+		if bit_22 is None:
+			bit_22 = self._get_bit_22()
+		if bit_23 is None:
+			bit_23 = self._get_bit_23()
+		new_int_24bit = BitAndBytes.bits_combine(rotations, new_int_24bit, 20)
+		new_int_24bit = BitAndBytes.bits_combine(bit_22, new_int_24bit, 22)
+		new_int_24bit = BitAndBytes.bits_combine(bit_23, new_int_24bit, 23)
 		return new_int_24bit
 
 	# #######################################

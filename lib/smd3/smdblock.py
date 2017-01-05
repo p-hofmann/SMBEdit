@@ -45,7 +45,7 @@ class SmdBlock(BlockOrientation):
 
 	# Set
 
-	def update(self, block_id=None, hit_points=None, active=None):
+	def update(self, block_id=None, hit_points=None, active=None, block_side_id=None, bit_19=None, bit_22=None, bit_23=None, rotations=None):
 		"""
 		In the rare case a block value is changed, they are turned into a byte string.
 
@@ -75,7 +75,9 @@ class SmdBlock(BlockOrientation):
 		int_24bit = BitAndBytes.bits_combine(hit_points, int_24bit, 11)
 		if style == 1:  # For blocks with an activation status
 			int_24bit = BitAndBytes.bits_combine(active, int_24bit, 19)
-		self._int_24bit = self._bits_combine_orientation(int_24bit)
+		self._int_24bit = self._bits_combine_orientation(
+			int_24bit, style=style, bit_19=bit_19, bit_22=bit_22, bit_23=bit_23,
+			rotations=rotations, block_side_id=block_side_id)
 		# '[1:]' since only the last three bytes of an integer are used for block information.
 		# self._byte_string = struct.pack('>i', int_24bit)[1:]
 
