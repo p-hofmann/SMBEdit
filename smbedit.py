@@ -1,24 +1,22 @@
 __author__ = 'Peter Hofmann'
-__version__ = '0.0.4'
+__version__ = '0.0.5'
 
 import os
 import argparse
 import traceback
 
-from lib.loggingwrapper import DefaultLogging
+from lib.validator import Validator
 from lib.blueprint import Blueprint
 
 
-class SMBEdit(DefaultLogging):
+class SMBEdit(Validator):
 	"""
 	# #######################################
 	# ###  StarMade Blueprint Editor
 	# #######################################
 
-	Works with StarMade v0.199.253 build 20161011_173324
+	Works with StarMade v0.199.257
 	"""
-
-	_label = "SMBEdit"
 
 	def __init__(self, logfile=None, verbose=False, debug=False):
 		"""
@@ -33,6 +31,7 @@ class SMBEdit(DefaultLogging):
 
 		@rtype: None
 		"""
+		self._label = "SMBEdit"
 		super(SMBEdit, self).__init__(
 			logfile=logfile,
 			verbose=verbose,
@@ -103,6 +102,18 @@ class SMBEdit(DefaultLogging):
 			action='store_true',
 			default=False,
 			help="Remove outdated blocks and replace old docking blocks")
+
+		group_input.add_argument(
+			"-aw", "--auto_wedge",
+			action='store_true',
+			default=False,
+			help="Automatically replace hull blocks with wedges on edges.")
+
+		group_input.add_argument(
+			"-at", "--auto_tetra",
+			action='store_true',
+			default=False,
+			help="Automatically replace hull blocks with tetras on corners.")
 
 		group_input.add_argument(
 			"-ls", "--link_salvage",
@@ -192,16 +203,16 @@ class SMBEdit(DefaultLogging):
 			replace = options.replace
 			move_center = options.move_center
 			update = options.update
+			auto_hull_shape = (options.auto_wedge, options.auto_tetra)
 			entity_type = options.entity_type
 			summary = options.summary
 
-			assert isinstance(directory_input, str)
 			directory_input = self._clean_dir_path(directory_input)
 			if directory_output is not None:
 				directory_output = self._clean_dir_path(directory_output)
 			self.run_commands(
 				directory_input, directory_output,
-				link_salvage, index_turn_tilt, replace_hull, replace, move_center, update, entity_type, summary)
+				link_salvage, index_turn_tilt, replace_hull, replace, move_center, update, auto_hull_shape, entity_type, summary)
 
 		except (KeyboardInterrupt, SystemExit, Exception, ValueError, RuntimeError) as e:
 			self._logger.debug("\n{}\n".format(traceback.format_exc()))
@@ -217,9 +228,11 @@ class SMBEdit(DefaultLogging):
 
 	def run_commands(
 		self, directory_input, directory_output,
-		link_salvage, index_turn_tilt, replace_hull, replace, move_center, update, entity_type, summary, blueprint_path=None):
-		assert os.path.exists(directory_input), "Blueprint directory does not exist, aborting."
+		link_salvage, index_turn_tilt, replace_hull, replace, move_center, update, auto_hull_shape, entity_type, summary, blueprint_path=None):
+		file_names = ["header.smbph", "logic.smbpl", "meta.smbpm"]
+		assert self.validate_dir(directory_input, file_names=file_names), "Blueprint directory is invalid, aborting."
 		if directory_output is not None:
+			assert self.validate_dir(directory_output, only_parent=True, key="-o"), "Output Blueprint directory is invalid, aborting."
 			if os.path.exists(directory_output):
 				if len(os.listdir(directory_output)) > 0:
 					raise Exception("Blueprint found in output directory, aborting to prevent overwriting.")
@@ -240,7 +253,7 @@ class SMBEdit(DefaultLogging):
 					directory_dst = os.path.join(directory_output, folder_name)
 				self.run_commands(
 					directory_src, directory_dst,
-					link_salvage, None, replace_hull, replace, None, update, None, summary,
+					link_salvage, None, replace_hull, replace, None, update, auto_hull_shape, None, summary,
 					blueprint_path=blueprint_path)
 
 		blueprint = Blueprint(
@@ -297,6 +310,10 @@ class SMBEdit(DefaultLogging):
 			else:
 				old_hull_type = None
 			blueprint.replace_hull(new_hull_type, old_hull_type)
+
+		if True in auto_hull_shape:
+			self._logger.info("Automatically picking hull shape...")
+			blueprint.auto_hull_shape(auto_hull_shape)
 
 		if index_turn_tilt is not None:
 			blueprint.turn_tilt(index_turn_tilt)
