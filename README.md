@@ -4,6 +4,9 @@ StarMade Blueprint Editor
 Yet another editor since others have become outdated.  
 This is a command line tool, there is no gui!  
 The script was written for python2.7 and is not compatible with python3, but should work on all platforms.  
+Input and output are directories of raw blueprints as found in "/../StarMade/blueprints/".  
+"*.sment" files are not supported, yet.
+
 
 # Usage
 Several command line arguments are available and (most) can be used all at once.  
