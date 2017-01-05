@@ -141,7 +141,8 @@ A relocation of the core is always done before the entity is turned/tilted.
 ```
 
 One can use either one or all at once and hull/armor blocks will be replaced automatically.  
-Previous shapes will be overwritten!
+Previous shapes will be overwritten!  
+The algorithm works best if the hull is 2 blocks thick or has other blocks directly adjacent to the hull on the 'inside'.
 
 # Example
 Here is a quick example of what can be done:
