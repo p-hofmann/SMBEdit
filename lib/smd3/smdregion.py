@@ -10,10 +10,14 @@ from lib.smd3.smdsegment import SmdSegment
 
 
 class SmdRegion(DefaultLogging, BlueprintUtils):
-
+	"""
 	# #######################################
 	# ###  SmdRegion
 	# #######################################
+
+	@type position_to_segment: dict[tuple[int], SmdSegment]
+	"""
+
 
 	def __init__(self, segments_in_a_line=16, blocks_in_a_line=32, logfile=None, verbose=False, debug=False):
 		"""
@@ -372,6 +376,8 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
 		@rtype: bool
 		"""
 		segment_position = self.get_segment_position_of_position(position)
+		if segment_position not in self.position_to_segment:
+			return False
 		return self.position_to_segment[segment_position].has_block_at_position(position)
 
 	def iteritems(self):
