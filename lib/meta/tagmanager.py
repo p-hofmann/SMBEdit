@@ -355,6 +355,8 @@ class TagManager(DefaultLogging):
 		@param output_stream: Output stream
 		@type output_stream: ByteStream
 		"""
+		if not self.has_data():
+			return
 		output_stream.write_vector_x_byte(self._version)
 		if compressed:
 			raise NotImplementedError("TagManager gzip is not implemented, yet.")

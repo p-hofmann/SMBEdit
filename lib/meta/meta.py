@@ -59,7 +59,7 @@ class Meta(DefaultLogging):
 		# assert self._version < (0, 0, 0, 5)
 		while True:
 			data_type = input_stream.read_byte()
-			self._logger.debug("read_file data_type: {}".format(data_type))
+			self._logger.debug("Found data_type: {}".format(data_type))
 			# input_stream.read(38)
 			if data_type == 1:  # Finish
 				break
@@ -140,7 +140,10 @@ class Meta(DefaultLogging):
 		# data_type 5
 		self._data_type_5.write(output_stream)
 		# data_type 2
-		self._data_type_2.write(output_stream)
+		if self._data_type_2.has_data():
+			self._data_type_2.write(output_stream)
+		else:
+			output_stream.write_byte(1)
 
 	def write(self, directory_blueprint, relative_path=None):
 		"""
