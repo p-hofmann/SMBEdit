@@ -10,10 +10,13 @@ from lib.smd3.smdblock import SmdBlock
 
 
 class Smd(DefaultLogging, BlueprintUtils):
-
+	"""
 	# #######################################
 	# ###  smd
 	# #######################################
+
+	@type position_to_region: dict[tuple[int], SmdRegion]
+	"""
 
 	def __init__(
 		self, segments_in_a_line_of_a_region=16, blocks_in_a_line_of_a_segment=32, logfile=None, verbose=False, debug=False):
@@ -325,6 +328,8 @@ class Smd(DefaultLogging, BlueprintUtils):
 		@rtype: bool
 		"""
 		region_position = self.get_region_position_of_position(position)
+		if region_position not in self.position_to_region:
+			return False
 		return self.position_to_region[region_position].has_block_at_position(position)
 
 	def get_block_id_to_quantity(self):
@@ -410,3 +415,101 @@ class Smd(DefaultLogging, BlueprintUtils):
 			output_stream.write("SmdRegion: {}\n".format(list(position)))
 			self.position_to_region[position].to_stream(output_stream)
 			output_stream.write("\n")
+
+	# auto wedge
+
+	def get_position_periphery_index_9x9(self, position):
+		"""
+		Every position in a 3x3x3 periphery is represented by a bit.
+
+		@type position: tuple[int]
+		@rtype: int
+		"""
+		periphery_index = long(0)
+		power = long(1)
+		for x in range(position[0]-1, position[0]+2):
+			for y in range(position[1]-1, position[1]+2):
+				for z in range(position[2]-1, position[2]+2):
+					position_tmp = (x, y, z)
+					if position_tmp == position:
+						continue
+					if self.has_block_at_position(position_tmp):
+						periphery_index |= power
+					power <<= 1
+		# print power
+		return periphery_index
+
+	def get_position_periphery_index(self, position):
+		"""
+		Some positions in a 3x3x3 periphery, represented by a bit each.
+
+		@type position: tuple[int]
+		@rtype: int
+		"""
+		periphery_index = long(0)
+		power = long(1)
+		for x in range(position[0]-1, position[0]+2):
+			position_tmp = (x, position[1], position[2])
+			if position_tmp == position:
+				continue
+			if self.has_block_at_position(position_tmp):
+				periphery_index |= power
+			power <<= 1
+		for y in range(position[1]-1, position[1]+2):
+			position_tmp = (position[0], y, position[2])
+			if position_tmp == position:
+				continue
+			if self.has_block_at_position(position_tmp):
+				periphery_index |= power
+			power <<= 1
+		for z in range(position[2]-1, position[2]+2):
+			position_tmp = (position[0], position[1], z)
+			if position_tmp == position:
+				continue
+			if self.has_block_at_position(position_tmp):
+				periphery_index |= power
+			power <<= 1
+		# print power
+		return periphery_index
+
+	def auto_hull_shape(self, auto_hull_shape):
+		"""
+		Replace hull blocks on edges with wedges.
+
+		@type auto_hull_shape: tuple[bool]
+		"""
+		for position, block in self.iteritems():
+			block_id = block.get_id()
+			if not BlueprintUtils.is_hull(block_id):
+				continue
+			periphery_index = self.get_position_periphery_index(position)
+			peripheries = None
+			if auto_hull_shape[0] and periphery_index in BlueprintUtils.peripheries["wedge"]:
+				peripheries = BlueprintUtils.peripheries["wedge"]
+			elif auto_hull_shape[1] and periphery_index in BlueprintUtils.peripheries["tetra"]:
+				peripheries = BlueprintUtils.peripheries["tetra"]
+			if peripheries is None:
+				continue
+			new_shape_id, bit_19, bit_22, bit_23, rotations = peripheries[periphery_index]
+			block_hull_type, color, shape_id = self._get_hull_details(block_id)
+			new_block_id = self.get_hull_id_by_details(block_hull_type, color, new_shape_id)
+			block.update(block_id=new_block_id, bit_19=bit_19, bit_22=bit_22, bit_23=bit_23, rotations=rotations)
+
+	def auto_wedge_debug(self):
+		"""
+		Replace hull blocks on edges with wedges.
+		"""
+		peripheries = set()
+		for position, block in self.iteritems():
+			if not BlueprintUtils.is_hull(block.get_id()):
+				continue
+			if block.get_id() != 600:
+				continue
+			periphery_index = self.get_position_periphery_index(position)
+			if periphery_index in peripheries:
+				continue
+			hull_type, color, shape_id = BlueprintUtils._get_hull_details(block.get_id())
+			sys.stdout.write("\t\t{}: [{}, {}, {}, {}, {}],\n".format(
+				periphery_index, shape_id,
+				block._get_bit_19(), block._get_bit_22(), block._get_bit_23(), block._get_clockwise_rotations()))
+			peripheries.add(periphery_index)

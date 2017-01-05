@@ -125,6 +125,13 @@ class Blueprint(DefaultLogging, BlueprintUtils):
 		self.logic.update(self.smd3)
 		self.header.update(self.smd3)
 
+	def auto_hull_shape(self, auto_hull_shape):
+		# if self._debug:
+		# 	self.smd3.auto_wedge_debug()
+		# 	return
+		self.smd3.auto_hull_shape(auto_hull_shape)
+		self.header.update(self.smd3)
+
 	def move_center_by_block_id(self, block_id):
 		"""
 		Relocate center/core to the position of a hopefully unique block
