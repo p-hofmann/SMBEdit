@@ -258,6 +258,8 @@ class Header(DefaultLogging, BlueprintUtils):
 		@return: classification of blueprint
 		@rtype: str
 		"""
+		if self.type not in self._entity_classification:
+			return "General"
 		return self._entity_classification[self.type][self.classification]
 
 	def get_width(self):
@@ -400,7 +402,7 @@ class Header(DefaultLogging, BlueprintUtils):
 			self.get_height(),
 			self.get_length()
 			))
-		if self.version > 2:
+		if self.version > 2 and self.type in self._entity_classification:
 			output_stream.write("Classification: {}\n".format(self.get_classification_name()))
 
 		if self._verbose or self._debug:
