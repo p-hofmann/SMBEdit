@@ -261,6 +261,7 @@ class SMBEdit(Validator):
 			assert path_output is None or self.validate_dir(path_output, only_parent=True)
 			directory_output = None
 			if self._is_archived:
+				# .sment file
 				assert self.validate_file(path_input)
 				directory_input = tempfile.mkdtemp(dir=self._tmp_dir)
 				with zipfile.ZipFile(path_input, "r") as read_handler:
@@ -285,6 +286,7 @@ class SMBEdit(Validator):
 				link_salvage, index_turn_tilt, replace_hull, replace, move_center, update, auto_hull_shape, entity_type, summary)
 
 			if path_output is not None and self._is_archived:
+				# .sment file
 				self._logger.info("Exporting blueprint to:\n{}".format(path_output))
 				self.zip_directory(directory_output, path_output)
 				assert os.path.exists(path_output), [path_output, directory_output]
