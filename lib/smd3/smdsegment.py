@@ -187,7 +187,47 @@ class SmdSegment(DefaultLogging, BlueprintUtils):
 			(position[2] % self._blocks_in_a_line) * self._blocks_in_an_area
 
 	# #######################################
-	# ###  Else
+	# ###  Get
+	# #######################################
+
+	def get_block_at_position(self, position):
+		"""
+		Get a block at a specific position
+
+		@param position:
+		@param position: tuple[int]
+
+		@return:
+		@rtype: SmdBlock
+		"""
+		block_index = self.get_block_index_by_block_position(position)
+		assert block_index in self.block_index_to_block
+		return self.block_index_to_block[block_index]
+
+	def get_number_of_blocks(self):
+		"""
+		Get number of blocks of this segment
+
+		@return: number of blocks in segment
+		@rtype: int
+		"""
+		return len(self.block_index_to_block)
+
+	def has_block_at_position(self, position):
+		"""
+		Returns true if a block exists at a position
+
+		@param position: (x,y,z)
+		@type position: tuple[int]
+
+		@return:
+		@rtype: bool
+		"""
+		block_index = self.get_block_index_by_block_position(position)
+		return block_index in self.block_index_to_block
+
+	# #######################################
+	# ###  Set
 	# #######################################
 
 	def set_position(self, segment_position):
@@ -199,14 +239,9 @@ class SmdSegment(DefaultLogging, BlueprintUtils):
 		"""
 		self.position = segment_position
 
-	def get_number_of_blocks(self):
-		"""
-		Get number of blocks of this segment
-
-		@return: number of blocks in segment
-		@rtype: int
-		"""
-		return len(self.block_index_to_block)
+	# #######################################
+	# ###  Get
+	# #######################################
 
 	def replace_blocks(self, block_id, replace_id, replace_hp, compatible=False):
 		"""
@@ -333,19 +368,6 @@ class SmdSegment(DefaultLogging, BlueprintUtils):
 			if block.get_id() == block_id:
 				positions.add(self.get_block_position_by_block_index(block_index))
 		return positions
-
-	def has_block_at_position(self, position):
-		"""
-		Returns true if a block exists at a position
-
-		@param position: (x,y,z)
-		@type position: tuple[int]
-
-		@return:
-		@rtype: bool
-		"""
-		block_index = self.get_block_index_by_block_position(position)
-		return block_index in self.block_index_to_block
 
 	def iteritems(self):
 		"""

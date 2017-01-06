@@ -192,8 +192,52 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
 			self._write_file(ByteStream(output_stream))
 
 	# #######################################
-	# ###  Index and positions
+	# ###  Get
 	# #######################################
+
+	def get_block_at_position(self, position):
+		"""
+		Get a block at a specific position
+
+		@param position:
+		@param position: tuple[int]
+
+		@return:
+		@rtype: SmdBlock
+		"""
+		segment_position = self.get_segment_position_of_position(position)
+		assert segment_position in self.position_to_segment
+		return self.position_to_segment[segment_position].get_block_at_position(position)
+
+	def get_number_of_blocks(self):
+		"""
+		Get number of blocks of this region
+
+		@return: number of blocks in segment
+		@rtype: int
+		"""
+		number_of_blocks = 0
+		for position, segment in self.position_to_segment.iteritems():
+			assert isinstance(segment, SmdSegment)
+			number_of_blocks += segment.get_number_of_blocks()
+		return number_of_blocks
+
+	def has_block_at_position(self, position):
+		"""
+		Returns true if a block exists at a position
+
+		@param position: (x,y,z)
+		@type position: tuple[int]
+
+		@return:
+		@rtype: bool
+		"""
+		segment_position = self.get_segment_position_of_position(position)
+		if segment_position not in self.position_to_segment:
+			return False
+		return self.position_to_segment[segment_position].has_block_at_position(position)
+
+	# ###  Index and positions
 
 	def get_segment_position_of_position(self, position):
 		"""
@@ -244,21 +288,12 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
 			(tmp[2] % self._segments_in_a_line) * self._segments_in_an_area
 
 	# #######################################
-	# ###  Else
+	# ###  Set
 	# #######################################
 
-	def get_number_of_blocks(self):
-		"""
-		Get number of blocks of this region
-
-		@return: number of blocks in segment
-		@rtype: int
-		"""
-		number_of_blocks = 0
-		for position, segment in self.position_to_segment.iteritems():
-			assert isinstance(segment, SmdSegment)
-			number_of_blocks += segment.get_number_of_blocks()
-		return number_of_blocks
+	# #######################################
+	# ###  Else
+	# #######################################
 
 	def replace_hull(self, new_hull_type, hull_type=None):
 		"""
@@ -364,21 +399,6 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
 		for position, segment in self.position_to_segment.iteritems():
 			positions = positions.union(segment.search_all(block_id))
 		return positions
-
-	def has_block_at_position(self, position):
-		"""
-		Returns true if a block exists at a position
-
-		@param position: (x,y,z)
-		@type position: tuple[int]
-
-		@return:
-		@rtype: bool
-		"""
-		segment_position = self.get_segment_position_of_position(position)
-		if segment_position not in self.position_to_segment:
-			return False
-		return self.position_to_segment[segment_position].has_block_at_position(position)
 
 	def iteritems(self):
 		"""
