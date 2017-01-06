@@ -279,37 +279,37 @@ class BlockOrientation(object):
 	# 	self._turn_direction_180()
 
 	def turn_90_x(self):
-		if self._style == 1:
+		if self.get_style() == 1:
 			self._turn_facing_90_x()
 			return
 		self._turn_direction_270_x()
 
 	def turn_270_x(self):
-		if self._style == 1:
+		if self.get_style() == 1:
 			self._turn_facing_270_x()
 			return
 		self._turn_direction_90_x()
 
 	def turn_90_y(self):
-		if self._style == 1:
+		if self.get_style() == 1:
 			self._turn_facing_90_y()
 			return
 		self._turn_direction_90_y()
 
 	def turn_270_y(self):
-		if self._style == 1:
+		if self.get_style() == 1:
 			self._turn_facing_270_y()
 			return
 		self._turn_direction_270_y()
 
 	def turn_90_z(self):
-		if self._style == 1:
+		if self.get_style() == 1:
 			self._turn_facing_90_z()
 			return
 		self._turn_direction_90_z()
 
 	def turn_270_z(self):
-		if self._style == 1:
+		if self.get_style() == 1:
 			self._turn_facing_270_z()
 			return
 		self._turn_direction_270_z()
@@ -393,11 +393,11 @@ class BlockOrientation(object):
 	# #######################################
 
 	def _turn_direction_upside_down(self):
-		if self._style == 2:
+		if self.get_style() == 2:
 			direction = self._orientation_to_direction[(self._bit_23, self._bit_22)]
 			self._bit_23, self._bit_22 = self._direction_to_orientation[(-1*direction[0], -1*direction[1])]
 
-		if self._style == 3:
+		if self.get_style() == 3:
 			direction = self._orientation_to_direction[(self._bit_19, self._bit_23, self._bit_22)]
 			self._bit_19, self._bit_23, self._bit_22 = self._direction_to_orientation[(-1*direction[0], -1*direction[1], -1*direction[2])]
 
@@ -417,7 +417,7 @@ class BlockOrientation(object):
 	# ###  Turning X Axis
 
 	def _turn_direction_90_x(self):
-		if self._style == 2:
+		if self.get_style() == 2:
 			if self._orientation == 0:
 				direction = self._orientation_to_direction[(self._bit_23, self._bit_22)]
 				self._bit_23, self._bit_22 = self._direction_to_orientation[self._direction_turn_270_yz[direction[0], direction[1]]]
@@ -425,7 +425,7 @@ class BlockOrientation(object):
 			direction = self._orientation_to_direction[(self._bit_23, self._bit_22)]
 			self._bit_23, self._bit_22 = self._direction_to_orientation[self._direction_turn_90_yz[direction[0], direction[1]]]
 
-		if self._style == 3:
+		if self.get_style() == 3:
 			direction = self._orientation_to_direction[(self._bit_19, self._bit_23, self._bit_22)]
 			if direction[0] != 0:
 				self._clockwise_rotations = (self._clockwise_rotations + 1) % 4
@@ -437,7 +437,7 @@ class BlockOrientation(object):
 		self._clockwise_rotations = (self._clockwise_rotations + 1) % 4
 
 	def _turn_direction_270_x(self):
-		if self._style == 2:
+		if self.get_style() == 2:
 			if self._orientation == 8:
 				direction = self._orientation_to_direction[(self._bit_23, self._bit_22)]
 				self._bit_23, self._bit_22 = self._direction_to_orientation[self._direction_turn_90_yz[direction[0], direction[1]]]
@@ -445,7 +445,7 @@ class BlockOrientation(object):
 			direction = self._orientation_to_direction[(self._bit_23, self._bit_22)]
 			self._bit_23, self._bit_22 = self._direction_to_orientation[self._direction_turn_270_yz[direction[0], direction[1]]]
 
-		if self._style == 3:
+		if self.get_style() == 3:
 			direction = self._orientation_to_direction[(self._bit_19, self._bit_23, self._bit_22)]
 			if direction[0] != 0:
 				self._clockwise_rotations = (self._clockwise_rotations + 3) % 4
@@ -459,14 +459,14 @@ class BlockOrientation(object):
 	# ###  Turning Y Axis
 
 	def _turn_direction_90_y(self):
-		if self._style == 2:
+		if self.get_style() == 2:
 			direction = self._orientation_to_direction[(self._bit_23, self._bit_22)]
 			if direction[0] != 0:
 				self._clockwise_rotations = (self._clockwise_rotations + 1) % 4
 				return
 			self._bit_23, self._bit_22 = self._direction_to_orientation[self._direction_turn_90_z[direction[0], direction[1]]]
 
-		if self._style == 3:
+		if self.get_style() == 3:
 			direction = self._orientation_to_direction[(self._bit_19, self._bit_23, self._bit_22)]
 			if direction[1] != 0:
 				self._clockwise_rotations = (self._clockwise_rotations + 1) % 4
@@ -475,14 +475,14 @@ class BlockOrientation(object):
 			self._bit_19, self._bit_23, self._bit_22 = self._direction_to_orientation[direction_turn[0], direction[1], direction_turn[1]]
 
 	def _turn_direction_270_y(self):
-		if self._style == 2:
+		if self.get_style() == 2:
 			direction = self._orientation_to_direction[(self._bit_23, self._bit_22)]
 			if direction[0] != 0:
 				self._clockwise_rotations = (self._clockwise_rotations + 3) % 4
 				return
 			self._bit_23, self._bit_22 = self._direction_to_orientation[self._direction_turn_270_z[direction[0], direction[1]]]
 
-		if self._style == 3:
+		if self.get_style() == 3:
 			direction = self._orientation_to_direction[(self._bit_19, self._bit_23, self._bit_22)]
 			if direction[1] != 0:
 				self._clockwise_rotations = (self._clockwise_rotations + 3) % 4
@@ -493,14 +493,14 @@ class BlockOrientation(object):
 	# ###  Turning Z Axis
 
 	def _turn_direction_90_z(self):
-		if self._style == 2:
+		if self.get_style() == 2:
 			direction = self._orientation_to_direction[(self._bit_23, self._bit_22)]
 			if direction[1] != 0:
 				self._clockwise_rotations = (self._clockwise_rotations + 1) % 4
 				return
 			self._bit_23, self._bit_22 = self._direction_to_orientation[self._direction_turn_90_z[direction[0], direction[1]]]
 
-		if self._style == 3:
+		if self.get_style() == 3:
 			direction = self._orientation_to_direction[(self._bit_19, self._bit_23, self._bit_22)]
 			if direction[2] != 0:
 				self._clockwise_rotations = (self._clockwise_rotations + 1) % 4
@@ -509,14 +509,14 @@ class BlockOrientation(object):
 			self._bit_19, self._bit_23, self._bit_22 = self._direction_to_orientation[direction_turn[0], direction_turn[1], direction[2]]
 
 	def _turn_direction_270_z(self):
-		if self._style == 2:
+		if self.get_style() == 2:
 			direction = self._orientation_to_direction[(self._bit_23, self._bit_22)]
 			if direction[1] != 0:
 				self._clockwise_rotations = (self._clockwise_rotations + 3) % 4
 				return
 			self._bit_23, self._bit_22 = self._direction_to_orientation[self._direction_turn_270_z[direction[0], direction[1]]]
 
-		if self._style == 3:
+		if self.get_style() == 3:
 			direction = self._orientation_to_direction[(self._bit_19, self._bit_23, self._bit_22)]
 			if direction[2] != 0:
 				self._clockwise_rotations = (self._clockwise_rotations + 3) % 4
