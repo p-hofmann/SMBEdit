@@ -483,12 +483,11 @@ class Smd(DefaultLogging, BlueprintUtils):
 			if not BlueprintUtils.is_hull(block_id):
 				continue
 			periphery_index = self.get_position_periphery_index(position)
-			peripheries = None
 			if auto_hull_shape[0] and periphery_index in BlueprintUtils.peripheries["wedge"]:
 				peripheries = BlueprintUtils.peripheries["wedge"]
 			elif auto_hull_shape[1] and periphery_index in BlueprintUtils.peripheries["tetra"]:
 				peripheries = BlueprintUtils.peripheries["tetra"]
-			if peripheries is None:
+			else:
 				continue
 			new_shape_id, bit_19, bit_22, bit_23, rotations = peripheries[periphery_index]
 			block_hull_type, color, shape_id = self._get_hull_details(block_id)
