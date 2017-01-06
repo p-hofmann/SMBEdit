@@ -49,7 +49,9 @@ class BlockOrientation(object):
 		super(BlockOrientation, self).__init__()
 		self._int_24bit = 0
 
+	# #######################################
 	# get
+	# #######################################
 
 	def get_int_24bit(self):
 		"""
@@ -93,7 +95,9 @@ class BlockOrientation(object):
 	def _get_clockwise_rotations(self):
 		return BitAndBytes.bits_parse(self._int_24bit, 20, 2)
 
+	# #######################################
 	# set
+	# #######################################
 
 	def set_int_24bit(self, int_24bit):
 		"""
