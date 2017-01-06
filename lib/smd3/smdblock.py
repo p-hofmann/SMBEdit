@@ -73,7 +73,7 @@ class SmdBlock(BlockOrientation):
 		int_24bit = 0
 		int_24bit = BitAndBytes.bits_combine(block_id, int_24bit, 0)
 		int_24bit = BitAndBytes.bits_combine(hit_points, int_24bit, 11)
-		if style == 1:  # For blocks with an activation status
+		if style == 0:  # For blocks with an activation status
 			int_24bit = BitAndBytes.bits_combine(active, int_24bit, 19)
 		self._int_24bit = self._bits_combine_orientation(
 			int_24bit, style=style, bit_19=bit_19, bit_22=bit_22, bit_23=bit_23,
