@@ -499,7 +499,7 @@ class Smd(DefaultLogging, BlueprintUtils):
 		@rtype: tple[int]
 		"""
 		assert 1 <= periphery_range <= 3
-		angle_shapes = {4, 5, 6, 7}
+		angle_shapes = {4, 6}  # 5, 7,
 		shape_periphery = []
 		range_p = [-1, 0, 1]
 		for x in range_p:
