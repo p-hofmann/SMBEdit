@@ -86,8 +86,24 @@ class Smd(DefaultLogging, BlueprintUtils):
 			region.write(file_path)
 
 	# #######################################
-	# ###  Index and positions
+	# ###  Get
 	# #######################################
+
+	def get_block_at_position(self, position):
+		"""
+		Get a block at a specific position
+
+		@param position:
+		@param position: tuple[int]
+
+		@return:
+		@rtype: SmdBlock
+		"""
+		region_position = self.get_region_position_of_position(position)
+		assert region_position in self.position_to_region
+		return self.position_to_region[region_position].get_block_at_position(position)
+
+	# ###  Index and positions
 
 	def get_region_position_of_position(self, position):
 		"""
@@ -463,30 +479,123 @@ class Smd(DefaultLogging, BlueprintUtils):
 					power <<= 1
 		return periphery_index
 
-	def auto_hull_shape(self, auto_hull_shape):
+	def get_position_shape_periphery(self, position, periphery_range):
 		"""
-		Replace hull blocks on edges with wedges.
+		Return a 3x3x3 periphery description
 
-		@type auto_hull_shape: tuple[bool]
+		Shapes:
+			"": 0,
+			"1/4": 1,
+			"1/2": 2,
+			"3/4": 3,
+			"Wedge": 4,
+			"Corner": 5,
+			"Tetra": 6,
+			"Hepta": 7,
+
+		@type position: tuple[int]
+		@type periphery_range: int
+
+		@rtype: tple[int]
+		"""
+		assert 1 <= periphery_range <= 3
+		angle_shapes = {4, 5, 6, 7}
+		shape_periphery = []
+		range_p = [-1, 0, 1]
+		for x in range_p:
+			for y in range_p:
+				for z in range_p:
+					if abs(x) + abs(y) + abs(z) > periphery_range:
+						continue
+					position_tmp = (position[0] + x, position[1] + y, position[2] + z)
+					if position_tmp == position:
+						continue
+					if self.has_block_at_position(position_tmp):
+						block_tmp = self.get_block_at_position(position_tmp)
+						block_id = block_tmp.get_id()
+						is_angled_shape = False
+						if BlueprintUtils.is_hull(block_id):
+							block_hull_type, color, shape_id = self._get_hull_details(block_id)
+							if shape_id in angle_shapes:
+								is_angled_shape = True
+						elif "wedge" in BlueprintUtils.get_block_name_by_id(block_id).lower():
+							is_angled_shape = True
+						shape_periphery.append(is_angled_shape)
+		return tuple(shape_periphery)
+
+	def auto_hull_shape_independent(self, auto_wedge, auto_tetra):
+		"""
+		Replace hull blocks with shaped hull blocks with shapes,
+		that can be determined without knowing the shapes of blocks around it
+
+		@type auto_wedge: bool
+		@type auto_tetra: bool
 		"""
 		for position, block in self.iteritems():
 			block_id = block.get_id()
 			if not BlueprintUtils.is_hull(block_id):
 				continue
-			peripheries = None
+
 			periphery_index = self.get_position_periphery_index(position, 1)
-			if auto_hull_shape[0] and periphery_index in BlueprintUtils.peripheries["wedge"]:
-				peripheries = BlueprintUtils.peripheries["wedge"]
-			if auto_hull_shape[1] and periphery_index in BlueprintUtils.peripheries["tetra"]:
-				peripheries = BlueprintUtils.peripheries["tetra"]
-			if peripheries is None:
+			if auto_wedge and periphery_index in BlueprintUtils.peripheries[4]:
+				# "wedge"
+				new_shape_id = 4
+			elif auto_tetra and periphery_index in BlueprintUtils.peripheries[6]:
+				# tetra
+				new_shape_id = 6
+			else:
 				continue
-			new_shape_id, int_24 = peripheries[periphery_index]
+
+			bit_19, bit_22, bit_23, rotations = BlueprintUtils.peripheries[new_shape_id][periphery_index]
 			block_hull_type, color, shape_id = self._get_hull_details(block_id)
 			new_block_id = self.get_hull_id_by_details(block_hull_type, color, new_shape_id)
-			# block.update(block_id=new_block_id, bit_19=bit_19, bit_22=bit_22, bit_23=bit_23, rotations=rotations)
-			block.set_int_24bit(int_24)
-			block.set_id(new_block_id)
+			block.update(block_id=new_block_id, bit_19=bit_19, bit_22=bit_22, bit_23=bit_23, rotations=rotations)
+
+	def auto_hull_shape_dependent(self, block_shape_id):
+		"""
+		Replace hull blocks with shaped hull blocks with shapes,
+		that can only be determined by the shapes of blocks around it
+
+		@type block_shape_id: int
+		"""
+		for position, block in self.iteritems():
+			block_id = block.get_id()
+			if not BlueprintUtils.is_hull(block_id):
+				continue
+
+			periphery_index = self.get_position_periphery_index(position, 1)
+			if periphery_index not in BlueprintUtils.peripheries[block_shape_id]:
+				continue
+			periphery_shape = self.get_position_shape_periphery(position, 1)
+			if periphery_shape not in BlueprintUtils.peripheries[block_shape_id][periphery_index]:
+				continue
+			bit_19, bit_22, bit_23, rotations = BlueprintUtils.peripheries[block_shape_id][periphery_index][periphery_shape]
+			block_hull_type, color, shape_id = self._get_hull_details(block_id)
+			new_block_id = self.get_hull_id_by_details(block_hull_type, color, block_shape_id)
+			block.update(block_id=new_block_id, bit_19=bit_19, bit_22=bit_22, bit_23=bit_23, rotations=rotations)
+
+	def auto_hull_shape(self, auto_wedge, auto_tetra, auto_corner, auto_hepta=None):
+		"""
+		Automatically set shapes to blocks on edges and corners.
+		"": 0,
+		"1/4": 1,
+		"1/2": 2,
+		"3/4": 3,
+		"Wedge": 4,
+		"Corner": 5,
+		"Tetra": 6,
+		"Hepta": 7,
+
+		@type auto_wedge: bool
+		@type auto_tetra: bool
+		@type auto_corner: bool
+		@type auto_hepta: bool
+		"""
+		self.auto_hull_shape_independent(auto_wedge, auto_tetra)
+		if auto_corner:
+			self.auto_hull_shape_dependent(5)
+		if auto_hepta:
+			self.auto_hull_shape_dependent(7)
 
 	def auto_wedge_debug(self):
 		"""
@@ -496,12 +605,16 @@ class Smd(DefaultLogging, BlueprintUtils):
 		for position, block in self.iteritems():
 			if not BlueprintUtils.is_hull(block.get_id()):
 				continue
+			# wedge 599
+			# corner 600
+			# hepta 601
+			# tetra 602
 			if block.get_id() != 602:
 				continue
 			periphery_index = self.get_position_periphery_index(position, 1)
 			if periphery_index == 0:
 				continue
-			hull_type, color, shape_id = BlueprintUtils._get_hull_details(block.get_id())
+			# hull_type, color, shape_id = BlueprintUtils._get_hull_details(block.get_id())
 			bit_19 = block._get_bit_19()
 			bit_22 = block._get_bit_22()
 			bit_23 = block._get_bit_23()
@@ -512,12 +625,51 @@ class Smd(DefaultLogging, BlueprintUtils):
 					sys.stderr.write("{}: {}\n".format(
 						periphery_index, tmp))
 				continue
-			# sys.stdout.write("\t\t{}: [{}, {}, {}, {}, {}],\n".format(
-			# 	periphery_index, shape_id,
-			# 	bit_19, bit_22, bit_23, rotations))
-			sys.stdout.write("\t\t{}: [{}, {}],  # {}\n".format(periphery_index, shape_id, block.get_int_24bit(), position))
+			sys.stdout.write("\t\t{}: [{}, {}, {}, {}],\n".format(
+				periphery_index, bit_19, bit_22, bit_23, rotations))
+			# sys.stdout.write("\t\t{}: [{}, {}],  # {}\n".format(periphery_index, shape_id, block.get_int_24bit(), position))
 
 			# int_24 = block.get_int_24bit()
 			# block.update(block_id=599, bit_19=bit_19, bit_22=bit_22, bit_23=bit_23, rotations=rotations)
 			# assert int_24 == block.get_int_24bit()
 			peripheries[periphery_index] = (bit_19, bit_22, bit_23, rotations)
+
+	def auto_hepta_debug(self):
+		"""
+		Replace hull blocks on edges with wedges.
+		"""
+		peripheries = {}
+		bad_orientations = 0
+		for position, block in self.iteritems():
+			if not BlueprintUtils.is_hull(block.get_id()):
+				continue
+			# wedge 599
+			# corner 600
+			# hepta 601
+			# tetra 602
+			if block.get_id() != 601:
+				continue
+			periphery_index = self.get_position_periphery_index(position, 1)
+			periphery_shape = self.get_position_shape_periphery(position, 1)
+			if periphery_index not in peripheries:
+				peripheries[periphery_index] = {}
+
+			bit_19 = block._get_bit_19()
+			bit_22 = block._get_bit_22()
+			bit_23 = block._get_bit_23()
+			rotations = block._get_clockwise_rotations()
+			orientation = (bit_19, bit_22, bit_23, rotations)
+
+			if all(periphery_shape):
+				continue
+			if periphery_shape in peripheries[periphery_index] and peripheries[periphery_index][periphery_shape] != orientation:
+				bad_orientations += 1
+				continue
+			peripheries[periphery_index][periphery_shape] = orientation
+
+		print "bad_orientations", bad_orientations
+		for periphery_index in peripheries.keys():
+			print "\t\t{}:".format(periphery_index), '{'
+			for periphery_shape in peripheries[periphery_index].keys():
+				print "\t\t\t{}: {},".format(periphery_shape, peripheries[periphery_index][periphery_shape])
+			print "\t\t},"

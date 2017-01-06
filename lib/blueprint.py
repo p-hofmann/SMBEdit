@@ -125,11 +125,13 @@ class Blueprint(DefaultLogging, BlueprintUtils):
 		self.logic.update(self.smd3)
 		self.header.update(self.smd3)
 
-	def auto_hull_shape(self, auto_hull_shape):
+	def auto_hull_shape(self, auto_wedge, auto_tetra, auto_corner, auto_hepta):
 		# if self._debug:
-		# 	self.smd3.auto_wedge_debug()
+		# 	self.smd3.auto_hepta_debug()
+		# 	# self.smd3.auto_wedge_debug()
 		# 	return
-		self.smd3.auto_hull_shape(auto_hull_shape)
+		self.smd3.auto_hull_shape(
+			auto_wedge=auto_wedge, auto_tetra=auto_tetra, auto_corner=auto_corner, auto_hepta=auto_hepta)
 		self.header.update(self.smd3)
 
 	def move_center_by_block_id(self, block_id):

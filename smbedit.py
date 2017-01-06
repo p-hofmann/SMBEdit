@@ -133,13 +133,25 @@ class SMBEdit(Validator):
 			"-aw", "--auto_wedge",
 			action='store_true',
 			default=False,
-			help="Automatically replace hull blocks with wedges on edges.")
+			help="Automatically replace hull blocks with wedges on edge blocks.")
 
 		group_input.add_argument(
 			"-at", "--auto_tetra",
 			action='store_true',
 			default=False,
-			help="Automatically replace hull blocks with tetras on corners.")
+			help="Automatically replace hull blocks with tetras at corner blocks.")
+
+		group_input.add_argument(
+			"-ah", "--auto_hepta",
+			action='store_true',
+			default=False,
+			help="Automatically smooth out blocks cornered by wedges, tetra and corners.")
+
+		group_input.add_argument(
+			"-ac", "--auto_corner",
+			action='store_true',
+			default=False,
+			help="Automatically replace hull blocks with corners at corner blocks.")
 
 		group_input.add_argument(
 			"-ls", "--link_salvage",
@@ -254,7 +266,7 @@ class SMBEdit(Validator):
 			replace = options.replace
 			move_center = options.move_center
 			update = options.update
-			auto_hull_shape = (options.auto_wedge, options.auto_tetra)
+			auto_hull_shape = (options.auto_wedge, options.auto_tetra, options.auto_corner, options.auto_hepta)
 			entity_type = options.entity_type
 			summary = options.summary
 
@@ -389,8 +401,13 @@ class SMBEdit(Validator):
 			blueprint.replace_hull(new_hull_type, old_hull_type)
 
 		if True in auto_hull_shape:
-			self._logger.info("Automatically picking hull shape...")
-			blueprint.auto_hull_shape(auto_hull_shape)
+			self._logger.info("Automatically set a shape to hull blocks...")
+			blueprint.auto_hull_shape(
+				auto_wedge=auto_hull_shape[0],
+				auto_tetra=auto_hull_shape[1],
+				auto_corner=auto_hull_shape[2],
+				auto_hepta=auto_hull_shape[3]
+			)
 
 		if index_turn_tilt is not None:
 			blueprint.turn_tilt(index_turn_tilt)
