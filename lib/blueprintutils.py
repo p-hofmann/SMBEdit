@@ -1101,37 +1101,136 @@ class BlueprintUtils(object):
 		return new_block_position
 
 	peripheries = dict()
+	# "cube": 0,
+	# "1/4": 1,
+	# "1/2": 2,
+	# "3/4": 3,
+	# "Wedge": 4,
+	# "Corner": 5,
+	# "Tetra": 6,
+	# "Hepta": 7,
 
-	peripheries["wedge"] = {
-		58: [4, 10639959],  # (22, 16, 19)
-		54: [4, 11688535],  # (22, 16, 23)
-
-		29: [4, 5397079],  # (14, 14, 23)
-		15: [4, 3299927],  # (14, 16, 23)
-
-		23: [4, 9591383],  # (20, 16, 23)
-		27: [4, 8542807],  # (20, 16, 19)
-
-		53: [4, 6445655],  # (14, 14, 19)
-		39: [4, 2251351],  # (14, 16, 19)
-
-		57: [4, 4348503],  # (16, 14, 19)
-		43: [4, 154199],  # (16, 16, 19)
-
-		60: [4, 7494231],  # (16, 14, 23)
-		46: [4, 1202775],  # (16, 16, 23)
+	# wedge
+	peripheries[4] = {
+		# [bit_19, bit_22, bit_23, rotations]
+		15: [0, 0, 0, 3],
+		54: [0, 0, 1, 3],
+		43: [0, 0, 0, 0],
+		27: [0, 0, 1, 0],
+		58: [0, 0, 1, 2],
+		29: [0, 1, 0, 1],
+		39: [0, 0, 0, 2],
+		23: [0, 0, 1, 1],
+		53: [0, 1, 0, 2],
+		57: [0, 1, 0, 0],
+		60: [0, 1, 0, 3],
+		46: [0, 0, 0, 1],
 	}
 
-	peripheries["tetra"] = {
-		56: [6, 7494234],  # (16, 15, 18)
-		38: [6, 2251354],  # (16, 17, 20)
-		21: [6, 5397082],  # (18, 15, 20)
-		25: [6, 4348506],  # (18, 15, 18)
-		11: [6, 154202],  # (18, 17, 18)
-		42: [6, 3299930],  # (16, 17, 18)
-		7: [6, 1202778],  # (18, 17, 20)
-		52: [6, 6445658],  # (16, 15, 20)
+	# corner
+	peripheries[5] = {
+		# (): [bit_19, bit_22, bit_23, rotations]
+		38: {
+			(True, True, False): (1, 1, 0, 0),
+			(True, False, True): (0, 0, 1, 2),
+			(False, True, True): (0, 0, 0, 2),
+		},
+		7: {
+			(False, True, True): (1, 0, 0, 0),
+			(True, False, True): (0, 0, 0, 1),
+			(True, True, False): (0, 0, 1, 3),
+		},
+		42: {
+			(False, True, True): (0, 0, 0, 3),
+			(True, True, False): (1, 1, 0, 3),
+			(True, False, True): (0, 1, 1, 3),
+		},
+		11: {
+			(False, True, True): (1, 0, 0, 3),
+			(True, True, False): (0, 1, 1, 0),
+			(True, False, True): (0, 0, 0, 0),
+		},
+		52: {
+			(False, True, True): (0, 0, 1, 1),
+			(True, True, False): (1, 1, 0, 1),
+			(True, False, True): (0, 1, 0, 2),
+		},
+		21: {
+			(False, True, True): (1, 0, 0, 1),
+			(True, False, True): (0, 0, 1, 0),
+			(True, True, False): (0, 1, 0, 1),
+		},
+		56: {
+			(False, True, True): (0, 1, 1, 2),
+			(True, False, True): (0, 1, 0, 3),
+			(True, True, False): (1, 1, 0, 2),
+		},
+		25: {
+			(False, True, True): (1, 0, 0, 2),
+			(True, True, False): (0, 1, 0, 0),
+			(True, False, True): (0, 1, 1, 1),
+		},
+}
+
+	# tetra
+	peripheries[6] = {
+		# [bit_19, bit_22, bit_23, rotations]
+		56: [0, 1, 0, 3],
+		38: [0, 0, 0, 2],
+		21: [0, 1, 0, 1],
+		25: [0, 1, 0, 0],
+		11: [0, 0, 0, 0],
+		42: [0, 0, 0, 3],
+		7: [0, 0, 0, 1],
+		52: [0, 1, 0, 2],
 		}
 
-	peripheries["corner"] = {
+	# hepta
+	peripheries[7] = {
+		59: {
+			(True, False, False, True, False): (0, 0, 0, 3),
+			(True, True, False, False, False): (0, 1, 0, 3),
+			(False, True, False, False, True): (0, 1, 0, 0),
+			(False, False, False, True, True): (0, 0, 0, 0),
+		},
+		47: {
+			(True, False, True, False, False): (0, 0, 0, 3),
+			(True, False, False, True, False): (0, 0, 0, 2),
+			(False, False, False, True, True): (0, 0, 0, 1),
+			(False, False, True, False, True): (0, 0, 0, 0),
+		},
+		55: {
+			(True, True, False, False, False): (0, 1, 0, 2),
+			(True, False, False, True, False): (0, 0, 0, 2),
+			(False, True, False, False, True): (0, 1, 0, 1),
+			(False, False, False, True, True): (0, 0, 0, 1),
+		},
+		63: {
+			(False, True, True, False, False, True): (0, 1, 0, 0),
+			(True, True, True, False, False, False): (0, 1, 0, 3),
+			(True, False, True, False, True, False): (0, 0, 0, 3),
+			(False, False, False, True, True, True): (0, 0, 0, 1),
+			(True, True, False, True, False, False): (0, 1, 0, 2),
+			(False, True, False, True, False, True): (0, 1, 0, 1),
+			(True, False, False, True, True, False): (0, 0, 0, 2),
+			(False, False, True, False, True, True): (0, 0, 0, 0),
+		},
+		61: {
+			(True, False, True, False, False): (0, 1, 0, 2),
+			(False, False, True, False, True): (0, 1, 0, 1),
+			(True, True, False, False, False): (0, 1, 0, 3),
+			(False, True, False, False, True): (0, 1, 0, 0),
+		},
+		62: {
+			(False, True, False, True, False): (0, 0, 0, 3),
+			(False, False, True, True, False): (0, 0, 0, 2),
+			(True, False, True, False, False): (0, 1, 0, 2),
+			(True, True, False, False, False): (0, 1, 0, 3),
+		},
+		31: {
+			(False, True, False, True, False): (0, 1, 0, 1),
+			(False, False, True, False, True): (0, 0, 0, 0),
+			(False, True, True, False, False): (0, 1, 0, 0),
+			(False, False, False, True, True): (0, 0, 0, 1),
+		},
 	}
