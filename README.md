@@ -146,8 +146,8 @@ A relocation of the core is always done before the entity is turned/tilted.
 One can use either one or all at once and hull/armor blocks will be replaced automatically.  
 Previous shapes will be overwritten!  
 The algorithm works best if every edge is filled under the hull with a block type that is not a hull/armor, like scaffolds.
-Attention: 'auto_hepta' and 'auto_corner' check adjacent block shapes for wedge and tetras, 
-if the blocks below edges are of a hull type, they might change shape and cause errors.
+Attention: 'auto_hepta' and 'auto_corner' check shapes of adjacent blocks for wedge and tetras, 
+if the blocks 'below' edges are of a hull type, they might change shape and cause errors.
 
 Recommended for smooth edges:
 
