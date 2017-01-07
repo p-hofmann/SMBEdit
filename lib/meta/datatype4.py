@@ -6,6 +6,7 @@ from lib.bits_and_bytes import ByteStream
 from lib.loggingwrapper import DefaultLogging
 from lib.blueprintutils import BlueprintUtils
 from lib.meta.tagmanager import TagManager, TagList, TagPayload
+from lib.meta.raildockentitylinks import RailDockedEntityLinks
 
 
 class DataType4(DefaultLogging):
@@ -241,5 +242,8 @@ class DataType4(DefaultLogging):
 
 		if self._debug:
 			for dock_index in sorted(self._docked_entity.keys()):
-				self._docked_entity[dock_index].to_stream(output_stream)
+				output_stream.write("\nDocked entity {}:\n".format(dock_index))
+				links = RailDockedEntityLinks()
+				links.from_tag(self._docked_entity[dock_index].get_root_tag())
+				links.to_stream(output_stream)
 		output_stream.write("\n")
