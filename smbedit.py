@@ -7,9 +7,8 @@ import zipfile
 import tempfile
 import argparse
 import traceback
-
 from lib.validator import Validator
-from lib.blueprint import Blueprint
+from lib.blueprint.blueprint import Blueprint
 
 
 class SMBEdit(Validator):
@@ -128,6 +127,12 @@ class SMBEdit(Validator):
 			action='store_true',
 			default=False,
 			help="Remove outdated blocks and replace old docking blocks")
+
+		group_input.add_argument(
+			"-d", "--docked_entities",
+			action='store_true',
+			default=False,
+			help="Apply modifications to docked entities, too")
 
 		group_input.add_argument(
 			"-aw", "--auto_wedge",
@@ -257,7 +262,7 @@ class SMBEdit(Validator):
 
 	def run(self, options):
 		try:
-
+			docked_entities = options.docked_entities
 			path_input = options.path_input
 			path_output = options.path_output
 			link_salvage = options.link_salvage
@@ -294,7 +299,7 @@ class SMBEdit(Validator):
 					directory_output = self._clean_dir_path(path_output)
 
 			self.run_commands(
-				directory_input, directory_output,
+				directory_input, directory_output, docked_entities,
 				link_salvage, index_turn_tilt, replace_hull, replace, move_center, update, auto_hull_shape, entity_type, summary)
 
 			if path_output is not None and self._is_archived:
@@ -316,7 +321,7 @@ class SMBEdit(Validator):
 			self._logger.info("Finished")
 
 	def run_commands(
-		self, directory_input, directory_output,
+		self, directory_input, directory_output, docked_entities,
 		link_salvage, index_turn_tilt, replace_hull, replace, move_center, update, auto_hull_shape, entity_type, summary, blueprint_path=None):
 		file_names = ["header.smbph", "logic.smbpl", "meta.smbpm"]
 		assert self.validate_dir(directory_input, file_names=file_names), "Blueprint directory is invalid, aborting."
@@ -341,7 +346,7 @@ class SMBEdit(Validator):
 				if directory_output is not None:
 					directory_dst = os.path.join(directory_output, folder_name)
 				self.run_commands(
-					directory_src, directory_dst,
+					directory_src, directory_dst, docked_entities,
 					link_salvage, index_turn_tilt, replace_hull, replace, None, update, auto_hull_shape, None, summary,
 					blueprint_path=blueprint_path)
 
