@@ -160,7 +160,8 @@ class Logic(DefaultLogging, BlueprintUtils):
 		@type output_stream: ByteStream
 		"""
 		output_stream.write_int32_unassigned(self.version)
-		output_stream.write_int32_unassigned(self.unknown_int)
+		if self.unknown_int < 0:
+			output_stream.write_int32(self.unknown_int)
 		self._write_list_of_controllers(output_stream)
 
 	def write(self, directory_blueprint):
