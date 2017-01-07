@@ -104,7 +104,7 @@ class Header(DefaultLogging, BlueprintUtils):
 
 	_file_name = "header.smbph"
 
-	_valid_versions = {1, 2, 3}
+	_valid_versions = {0, 1, 2, 3}
 
 	def __init__(self, logfile=None, verbose=False, debug=False):
 		super(Header, self).__init__(logfile, verbose, debug)
@@ -161,7 +161,8 @@ class Header(DefaultLogging, BlueprintUtils):
 		assert isinstance(input_stream, ByteStream)
 		self._read_header(input_stream)
 		self._read_block_quantities(input_stream)
-		self.statistics.read_statistics(input_stream)
+		if self.version > 0:
+			self.statistics.read_statistics(input_stream)
 
 	def read(self, directory_blueprint):
 		"""
@@ -217,7 +218,8 @@ class Header(DefaultLogging, BlueprintUtils):
 		assert isinstance(output_stream, ByteStream)
 		self._write_header(output_stream)
 		self._write_block_quantities(output_stream)
-		self.statistics.write_statistics(output_stream)
+		if self.version > 0:
+			self.statistics.write_statistics(output_stream)
 
 	def write(self, directory_blueprint):
 		"""
