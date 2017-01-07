@@ -63,6 +63,12 @@ class ArgumentHandler(Validator):
 		if self._is_archived:  # .sment file
 			assert self.validate_file(self._path_input)
 			# .sment file
+
+			if temp_directory is None:
+				self._tmp_dir = tempfile.mkdtemp(prefix="{}_".format(self._label))
+			else:
+				self._tmp_dir = tempfile.mkdtemp(prefix="{}_".format(self._label), dir=temp_directory)
+
 			self._directory_input = tempfile.mkdtemp(dir=self._tmp_dir)
 			with zipfile.ZipFile(self._path_input, "r") as read_handler:
 				read_handler.extractall(self._directory_input)
@@ -76,20 +82,12 @@ class ArgumentHandler(Validator):
 				assert not self.validate_file(self._path_output, silent=True), "Output file exists. Overwriting files is not allowed, aborting."
 				self._directory_output = os.path.join(tempfile.mkdtemp(dir=self._tmp_dir), blueprint_name)
 		else:
+			self._tmp_dir = None
 			self._directory_input = self._clean_dir_path(self._path_input)
 			file_names = ["header.smbph", "logic.smbpl", "meta.smbpm"]
-			assert self.validate_dir(self._directory_input, file_names=file_names), "Blueprint directory is invalid, aborting."
+			assert self.validate_dir(self._directory_input, file_names=file_names), "Blueprint input path is invalid, aborting."
 			if self._path_output is not None:
 				self._directory_output = self._clean_dir_path(self._path_output)
-
-		if not self._is_archived:
-			self._tmp_dir = None
-			return
-		if temp_directory is None:
-			self._tmp_dir = tempfile.mkdtemp(prefix="{}_".format(self._label))
-		else:
-			self._tmp_dir = tempfile.mkdtemp(prefix="{}_".format(self._label), dir=temp_directory)
-		return
 
 	def __exit__(self, type, value, traceback):
 		super(ArgumentHandler, self).__exit__(type, value, traceback)
