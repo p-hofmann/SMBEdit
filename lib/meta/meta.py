@@ -20,12 +20,18 @@ class Meta(DefaultLogging):
 
 	_file_name = "meta.smbpm"
 
+	_valid_versions = {
+		(0, 0, 0, 0),
+		(0, 0, 0, 4),
+		(0, 0, 0, 5),
+		}
+
 	_data_type = {
 		1: "Finish",
-		2: "TagManager",
-		3: "Docking",
-		4: "unknown",
-		5: "unknown",
+		2: "Stored items / AI config",
+		3: "Docking outdated",
+		4: "Name/Size/Rail docker",
+		5: "AI config",
 		6: "unknown",
 		7: "unknown",
 	}
@@ -33,7 +39,7 @@ class Meta(DefaultLogging):
 	def __init__(self, logfile=None, verbose=False, debug=False):
 		self._label = "Meta"
 		super(Meta, self).__init__(logfile, verbose, debug)
-		self._version = (0, 0, 0, 0)
+		self._version = (0, 0, 0, 5)
 		self._data_type_2 = DataType2(logfile=logfile, verbose=verbose, debug=debug)
 		self._data_type_3 = DataType3(logfile=logfile, verbose=verbose, debug=debug)
 		self._data_type_4 = DataType4(logfile=logfile, verbose=verbose, debug=debug)
@@ -56,6 +62,8 @@ class Meta(DefaultLogging):
 		assert isinstance(input_stream, ByteStream)
 		# self.version = input_stream.read_int32_unassigned()
 		self._version = input_stream.read_vector_4_byte()
+		assert self._version in self._valid_versions, "Unsupported version '{}' of '{}'.".format(
+			self._version, self._file_name)
 		# assert self._version < (0, 0, 0, 5)
 		while True:
 			data_type = input_stream.read_byte()
