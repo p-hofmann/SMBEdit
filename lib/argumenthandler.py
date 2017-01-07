@@ -9,7 +9,7 @@ import zipfile
 from lib.validator import Validator
 
 
-class Argumenthandler(Validator):
+class ArgumentHandler(Validator):
 	"""
 	# #######################################
 	# ###  StarMade Blueprint Editor
@@ -35,7 +35,7 @@ class Argumenthandler(Validator):
 		@rtype: None
 		"""
 		self.label = "Argumenthandler"
-		super(Argumenthandler, self).__init__(
+		super(ArgumentHandler, self).__init__(
 			logfile=logfile,
 			verbose=verbose,
 			debug=debug)
@@ -92,7 +92,7 @@ class Argumenthandler(Validator):
 		return
 
 	def __exit__(self, type, value, traceback):
-		super(Argumenthandler, self).__exit__(type, value, traceback)
+		super(ArgumentHandler, self).__exit__(type, value, traceback)
 		if self.validate_dir(self._tmp_dir, silent=True):
 			shutil.rmtree(self._tmp_dir)
 

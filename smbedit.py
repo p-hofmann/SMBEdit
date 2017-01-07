@@ -4,11 +4,11 @@ __version__ = '0.1.0'
 import os
 import zipfile
 import traceback
-from lib.argumenthandler import Argumenthandler
+from lib.argumenthandler import ArgumentHandler
 from lib.blueprint.blueprint import Blueprint
 
 
-class SMBEdit(Argumenthandler):
+class SMBEdit(ArgumentHandler):
 	"""
 	# #######################################
 	# ###  StarMade Blueprint Editor
@@ -233,7 +233,7 @@ class SMBEdit(Argumenthandler):
 
 
 def main():
-	options = Argumenthandler.get_parser_options(label=SMBEdit.label, version=__version__)
+	options = ArgumentHandler.get_parser_options(label=SMBEdit.label, version=__version__)
 	verbose = not options.silent
 	debug = options.debug_mode
 	logfile = options.logfile
