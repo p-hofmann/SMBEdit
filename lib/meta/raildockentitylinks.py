@@ -44,17 +44,22 @@ class RailDockedEntity(object):
 		"""
 		return self._block_id
 
-	def from_tag(self, entity_tag):
+	def from_tag(self, tag_payload):
 		"""
-		@type entity_tag: TagList
+		@type tag_payload: TagPayload
 		"""
-		tag_list = entity_tag.get_list()
-		self._label = tag_list[0].payload
-		self._location = tag_list[1].payload
-		self._block_id = tag_list[2].payload
-		self._unknown_byte_10_14 = tag_list[3].payload
-		self._unknown_byte_0 = tag_list[4].payload
-		self._unknown_byte_1 = tag_list[5].payload
+		assert isinstance(tag_payload, TagPayload), tag_payload
+		assert abs(tag_payload.id) == 13
+		assert isinstance(tag_payload.payload, TagList)
+		tag_list = tag_payload.payload
+		assert isinstance(tag_list, TagList)
+		list_of_tags = tag_list.get_list()
+		self._label = list_of_tags[0].payload
+		self._location = list_of_tags[1].payload
+		self._block_id = list_of_tags[2].payload
+		self._unknown_byte_10_14 = list_of_tags[3].payload
+		self._unknown_byte_0 = list_of_tags[4].payload
+		self._unknown_byte_1 = list_of_tags[5].payload
 
 	def to_tag(self):
 		"""
@@ -65,7 +70,7 @@ class RailDockedEntity(object):
 		-1: 1,
 		-1: 100,
 
-		@rtype: TagList
+		@rtype: TagPayload
 		"""
 		tag_list = TagList()
 		tag_list.add(TagPayload(-8, None, self._label))
@@ -75,7 +80,7 @@ class RailDockedEntity(object):
 		# seemingly static unknown stuff
 		tag_list.add(TagPayload(-1, None, self._unknown_byte_0))
 		tag_list.add(TagPayload(-1, None, self._unknown_byte_1))
-		return tag_list
+		return TagPayload(-13, None, tag_list)
 
 	def to_stream(self, output_stream=sys.stdout):
 		"""
@@ -128,22 +133,27 @@ class RailDockedEntityLink(object):
 		self._entity_docked = entity_docked
 		self._docked_entity_location = docked_entity_location
 
-	def from_tag(self, entity_link_tag):
+	def from_tag(self, tag_payload):
 		"""
-		@type entity_link_tag: TagList
+		@type tag_payload: TagPayload
 		"""
-		tag_list = entity_link_tag.get_list()
+		assert isinstance(tag_payload, TagPayload)
+		assert abs(tag_payload.id) == 13
+		assert isinstance(tag_payload.payload, TagList)
+		tag_list = tag_payload.payload
+		assert isinstance(tag_list, TagList)
+		list_of_tags = tag_list.get_list()
 		self._entity_main = RailDockedEntity()
-		self._entity_main.from_tag(tag_list[0])
+		self._entity_main.from_tag(list_of_tags[0])
 		self._entity_docked = RailDockedEntity()
-		self._entity_docked.from_tag(tag_list[1])
-		self._unknown_matrix_0 = tag_list[2].payload
-		self._unknown_matrix_1 = tag_list[3].payload
-		self._docked_entity_location = tag_list[4]
-		self._unknown_matrix_2 = tag_list[5].payload
-		self._unknown_byte_0 = tag_list[6].payload
-		self._unknown_byte_1 = tag_list[7].payload
-		self._unknown_byte_2 = tag_list[8].payload
+		self._entity_docked.from_tag(list_of_tags[1])
+		self._unknown_matrix_0 = list_of_tags[2].payload
+		self._unknown_matrix_1 = list_of_tags[3].payload
+		self._docked_entity_location = list_of_tags[4].payload
+		self._unknown_matrix_2 = list_of_tags[5].payload
+		self._unknown_byte_0 = list_of_tags[6].payload
+		self._unknown_byte_1 = list_of_tags[7].payload
+		self._unknown_byte_2 = list_of_tags[8].payload
 
 	def to_tag(self):
 		"""
@@ -159,7 +169,7 @@ class RailDockedEntityLink(object):
 		-1: 0,
 		-1: 0,
 
-		@rtype: TagList
+		@rtype: TagPayload
 		"""
 		link_tag = TagList()
 		link_tag.add(self._entity_main.to_tag())
@@ -171,20 +181,20 @@ class RailDockedEntityLink(object):
 		link_tag.add(TagPayload(-1, None, self._unknown_byte_0))
 		link_tag.add(TagPayload(-1, None, self._unknown_byte_1))
 		link_tag.add(TagPayload(-1, None, self._unknown_byte_2))
-		return link_tag
+		return TagPayload(-13, None, link_tag)
 
 	def to_stream(self, output_stream=sys.stdout):
 		"""
 		Stream values
 
 		@param output_stream: Output stream
-		@type output_stream: fileIO[str]
+		@type output_stream: file
 		"""
 		output_stream.write("Location: {}\n".format(self._docked_entity_location))
 		output_stream.write("Main:\t")
-		output_stream.write(self._entity_main.to_stream(output_stream))
+		self._entity_main.to_stream(output_stream)
 		output_stream.write("Docked:\t")
-		output_stream.write(self._entity_main.to_stream(output_stream))
+		self._entity_docked.to_stream(output_stream)
 
 
 class RailDockedEntityLinks(object):
@@ -204,17 +214,31 @@ class RailDockedEntityLinks(object):
 		"""
 		self._list_links = links
 
-	def from_tag(self, entity_link_tag):
+	def from_tag(self, tag_payload):
 		"""
-		@type entity_link_tag: TagList
+		@type tag_payload: TagPayload
 		"""
-		tag_list = entity_link_tag.get_list()
-		number_of_links = tag_list[0].payload
+		assert isinstance(tag_payload, TagPayload)
+		assert abs(tag_payload.id) == 13
+		assert isinstance(tag_payload.payload, TagList)
+		tag_list = tag_payload.payload
+		assert isinstance(tag_list, TagList)
+		list_of_tags = tag_list.get_list()
+		number_of_links = list_of_tags[0].payload
+		assert number_of_links > 0, number_of_links
+
+		tag_payload = list_of_tags[1]
+		assert isinstance(tag_payload, TagPayload)
+		assert abs(tag_payload.id) == 13
+		assert isinstance(tag_payload.payload, TagList)
+		tag_list = tag_payload.payload
+		assert isinstance(tag_list, TagList), tag_list.to_stream(sys.stderr)
+		list_of_tags = tag_list.get_list()
 		for tag_index in range(number_of_links):
-			tag_list_link = tag_list[tag_index+1]
-			assert isinstance(tag_list_link, TagList)
+			# tag_list_link = tag_list[tag_index+1].payload
+			# assert isinstance(tag_list_link, TagList)
 			link = RailDockedEntityLink()
-			link.from_tag(tag_list_link)
+			link.from_tag(list_of_tags[tag_index])
 			self._list_links.append(link)
 
 	def to_tag(self):
@@ -225,14 +249,14 @@ class RailDockedEntityLinks(object):
 				-13:  {}
 			}
 
-		@rtype: TagList
+		@rtype: TagPayload
 		"""
 		link_tag_list = TagList()
 		link_tag_list.add(TagPayload(-1, None, len(self._list_links)))
 		for link in self._list_links:
 			link_tag_list.add(link.to_tag())
-		link_tag_list.add(TagList())  # why is here a empty tag list? No clue!
-		return link_tag_list
+		link_tag_list.add(TagPayload(-13, None, TagList()))  # why is here a empty tag list? No clue!
+		return TagPayload(-13, None, link_tag_list)
 
 	def to_stream(self, output_stream=sys.stdout):
 		"""
@@ -243,4 +267,4 @@ class RailDockedEntityLinks(object):
 		"""
 		for link in self._list_links:
 			link.to_stream(output_stream)
-			output_stream.write("\n")
+			# output_stream.write("\n")
