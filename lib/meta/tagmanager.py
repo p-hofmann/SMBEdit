@@ -191,7 +191,7 @@ class TagList(object):
 
 	def get_list(self):
 		"""
-		@rtype: list[TagPayload|TagList|TagPayloadList]
+		@rtype: list[TagPayload]
 		"""
 		return self.tag_list
 
@@ -201,7 +201,7 @@ class TagList(object):
 
 	def add(self, tag):
 		"""
-		@type tag: TagPayload | TagList | TagPayloadList
+		@type tag: TagPayload
 		"""
 		assert isinstance(tag, (TagPayload, TagList, TagPayloadList))
 		self.tag_list.append(tag)
