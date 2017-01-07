@@ -1,5 +1,5 @@
 __author__ = 'Peter Hofmann'
-__version__ = '0.0.9'
+__version__ = '0.1.0'
 
 import os
 import shutil
@@ -95,20 +95,20 @@ class SMBEdit(Validator):
 			formatter_class=argparse.RawTextHelpFormatter)
 
 		parser.add_argument(
-			"-verbose", "--verbose",
+			"-silent", "--silent",
 			action='store_true',
 			default=False,
-			help="display more information")
+			help="Suppress messages to stdout.")
 		parser.add_argument(
 			"-debug", "--debug_mode",
 			action='store_true',
 			default=False,
-			help="show exceptions")
+			help="Show debug messages and extensive information.")
 		parser.add_argument(
 			"-log", "--logfile",
 			default=None,
 			type=str,
-			help="output will also be written to this log file")
+			help="Output will also be written to this log file.")
 		parser.add_argument(
 			"-tmp", "--tmp_dir",
 			default=None,
@@ -120,19 +120,19 @@ class SMBEdit(Validator):
 			"-s", "--summary",
 			action='store_true',
 			default=False,
-			help="Display summary of blueprint")
+			help="Display summary of blueprint.")
 
 		group_input.add_argument(
 			"-u", "--update",
 			action='store_true',
 			default=False,
-			help="Remove outdated blocks and replace old docking blocks")
+			help="Remove outdated blocks and replace old docking blocks.")
 
 		group_input.add_argument(
 			"-d", "--docked_entities",
 			action='store_true',
 			default=False,
-			help="Apply modifications to docked entities, too")
+			help="Apply modifications to docked entities, too.")
 
 		group_input.add_argument(
 			"-aw", "--auto_wedge",
@@ -162,7 +162,7 @@ class SMBEdit(Validator):
 			"-ls", "--link_salvage",
 			action='store_true',
 			default=False,
-			help="Link salvage computers to salvage modules")
+			help="Link salvage computers to salvage modules.")
 
 	# 	group_input.add_argument(
 	# 		"-t", "--turn",
@@ -224,7 +224,7 @@ class SMBEdit(Validator):
 		group_input.add_argument(
 			"path_input",
 			type=str,
-			help="Directory of a blue print or sment file path")
+			help="Directory of a blue print or sment file path.")
 
 		if args is None:
 			return parser.parse_args()
@@ -444,7 +444,7 @@ class SMBEdit(Validator):
 
 def main():
 	options = SMBEdit.get_parser_options(version=__version__)
-	verbose = options.verbose
+	verbose = not options.silent
 	debug = options.debug_mode
 	logfile = options.logfile
 	tmp_dir = options.tmp_dir
