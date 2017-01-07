@@ -698,7 +698,22 @@ class BlueprintUtils(object):
 	_glass_ids = {63, 329, 330, 368, 367, 815, 816, 817}
 
 	@staticmethod
+	def is_rail(block_id):
+		"""
+		@type block_id: int
+		@rtype: bool
+		"""
+		if block_id == 663:
+			# exclude rail docker
+			return False
+		return block_id in BlueprintUtils._block_ids["rails"]
+
+	@staticmethod
 	def is_hull(block_id):
+		"""
+		@type block_id: int
+		@rtype: bool
+		"""
 		if block_id in BlueprintUtils._glass_ids:
 			return False
 		return block_id in BlueprintUtils._block_ids["hull"]
