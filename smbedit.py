@@ -331,7 +331,7 @@ class SMBEdit(Validator):
 		if blueprint_path is None:
 			blueprint_path = directory_output
 
-		if index_turn_tilt is not None:  # if entity is turned, docked entities are removed
+		if index_turn_tilt is None:  # if entity is turned, docked entities are removed
 			list_of_folders = os.listdir(directory_input)
 			for folder_name in list_of_folders:
 				if "ATTACHED_" not in folder_name:
@@ -342,7 +342,7 @@ class SMBEdit(Validator):
 					directory_dst = os.path.join(directory_output, folder_name)
 				self.run_commands(
 					directory_src, directory_dst,
-					link_salvage, None, replace_hull, replace, None, update, auto_hull_shape, None, summary,
+					link_salvage, index_turn_tilt, replace_hull, replace, None, update, auto_hull_shape, None, summary,
 					blueprint_path=blueprint_path)
 
 		blueprint = Blueprint(
