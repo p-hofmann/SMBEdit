@@ -1,5 +1,5 @@
 __author__ = 'Peter Hofmann'
-__version__ = '0.0.6'
+__version__ = '0.0.9'
 
 import os
 import shutil
