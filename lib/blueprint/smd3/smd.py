@@ -409,8 +409,7 @@ class Smd(DefaultLogging, BlueprintUtils):
 		position_core = (16, 16, 16)
 		if entity_type == 0:  # Ship
 			core_block = SmdBlock()
-			core_block.set_id(1)
-			core_block.set_hit_points(250)
+			core_block.update(block_id=1, hit_points=250, active=False)
 			self.add(position_core, core_block)
 		else:  # not a ship
 			try:
