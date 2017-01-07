@@ -102,8 +102,8 @@ Hit points - Hull type
 ```
 
 Replaces all hull armor of a specific type with another.  
-Corners will stay corners, wedges will stay wedges and also keep the same colour.
-Changes to hazard armor can cause errors, as only yellow and green are available.
+Corners will stay corners, wedges will stay wedges and also keep the same colour.  
+Attention: Changes to hazard armor can cause errors, as only yellow and green are available.
 
 h: "Hull"
 s: "Standard Armor"
@@ -112,6 +112,7 @@ c: "Crystal Armor"
 z: "Hazard Armor"
 
 Example to replace advanced armor with hull:
+
 ```
 	python smbedit.py directory/my_station_blueprint -o directory/new_ship_blueprint -rh a:h
 ```
@@ -138,16 +139,31 @@ A relocation of the core is always done before the entity is turned/tilted.
 ```
 -aw, --auto_wedge
 -at, --auto_tetra
+-ah, --auto_hepta
+-ac, --auto_corner
 ```
 
 One can use either one or all at once and hull/armor blocks will be replaced automatically.  
 Previous shapes will be overwritten!  
-The algorithm works best if the hull is 2 blocks thick or has other blocks directly adjacent to the hull on the 'inside'.
+The algorithm works best if every edge is filled under the hull with a block type that is not a hull/armor, like scaffolds.
+Attention: 'auto_hepta' and 'auto_corner' check adjacent block shapes for wedge and tetras, 
+if the blocks below edges are of a hull type, they might change shape and cause errors.
+
+Recommended for smooth edges:
+
+```
+	python smbedit.py directory/original_blueprint -o directory/smooth_blueprint -aw -at -ah
+```
+
+Corners can be very ambiguous for the palcement of corner shaped blocks and are skipped.
+Those can be auto-shaped with tetras.
 
 # Example
 Here is a quick example of what can be done:
 
+```
 	python smbedit.py directory/my_station_blueprint -o directory/new_ship_blueprint -m 123
+```
 
 This will  
 '-m 123' Move the center/core of a blueprint to the first "Build Block" it finds.  
@@ -155,7 +171,9 @@ This will
 
 ----
 
+```
 	python smbedit.py directory/my_station_blueprint -o directory/new_ship_blueprint -et 0 -m 94
+```
 
 This will  
 '-m 94' Move the center of the station blueprint to its "Undeathinator" block.  
@@ -180,3 +198,7 @@ If a blueprint is deleted after loading a single player game, or it fails to upl
 
 ## Header file
 The statistical info of an entity, read from the 'header.smbph' file, is not updated after blocks are modified.
+
+## Turrets / Docked entities
+Entities on rails can mostly be dealt with, but blueprints with old style docking will probably end up corrupted.  
+Entities docked to "Turret Docking Unit" and "Docking Module" are not yet supported.
