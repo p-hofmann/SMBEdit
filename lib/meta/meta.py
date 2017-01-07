@@ -22,6 +22,7 @@ class Meta(DefaultLogging):
 
 	_valid_versions = {
 		(0, 0, 0, 0),
+		(0, 0, 0, 3),
 		(0, 0, 0, 4),
 		(0, 0, 0, 5),
 		}
