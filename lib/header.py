@@ -103,7 +103,7 @@ class Header(DefaultLogging, BlueprintUtils):
 
 	_file_name = "header.smbph"
 
-	_valid_versions = {2, 3}
+	_valid_versions = {1, 2, 3}
 
 	def __init__(self, logfile=None, verbose=False, debug=False):
 		super(Header, self).__init__(logfile, verbose, debug)
@@ -143,7 +143,7 @@ class Header(DefaultLogging, BlueprintUtils):
 		"""
 		assert isinstance(input_stream, ByteStream)
 		self.version = input_stream.read_int32_unassigned()
-		assert self.version in self._valid_versions, "Unsupported HEADER v{}".format(self.version)
+		assert self.version in self._valid_versions, "Unsupported version '{}' of '{}'.".format(self.version, self._file_name)
 		self.type = input_stream.read_int32_unassigned()
 		if self.version > 2:
 			self.classification = input_stream.read_int32_unassigned()
