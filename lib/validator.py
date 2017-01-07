@@ -12,7 +12,7 @@ from lib.loggingwrapper import DefaultLogging
 
 class Validator(DefaultLogging):
 
-	_label = "Validator"
+	label = "Validator"
 
 	_boolean_states = {
 		'yes': True, 'true': True, 'on': True,
