@@ -298,9 +298,25 @@ class Header(DefaultLogging, BlueprintUtils):
 			self.block_id_to_quantity[block_id] = 0
 		self.block_id_to_quantity[block_id] += quantity
 
+	def set_class(self, entity_class):
+		"""
+		Change entity class
+		0: "Ship",
+		2: "Station",
+
+		@param entity_class:
+		@type entity_class: int
+		"""
+		assert isinstance(entity_class, (int, long))
+		assert self.type in [0, 2], "Can not set class. Blueprint is not a ship/station."
+		assert entity_class in BlueprintUtils._entity_classification[self.type], "Unknown class id: {}.".format(entity_class)
+		self.classification = entity_class
+		if self.version < 3:
+			self.version = 3
+
 	def set_type(self, entity_type):
 		"""
-		Change entity type of header
+		Change entity type
 		0: "Ship",
 		2: "Station",
 

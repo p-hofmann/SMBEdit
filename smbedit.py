@@ -136,11 +136,11 @@ class SMBEdit(ArgumentHandler):
 			self._logger.debug("\n{}\n".format(traceback.format_exc()))
 			if len(e.args) > 0:
 				self._logger.error(e.args[0])
-			self._logger.info("Aborted")
+			self._logger.error("Aborted")
 		except AssertionError as e:
 			if len(e.args) > 0:
 				self._logger.error(e.args[0])
-			self._logger.info("Aborted")
+			self._logger.error("Aborted")
 		else:
 			self._logger.info("Finished")
 
@@ -213,9 +213,9 @@ class SMBEdit(ArgumentHandler):
 			if self._index_turn_tilt is not None:
 				blueprint.turn_tilt(self._index_turn_tilt)
 
-			if self._entity_type is not None:
-				self._logger.info("Changing entity type and updating blueprint...")
-				blueprint.set_entity_type(self._entity_type)
+			if not is_docked_entity and (self._entity_type is not None or self._entity_class is not None):
+				self._logger.info("Changing entity type/class blueprint...")
+				blueprint.set_entity(self._entity_type, self._entity_class)
 
 			if self._link_salvage:
 				self._logger.info("Linking salvage computers/modules...")

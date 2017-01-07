@@ -43,20 +43,36 @@ __Important__: Manually changing a blueprint folder name will likely break it, u
 
 Removes outdated blocks and replaces old docking blocks with basic rails
 
-###Change entity type
+### Change entity type
 ```
-	-et {0,1,2,3,4}, --entity_type {0,1,2,3,4}
+-et {0,1,2,3,4}, --entity_type {0,1,2,3,4}
 ```
 
-Only 0 and 2 can be used for a blueprint as far I know.  
 Available entity types are:  
-0: "Ship",
-1: "Shop",
-2: "Space Station",
-3: "Asteroid",
-4: "Planet"
+0: Ship
+1: Shop
+2: Space Station
+3: Asteroid
+4: Planet
 
 Changing entity type will automatically update the entity.
+
+### Change entity class
+```
+-ec {0,1,2,3,4,5,6,7,8}, --entity_class {0,1,2,3,4,5,6,7,8}
+```
+
+Classes can only be set for ships and stations.  
+Available entity classes are:  
+0: General  
+1: Mining  
+2: Support / Trade  
+3: Cargo / Shopping  
+4: Attack / Outpost  
+5: Defence  
+6: Carrier / Shipyard  
+7: Scout / Warp Gate  
+8: Scavenger / Factory  
 
 ### Relocate core/center
 ```

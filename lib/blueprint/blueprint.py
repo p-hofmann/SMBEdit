@@ -78,7 +78,19 @@ class Blueprint(DefaultLogging, BlueprintUtils):
 	# ###  Else
 	# #######################################
 
-	def set_entity_type(self, entity_type):
+	_ct_to_station_class = {
+		0: 9,  # General
+		1: 13,  # Mining
+		2: 15,  # Support/Trade
+		3: 17,  # Cargo/Shopping
+		4: 11,  # Attack/Outpost
+		5: 12,  # Defence
+		6: 10,  # Carrier/Shipyard
+		7: 16,  # Scout/Warp Gate
+		8: 14,  # Scavenger/Factory
+	}
+
+	def set_entity(self, entity_type, entity_class):
 		"""
 		Change entity type
 		0: "Ship",
@@ -87,11 +99,20 @@ class Blueprint(DefaultLogging, BlueprintUtils):
 		@param entity_type: ship=0/station=2/etc
 		@type entity_type: int
 		"""
-		assert isinstance(entity_type, (int, long))
-		self.smd3.set_type(entity_type)
-		self.logic.set_type(entity_type)
-		self.header.set_type(entity_type)
-		self.update()
+		assert entity_type is None or isinstance(entity_type, int)
+		assert entity_class is None or isinstance(entity_type, int)
+		if entity_type is not None:
+			self.smd3.set_type(entity_type)
+			self.logic.set_type(entity_type)
+			self.header.set_type(entity_type)
+			self.update()
+			if entity_class is None:
+				entity_class = 0
+		if entity_class is not None:
+			if self.header.type == 0:
+				self.header.set_class(entity_class)
+			else:
+				self.header.set_class(self._ct_to_station_class[entity_class])
 
 	def replace_hull(self, new_hull_type, hull_type=None):
 		"""

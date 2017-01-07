@@ -49,6 +49,7 @@ class ArgumentHandler(Validator):
 		self._update = options.update
 		self._auto_hull_shape = (options.auto_wedge, options.auto_tetra, options.auto_corner, options.auto_hepta)
 		self._entity_type = options.entity_type
+		self._entity_class = options.entity_class
 		self._summary = options.summary
 		temp_directory = options.tmp_dir
 		self._is_archived = False
@@ -221,11 +222,28 @@ class ArgumentHandler(Validator):
 			type=int,
 			choices=[0, 1, 2, 3, 4],
 			help='''change entity type to:
-		0: "Ship",
-		1: "Shop",
-		2: "Space Station",
-		3: "Asteroid",
-		4: "Planet",
+		0: Ship
+		1: Shop
+		2: Space Station
+		3: Asteroid
+		4: Planet
+	''')
+
+		group_input.add_argument(
+			"-ec", "--entity_class",
+			default=None,
+			type=int,
+			choices=range(9),
+			help='''change entity type to:
+			0: General
+			1: Mining
+			2: Support / Trade
+			3: Cargo / Shopping
+			4: Attack / Outpost
+			5: Defence
+			6: Carrier / Shipyard
+			7: Scout / Warp Gate
+			8: Scavenger / Factory
 	''')
 
 		group_input.add_argument(
