@@ -15,11 +15,12 @@ from lib.blueprintutils import BlueprintUtils
 class Logic(DefaultLogging, BlueprintUtils):
 
 	_file_name = "logic.smbpl"
+	_valid_versions = {0}
 
 	def __init__(self, logfile=None, verbose=False, debug=False):
 		self._label = "Logic"
 		super(Logic, self).__init__(logfile, verbose, debug)
-		self.version = 2
+		self.version = 0
 		self.unknown_int = 0
 		self._controller_position_to_block_id_to_block_positions = {}
 		# tail_data = None
@@ -88,8 +89,11 @@ class Logic(DefaultLogging, BlueprintUtils):
 		@type input_stream: ByteStream
 		"""
 		self.version = input_stream.read_int32_unassigned()
-		assert self.version == 0, self.version
-		self.unknown_int = input_stream.read_int32_unassigned()
+		assert self.version in self._valid_versions, "Unsupported version '{}' of '{}'.".format(self.version, self._file_name)
+		# assert self.version == 0, self.version
+		self.unknown_int = input_stream.read_int32()
+		if self.unknown_int >= 0:
+			input_stream.seek(-4, whence=1)
 		self._controller_position_to_block_id_to_block_positions = self._read_list_of_controllers(input_stream)
 
 	def read(self, directory_blueprint):
