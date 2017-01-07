@@ -134,7 +134,7 @@ class TagUtil(object):
 class TagList(object):
 	"""
 
-	@type tag_list: list[TagPayload]
+	@type tag_list: list[TagPayload|TagList|TagPayloadList]
 	"""
 
 	def __init__(self):
@@ -184,6 +184,27 @@ class TagList(object):
 		for tag in self.tag_list:
 			tag.to_stream(output_stream)
 		output_stream.write("} ")
+
+	# #######################################
+	# ###  Get
+	# #######################################
+
+	def get_list(self):
+		"""
+		@rtype: list[TagPayload|TagList|TagPayloadList]
+		"""
+		return self.tag_list
+
+	# #######################################
+	# ###  Set
+	# #######################################
+
+	def add(self, tag):
+		"""
+		@type tag: TagPayload | TagList | TagPayloadList
+		"""
+		assert isinstance(tag, (TagPayload, TagList, TagPayloadList))
+		self.tag_list.append(tag)
 
 
 class TagPayloadList(TagUtil):
@@ -250,10 +271,12 @@ class TagPayload(TagUtil):
 	@type payload: any
 	"""
 
-	def __init__(self):
-		self.id = 0
-		self.name = None
-		self.payload = None
+	def __init__(self, payload_id=0, name=None, payload=None):
+		self.id = payload_id
+		if payload_id > 0:
+			assert name is not None
+		self.name = name
+		self.payload = payload
 
 	# #######################################
 	# ###  Read
@@ -363,7 +386,7 @@ class TagManager(DefaultLogging):
 		self._root_tag.write(output_stream)
 
 	# #######################################
-	# ###  Else
+	# ###  Get
 	# #######################################
 
 	def get_root_tag(self):
@@ -376,6 +399,10 @@ class TagManager(DefaultLogging):
 
 	def has_data(self):
 		return self._root_tag is not None
+
+	# #######################################
+	# ###  Else
+	# #######################################
 
 	def to_stream(self, output_stream=sys.stdout):
 		"""
