@@ -34,11 +34,9 @@ class DataType3(DefaultLogging):
 		"""
 		assert isinstance(input_stream, ByteStream)
 		data = {}
-		# string_length = self._read_int_unassigned(input_stream)
-		# entry["name"] = input_stream.read(string_length).decode('utf-8')
 		name = input_stream.read_string()
-		data["position"] = input_stream.read_vector_3_int16()
-		data["size"] = input_stream.read_vector_3_int32()
+		data["position"] = input_stream.read_vector_3_int32()
+		data["size"] = input_stream.read_vector_3_float()
 		data["style"] = input_stream.read_int16_unassigned()
 		data["orientation"] = input_stream.read_byte()
 		return name, data
@@ -53,11 +51,10 @@ class DataType3(DefaultLogging):
 		@rtype: dict
 		"""
 		num_docked = input_stream.read_int32_unassigned()
-		self._logger.debug("docked_blueprints num_docked: '{}'".format(num_docked))
 		assert 0 <= num_docked < 1000, num_docked  # debug sanity check
 		for index in range(0, num_docked):
 			name, dock_entry = self._read_dock_entry(input_stream)
-			self._logger.debug("docked_blueprints docked: '{}': {}".format(name, dock_entry))
+			# self._logger.debug("relative path: '{}': {}".format(name, dock_entry))
 			assert name not in self._docked_entity
 			self._docked_entity[name] = dock_entry
 
@@ -76,11 +73,9 @@ class DataType3(DefaultLogging):
 		@rtype: str, dict
 		"""
 		assert isinstance(output_stream, ByteStream)
-		# string_length = self._read_int_unassigned(input_stream)
-		# entry["name"] = input_stream.read(string_length).decode('utf-8')
 		output_stream.write_string(name)
-		output_stream.write_vector_3_int16(data["position"])
-		output_stream.write_vector_3_int32(data["size"])
+		output_stream.write_vector_3_int32(data["position"])
+		output_stream.write_vector_3_float(data["size"])
 		output_stream.write_int16_unassigned(data["style"])
 		output_stream.write_byte(data["orientation"])
 
@@ -113,6 +108,6 @@ class DataType3(DefaultLogging):
 			for name in self._docked_entity.keys():
 				data = self._docked_entity[name]
 				output_stream.write("{}:\t".format(name))
-				output_stream.write("{}\t{}\t{}\t{}\n".format(
+				output_stream.write("Position: {}\tSize: {}\t Style {}\t Orientation: {}\n".format(
 					data["position"], data["size"], data["style"], data["orientation"]))
 		output_stream.write("\n")
