@@ -10,8 +10,8 @@ from lib.blueprint.smd3.blockorientation import BlockOrientation
 class SmdBlock(BlockOrientation):
 
 	def __init__(self, logfile=None, verbose=False, debug=False):
-		self._label = "SmdBlock"
 		super(SmdBlock, self).__init__(logfile=logfile, verbose=verbose, debug=debug)
+		self._label = "SmdBlock"
 
 	# Get
 

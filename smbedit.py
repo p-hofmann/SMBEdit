@@ -17,6 +17,8 @@ class SMBEdit(ArgumentHandler):
 	Works with blueprints made by StarMade v0.199.257
 	"""
 
+	_label = "SMBEdit"
+
 	def __init__(self, options, logfile=None, verbose=False, debug=False):
 		"""
 		Constructor of Starmade Blueprint Editor
@@ -30,7 +32,7 @@ class SMBEdit(ArgumentHandler):
 
 		@rtype: None
 		"""
-		self.label = "SMBEdit"
+		self._label = "SMBEdit"
 		super(SMBEdit, self).__init__(
 			options=options,
 			logfile=logfile,
@@ -39,6 +41,10 @@ class SMBEdit(ArgumentHandler):
 
 	def __exit__(self, type, value, traceback):
 		super(SMBEdit, self).__exit__(type, value, traceback)
+
+	@staticmethod
+	def get_label():
+		return SMBEdit._label
 
 	@staticmethod
 	def zip_directory(src_dir, dst):
@@ -139,9 +145,9 @@ class SMBEdit(ArgumentHandler):
 			self._logger.info("Finished")
 
 	def run_commands(self, directory_input=None, directory_output=None, blueprint_path=None):
-		is_docked_entity = False
+		is_docked_entity = True
 		if directory_input is None:
-			is_docked_entity = True
+			is_docked_entity = False
 			directory_input = self._directory_input
 			directory_output = self._directory_output
 
@@ -233,7 +239,7 @@ class SMBEdit(ArgumentHandler):
 
 
 def main():
-	options = ArgumentHandler.get_parser_options(label=SMBEdit.label, version=__version__)
+	options = ArgumentHandler.get_parser_options(label=SMBEdit.get_label(), version=__version__)
 	verbose = not options.silent
 	debug = options.debug_mode
 	logfile = options.logfile

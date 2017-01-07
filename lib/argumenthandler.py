@@ -34,7 +34,6 @@ class ArgumentHandler(Validator):
 
 		@rtype: None
 		"""
-		self.label = "Argumenthandler"
 		super(ArgumentHandler, self).__init__(
 			logfile=logfile,
 			verbose=verbose,
@@ -86,9 +85,9 @@ class ArgumentHandler(Validator):
 			self._tmp_dir = None
 			return
 		if temp_directory is None:
-			self._tmp_dir = tempfile.mkdtemp(prefix="{}_".format(self.label))
+			self._tmp_dir = tempfile.mkdtemp(prefix="{}_".format(self._label))
 		else:
-			self._tmp_dir = tempfile.mkdtemp(prefix="{}_".format(self.label), dir=temp_directory)
+			self._tmp_dir = tempfile.mkdtemp(prefix="{}_".format(self._label), dir=temp_directory)
 		return
 
 	def __exit__(self, type, value, traceback):
