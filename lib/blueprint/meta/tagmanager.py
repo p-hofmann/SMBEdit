@@ -4,6 +4,7 @@ import sys
 # import gzip
 from lib.bits_and_bytes import ByteStream
 from lib.loggingwrapper import DefaultLogging
+from lib.blueprint.blueprintutils import BlueprintUtils
 
 
 class TagUtil(object):
@@ -46,6 +47,8 @@ class TagUtil(object):
 		elif payload_type == 9:  # Float vector
 			return input_stream.read_vector_3_float()
 		elif payload_type == 10:  # int vector
+			if BlueprintUtils.offset is not None:
+				return BlueprintUtils.vector_addition(input_stream.read_vector_3_int32(), BlueprintUtils.offset)
 			return input_stream.read_vector_3_int32()
 		elif payload_type == 11:  # Byte vector
 			return input_stream.read_vector_3_byte()
@@ -399,6 +402,18 @@ class TagManager(DefaultLogging):
 
 	def has_data(self):
 		return self._root_tag is not None
+
+	# #######################################
+	# ###  Set
+	# #######################################
+
+	def set_root_tag(self, tag_payload):
+		"""
+		Set root
+
+		@type tag_payload: TagPayload
+		"""
+		self._root_tag = tag_payload
 
 	# #######################################
 	# ###  Else
