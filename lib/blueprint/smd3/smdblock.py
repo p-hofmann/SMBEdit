@@ -46,6 +46,21 @@ class SmdBlock(BlockOrientation):
 
 	# Set
 
+	def convert_to_type_6(self, block_id):
+		"""
+		Return a side to type 6 orientation conversion, focusing on forward and up
+
+		@type block_id: int
+		"""
+		assert self.get_style() == 0
+		assert BlueprintUtils.get_block_style(block_id) == 6
+		side_id = self.get_block_side_id()
+		assert side_id in self._block_side_id_to_type_6, "Bad side id: {}".format(side_id)
+		bit_19, bit_23, bit_22, rotations = self._block_side_id_to_type_6[side_id]
+		self.update(
+			block_id=block_id, bit_19=bit_19, bit_22=bit_22, bit_23=bit_23, rotations=rotations, active=False, hit_points=100)
+		return
+
 	def update(self, block_id=None, hit_points=None, active=None, block_side_id=None, bit_19=None, bit_22=None, bit_23=None, rotations=None):
 		"""
 		In the rare case a block value is changed, they are turned into a byte string.
