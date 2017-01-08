@@ -100,7 +100,7 @@ class Blueprint(DefaultLogging, BlueprintUtils):
 		@type entity_type: int
 		"""
 		assert entity_type is None or isinstance(entity_type, int)
-		assert entity_class is None or isinstance(entity_type, int)
+		assert entity_class is None or isinstance(entity_class, int)
 		if entity_type is not None:
 			self.smd3.set_type(entity_type)
 			self.logic.set_type(entity_type)
