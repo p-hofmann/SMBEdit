@@ -45,6 +45,7 @@ class ArgumentHandler(Validator):
 		self._index_turn_tilt = None  # options.turn
 		self._replace_hull = options.replace_hull
 		self._replace = options.replace
+		self._remove_blocks = options.remove_blocks
 		self._move_center = options.move_center
 		self._update = options.update
 		self._auto_hull_shape = (options.auto_wedge, options.auto_tetra, options.auto_corner, options.auto_hepta)
@@ -255,6 +256,12 @@ class ArgumentHandler(Validator):
 			default=None,
 			type=str,
 			help="old_id,new_id:hit_points")
+
+		group_input.add_argument(
+			"-rm", "--remove_blocks",
+			default=None,
+			type=int,
+			help="Remove all blocks of the given block id.")
 
 		group_input.add_argument(
 			"-rh", "--replace_hull",

@@ -187,6 +187,10 @@ class SMBEdit(ArgumentHandler):
 
 		if self._docked_entities or not is_docked_entity:
 
+			if self._remove_blocks is not None:
+				self._logger.info("Removing blocks...")
+				blueprint.remove_blocks(self._remove_blocks)
+
 			if not is_docked_entity and self._move_center is not None:
 				self._logger.info("Moving center/core of blueprint...")
 				self._move_center_or_core(blueprint)

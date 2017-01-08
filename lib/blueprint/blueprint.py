@@ -114,6 +114,16 @@ class Blueprint(DefaultLogging, BlueprintUtils):
 			else:
 				self.header.set_class(self._ct_to_station_class[entity_class])
 
+	def remove_blocks(self, block_id):
+		"""
+		Removing all blocks of a specific id
+
+		@param block_id:
+		@type block_id: int
+		"""
+		self.smd3.remove_blocks(block_id)
+		self.header.update(self.smd3)
+
 	def replace_hull(self, new_hull_type, hull_type=None):
 		"""
 		Replace all blocks of a specific hull type or all hull
