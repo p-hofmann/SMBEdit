@@ -3,7 +3,7 @@ __author__ = 'Peter Hofmann'
 import sys
 
 from lib.bits_and_bytes import BitAndBytes
-from lib.blueprint.blueprintutils import BlueprintUtils
+# from lib.blueprint.blueprintutils import BlueprintUtils
 
 
 # DefaultLogging
@@ -12,24 +12,15 @@ class BlockOrientation(object):
 	Type    	Bits    	Description
 
 	Type1   	23 	22 	21 	The block facing
-
-	Type 2  	23 	22 		The axis of rotation.
-							00 : +Y
-							01 : -Y
-							10 : -Z
-							11 : +Z
-				21 	20 		The amount of clockwise rotation around the axis of rotation, in 90-degree steps
-
-	Type 3 		19 	23 	22 	The axis of rotation.
-							000 : +Y
-							001 : -Y
-							010 : -Z
-							011 : +Z
-							100 : -X
-							101 : +X
-				21 	20 		The amount of clockwise rotation around the axis of rotation, in 90-degree step
 	"""
 	# https://starmadepedia.net/wiki/Blueprint_File_Formats#Block_Data
+
+	_bit_block_id_start = 0
+	_bit_block_id_length = 12
+	_bit_is_active_start = 12
+	_bit_is_active_length = 1
+	_bit_hit_points_start = 13
+	_bit_hit_points_length = 8
 
 	def __init__(self, logfile=None, verbose=False, debug=False):
 		"""
@@ -69,7 +60,7 @@ class BlockOrientation(object):
 
 		@rtype: int
 		"""
-		return BitAndBytes.bits_parse(self._int_24bit, 0, 11)
+		return BitAndBytes.bits_parse(self._int_24bit, self._bit_block_id_start, self._bit_block_id_length)
 
 	def get_style(self):
 		"""
@@ -77,10 +68,11 @@ class BlockOrientation(object):
 
 		@rtype: int | None
 		"""
-		block_id = self.get_id()
-		if block_id == 0:
-			return None
-		return BlueprintUtils.get_block_style(block_id)
+		# block_id = self.get_id()
+		# if block_id == 0:
+		# 	return None
+		# return BlueprintUtils.get_block_style(block_id)
+		return 0
 
 	def _get_bit_19(self):
 		return BitAndBytes.bits_parse(self._int_24bit, 19, 1)

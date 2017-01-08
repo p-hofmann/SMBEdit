@@ -4,7 +4,7 @@ import sys
 
 from lib.bits_and_bytes import BitAndBytes
 from lib.blueprint.blueprintutils import BlueprintUtils
-from lib.blueprint.smd3.blockorientation import BlockOrientation
+from lib.blueprint.smd2.blockorientation import BlockOrientation
 
 
 class SmdBlock(BlockOrientation):
@@ -23,7 +23,7 @@ class SmdBlock(BlockOrientation):
 		"""
 		if self.get_id() == 0:
 			return None
-		return BitAndBytes.bits_parse(self._int_24bit, 11, 8)
+		return BitAndBytes.bits_parse(self._int_24bit, self._bit_hit_points_start, self._bit_hit_points_length)
 
 	def is_active(self):
 		"""
@@ -42,7 +42,7 @@ class SmdBlock(BlockOrientation):
 
 		@rtype: bool
 		"""
-		return BitAndBytes.bits_parse(self._int_24bit, 19, 1)
+		return BitAndBytes.bits_parse(self._int_24bit, self._bit_is_active_start, self._bit_is_active_length)
 
 	# Set
 
@@ -72,10 +72,10 @@ class SmdBlock(BlockOrientation):
 
 		style = BlueprintUtils.get_block_style(block_id)
 		int_24bit = 0
-		int_24bit = BitAndBytes.bits_combine(block_id, int_24bit, 0)
-		int_24bit = BitAndBytes.bits_combine(hit_points, int_24bit, 11)
+		int_24bit = BitAndBytes.bits_combine(block_id, int_24bit, self._bit_block_id_start)
 		if style == 0:  # For blocks with an activation status
-			int_24bit = BitAndBytes.bits_combine(active, int_24bit, 19)
+			int_24bit = BitAndBytes.bits_combine(active, int_24bit, self._bit_is_active_start)
+		int_24bit = BitAndBytes.bits_combine(hit_points, int_24bit, self._bit_hit_points_start)
 		self._int_24bit = self._bits_combine_orientation(
 			int_24bit, style=style, bit_19=bit_19, bit_22=bit_22, bit_23=bit_23,
 			rotations=rotations, block_side_id=block_side_id)
