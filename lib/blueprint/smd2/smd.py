@@ -6,8 +6,8 @@ import math
 
 from lib.loggingwrapper import DefaultLogging
 from lib.blueprint.blueprintutils import BlueprintUtils
-from lib.blueprint.smd3.smdregion import SmdRegion
-from lib.blueprint.smd3.smdblock import SmdBlock
+from lib.blueprint.smd2.smdregion import SmdRegion
+from lib.blueprint.smd2.smdblock import SmdBlock
 
 
 class Smd(DefaultLogging, BlueprintUtils):

@@ -7,6 +7,7 @@ import math
 from lib.loggingwrapper import DefaultLogging
 from lib.blueprint.blueprintutils import BlueprintUtils
 from lib.blueprint.smd3.smdregion import SmdRegion
+from lib.blueprint.smd2.smd import Smd as Smd2
 from lib.blueprint.smd3.smdblock import SmdBlock
 
 
@@ -53,15 +54,35 @@ class Smd(DefaultLogging, BlueprintUtils):
 		"""
 		directory_data = os.path.join(directory_blueprint, "DATA")
 		file_list = sorted(os.listdir(directory_data))
-		for file_name in file_list:
-			file_path = os.path.join(directory_data, file_name)
-			self._file_name_prefix, x, y, z = os.path.splitext(file_name)[0].rsplit('.', 3)
-			position = (int(x), int(y), int(z))
-			self.position_to_region[position] = SmdRegion(
-				logfile=self._logfile,
-				verbose=self._verbose,
-				debug=self._debug)
-			self.position_to_region[position].read(file_path)
+		assert len(file_list) > 0, "No smd files found"
+		file_name = file_list[0]
+		if file_name.endswith(".smd3"):
+			for file_name in file_list:
+				file_path = os.path.join(directory_data, file_name)
+				self._file_name_prefix, x, y, z = os.path.splitext(file_name)[0].rsplit('.', 3)
+				position = (int(x), int(y), int(z))
+				self.position_to_region[position] = SmdRegion(
+					logfile=self._logfile,
+					verbose=self._verbose,
+					debug=self._debug)
+				self.position_to_region[position].read(file_path)
+		elif file_name.endswith(".smd2"):
+			self._logger.warning("'smd2' file format found.")
+			self._logger.warning("'smd2' to 'smd3' conversion is imperfect and results in blocks that appear damaged.")
+			smd2 = Smd2(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
+			smd2.read(directory_blueprint)
+			for position, smd2block in smd2.iteritems():
+				smd3_position = BlueprintUtils.vector_addition(position, (8, 8, 8))
+				smd3block = SmdBlock()
+				hit_points = 1
+				if BlueprintUtils.is_hull(smd2block.get_id()):
+					hull_type, color, shape_id = BlueprintUtils._get_hull_details(smd2block.get_id())
+					hit_points = BlueprintUtils.get_hp_by_hull_type(hull_type)
+				smd3block.set_int_24bit(smd2block.get_int_24bit())
+				smd3block.update(hit_points=hit_points)
+				self.add(smd3_position, smd3block)
+		else:
+			raise RuntimeError("Unknown smd format.")
 
 	# #######################################
 	# ###  Write

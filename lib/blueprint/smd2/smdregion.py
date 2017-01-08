@@ -20,8 +20,9 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
 	"""
 
 	_valid_versions = {
-		(0, 0, 0, 0),
-		(0, 0, 0, 1)
+		# (0, 0, 0, 0),
+		(0, 0, 0, 1),
+		(0, 0, 0, 2),
 	}
 
 	def __init__(self, segments_in_a_line=16, blocks_in_a_line=16, logfile=None, verbose=False, debug=False):
@@ -51,7 +52,20 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
 	# #######################################
 
 	@staticmethod
-	def _read_segment_index(input_stream):
+	def _is_eof(input_stream):
+		"""
+		Read region header to a byte stream
+		The index of a segment is the linear representation of the location of a segment within a region.
+
+		@param input_stream: input stream
+		@type input_stream: ByteStream
+		"""
+		if input_stream.read(1) == "":
+			return True
+		input_stream.seek(-1, whence=1)
+		return False
+
+	def _read_segment_index(self, input_stream):
 		"""
 		Read a segment index from a byte stream
 		The identifier is used to tell where in the file a segment is found.
@@ -66,10 +80,12 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
 
 		@rtype: list[int]
 		"""
-		# identifier = input_stream.read_int16_unassigned()
-		# size = input_stream.read_int16_unassigned()
-		identifier = input_stream.read_int32_unassigned()
-		size = input_stream.read_int32_unassigned()
+		# if self._version > (0, 0, 0, 0):
+		# 	identifier = input_stream.read_int16()
+		# 	size = input_stream.read_int16()
+		# else:
+		identifier = input_stream.read_int32()
+		size = input_stream.read_int32()
 		return identifier, size
 
 	def _read_region_header(self, input_stream):
@@ -87,8 +103,11 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
 		number_of_segments = 0
 		for index in range(0, self._segments_in_a_cube):
 			identifier, size = self._read_segment_index(input_stream)
-			if identifier > 0:
-				number_of_segments += 1
+			if identifier == -1:
+				if size > 0:
+					print identifier, size
+				continue
+			number_of_segments += 1
 		for index in range(0, self._segments_in_a_cube):
 			input_stream.read_int64_unassigned()
 		return number_of_segments
@@ -100,8 +119,12 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
 		@param input_stream: input stream
 		@type input_stream: ByteStream
 		"""
-		number_of_segments = self._read_region_header(input_stream)
-		for _ in xrange(number_of_segments):
+		# number_of_segments = self._read_region_header(input_stream)
+		self._read_region_header(input_stream)
+		# for _ in xrange(number_of_segments):
+		real_number_of_segments = 0
+		while not self._is_eof(input_stream):
+			real_number_of_segments +=1
 			segment = SmdSegment(
 				version=self._version[3],
 				blocks_in_a_line=self._blocks_in_a_line_in_a_segment,

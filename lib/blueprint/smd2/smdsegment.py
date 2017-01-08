@@ -7,7 +7,7 @@ import datetime
 from lib.loggingwrapper import DefaultLogging
 from lib.bits_and_bytes import ByteStream
 from lib.blueprint.blueprintutils import BlueprintUtils
-from lib.blueprint.smd3.smdblock import SmdBlock
+from lib.blueprint.smd2.smdblock import SmdBlock
 
 
 class SmdSegment(DefaultLogging, BlueprintUtils):

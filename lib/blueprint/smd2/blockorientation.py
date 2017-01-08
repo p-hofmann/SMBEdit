@@ -3,7 +3,7 @@ __author__ = 'Peter Hofmann'
 import sys
 
 from lib.bits_and_bytes import BitAndBytes
-# from lib.blueprint.blueprintutils import BlueprintUtils
+from lib.blueprint.blueprintutils import BlueprintUtils
 
 
 # DefaultLogging
@@ -16,11 +16,13 @@ class BlockOrientation(object):
 	# https://starmadepedia.net/wiki/Blueprint_File_Formats#Block_Data
 
 	_bit_block_id_start = 0
-	_bit_block_id_length = 12
-	_bit_is_active_start = 12
-	_bit_is_active_length = 1
-	_bit_hit_points_start = 13
+	_bit_block_id_length = 11
+
+	_bit_hit_points_start = 11
 	_bit_hit_points_length = 8
+
+	_bit_is_active_start = 19
+	_bit_is_active_length = 1
 
 	def __init__(self, logfile=None, verbose=False, debug=False):
 		"""
@@ -68,11 +70,10 @@ class BlockOrientation(object):
 
 		@rtype: int | None
 		"""
-		# block_id = self.get_id()
-		# if block_id == 0:
-		# 	return None
-		# return BlueprintUtils.get_block_style(block_id)
-		return 0
+		block_id = self.get_id()
+		if block_id == 0:
+			return None
+		return BlueprintUtils.get_block_style(block_id)
 
 	def _get_bit_19(self):
 		return BitAndBytes.bits_parse(self._int_24bit, 19, 1)
