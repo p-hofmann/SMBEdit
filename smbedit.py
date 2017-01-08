@@ -2,6 +2,7 @@ __author__ = 'Peter Hofmann'
 __version__ = '0.1.0'
 
 import os
+import sys
 import zipfile
 import traceback
 from lib.argumenthandler import ArgumentHandler
@@ -16,8 +17,6 @@ class SMBEdit(ArgumentHandler):
 
 	Works with blueprints made by StarMade v0.199.257
 	"""
-
-	_label = "SMBEdit"
 
 	def __init__(self, options, logfile=None, verbose=False, debug=False):
 		"""
@@ -68,7 +67,6 @@ class SMBEdit(ArgumentHandler):
 			for file_name in files:
 				file_path = os.path.join(root, file_name)
 				relative_path = os.path.relpath(file_path, root_path)
-				print relative_path,
 				output_stream.write(file_path, arcname=relative_path)
 
 	def _move_center_or_core(self, blueprint):
@@ -243,13 +241,25 @@ def main():
 	verbose = not options.silent
 	debug = options.debug_mode
 	logfile = options.logfile
-	with SMBEdit(
-		options=options,
-		logfile=logfile,
-		verbose=verbose,
-		debug=debug
-		) as manipulator:
-		manipulator.run()
+	try:
+		with SMBEdit(
+			options=options,
+			logfile=logfile,
+			verbose=verbose,
+			debug=debug
+			) as manipulator:
+			manipulator.run()
+	except (KeyboardInterrupt, SystemExit, Exception, ValueError, RuntimeError) as e:
+		if debug:
+			sys.stderr.write("\n{}\n".format(traceback.format_exc()))
+		if len(e.args) > 0:
+			sys.stderr.write("ERROR: ")
+			sys.stderr.write(e.args[0])
+		sys.stderr.write("\nAborted\n")
+	except AssertionError as e:
+		if len(e.args) > 0:
+			sys.stderr.write(e.args[0])
+		sys.stderr.write("\nAborted\n")
 
 if __name__ == "__main__":
 	main()
