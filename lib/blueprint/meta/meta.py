@@ -138,7 +138,9 @@ class Meta(DefaultLogging):
 		output_stream.write_vector_4_byte(self._version)
 
 		# data_type 3
-		self._data_type_3.write(output_stream)
+		if self._data_type_3.has_data():
+			self._logger.warning("Old style docked entities are not yet supported and are removed")
+		self._data_type_3.write_dummy(output_stream)
 
 		if self._version > (0, 0, 0, 4):
 			# data_type 6

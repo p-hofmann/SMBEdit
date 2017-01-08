@@ -79,6 +79,17 @@ class DataType3(DefaultLogging):
 		output_stream.write_int16_unassigned(data["style"])
 		output_stream.write_byte(data["orientation"])
 
+	def write_dummy(self, output_stream):
+		"""
+		write dummy values
+
+		@param output_stream: Output stream
+		@type output_stream: ByteStream
+		"""
+		self._logger.debug("Writing")
+		output_stream.write_byte(3)
+		output_stream.write_int32_unassigned(0)
+
 	def write(self, output_stream):
 		"""
 		write values
@@ -95,6 +106,14 @@ class DataType3(DefaultLogging):
 	# #######################################
 	# ###  Else
 	# #######################################
+
+	def has_data(self):
+		"""
+		True if data about docked entities are available.
+
+		@rtype: bool
+		"""
+		return len(self._docked_entity) != 0
 
 	def to_stream(self, output_stream=sys.stdout):
 		"""
