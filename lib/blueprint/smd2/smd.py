@@ -19,8 +19,10 @@ class Smd(DefaultLogging, BlueprintUtils):
 	@type position_to_region: dict[tuple[int], SmdRegion]
 	"""
 
+	_core_position = 8
+
 	def __init__(
-		self, segments_in_a_line_of_a_region=16, blocks_in_a_line_of_a_segment=32, logfile=None, verbose=False, debug=False):
+		self, segments_in_a_line_of_a_region=16, blocks_in_a_line_of_a_segment=16, logfile=None, verbose=False, debug=False):
 		"""
 		Constructor
 
@@ -29,7 +31,7 @@ class Smd(DefaultLogging, BlueprintUtils):
 		@param segments_in_a_line_of_a_region: The number of segments that fit beside each other within a region
 		@type segments_in_a_line_of_a_region: int
 		"""
-		self._label = "Smd3"
+		self._label = "Smd2"
 		super(Smd, self).__init__(
 			logfile=logfile,
 			verbose=verbose,
@@ -82,7 +84,7 @@ class Smd(DefaultLogging, BlueprintUtils):
 		# print self.position_to_region.keys()
 		for position, region in self.position_to_region.iteritems():
 			assert isinstance(region, SmdRegion)
-			file_name = blueprint_name + "." + ".".join(map(str, position)) + ".smd3"
+			file_name = blueprint_name + "." + ".".join(map(str, position)) + ".smd2"
 			file_path = os.path.join(directory_data, file_name)
 			region.write(file_path)
 
@@ -154,12 +156,12 @@ class Smd(DefaultLogging, BlueprintUtils):
 			logfile=self._logfile,
 			verbose=self._verbose,
 			debug=self._debug)
-		min_vector = [16, 16, 16]
-		max_vector = [16, 16, 16]
+		min_vector = [self._core_position, self._core_position, self._core_position]
+		max_vector = [self._core_position, self._core_position, self._core_position]
 		for position_block, block in self.iteritems():
 			assert isinstance(block, SmdBlock)
 			new_block_position = self.vector_subtraction(position_block, direction_vector)
-			if entity_type == 0 and new_block_position == (16, 16, 16):
+			if entity_type == 0 and new_block_position == (self._core_position, self._core_position, self._core_position):
 				continue
 			if block.get_id() == 1:  # core
 				new_block_position = position_block
@@ -194,8 +196,8 @@ class Smd(DefaultLogging, BlueprintUtils):
 			logfile=self._logfile,
 			verbose=self._verbose,
 			debug=self._debug)
-		min_vector = [16, 16, 16]
-		max_vector = [16, 16, 16]
+		min_vector = [self._core_position, self._core_position, self._core_position]
+		max_vector = [self._core_position, self._core_position, self._core_position]
 		for position_block, block in self.iteritems():
 			assert isinstance(block, SmdBlock)
 			new_block_position = position_block
@@ -393,8 +395,8 @@ class Smd(DefaultLogging, BlueprintUtils):
 		@return: Minimum(x,y,z), Maximum(x,y,z)
 		@rtype: tuple[int,int,int], tuple[int,int,int]
 		"""
-		min_vector = [16, 16, 16]
-		max_vector = [16, 16, 16]
+		min_vector = [self._core_position, self._core_position, self._core_position]
+		max_vector = [self._core_position, self._core_position, self._core_position]
 		for position_block, block in self.iteritems():
 			assert isinstance(block, SmdBlock)
 			for index, value in enumerate(position_block):
@@ -416,7 +418,7 @@ class Smd(DefaultLogging, BlueprintUtils):
 		assert isinstance(entity_type, (int, long))
 		assert 0 <= entity_type <= 4
 
-		position_core = (16, 16, 16)
+		position_core = (self._core_position, self._core_position, self._core_position)
 		if entity_type == 0:  # Ship
 			core_block = SmdBlock()
 			core_block.update(block_id=1, hit_points=250, active=False)

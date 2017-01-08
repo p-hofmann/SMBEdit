@@ -20,7 +20,7 @@ class SmdSegment(DefaultLogging, BlueprintUtils):
 	@type block_index_to_block: dict[int, SmdBlock]
 	"""
 
-	def __init__(self, blocks_in_a_line=32, logfile=None, verbose=False, debug=False):
+	def __init__(self, version, blocks_in_a_line=16, logfile=None, verbose=False, debug=False):
 		self._label = "SmdSegment {}".format(datetime.time)
 		super(SmdSegment, self).__init__(
 			logfile=logfile,
@@ -29,12 +29,17 @@ class SmdSegment(DefaultLogging, BlueprintUtils):
 		self._blocks_in_a_line = blocks_in_a_line
 		self._blocks_in_an_area = self._blocks_in_a_line * self._blocks_in_a_line
 		self._blocks_in_a_cube = self._blocks_in_an_area * self._blocks_in_a_line
-		self.version = 2
-		self.timestamp = 0
-		self.position = None
-		self.has_valid_data = False
-		self.compressed_size = 0
+		self._region_version = version
+		self._version = 0
+		self._timestamp = 0
+		self._position = None
+		self._has_valid_data = False
+		self._compressed_size = 0
 		self.block_index_to_block = {}
+		self._header_size = 26
+		if self._region_version == 0:
+			self._header_size = 25
+		self._data_size = 5120-self._header_size
 
 	# #######################################
 	# ###  Read
@@ -43,16 +48,17 @@ class SmdSegment(DefaultLogging, BlueprintUtils):
 	def _read_header(self, input_stream):
 		"""
 		Read segment header data from a byte stream.
-		Size: 26 byte
+		Size: 25/26 byte
 
 		@param input_stream: input byte stream
 		@type input_stream: ByteStream
 		"""
-		self.version = input_stream.read_byte()  # 1 byte
-		self.timestamp = input_stream.read_int64_unassigned()
-		self.position = input_stream.read_vector_3_int32()  # 12 byte
-		self.has_valid_data = input_stream.read_bool()  # 1 byte
-		self.compressed_size = input_stream.read_int32_unassigned()  # 4 byte
+		if self._region_version != 0:
+			self._version = input_stream.read_byte()  # 1 byte
+		self._timestamp = input_stream.read_int64_unassigned()  # 8 byte
+		self._position = input_stream.read_vector_3_int32()  # 12 byte
+		self._has_valid_data = input_stream.read_bool()  # 1 byte
+		self._compressed_size = input_stream.read_int32_unassigned()  # 4 byte
 
 	def _read_block_data(self, input_stream):
 		"""
@@ -62,7 +68,7 @@ class SmdSegment(DefaultLogging, BlueprintUtils):
 		@param input_stream: input byte stream
 		@type input_stream: ByteStream
 		"""
-		decompressed_data = zlib.decompress(input_stream.read(self.compressed_size))
+		decompressed_data = zlib.decompress(input_stream.read(self._compressed_size))
 		self.block_index_to_block = {}
 		for block_index in range(0, len(decompressed_data)/3):
 			position = block_index * 3
@@ -71,7 +77,7 @@ class SmdSegment(DefaultLogging, BlueprintUtils):
 			block.set_int_24bit(int_24bit)
 			if block.get_id() > 0:
 				self.block_index_to_block[block_index] = block
-		input_stream.seek(49126-self.compressed_size, 1)  # skip unused bytes
+		input_stream.seek(self._data_size-self._compressed_size, 1)  # skip unused bytes
 
 	def read(self, input_stream):
 		"""
@@ -83,12 +89,12 @@ class SmdSegment(DefaultLogging, BlueprintUtils):
 		"""
 		assert isinstance(input_stream, ByteStream)
 		self._read_header(input_stream)
-		if not self.has_valid_data:
-			input_stream.seek(49126, 1)  # skip presumably empty bytes
+		if not self._has_valid_data:
+			input_stream.seek(self._data_size, 1)  # skip presumably empty bytes
 		else:
 			self._read_block_data(input_stream)
-		if self.has_valid_data and len(self.block_index_to_block) == 0:
-			self.has_valid_data = False
+		if self._has_valid_data and len(self.block_index_to_block) == 0:
+			self._has_valid_data = False
 
 	# #######################################
 	# ###  Write
@@ -102,9 +108,9 @@ class SmdSegment(DefaultLogging, BlueprintUtils):
 		@param output_stream: input byte stream
 		@type output_stream: ByteStream
 		"""
-		if not self.has_valid_data:
-			self.compressed_size = 0
-			output_stream.write_int32_unassigned(self.compressed_size)   # 4 byte
+		if not self._has_valid_data:
+			self._compressed_size = 0
+			output_stream.write_int32_unassigned(self._compressed_size)   # 4 byte
 		else:
 			byte_string = ""
 			set_of_valid_block_index = set(self.block_index_to_block.keys())
@@ -115,11 +121,11 @@ class SmdSegment(DefaultLogging, BlueprintUtils):
 					continue
 				byte_string += "\0" * 3
 			compressed_data = zlib.compress(byte_string)
-			self.compressed_size = len(compressed_data)
-			output_stream.write_int32_unassigned(self.compressed_size)   # 4 byte
+			self._compressed_size = len(compressed_data)
+			output_stream.write_int32_unassigned(self._compressed_size)   # 4 byte
 			output_stream.write(compressed_data)
 
-		output_stream.seek(49125-self.compressed_size, 1)
+		output_stream.seek((self._data_size-1)-self._compressed_size, 1)
 		output_stream.write("\0")  # this should fill the skipped positions with \0
 
 	def _write_header(self, output_stream):
@@ -132,10 +138,10 @@ class SmdSegment(DefaultLogging, BlueprintUtils):
 		@param output_stream: input byte stream
 		@type output_stream: ByteStream
 		"""
-		output_stream.write_byte(self.version)  # 1 byte
-		output_stream.write_int64_unassigned(self.timestamp)  # 8 byte
-		output_stream.write_vector_3_int32(self.position)  # 12 byte
-		output_stream.write_bool(self.has_valid_data)  # 1 byte
+		output_stream.write_byte(self._version)  # 1 byte
+		output_stream.write_int64_unassigned(self._timestamp)  # 8 byte
+		output_stream.write_vector_3_int32(self._position)  # 12 byte
+		output_stream.write_bool(self._has_valid_data)  # 1 byte
 
 	def write(self, output_stream):
 		"""
@@ -169,7 +175,7 @@ class SmdSegment(DefaultLogging, BlueprintUtils):
 		rest = block_index % self._blocks_in_an_area
 		y = rest / self._blocks_in_a_line
 		x = rest % self._blocks_in_a_line
-		return x+self.position[0], y+self.position[1], z+self.position[2]
+		return x+self._position[0], y+self._position[1], z+self._position[2]
 
 	def get_block_index_by_block_position(self, position):
 		"""
@@ -238,7 +244,7 @@ class SmdSegment(DefaultLogging, BlueprintUtils):
 		@param segment_position: x,y,z position of segment
 		@type segment_position: tuple[int]
 		"""
-		self.position = segment_position
+		self._position = segment_position
 
 	# #######################################
 	# ###  Get
@@ -319,8 +325,8 @@ class SmdSegment(DefaultLogging, BlueprintUtils):
 				continue
 			self.block_index_to_block.pop(block_index)
 		if self.get_number_of_blocks() == 0:
-			self._logger.debug("Segment {} has no more blocks.".format(self.position))
-			self.has_valid_data = False
+			self._logger.debug("Segment {} has no more blocks.".format(self._position))
+			self._has_valid_data = False
 
 	def remove_block(self, block_position):
 		"""
@@ -336,8 +342,8 @@ class SmdSegment(DefaultLogging, BlueprintUtils):
 		# print "deleting", self.get_block_name_by_id(self.block_index_to_block[block_index].get_id())
 		self.block_index_to_block.pop(block_index)
 		if self.get_number_of_blocks() == 0:
-			self._logger.debug("Segment {} has no more blocks.".format(self.position))
-			self.has_valid_data = False
+			self._logger.debug("Segment {} has no more blocks.".format(self._position))
+			self._has_valid_data = False
 
 	def add(self, block_position, block):
 		"""
@@ -351,7 +357,7 @@ class SmdSegment(DefaultLogging, BlueprintUtils):
 		assert isinstance(block, SmdBlock)
 		block_index = self.get_block_index_by_block_position(block_position)
 		self.block_index_to_block[block_index] = block
-		self.has_valid_data = True
+		self._has_valid_data = True
 
 	def search(self, block_id):
 		"""
@@ -403,9 +409,9 @@ class SmdSegment(DefaultLogging, BlueprintUtils):
 		@type output_stream: fileIO
 		"""
 		output_stream.write("Segment: {} '{}' ({})\n".format(
-			self.position,
-			datetime.datetime.fromtimestamp(self.timestamp/1000.0).strftime('%Y-%m-%d %H:%M:%S'),
-			self.version,
+			self._position,
+			datetime.datetime.fromtimestamp(self._timestamp/1000.0).strftime('%Y-%m-%d %H:%M:%S'),
+			self._version,
 			))
 		output_stream.flush()
 		if self._debug:

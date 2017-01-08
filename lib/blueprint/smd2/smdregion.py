@@ -6,8 +6,8 @@ import math
 from lib.loggingwrapper import DefaultLogging
 from lib.bits_and_bytes import ByteStream
 from lib.blueprint.blueprintutils import BlueprintUtils
-from lib.blueprint.smd3.smdblock import SmdBlock
-from lib.blueprint.smd3.smdsegment import SmdSegment
+from lib.blueprint.smd2.smdblock import SmdBlock
+from lib.blueprint.smd2.smdsegment import SmdSegment
 
 
 class SmdRegion(DefaultLogging, BlueprintUtils):
@@ -16,10 +16,15 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
 	# ###  SmdRegion
 	# #######################################
 
-	@type position_to_segment: dict[tuple[int], SmdSegment]
+	@type _position_to_segment: dict[tuple[int], SmdSegment]
 	"""
 
-	def __init__(self, segments_in_a_line=16, blocks_in_a_line=32, logfile=None, verbose=False, debug=False):
+	_valid_versions = {
+		(0, 0, 0, 0),
+		(0, 0, 0, 1)
+	}
+
+	def __init__(self, segments_in_a_line=16, blocks_in_a_line=16, logfile=None, verbose=False, debug=False):
 		"""
 		Constructor
 
@@ -34,8 +39,11 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
 		self._segments_in_a_line = segments_in_a_line  # 16
 		self._segments_in_an_area = self._segments_in_a_line * self._segments_in_a_line  # 256
 		self._segments_in_a_cube = self._segments_in_an_area * self._segments_in_a_line  # 4096
-		self.version = (2, 0, 0, 0)
-		self.position_to_segment = {}
+		self._version = (0, 0, 0, 0)
+		self._position_to_segment = {}
+		self._segment_header_size = 26
+		if self._version[3] == 0:
+			self._segment_header_size = 25
 		# self.tail_data = ""
 
 	# #######################################
@@ -58,8 +66,10 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
 
 		@rtype: list[int]
 		"""
-		identifier = input_stream.read_int16_unassigned()
-		size = input_stream.read_int16_unassigned()
+		# identifier = input_stream.read_int16_unassigned()
+		# size = input_stream.read_int16_unassigned()
+		identifier = input_stream.read_int32_unassigned()
+		size = input_stream.read_int32_unassigned()
 		return identifier, size
 
 	def _read_region_header(self, input_stream):
@@ -72,13 +82,15 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
 
 		@rtype: int
 		"""
-		self.version = input_stream.read_vector_4_byte()
-		assert self.version == (2, 0, 0, 0), "Unsupported smd version: {}".format(self.version)
+		self._version = input_stream.read_vector_4_byte()
+		assert self._version in self._valid_versions, "Unsupported smd version: {}".format(self._version)
 		number_of_segments = 0
 		for index in range(0, self._segments_in_a_cube):
 			identifier, size = self._read_segment_index(input_stream)
 			if identifier > 0:
 				number_of_segments += 1
+		for index in range(0, self._segments_in_a_cube):
+			input_stream.read_int64_unassigned()
 		return number_of_segments
 
 	def _read_file(self, input_stream):
@@ -91,14 +103,15 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
 		number_of_segments = self._read_region_header(input_stream)
 		for _ in xrange(number_of_segments):
 			segment = SmdSegment(
+				version=self._version[3],
 				blocks_in_a_line=self._blocks_in_a_line_in_a_segment,
 				logfile=self._logfile,
 				verbose=self._verbose,
 				debug=self._debug)
 			segment.read(input_stream)
-			if not segment.has_valid_data:
+			if not segment._has_valid_data:
 				continue
-			self.position_to_segment[segment.position] = segment
+			self._position_to_segment[segment._position] = segment
 
 	def read(self, file_path):
 		"""
@@ -134,8 +147,8 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
 		@param output_stream: output stream
 		@type output_stream: ByteStream
 		"""
-		output_stream.write_int16_unassigned(identifier)
-		output_stream.write_int16_unassigned(size)
+		output_stream.write_int32_unassigned(identifier)
+		output_stream.write_int32_unassigned(size)
 
 	def _write_region_header(self, output_stream):
 		"""
@@ -146,16 +159,15 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
 		@type output_stream: ByteStream
 		"""
 		# Version
-		output_stream.write_vector_4_byte(self.version)
+		output_stream.write_vector_4_byte(self._version)
 		# output_stream.write_int32_unassigned(self.version)
 
 		# segment index
-		segment_header_size = 26
 		# for _ in range(0, 16*16*16):
 		segment_index_to_size = dict()
-		for position, segment in self.position_to_segment.iteritems():
+		for position, segment in self._position_to_segment.iteritems():
 			segment_index = self.get_segment_index_by_position(position)
-			segment_index_to_size[segment_index] = self.position_to_segment[position].compressed_size + segment_header_size
+			segment_index_to_size[segment_index] = self._position_to_segment[position]._compressed_size + self._segment_header_size
 
 		seg_id = 0
 		for segment_index in range(0, self._segments_in_a_cube):
@@ -165,6 +177,9 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
 			seg_id += 1
 			self._write_segment_index(seg_id, segment_index_to_size[segment_index], output_stream)
 
+		for index in range(0, self._segments_in_a_cube):  # timestamp
+			output_stream.write_int64_unassigned(0)
+
 	def _write_file(self, output_stream):
 		"""
 		Write region data to a byte stream
@@ -173,8 +188,8 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
 		@type output_stream: ByteStream
 		"""
 		output_stream.seek(4+self._segments_in_a_cube*4)  # skip header: version(4byte) + 4096 segment index (4 byte)
-		for position in sorted(self.position_to_segment.keys(), key=lambda tup: (tup[2], tup[1], tup[0])):
-			segment = self.position_to_segment[position]
+		for position in sorted(self._position_to_segment.keys(), key=lambda tup: (tup[2], tup[1], tup[0])):
+			segment = self._position_to_segment[position]
 			assert isinstance(segment, SmdSegment)
 			segment.write(output_stream)
 		output_stream.seek(0)  # jump back for header
@@ -206,8 +221,8 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
 		@rtype: SmdBlock
 		"""
 		segment_position = self.get_segment_position_of_position(position)
-		assert segment_position in self.position_to_segment
-		return self.position_to_segment[segment_position].get_block_at_position(position)
+		assert segment_position in self._position_to_segment
+		return self._position_to_segment[segment_position].get_block_at_position(position)
 
 	def get_number_of_blocks(self):
 		"""
@@ -217,7 +232,7 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
 		@rtype: int
 		"""
 		number_of_blocks = 0
-		for position, segment in self.position_to_segment.iteritems():
+		for position, segment in self._position_to_segment.iteritems():
 			assert isinstance(segment, SmdSegment)
 			number_of_blocks += segment.get_number_of_blocks()
 		return number_of_blocks
@@ -233,9 +248,9 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
 		@rtype: bool
 		"""
 		segment_position = self.get_segment_position_of_position(position)
-		if segment_position not in self.position_to_segment:
+		if segment_position not in self._position_to_segment:
 			return False
-		return self.position_to_segment[segment_position].has_block_at_position(position)
+		return self._position_to_segment[segment_position].has_block_at_position(position)
 
 	# ###  Index and positions
 
@@ -304,15 +319,15 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
 		@param hull_type:
 		@type hull_type: int | None
 		"""
-		for segment_position in self.position_to_segment.keys():
-			self.position_to_segment[segment_position].replace_hull(new_hull_type, hull_type)
+		for segment_position in self._position_to_segment.keys():
+			self._position_to_segment[segment_position].replace_hull(new_hull_type, hull_type)
 
 	def replace_blocks(self, block_id, replace_id, replace_hp, compatible=False):
 		"""
 		Replace all blocks of a specific id
 		"""
-		for segment_position in self.position_to_segment.keys():
-			self.position_to_segment[segment_position].replace_blocks(block_id, replace_id, replace_hp, compatible)
+		for segment_position in self._position_to_segment.keys():
+			self._position_to_segment[segment_position].replace_blocks(block_id, replace_id, replace_hp, compatible)
 
 	def update(self, entity_type=0):
 		"""
@@ -321,20 +336,20 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
 		@param entity_type: ship=0/station=2/etc
 		@type entity_type: int
 		"""
-		list_of_position_segment = self.position_to_segment.keys()
+		list_of_position_segment = self._position_to_segment.keys()
 		for position_segment in list_of_position_segment:
-			self.position_to_segment[position_segment].update(entity_type)
+			self._position_to_segment[position_segment].update(entity_type)
 		self._remove_empty_segments()
 
 	def _remove_empty_segments(self):
 		"""
 		Search for and remove segments with no blocks
 		"""
-		list_of_positions = self.position_to_segment.keys()
+		list_of_positions = self._position_to_segment.keys()
 		for position_segment in list_of_positions:
-			if self.position_to_segment[position_segment].get_number_of_blocks() == 0:
+			if self._position_to_segment[position_segment].get_number_of_blocks() == 0:
 				self._logger.debug("'remove' Removing empty segment {}.".format(position_segment))
-				self.position_to_segment.pop(position_segment)
+				self._position_to_segment.pop(position_segment)
 
 	def remove_blocks(self, block_id):
 		"""
@@ -343,8 +358,8 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
 		@param block_id:
 		@type block_id: int
 		"""
-		for position in self.position_to_segment.keys():
-			self.position_to_segment[position].remove_blocks(block_id)
+		for position in self._position_to_segment.keys():
+			self._position_to_segment[position].remove_blocks(block_id)
 
 	def remove_block(self, block_position):
 		"""
@@ -355,8 +370,8 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
 		"""
 		assert isinstance(block_position, tuple), block_position
 		position_segment = self.get_segment_position_of_position(block_position)
-		assert position_segment in self.position_to_segment, block_position
-		self.position_to_segment[position_segment].remove_block(block_position)
+		assert position_segment in self._position_to_segment, block_position
+		self._position_to_segment[position_segment].remove_block(block_position)
 
 	def add(self, block_position, block):
 		"""
@@ -369,14 +384,15 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
 		"""
 		assert isinstance(block, SmdBlock)
 		position_segment = self.get_segment_position_of_position(block_position)
-		if position_segment not in self.position_to_segment:
-			self.position_to_segment[position_segment] = SmdSegment(
+		if position_segment not in self._position_to_segment:
+			self._position_to_segment[position_segment] = SmdSegment(
+				version=self._version[3],
 				blocks_in_a_line=self._blocks_in_a_line_in_a_segment,
 				logfile=self._logfile,
 				verbose=self._verbose,
 				debug=self._debug)
-			self.position_to_segment[position_segment].set_position(position_segment)
-		self.position_to_segment[position_segment].add(block_position, block)
+			self._position_to_segment[position_segment].set_position(position_segment)
+		self._position_to_segment[position_segment].add(block_position, block)
 
 	def search(self, block_id):
 		"""
@@ -389,7 +405,7 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
 		@return: None or (x,y,z)
 		@rtype: None | tuple[int]
 		"""
-		for position, segment in self.position_to_segment.iteritems():
+		for position, segment in self._position_to_segment.iteritems():
 			block_position = segment.search(block_id)
 			if block_position is not None:
 				return block_position
@@ -406,7 +422,7 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
 		@rtype: set[tuple[int]]
 		"""
 		positions = set()
-		for position, segment in self.position_to_segment.iteritems():
+		for position, segment in self._position_to_segment.iteritems():
 			positions = positions.union(segment.search_all(block_id))
 		return positions
 
@@ -417,7 +433,7 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
 		@return: (x,y,z), block
 		@rtype: tuple[int], SmdBlock
 		"""
-		for position_segment, segment in self.position_to_segment.iteritems():
+		for position_segment, segment in self._position_to_segment.iteritems():
 			assert isinstance(segment, SmdSegment)
 			for position_block, block in segment.iteritems():
 				yield position_block, block
@@ -429,10 +445,10 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
 		@param output_stream: Output stream
 		@type output_stream: fileIO
 		"""
-		output_stream.write("Version: {}\n".format(self.version))
-		output_stream.write("Segments: {}\n".format(len(self.position_to_segment)))
+		output_stream.write("Version: {}\n".format(self._version))
+		output_stream.write("Segments: {}\n".format(len(self._position_to_segment)))
 		if self._debug or self._verbose:
-			for position in sorted(self.position_to_segment.keys(), key=lambda tup: (tup[2], tup[1], tup[0])):
-				self.position_to_segment[position].to_stream(output_stream)
+			for position in sorted(self._position_to_segment.keys(), key=lambda tup: (tup[2], tup[1], tup[0])):
+				self._position_to_segment[position].to_stream(output_stream)
 		output_stream.write("\n")
 		output_stream.flush()
