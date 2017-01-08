@@ -10,6 +10,9 @@ PLANET = 4
 
 class BlueprintUtils(object):
 
+	# set to (8, 8, 8) in case of smd2 to smd3 conversion
+	offset = None
+
 	_entity_types = {
 		SHIP: "Ship",
 		SHOP: "Shop",
@@ -233,7 +236,7 @@ class BlueprintUtils(object):
 		290: "Docking Enhancer",
 		}
 
-	_docking_to_rails = {
+	docking_to_rails = {
 		7: 665,  # "Turret Docking Unit" -> "Rail Turret Axis"
 		88: None,
 		289: 662,  # "Docking Module" -> "Rail Basic"
