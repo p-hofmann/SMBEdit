@@ -18,7 +18,7 @@ class DataType4(DefaultLogging):
 	@type _vector_float_1: tuple[float]
 	@type _entity_label: str
 	@type _entity_unknown_list_of_tuple: dict[list]
-	@type _docked_entity: dict[int,TagManager]
+	@type _docked_entities: dict[int,TagManager]
 	"""
 
 	def __init__(self, logfile=None, verbose=False, debug=False):
@@ -28,7 +28,7 @@ class DataType4(DefaultLogging):
 		self._vector_float_1 = (0, 0, 0)
 		self._entity_label = ""
 		self._entity_unknown_list_of_tuple = {}
-		self._docked_entity = {}
+		self._docked_entities = {}
 		return
 
 	# #######################################
@@ -115,15 +115,15 @@ class DataType4(DefaultLogging):
 			for some_index in range(list_size_of_unknown_stuff):
 				self._entity_unknown_list_of_tuple[some_index] = self._read_unknown_d4_stuff(input_stream, unknown_number)
 
-		self._docked_entity = {}
+		self._docked_entities = {}
 		amount_of_docked_entities = input_stream.read_int32()
 		for turret_index in range(amount_of_docked_entities):
 			relative_path = input_stream.read_string()  # utf
 			_, dock_index = relative_path.rsplit('_', 1)
 			tag_size = input_stream.read_int32_unassigned()
 			if tag_size > 0:
-				self._docked_entity[int(dock_index)] = TagManager(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
-				self._docked_entity[int(dock_index)].read(input_stream)
+				self._docked_entities[int(dock_index)] = TagManager(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
+				self._docked_entities[int(dock_index)].read(input_stream)
 
 	# #######################################
 	# ###  Write
@@ -169,15 +169,15 @@ class DataType4(DefaultLogging):
 			for index in sorted(self._entity_unknown_list_of_tuple.keys()):
 				self._write_unknown_d4_stuff(output_stream, self._entity_unknown_list_of_tuple[index], unknown_number)
 
-		output_stream.write_int32_unassigned(len(self._docked_entity))
-		for dock_index in sorted(self._docked_entity.keys()):
+		output_stream.write_int32_unassigned(len(self._docked_entities))
+		for dock_index in sorted(self._docked_entities.keys()):
 			new_relative_directory = os.path.join(relative_path, "ATTACHED_{}".format(dock_index))
-			self._logger.debug(new_relative_directory)
+			# self._logger.debug(new_relative_directory)
 			output_stream.write_string(new_relative_directory)
 			file_position_size = output_stream.tell()
 			output_stream.seek(4, whence=1)  # skip size for later
 			file_position_tag = output_stream.tell()
-			self._docked_entity[dock_index].write(output_stream, compressed)
+			self._docked_entities[dock_index].write(output_stream, compressed)
 			file_position_end = output_stream.tell()
 			output_stream.seek(file_position_size)
 			tag_size = file_position_end-file_position_tag
@@ -188,13 +188,24 @@ class DataType4(DefaultLogging):
 	# ###  Else
 	# #######################################
 
-	def _get_docker_related_loaction_tags(self):
+	def add(self, docked_entity_index, rail_docker_links):
+		"""
+
+		@type docked_entity_index: int
+		@type rail_docker_links: RailDockedEntityLinks
+		"""
+		assert docked_entity_index not in self._docked_entities, "Docked entity already exists: {}".format(docked_entity_index)
+		tag_manager = TagManager(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
+		tag_manager.set_root_tag(rail_docker_links.to_tag())
+		self._docked_entities[docked_entity_index] = tag_manager
+
+	def _get_docker_related_location_tags(self):
 		"""
 
 		@rtype: tuple[TagPayload]
 		"""
-		for docked_entity_index in self._docked_entity.keys():
-			root_tag = self._docked_entity[docked_entity_index].get_root_tag()
+		for docked_entity_index in self._docked_entities.keys():
+			root_tag = self._docked_entities[docked_entity_index].get_root_tag()
 			assert isinstance(root_tag, TagPayload)
 			taglist1 = root_tag.payload
 			assert isinstance(taglist1, TagList)
@@ -221,7 +232,7 @@ class DataType4(DefaultLogging):
 		@param direction_vector: vector
 		@type direction_vector: tuple[int]
 		"""
-		for tag_docked_entity_location, tag_rail_location in self._get_docker_related_loaction_tags():
+		for tag_docked_entity_location, tag_rail_location in self._get_docker_related_location_tags():
 			tag_docked_entity_location.payload = BlueprintUtils.vector_subtraction(
 				tag_docked_entity_location.payload, direction_vector)
 			tag_rail_location.payload = BlueprintUtils.vector_subtraction(
@@ -234,7 +245,7 @@ class DataType4(DefaultLogging):
 		@param output_stream: Output stream
 		@type output_stream: fileIO
 		"""
-		output_stream.write("DataType4: {}\n".format(len(self._docked_entity)))
+		output_stream.write("DataType4: {}\n".format(len(self._docked_entities)))
 		output_stream.write("Label: '{}'\t".format(self._entity_label))
 		output_stream.write("Vector: '{}', '{}'\n".format(self._vector_float_0, self._vector_float_1))
 		list_size_of_unknown_stuff = len(self._entity_unknown_list_of_tuple)
@@ -242,9 +253,10 @@ class DataType4(DefaultLogging):
 			output_stream.write("unknown tuple: #{}\n".format(len(self._entity_unknown_list_of_tuple)))
 
 		if self._debug:
-			for dock_index in sorted(self._docked_entity.keys()):
+			for dock_index in sorted(self._docked_entities.keys()):
 				output_stream.write("\nDocked entity {}:\n".format(dock_index))
+				# self._docked_entity[dock_index].to_stream(output_stream)
 				links = RailDockedEntityLinks()
-				links.from_tag(self._docked_entity[dock_index].get_root_tag())
+				links.from_tag(self._docked_entities[dock_index].get_root_tag())
 				links.to_stream(output_stream)
 		output_stream.write("\n")
