@@ -13,16 +13,59 @@ class RailDockedEntity(object):
 	@type _location: tuple[int]
 	"""
 
+	_side_to_orientation = {
+		0: (2, 1),  # "Front_up",
+		1: (4, 1),  # "Back_down",
+		2: (14, 1),  # "Top_forward"
+		3: (8, 1),  # "Bottom_backwards"
+		4: (0, 0),  # "Right_forward",
+		5: (4, 0),  # "Left_forward",
+	}
+
+	# 0: "FRONT ",
+	# 1: "BACK  ",
+	# 2: "TOP   ",
+	# 3: "BOTTOM",
+	# 4: "RIGHT ",
+	# 5: "LEFT  ",
+
+	_rail_orientation_map = {
+		(0, 0): "Right_forward",
+		(1, 0): "Right_up",
+		(2, 0): "Right_backwards",
+		(3, 0): "Right_down",
+		(4, 0): "Left_forward",
+		(5, 0): "Left_up",
+		(6, 0): "Left_backwards",
+		(7, 0): "Left_down",
+		(0, 1): "Front_down",
+		(1, 1): "Front_left",
+		(2, 1): "Front_up",
+		(3, 1): "Front_right",
+		(4, 1): "Back_down",
+		(5, 1): "Back_left",
+		(6, 1): "Back_up",
+		(7, 1): "Back_right",
+		(8, 1): "Bottom_backwards",
+		(9, 1): "Bottom_left",
+		(10, 1): "Bottom_forward",
+		(11, 1): "Bottom_right",
+		(12, 1): "Top_backwards",
+		(13, 1): "Top_left",
+		(14, 1): "Top_forward",
+		(15, 1): "Top_right",
+	}
+
 	def __init__(self):
 		self._label = ""
 		self._location = (0, 0, 0)
 		self._block_id = 0
-		self._unknown_byte_10_14 = 0
-		self._unknown_byte_0 = 1
+		self._byte_orientation_1 = 0
+		self._byte_orientation_2 = 0
 		self._unknown_byte_1 = 100
 		return
 
-	def set(self, label, location, block_id, unknown_byte):
+	def set_by_block_side(self, label, location, block_id, side):
 		"""
 
 		@param label:
@@ -31,13 +74,31 @@ class RailDockedEntity(object):
 		@type location: tuple[int]
 		@param block_id:
 		@type block_id: int
-		@param unknown_byte:
-		@type unknown_byte: int
+		@param side:
+		@type side: int
+		"""
+		byte_orientation_1, byte_orientation_2 = self._side_to_orientation[side]
+		self.set(label, location, block_id, byte_orientation_1, byte_orientation_2)
+
+	def set(self, label, location, block_id, byte_orientation_1, byte_orientation_2):
+		"""
+
+		@param label:
+		@type label: str
+		@param location:
+		@type location: tuple[int]
+		@param block_id:
+		@type block_id: int
+		@param byte_orientation_1:
+		@type byte_orientation_1: int
+		@param byte_orientation_2:
+		@type byte_orientation_2: int
 		"""
 		self._label = label
 		self._location = location
 		self._block_id = block_id
-		self._unknown_byte_10_14 = unknown_byte
+		self._byte_orientation_1 = byte_orientation_1
+		self._byte_orientation_2 = byte_orientation_2
 
 	def get_block_id(self):
 		"""
@@ -58,8 +119,8 @@ class RailDockedEntity(object):
 		self._label = list_of_tags[0].payload
 		self._location = list_of_tags[1].payload
 		self._block_id = list_of_tags[2].payload
-		self._unknown_byte_10_14 = list_of_tags[3].payload
-		self._unknown_byte_0 = list_of_tags[4].payload
+		self._byte_orientation_1 = list_of_tags[3].payload
+		self._byte_orientation_2 = list_of_tags[4].payload
 		self._unknown_byte_1 = list_of_tags[5].payload
 
 	def to_tag(self):
@@ -77,9 +138,9 @@ class RailDockedEntity(object):
 		tag_list.add(TagPayload(-8, None, self._label))
 		tag_list.add(TagPayload(-10, None, self._location))
 		tag_list.add(TagPayload(-2, None, self._block_id))
-		tag_list.add(TagPayload(-1, None, self._unknown_byte_10_14))
+		tag_list.add(TagPayload(-1, None, self._byte_orientation_1))
 		# seemingly static unknown stuff
-		tag_list.add(TagPayload(-1, None, self._unknown_byte_0))
+		tag_list.add(TagPayload(-1, None, self._byte_orientation_2))
 		tag_list.add(TagPayload(-1, None, self._unknown_byte_1))
 		return TagPayload(-13, None, tag_list)
 
@@ -92,6 +153,7 @@ class RailDockedEntity(object):
 		"""
 		output_stream.write("{}\t".format(self._location))
 		output_stream.write("{}\t".format(self._block_id))
+		output_stream.write("{}\t".format(self._rail_orientation_map[(self._byte_orientation_1, self._byte_orientation_2)]))
 		output_stream.write("{}\n".format(self._label))
 
 
@@ -196,6 +258,10 @@ class RailDockedEntityLink(object):
 		self._entity_main.to_stream(output_stream)
 		output_stream.write("Docked:\t")
 		self._entity_docked.to_stream(output_stream)
+		# output_stream.write("{}\n".format(self._unknown_matrix_0))
+		# output_stream.write("{}\n".format(self._unknown_matrix_1))
+		# output_stream.write("{}\n".format(self._unknown_matrix_2))
+		# output_stream.write("{}\n".format((self._unknown_byte_0, self._unknown_byte_1, self._unknown_byte_2)))
 
 
 class RailDockedEntityLinks(object):
