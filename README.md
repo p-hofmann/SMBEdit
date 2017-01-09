@@ -12,11 +12,11 @@ Several command line arguments are available and (most) can be used all at once.
 
 ### Display all available command line arguments
 ```
-	-h, --help
+-h, --help
 ```
 ### Print summary of blueprint
 ```
-	-s, --summary  
+-s, --summary  
 ```
 
 This can be combined with '-verbose' to display more information.  
@@ -24,7 +24,7 @@ Using '-debug' detailed information about ALL blocks will be shown and is not re
 
 ### Save the blueprint
 ```
-   -o PATH_OUTPUT, --path_output PATH_OUTPUT
+-o PATH_OUTPUT, --path_output PATH_OUTPUT
 ```
 
 The path can be a directory or a '.sment' file path.  
@@ -38,7 +38,7 @@ __Important__: Manually changing a blueprint folder name will likely break it, u
 
 ### Update entity
 ```
-	-u, --update
+-u, --update
 ```
 
 Removes outdated blocks and replaces old docking blocks with basic rails
@@ -76,7 +76,7 @@ Available entity classes are:
 
 ### Relocate core/center
 ```
-	-m MOVE_CENTER, --move_center MOVE_CENTER
+-m MOVE_CENTER, --move_center MOVE_CENTER
 ```
 
 The argument can be either a block id or a directional vector like '0,0,1'.
@@ -95,7 +95,7 @@ The ids of blocks can be found at [starmadepedia](https://starmadepedia.net/wiki
 For example, if you have problems finding the core anchor of your huge shipyard, why not moving the station indicator directly on top of it? The id of the shipyard core anchor is 679.
 
 ```
-	python smbedit.py directory/my_blueprint -m 679 -o directory/new_blueprint
+python smbedit.py directory/my_blueprint -m 679 -o directory/new_blueprint
 ```
 
 ### Remove blocks
@@ -107,7 +107,7 @@ It is possible to remove all blocks of a specific block id, or a list of comma s
 
 ### Replace blocks
 ```
-	-r {old_id},{new_id}:{hit_points}
+-r {old_id},{new_id}:{hit_points}
 ```
 
 Replace a block of a specific id with another one. Hit points are also required.
@@ -121,7 +121,7 @@ Hit points - Hull type
 
 ### Replace Hull
 ```
-	-rh {old_hull_type}:{new_hull_type}
+-rh {old_hull_type}:{new_hull_type}
 ```
 
 Replaces all hull armor of a specific type with another.  
@@ -137,14 +137,14 @@ z: "Hazard Armor"
 Example to replace advanced armor with hull:
 
 ```
-	python smbedit.py directory/my_station_blueprint -o directory/new_ship_blueprint -rh a:h
+python smbedit.py directory/my_station_blueprint -o directory/new_ship_blueprint -rh a:h
 ```
 
 
 <!--
 ### Turn/Tilt entity
 ```
-	-t {0,1,2,3,4,5}, --turn {0,1,2,3,4,5}
+-t {0,1,2,3,4,5}, --turn {0,1,2,3,4,5}
 ```
 A specific change is represented by a number:  
 0: "tilt up",
@@ -175,7 +175,7 @@ if the blocks 'below' edges are of a hull type, they might change shape and caus
 Recommended for smooth edges:
 
 ```
-	python smbedit.py directory/original_blueprint -o directory/smooth_blueprint -aw -at -ah
+python smbedit.py directory/original_blueprint -o directory/smooth_blueprint -aw -at -ah
 ```
 
 Corners can be very ambiguous for the palcement of corner shaped blocks and are skipped.
@@ -185,7 +185,7 @@ Those can be auto-shaped with tetras.
 Here is a quick example of what can be done:
 
 ```
-	python smbedit.py directory/my_station_blueprint -o directory/new_ship_blueprint -m 123
+python smbedit.py directory/my_station_blueprint -o directory/new_ship_blueprint -m 123
 ```
 
 This will  
@@ -195,7 +195,7 @@ This will
 ----
 
 ```
-	python smbedit.py directory/my_station_blueprint -o directory/new_ship_blueprint -et 0 -m 94
+python smbedit.py directory/my_station_blueprint -o directory/new_ship_blueprint -et 0 -m 94
 ```
 
 This will  
