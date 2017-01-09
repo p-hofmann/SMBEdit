@@ -84,6 +84,8 @@ class DataType4(DefaultLogging):
 
 		@param input_stream: input stream
 		@type input_stream: ByteStream
+
+		@rtype Tuple[str, int, int]
 		"""
 		unknown_string = input_stream.read_string()  # utf
 		unknown_long0 = input_stream.read_int64()
@@ -92,7 +94,7 @@ class DataType4(DefaultLogging):
 		# if unknown_number != 0:
 		# 	unknown_long0 = self.shift_index(unknown_long0, unknown_number, unknown_number, unknown_number)
 		# 	unknown_long1 = self.shift_index(unknown_long1, unknown_number, unknown_number, unknown_number)
-		return [unknown_string, unknown_long0, unknown_long1]
+		return unknown_string, unknown_long0, unknown_long1
 
 	def read(self, input_stream, version):
 		"""
@@ -255,7 +257,7 @@ class DataType4(DefaultLogging):
 		if self._debug:
 			for dock_index in sorted(self._docked_entities.keys()):
 				output_stream.write("\nDocked entity {}:\n".format(dock_index))
-				# self._docked_entity[dock_index].to_stream(output_stream)
+				# self._docked_entities[dock_index].to_stream(output_stream)
 				links = RailDockedEntityLinks()
 				links.from_tag(self._docked_entities[dock_index].get_root_tag())
 				links.to_stream(output_stream)
