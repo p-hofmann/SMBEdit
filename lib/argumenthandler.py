@@ -127,7 +127,6 @@ class ArgumentHandler(Validator):
         """
         parser = argparse.ArgumentParser(
             usage="python %(prog)s directory_blueprint",
-            version="{label} {version}".format(label=label, version=version),
             description="""
     #######################################
     #    {label}#
@@ -139,6 +138,10 @@ class ArgumentHandler(Validator):
                 version=version.ljust(24)
             ),
             formatter_class=argparse.RawTextHelpFormatter)
+
+        parser.add_argument('-V', '--version',
+                            action='version',
+                            version="{label} {version}".format(label=label, version=version),)
 
         parser.add_argument(
             "-silent", "--silent",
