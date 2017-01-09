@@ -135,14 +135,14 @@ class Blueprint(DefaultLogging, BlueprintUtils):
 			else:
 				self.header.set_class(self._ct_to_station_class[entity_class])
 
-	def remove_blocks(self, block_id):
+	def remove_blocks(self, block_ids):
 		"""
 		Removing all blocks of a specific id
 
-		@param block_id:
-		@type block_id: int
+		@param block_ids:
+		@type block_ids: set[int]
 		"""
-		self.smd3.remove_blocks(block_id)
+		self.smd3.remove_blocks(block_ids)
 		self.logic.update(self.smd3)
 		self.header.update(self.smd3)
 

@@ -307,15 +307,15 @@ class SmdSegment(DefaultLogging, BlueprintUtils):
 				continue
 			self.block_index_to_block[block_index].convert_to_type_6(block_id=updated_block_id)
 
-	def remove_blocks(self, block_id):
+	def remove_blocks(self, block_ids):
 		"""
 		Removing all blocks of a specific id
 
-		@param block_id:
-		@type block_id: int
+		@param block_ids:
+		@type block_ids: set[int]
 		"""
 		for block_index in self.block_index_to_block.keys():
-			if self.block_index_to_block[block_index].get_id() != block_id:
+			if self.block_index_to_block[block_index].get_id() not in block_ids:
 				continue
 			self.block_index_to_block.pop(block_index)
 		if self.get_number_of_blocks() == 0:

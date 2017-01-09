@@ -336,15 +336,15 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
 				self._logger.debug("'remove' Removing empty segment {}.".format(position_segment))
 				self.position_to_segment.pop(position_segment)
 
-	def remove_blocks(self, block_id):
+	def remove_blocks(self, block_ids):
 		"""
 		Removing all blocks of a specific id
 
-		@param block_id:
-		@type block_id: int
+		@param block_ids:
+		@type block_ids: set[int]
 		"""
 		for position in self.position_to_segment.keys():
-			self.position_to_segment[position].remove_blocks(block_id)
+			self.position_to_segment[position].remove_blocks(block_ids)
 
 	def remove_block(self, block_position):
 		"""

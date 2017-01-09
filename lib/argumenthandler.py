@@ -90,6 +90,12 @@ class ArgumentHandler(Validator):
 			if self._path_output is not None:
 				self._directory_output = self._clean_dir_path(self._path_output)
 
+		if self._remove_blocks is not None:
+			try:
+				self._remove_blocks = map(int, self._remove_blocks.split(','))
+			except ValueError:
+				raise ValueError("Bad block id in: '{}'".format(self._remove_blocks))
+
 	def __exit__(self, type, value, traceback):
 		super(ArgumentHandler, self).__exit__(type, value, traceback)
 		if self.validate_dir(self._tmp_dir, silent=True):
@@ -260,7 +266,7 @@ class ArgumentHandler(Validator):
 		group_input.add_argument(
 			"-rm", "--remove_blocks",
 			default=None,
-			type=int,
+			type=str,
 			help="Remove all blocks of the given block id.")
 
 		group_input.add_argument(
