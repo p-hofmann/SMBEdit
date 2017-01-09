@@ -266,8 +266,9 @@ class Header(DefaultLogging, BlueprintUtils):
 		@return: classification of blueprint
 		@rtype: str
 		"""
-		if self.type not in self._entity_classification:
-			return "General"
+		assert self.type in BlueprintUtils._entity_classification, "Unknown entity type: {}.".format(self.type)
+		assert self.classification in BlueprintUtils._entity_classification[self.type], "{} has no class id: {}.".format(
+			self.get_type_name(), self.classification)
 		return self._entity_classification[self.type][self.classification]
 
 	def get_width(self):
@@ -315,11 +316,10 @@ class Header(DefaultLogging, BlueprintUtils):
 		@type entity_class: int
 		"""
 		assert isinstance(entity_class, (int, long))
-		assert self.type in [0, 2], "Can not set class. Blueprint is not a ship/station."
-		assert entity_class in BlueprintUtils._entity_classification[self.type], "Unknown class id: {}.".format(entity_class)
+		assert self.type in BlueprintUtils._entity_classification, "Unknown entity type: {}.".format(self.type)
+		assert entity_class in BlueprintUtils._entity_classification[self.type], "{} has no class id: {}.".format(
+			self.get_type_name(), entity_class)
 		self.classification = entity_class
-		if self.version < 3:
-			self.version = 3
 
 	def set_type(self, entity_type):
 		"""
@@ -426,7 +426,7 @@ class Header(DefaultLogging, BlueprintUtils):
 			self.get_height(),
 			self.get_length()
 			))
-		if self.version > 2 and self.type in self._entity_classification:
+		if self.type in self._entity_classification:
 			output_stream.write("Classification: {}\n".format(self.get_classification_name()))
 
 		if self._verbose or self._debug:
