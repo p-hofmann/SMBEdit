@@ -111,7 +111,7 @@ class RailDockedEntity(object):
 		@type tag_payload: TagPayload
 		"""
 		assert isinstance(tag_payload, TagPayload), tag_payload
-		assert abs(tag_payload.id) == 13
+		assert abs(tag_payload.id) == 13, (tag_payload.id, tag_payload.payload)
 		assert isinstance(tag_payload.payload, TagList)
 		tag_list = tag_payload.payload
 		assert isinstance(tag_list, TagList)
@@ -318,12 +318,16 @@ class RailDockedEntityLinks(object):
 
 		@rtype: TagPayload
 		"""
-		link_tag_list = TagList()
-		link_tag_list.add(TagPayload(-1, None, len(self._list_links)))
+		links_tag_list = TagList()
+		links_tag_list.add(TagPayload(-1, None, len(self._list_links)))
+
+		tag_list = TagList()
 		for link in self._list_links:
-			link_tag_list.add(link.to_tag())
-		link_tag_list.add(TagPayload(-13, None, TagList()))  # why is here a empty tag list? No clue!
-		return TagPayload(-13, None, link_tag_list)
+			tag_list.add(link.to_tag())
+
+		links_tag_list.add(TagPayload(-13, None, tag_list))
+		links_tag_list.add(TagPayload(-13, None, TagList()))  # why is here a empty tag list? No clue!
+		return TagPayload(-13, None, links_tag_list)
 
 	def to_stream(self, output_stream=sys.stdout):
 		"""
