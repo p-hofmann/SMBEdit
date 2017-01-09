@@ -69,11 +69,12 @@ class Smd(DefaultLogging, BlueprintUtils):
 		elif file_name.endswith(".smd2"):
 			self._logger.warning("'smd2' file format found.")
 			self._logger.warning("'smd2' to 'smd3' conversion is imperfect and results in blocks that appear damaged.")
+			BlueprintUtils.offset = (8, 8, 8)
 			smd2 = Smd2(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
 			smd2.read(directory_blueprint)
 			for position, smd2block in smd2.iteritems():
-				smd3_position = BlueprintUtils.vector_addition(position, (8, 8, 8))
-				smd3block = SmdBlock()
+				smd3_position = BlueprintUtils.vector_addition(position, BlueprintUtils.offset)
+				smd3block = SmdBlock(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
 				hit_points = 1
 				if BlueprintUtils.is_hull(smd2block.get_id()):
 					hull_type, color, shape_id = BlueprintUtils._get_hull_details(smd2block.get_id())
@@ -122,7 +123,7 @@ class Smd(DefaultLogging, BlueprintUtils):
 		@rtype: SmdBlock
 		"""
 		region_position = self.get_region_position_of_position(position)
-		assert region_position in self.position_to_region
+		assert region_position in self.position_to_region, "No block at position: {}".format(position)
 		return self.position_to_region[region_position].get_block_at_position(position)
 
 	# ###  Index and positions
