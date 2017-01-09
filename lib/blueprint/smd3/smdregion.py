@@ -157,7 +157,7 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
         segment_header_size = 26
         # for _ in range(0, 16*16*16):
         segment_index_to_size = dict()
-        for position, segment in self.position_to_segment.items():
+        for position, segment in list(self.position_to_segment.items()):
             segment_index = self.get_segment_index_by_position(position)
             segment_index_to_size[segment_index] = self.position_to_segment[position].compressed_size + segment_header_size
 
@@ -221,7 +221,7 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
         @rtype: int
         """
         number_of_blocks = 0
-        for position, segment in self.position_to_segment.items():
+        for position, segment in list(self.position_to_segment.items()):
             assert isinstance(segment, SmdSegment)
             number_of_blocks += segment.get_number_of_blocks()
         return number_of_blocks
@@ -393,7 +393,7 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
         @return: None or (x,y,z)
         @rtype: None | tuple[int]
         """
-        for position, segment in self.position_to_segment.items():
+        for position, segment in list(self.position_to_segment.items()):
             block_position = segment.search(block_id)
             if block_position is not None:
                 return block_position
@@ -410,7 +410,7 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
         @rtype: set[tuple[int]]
         """
         positions = set()
-        for position, segment in self.position_to_segment.items():
+        for position, segment in list(self.position_to_segment.items()):
             positions = positions.union(segment.search_all(block_id))
         return positions
 
@@ -421,9 +421,9 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
         @return: (x,y,z), block
         @rtype: tuple[int], SmdBlock
         """
-        for position_segment, segment in self.position_to_segment.items():
+        for position_segment, segment in list(self.position_to_segment.items()):
             assert isinstance(segment, SmdSegment)
-            for position_block, block in segment.items():
+            for position_block, block in list(segment.items()):
                 yield position_block, block
 
     def to_stream(self, output_stream=sys.stdout):

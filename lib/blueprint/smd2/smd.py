@@ -1,3 +1,8 @@
+from __future__ import division
+from __future__ import unicode_literals
+from builtins import map
+from builtins import range
+from past.utils import old_div
 __author__ = 'Peter Hofmann'
 
 import sys
@@ -82,7 +87,7 @@ class Smd(DefaultLogging, BlueprintUtils):
         if not os.path.exists(directory_data):
             os.mkdir(directory_data)
         # print self.position_to_region.keys()
-        for position, region in self.position_to_region.iteritems():
+        for position, region in list(self.position_to_region.items()):
             assert isinstance(region, SmdRegion)
             file_name = blueprint_name + "." + ".".join(map(str, position)) + ".smd2"
             file_path = os.path.join(directory_data, file_name)
@@ -134,7 +139,7 @@ class Smd(DefaultLogging, BlueprintUtils):
         @rtype: int
         """
         blocks_in_a_line_in_a_region = self._blocks_in_a_line_in_a_segment * self._segments_in_a_line_of_a_region
-        return int(math.floor((value+blocks_in_a_line_in_a_region/2) / float(blocks_in_a_line_in_a_region)))
+        return int(math.floor(old_div((value+old_div(blocks_in_a_line_in_a_region,2)), float(blocks_in_a_line_in_a_region))))
 
     # #######################################
     # ###  moving blocks
@@ -158,7 +163,7 @@ class Smd(DefaultLogging, BlueprintUtils):
             debug=self._debug)
         min_vector = [self._core_position, self._core_position, self._core_position]
         max_vector = [self._core_position, self._core_position, self._core_position]
-        for position_block, block in self.iteritems():
+        for position_block, block in list(self.items()):
             assert isinstance(block, SmdBlock)
             new_block_position = self.vector_subtraction(position_block, direction_vector)
             if entity_type == 0 and new_block_position == (self._core_position, self._core_position, self._core_position):
@@ -198,7 +203,7 @@ class Smd(DefaultLogging, BlueprintUtils):
             debug=self._debug)
         min_vector = [self._core_position, self._core_position, self._core_position]
         max_vector = [self._core_position, self._core_position, self._core_position]
-        for position_block, block in self.iteritems():
+        for position_block, block in list(self.items()):
             assert isinstance(block, SmdBlock)
             new_block_position = position_block
             if block.get_id() != 1:  # core
@@ -227,7 +232,7 @@ class Smd(DefaultLogging, BlueprintUtils):
         @rtype: int
         """
         number_of_blocks = 0
-        for position, region in self.position_to_region.iteritems():
+        for position, region in list(self.position_to_region.items()):
             assert isinstance(region, SmdRegion)
             number_of_blocks += region.get_number_of_blocks()
         return number_of_blocks
@@ -241,14 +246,14 @@ class Smd(DefaultLogging, BlueprintUtils):
         @param hull_type:
         @type hull_type: int | None
         """
-        for region_position in self.position_to_region.keys():
+        for region_position in list(self.position_to_region.keys()):
             self.position_to_region[region_position].replace_hull(new_hull_type, hull_type)
 
     def replace_blocks(self, block_id, replace_id, replace_hp, compatible=False):
         """
         Replace all blocks of a specific id
         """
-        for region_position in self.position_to_region.keys():
+        for region_position in list(self.position_to_region.keys()):
             self.position_to_region[region_position].replace_blocks(block_id, replace_id, replace_hp, compatible)
 
     def update(self, entity_type=0):
@@ -258,7 +263,7 @@ class Smd(DefaultLogging, BlueprintUtils):
         @param entity_type: ship=0/station=2/etc
         @type entity_type: int
         """
-        for position_region in self.position_to_region.keys():
+        for position_region in list(self.position_to_region.keys()):
             region = self.position_to_region[position_region]
             assert isinstance(region, SmdRegion)
             region.update(entity_type)
@@ -268,7 +273,7 @@ class Smd(DefaultLogging, BlueprintUtils):
         """
         Search for and remove regions with no blocks
         """
-        list_of_position_region = self.position_to_region.keys()
+        list_of_position_region = list(self.position_to_region.keys())
         for position_region in list_of_position_region:
             if self.position_to_region[position_region].get_number_of_blocks() == 0:
                 self._logger.debug("'remove' Removing empty region {}.".format(position_region))
@@ -281,7 +286,7 @@ class Smd(DefaultLogging, BlueprintUtils):
         @param block_id:
         @type block_id: int
         """
-        for position in self.position_to_region.keys():
+        for position in list(self.position_to_region.keys()):
             self.position_to_region[position].remove_blocks(block_id)
 
     def remove_block(self, block_position):
@@ -325,7 +330,7 @@ class Smd(DefaultLogging, BlueprintUtils):
         @return: None or (x,y,z)
         @rtype: None | int,int,int
         """
-        for position, region in self.position_to_region.iteritems():
+        for position, region in list(self.position_to_region.items()):
             block_position = region.search(block_id)
             if block_position is not None:
                 return block_position
@@ -342,7 +347,7 @@ class Smd(DefaultLogging, BlueprintUtils):
         @rtype: set[tuple[int]]
         """
         positions = set()
-        for position, region in self.position_to_region.iteritems():
+        for position, region in list(self.position_to_region.items()):
             positions = positions.union(region.search_all(block_id))
         return positions
 
@@ -369,7 +374,7 @@ class Smd(DefaultLogging, BlueprintUtils):
         @rtype: dict[int, int]
         """
         block_id_to_quantity = {}
-        for position, block in self.iteritems():
+        for position, block in list(self.items()):
             if block.get_id() not in block_id_to_quantity:
                 block_id_to_quantity[block.get_id()] = 0
             block_id_to_quantity[block.get_id()] += 1
@@ -382,9 +387,9 @@ class Smd(DefaultLogging, BlueprintUtils):
         @return: (x,y,z), block
         @rtype: tuple[int,int,int], SmdBlock
         """
-        for position_region, region in self.position_to_region.iteritems():
+        for position_region, region in list(self.position_to_region.items()):
             assert isinstance(region, SmdRegion), type(region)
-            for position_block, block in region.iteritems():
+            for position_block, block in list(region.items()):
                 assert isinstance(block, SmdBlock), type(block)
                 yield position_block, block
 
@@ -397,7 +402,7 @@ class Smd(DefaultLogging, BlueprintUtils):
         """
         min_vector = [self._core_position, self._core_position, self._core_position]
         max_vector = [self._core_position, self._core_position, self._core_position]
-        for position_block, block in self.iteritems():
+        for position_block, block in list(self.items()):
             assert isinstance(block, SmdBlock)
             for index, value in enumerate(position_block):
                 if value < min_vector[index]:
@@ -415,7 +420,7 @@ class Smd(DefaultLogging, BlueprintUtils):
         @param entity_type:
         @type entity_type: int
         """
-        assert isinstance(entity_type, (int, long))
+        assert isinstance(entity_type, int)
         assert 0 <= entity_type <= 4
 
         position_core = (self._core_position, self._core_position, self._core_position)
@@ -439,7 +444,7 @@ class Smd(DefaultLogging, BlueprintUtils):
         """
         output_stream.write("####\nSMD\n####\n\n")
         output_stream.write("Total blocks: {}\n\n".format(self.get_number_of_blocks()))
-        for position in sorted(self.position_to_region.keys(), key=lambda tup: (tup[2], tup[1], tup[0])):
+        for position in sorted(list(self.position_to_region.keys()), key=lambda tup: (tup[2], tup[1], tup[0])):
             output_stream.write("SmdRegion: {}\n".format(list(position)))
             self.position_to_region[position].to_stream(output_stream)
             output_stream.write("\n")
@@ -453,8 +458,8 @@ class Smd(DefaultLogging, BlueprintUtils):
         @type position: tuple[int]
         @rtype: int
         """
-        periphery_index = long(0)
-        power = long(1)
+        periphery_index = int(0)
+        power = int(1)
         for x in range(position[0]-1, position[0]+2):
             for y in range(position[1]-1, position[1]+2):
                 for z in range(position[2]-1, position[2]+2):
@@ -475,8 +480,8 @@ class Smd(DefaultLogging, BlueprintUtils):
         @rtype: int
         """
         assert 1 <= periphery_range <= 3
-        periphery_index = long(0)
-        power = long(1)
+        periphery_index = int(0)
+        power = int(1)
         range_p = [-1, 0, 1]
         for x in range_p:
             for y in range_p:
@@ -543,7 +548,7 @@ class Smd(DefaultLogging, BlueprintUtils):
         @type auto_wedge: bool
         @type auto_tetra: bool
         """
-        for position, block in self.iteritems():
+        for position, block in list(self.items()):
             block_id = block.get_id()
             if not BlueprintUtils.is_hull(block_id):
                 continue
@@ -570,7 +575,7 @@ class Smd(DefaultLogging, BlueprintUtils):
 
         @type block_shape_id: int
         """
-        for position, block in self.iteritems():
+        for position, block in list(self.items()):
             block_id = block.get_id()
             if not BlueprintUtils.is_hull(block_id):
                 continue
@@ -614,7 +619,7 @@ class Smd(DefaultLogging, BlueprintUtils):
         Replace hull blocks on edges with wedges.
         """
         peripheries = {}
-        for position, block in self.iteritems():
+        for position, block in list(self.items()):
             if not BlueprintUtils.is_hull(block.get_id()):
                 continue
             # wedge 599
@@ -652,7 +657,7 @@ class Smd(DefaultLogging, BlueprintUtils):
         """
         peripheries = {}
         bad_orientations = 0
-        for position, block in self.iteritems():
+        for position, block in list(self.items()):
             if not BlueprintUtils.is_hull(block.get_id()):
                 continue
             # wedge 599
@@ -679,9 +684,9 @@ class Smd(DefaultLogging, BlueprintUtils):
                 continue
             peripheries[periphery_index][periphery_shape] = orientation
 
-        print "bad_orientations", bad_orientations
-        for periphery_index in peripheries.keys():
-            print "\t\t{}:".format(periphery_index), '{'
-            for periphery_shape in peripheries[periphery_index].keys():
-                print "\t\t\t{}: {},".format(periphery_shape, peripheries[periphery_index][periphery_shape])
-            print "\t\t},"
+        print("bad_orientations", bad_orientations)
+        for periphery_index in list(peripheries.keys()):
+            print("\t\t{}:".format(periphery_index), '{')
+            for periphery_shape in list(peripheries[periphery_index].keys()):
+                print("\t\t\t{}: {},".format(periphery_shape, peripheries[periphery_index][periphery_shape]))
+            print("\t\t},")

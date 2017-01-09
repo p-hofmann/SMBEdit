@@ -374,7 +374,7 @@ class SmdSegment(DefaultLogging, BlueprintUtils):
         @return: None or (x,y,z)
         @rtype: None | tuple[int]
         """
-        for block_index, block in self.block_index_to_block.items():
+        for block_index, block in list(self.block_index_to_block.items()):
             if block.get_id() == block_id:
                 return self.get_block_position_by_block_index(block_index)
         return None
@@ -390,7 +390,7 @@ class SmdSegment(DefaultLogging, BlueprintUtils):
         @rtype: set[tuple[int]]
         """
         positions = set()
-        for block_index, block in self.block_index_to_block.items():
+        for block_index, block in list(self.block_index_to_block.items()):
             if block.get_id() == block_id:
                 positions.add(self.get_block_position_by_block_index(block_index))
         return positions
@@ -402,7 +402,7 @@ class SmdSegment(DefaultLogging, BlueprintUtils):
         @return: (x,y,z), block
         @rtype: tuple[int], SmdBlock
         """
-        for block_index, block in self.block_index_to_block.items():
+        for block_index, block in list(self.block_index_to_block.items()):
             yield self.get_block_position_by_block_index(block_index), block
 
     def to_stream(self, output_stream=sys.stdout):

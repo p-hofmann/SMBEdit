@@ -77,7 +77,7 @@ class Smd(DefaultLogging, BlueprintUtils):
             BlueprintUtils.offset = (8, 8, 8)
             smd2 = Smd2(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
             smd2.read(directory_blueprint)
-            for position, smd2block in smd2.items():
+            for position, smd2block in list(smd2.items()):
                 smd3_position = BlueprintUtils.vector_addition(position, BlueprintUtils.offset)
                 smd3block = SmdBlock(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
                 hit_points = 1
@@ -107,7 +107,7 @@ class Smd(DefaultLogging, BlueprintUtils):
         if not os.path.exists(directory_data):
             os.mkdir(directory_data)
         # print self.position_to_region.keys()
-        for position, region in self.position_to_region.items():
+        for position, region in list(self.position_to_region.items()):
             assert isinstance(region, SmdRegion)
             file_name = blueprint_name + "." + ".".join(map(str, position)) + ".smd3"
             file_path = os.path.join(directory_data, file_name)
@@ -183,7 +183,7 @@ class Smd(DefaultLogging, BlueprintUtils):
             debug=self._debug)
         min_vector = [16, 16, 16]
         max_vector = [16, 16, 16]
-        for position_block, block in self.items():
+        for position_block, block in list(self.items()):
             assert isinstance(block, SmdBlock)
             new_block_position = self.vector_subtraction(position_block, direction_vector)
             if entity_type == 0 and new_block_position == (16, 16, 16):
@@ -223,7 +223,7 @@ class Smd(DefaultLogging, BlueprintUtils):
             debug=self._debug)
         min_vector = [16, 16, 16]
         max_vector = [16, 16, 16]
-        for position_block, block in self.items():
+        for position_block, block in list(self.items()):
             assert isinstance(block, SmdBlock)
             new_block_position = position_block
             if block.get_id() != 1:  # core
@@ -252,7 +252,7 @@ class Smd(DefaultLogging, BlueprintUtils):
         @rtype: int
         """
         number_of_blocks = 0
-        for position, region in self.position_to_region.items():
+        for position, region in list(self.position_to_region.items()):
             assert isinstance(region, SmdRegion)
             number_of_blocks += region.get_number_of_blocks()
         return number_of_blocks
@@ -350,7 +350,7 @@ class Smd(DefaultLogging, BlueprintUtils):
         @return: None or (x,y,z)
         @rtype: None | int,int,int
         """
-        for position, region in self.position_to_region.items():
+        for position, region in list(self.position_to_region.items()):
             block_position = region.search(block_id)
             if block_position is not None:
                 return block_position
@@ -367,7 +367,7 @@ class Smd(DefaultLogging, BlueprintUtils):
         @rtype: set[tuple[int]]
         """
         positions = set()
-        for position, region in self.position_to_region.items():
+        for position, region in list(self.position_to_region.items()):
             positions = positions.union(region.search_all(block_id))
         return positions
 
@@ -394,7 +394,7 @@ class Smd(DefaultLogging, BlueprintUtils):
         @rtype: dict[int, int]
         """
         block_id_to_quantity = {}
-        for position, block in self.items():
+        for position, block in list(self.items()):
             if block.get_id() not in block_id_to_quantity:
                 block_id_to_quantity[block.get_id()] = 0
             block_id_to_quantity[block.get_id()] += 1
@@ -407,9 +407,9 @@ class Smd(DefaultLogging, BlueprintUtils):
         @return: (x,y,z), block
         @rtype: tuple[int,int,int], SmdBlock
         """
-        for position_region, region in self.position_to_region.items():
+        for position_region, region in list(self.position_to_region.items()):
             assert isinstance(region, SmdRegion), type(region)
-            for position_block, block in region.items():
+            for position_block, block in list(region.items()):
                 assert isinstance(block, SmdBlock), type(block)
                 yield position_block, block
 
@@ -422,7 +422,7 @@ class Smd(DefaultLogging, BlueprintUtils):
         """
         min_vector = [16, 16, 16]
         max_vector = [16, 16, 16]
-        for position_block, block in self.items():
+        for position_block, block in list(self.items()):
             assert isinstance(block, SmdBlock)
             for index, value in enumerate(position_block):
                 if value < min_vector[index]:
@@ -568,7 +568,7 @@ class Smd(DefaultLogging, BlueprintUtils):
         @type auto_wedge: bool
         @type auto_tetra: bool
         """
-        for position, block in self.items():
+        for position, block in list(self.items()):
             block_id = block.get_id()
             if not BlueprintUtils.is_hull(block_id):
                 continue
@@ -595,7 +595,7 @@ class Smd(DefaultLogging, BlueprintUtils):
 
         @type block_shape_id: int
         """
-        for position, block in self.items():
+        for position, block in list(self.items()):
             block_id = block.get_id()
             if not BlueprintUtils.is_hull(block_id):
                 continue
@@ -639,7 +639,7 @@ class Smd(DefaultLogging, BlueprintUtils):
         Replace hull blocks on edges with wedges.
         """
         peripheries = {}
-        for position, block in self.items():
+        for position, block in list(self.items()):
             if not BlueprintUtils.is_hull(block.get_id()):
                 continue
             # wedge 599
@@ -677,7 +677,7 @@ class Smd(DefaultLogging, BlueprintUtils):
         """
         peripheries = {}
         bad_orientations = 0
-        for position, block in self.items():
+        for position, block in list(self.items()):
             if not BlueprintUtils.is_hull(block.get_id()):
                 continue
             # wedge 599
