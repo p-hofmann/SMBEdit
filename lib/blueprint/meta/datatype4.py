@@ -1,3 +1,6 @@
+from __future__ import unicode_literals
+from builtins import str
+from builtins import range
 __author__ = 'Peter Hofmann'
 
 import sys
@@ -49,7 +52,7 @@ class DataType4(DefaultLogging):
         @return:
         @rtype: int
         """
-        return long((var2 & unicode('ffff')) << 32) + long((var1 & unicode('ffff')) << 16) + long(var0 & unicode('ffff'))
+        return int((var2 & str('ffff')) << 32) + int((var1 & str('ffff')) << 16) + int(var0 & str('ffff'))
 
     @staticmethod
     def get_pos(var0, shift=0):
@@ -62,8 +65,8 @@ class DataType4(DefaultLogging):
         @rtype: int
         """
         if shift == 0:
-            return int(var0 & 65535L)
-        return int(var0 >> shift & 65535L)
+            return int(var0 & 65535)
+        return int(var0 >> shift & 65535)
 
     def shift_index(self, var0, var2, var3, var4):
         """
@@ -206,7 +209,7 @@ class DataType4(DefaultLogging):
 
         @rtype: tuple[TagPayload]
         """
-        for docked_entity_index in self._docked_entities.keys():
+        for docked_entity_index in list(self._docked_entities.keys()):
             root_tag = self._docked_entities[docked_entity_index].get_root_tag()
             assert isinstance(root_tag, TagPayload)
             taglist1 = root_tag.payload

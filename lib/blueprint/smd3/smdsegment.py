@@ -1,3 +1,7 @@
+from __future__ import division
+from __future__ import unicode_literals
+from builtins import range
+from past.utils import old_div
 __author__ = 'Peter Hofmann'
 
 import sys
@@ -64,7 +68,7 @@ class SmdSegment(DefaultLogging, BlueprintUtils):
         """
         decompressed_data = zlib.decompress(input_stream.read(self.compressed_size))
         self.block_index_to_block = {}
-        for block_index in range(0, len(decompressed_data)/3):
+        for block_index in range(0, old_div(len(decompressed_data),3)):
             position = block_index * 3
             block = SmdBlock(debug=self._debug)
             int_24bit = ByteStream.unpack_int24(decompressed_data[position:position+3])
@@ -165,9 +169,9 @@ class SmdSegment(DefaultLogging, BlueprintUtils):
         """
         # block size z 1024
         # block size y 32
-        z = block_index / self._blocks_in_an_area
+        z = old_div(block_index, self._blocks_in_an_area)
         rest = block_index % self._blocks_in_an_area
-        y = rest / self._blocks_in_a_line
+        y = old_div(rest, self._blocks_in_a_line)
         x = rest % self._blocks_in_a_line
         return x+self.position[0], y+self.position[1], z+self.position[2]
 
@@ -248,7 +252,7 @@ class SmdSegment(DefaultLogging, BlueprintUtils):
         """
         Replace all blocks of a specific id
         """
-        for block_index in self.block_index_to_block.keys():
+        for block_index in list(self.block_index_to_block.keys()):
             if self.block_index_to_block[block_index].get_id() == block_id:
                 if compatible:
                     self.block_index_to_block[block_index].set_id(replace_id)
@@ -271,7 +275,7 @@ class SmdSegment(DefaultLogging, BlueprintUtils):
         @param hull_type:
         @type hull_type: int | None
         """
-        for block_index in self.block_index_to_block.keys():
+        for block_index in list(self.block_index_to_block.keys()):
             block_id = self.block_index_to_block[block_index].get_id()
             if not self.is_hull(block_id or block_id in self._replace_cache_negative):
                 continue
@@ -293,7 +297,7 @@ class SmdSegment(DefaultLogging, BlueprintUtils):
         @type entity_type: int
         """
         assert entity_type in self._entity_types
-        list_of_block_index = self.block_index_to_block.keys()
+        list_of_block_index = list(self.block_index_to_block.keys())
         for block_index in list_of_block_index:
             block = self.block_index_to_block[block_index]
             if not self.is_valid_block_id(block.get_id(), entity_type):
@@ -314,7 +318,7 @@ class SmdSegment(DefaultLogging, BlueprintUtils):
         @param block_ids:
         @type block_ids: set[int]
         """
-        for block_index in self.block_index_to_block.keys():
+        for block_index in list(self.block_index_to_block.keys()):
             if self.block_index_to_block[block_index].get_id() not in block_ids:
                 continue
             self.block_index_to_block.pop(block_index)
@@ -364,7 +368,7 @@ class SmdSegment(DefaultLogging, BlueprintUtils):
         @return: None or (x,y,z)
         @rtype: None | tuple[int]
         """
-        for block_index, block in self.block_index_to_block.iteritems():
+        for block_index, block in self.block_index_to_block.items():
             if block.get_id() == block_id:
                 return self.get_block_position_by_block_index(block_index)
         return None
@@ -380,7 +384,7 @@ class SmdSegment(DefaultLogging, BlueprintUtils):
         @rtype: set[tuple[int]]
         """
         positions = set()
-        for block_index, block in self.block_index_to_block.iteritems():
+        for block_index, block in self.block_index_to_block.items():
             if block.get_id() == block_id:
                 positions.add(self.get_block_position_by_block_index(block_index))
         return positions
@@ -392,7 +396,7 @@ class SmdSegment(DefaultLogging, BlueprintUtils):
         @return: (x,y,z), block
         @rtype: tuple[int], SmdBlock
         """
-        for block_index, block in self.block_index_to_block.iteritems():
+        for block_index, block in self.block_index_to_block.items():
             yield self.get_block_position_by_block_index(block_index), block
 
     def to_stream(self, output_stream=sys.stdout):
@@ -404,7 +408,7 @@ class SmdSegment(DefaultLogging, BlueprintUtils):
         """
         output_stream.write("Segment: {} '{}' ({})\n".format(
             self.position,
-            datetime.datetime.fromtimestamp(self.timestamp/1000.0).strftime('%Y-%m-%d %H:%M:%S'),
+            datetime.datetime.fromtimestamp(old_div(self.timestamp,1000.0)).strftime('%Y-%m-%d %H:%M:%S'),
             self.version,
             ))
         output_stream.flush()

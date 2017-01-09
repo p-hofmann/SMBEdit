@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+from builtins import range
 __author__ = 'Peter Hofmann'
 
 import sys
@@ -106,7 +108,7 @@ class DataType6(DefaultLogging):
         """
         if self._debug:
             output_stream.write("DataType6: #{}\n".format(len(self._data)))
-            for index in self._data.keys():
+            for index in list(self._data.keys()):
                 entry = self._data[index]
                 output_stream.write("{}\t{}\t{}\t{}\t{}\n".format(
                     entry["Pos"], entry["block_id"], entry["byte1"], entry["bool"], entry["byte1"]))

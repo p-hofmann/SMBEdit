@@ -1,3 +1,6 @@
+from __future__ import unicode_literals
+from builtins import range
+from builtins import object
 __author__ = 'Peter Hofmann'
 
 import os
@@ -145,7 +148,7 @@ class DataType3(DefaultLogging):
         self._logger.debug("Writing")
         output_stream.write_byte(3)
         output_stream.write_int32_unassigned(len(self._docked_entity))
-        for dock_index in self._docked_entity.keys():
+        for dock_index in list(self._docked_entity.keys()):
             self._docked_entity[dock_index].write(output_stream, dock_index, relative_path)
 
     # #######################################
@@ -176,7 +179,7 @@ class DataType3(DefaultLogging):
         """
         output_stream.write("DataType3: {}\n".format(len(self._docked_entity)))
         if self._debug:
-            for dock_index in self._docked_entity.keys():
+            for dock_index in list(self._docked_entity.keys()):
                 output_stream.write("{}:\t".format(dock_index))
                 self._docked_entity[dock_index].to_stream(output_stream)
         output_stream.write("\n")

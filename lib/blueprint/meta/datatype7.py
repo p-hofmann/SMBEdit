@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+from builtins import range
 __author__ = 'Peter Hofmann'
 
 import sys
