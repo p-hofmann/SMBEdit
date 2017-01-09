@@ -699,9 +699,9 @@ class Smd(DefaultLogging, BlueprintUtils):
                 continue
             peripheries[periphery_index][periphery_shape] = orientation
 
-        print "bad_orientations", bad_orientations
+        print("bad_orientations", bad_orientations)
         for periphery_index in peripheries.keys():
-            print "\t\t{}:".format(periphery_index), '{'
+            print("\t\t{}:".format(periphery_index), '{')
             for periphery_shape in peripheries[periphery_index].keys():
-                print "\t\t\t{}: {},".format(periphery_shape, peripheries[periphery_index][periphery_shape])
-            print "\t\t},"
+                print("\t\t\t{}: {},".format(periphery_shape, peripheries[periphery_index][periphery_shape]))
+            print("\t\t},")

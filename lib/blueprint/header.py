@@ -1,3 +1,6 @@
+from __future__ import unicode_literals
+from builtins import range
+from builtins import object
 __author__ = 'Peter Hofmann'
 
 import os
@@ -193,7 +196,7 @@ class Header(DefaultLogging, BlueprintUtils):
         assert isinstance(output_stream, ByteStream)
         num_of_block_types = len(self.block_id_to_quantity)
         output_stream.write_int32_unassigned(num_of_block_types)
-        for identifier, quantity in self.block_id_to_quantity.iteritems():
+        for identifier, quantity in self.block_id_to_quantity.items():
             output_stream.write_int16_unassigned(identifier)
             output_stream.write_int32_unassigned(quantity)
 
@@ -242,7 +245,7 @@ class Header(DefaultLogging, BlueprintUtils):
     # #######################################
 
     def iteritems(self):
-        for block_id in self.block_id_to_quantity.keys():
+        for block_id in list(self.block_id_to_quantity.keys()):
             yield block_id, self.block_id_to_quantity[block_id]
 
     def _get_measure(self, index):
@@ -315,7 +318,7 @@ class Header(DefaultLogging, BlueprintUtils):
         @param entity_class:
         @type entity_class: int
         """
-        assert isinstance(entity_class, (int, long))
+        assert isinstance(entity_class, int)
         assert self.type in BlueprintUtils._entity_classification, "Unknown entity type: {}.".format(self.type)
         assert entity_class in BlueprintUtils._entity_classification[self.type], "{} has no class id: {}.".format(
             self.get_type_name(), entity_class)
@@ -330,7 +333,7 @@ class Header(DefaultLogging, BlueprintUtils):
         @param entity_type:
         @type entity_type: int
         """
-        assert isinstance(entity_type, (int, long))
+        assert isinstance(entity_type, int)
         assert 0 <= entity_type <= 4
         self.type = entity_type
 
@@ -365,7 +368,7 @@ class Header(DefaultLogging, BlueprintUtils):
             self.set_box(min_vector=min_vector, max_vector=max_vector)
         else:
             # update manually and hope it reflects the smd data
-            block_id_list = self.block_id_to_quantity.keys()
+            block_id_list = list(self.block_id_to_quantity.keys())
             for block_id in block_id_list:
                 if not self.is_valid_block_id(block_id, self.type):
                     self.remove(block_id)
@@ -438,7 +441,7 @@ class Header(DefaultLogging, BlueprintUtils):
         output_stream.write("\n")
 
         if self._verbose or self._debug:
-            for identifier, quantity in self.block_id_to_quantity.iteritems():
+            for identifier, quantity in self.block_id_to_quantity.items():
                 output_stream.write("{}: {}\n".format(self.get_block_name_by_id(identifier), quantity))
             output_stream.write("\n")
             self.statistics.to_stream(output_stream)

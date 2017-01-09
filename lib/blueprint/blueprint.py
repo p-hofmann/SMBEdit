@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+from builtins import range
 __author__ = 'Peter Hofmann'
 
 import os
@@ -195,7 +197,7 @@ class Blueprint(DefaultLogging, BlueprintUtils):
         @param block_id: block id
         @type block_id: int
         """
-        assert isinstance(block_id, (int, long))
+        assert isinstance(block_id, int)
         position = self.smd3.search(block_id)
         assert position is not None, "Block id not found: {}".format(block_id)
         distance = self.vector_distance(position, (16, 16, 16))
@@ -250,7 +252,7 @@ class Blueprint(DefaultLogging, BlueprintUtils):
             group_index = (position[0] + position[1]) % salvage_computer_count
             groups[group_index].add(position)
         position_salvage_computers = list(position_salvage_computers)
-        for group_index in groups.keys():
+        for group_index in list(groups.keys()):
             self.logic.set_link(position_salvage_computers[group_index], 24, groups[group_index])
 
     def to_stream(self, output_stream=sys.stdout):

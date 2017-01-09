@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+from builtins import range
 __author__ = 'Peter Hofmann'
 
 import os
@@ -141,7 +143,7 @@ class Logic(DefaultLogging, BlueprintUtils):
         @type output_stream: ByteStream
         """
         output_stream.write_int32_unassigned(len(groups))
-        for block_id, positions in groups.iteritems():
+        for block_id, positions in groups.items():
             output_stream.write_int16_unassigned(block_id)
             self._write_list_of_positions(positions, output_stream)
 
@@ -154,7 +156,7 @@ class Logic(DefaultLogging, BlueprintUtils):
         """
         num_controllers = len(self._controller_position_to_block_id_to_block_positions)
         output_stream.write_int32_unassigned(num_controllers)
-        for controller_position, groups in self._controller_position_to_block_id_to_block_positions.iteritems():
+        for controller_position, groups in self._controller_position_to_block_id_to_block_positions.items():
             output_stream.write_vector_3_int16(controller_position)
             self._write_list_of_groups(groups, output_stream)
 
@@ -196,10 +198,10 @@ class Logic(DefaultLogging, BlueprintUtils):
 
         """
         new_data = {}
-        for controller_position, groups in self._controller_position_to_block_id_to_block_positions.iteritems():
+        for controller_position, groups in self._controller_position_to_block_id_to_block_positions.items():
             new_controller_position = self._tilt_turn_position(controller_position, index_turn_tilt)
             new_data[new_controller_position] = {}
-            for block_id, positions in groups.iteritems():
+            for block_id, positions in groups.items():
                 new_data[new_controller_position][block_id] = set()
                 for position in positions:
                     new_position = self._tilt_turn_position(position, index_turn_tilt)
@@ -239,7 +241,7 @@ class Logic(DefaultLogging, BlueprintUtils):
         @type direction_vector: int,int,int
         """
         new_dict = {}
-        for controller_position, groups in self._controller_position_to_block_id_to_block_positions.iteritems():
+        for controller_position, groups in self._controller_position_to_block_id_to_block_positions.items():
             new_controller_position = self.vector_subtraction(controller_position, direction_vector)
             if entity_type == 0 and new_controller_position == (16, 16, 16):  # replaced block
                 continue
@@ -247,7 +249,7 @@ class Logic(DefaultLogging, BlueprintUtils):
                 new_controller_position = controller_position
             if new_controller_position not in new_dict:
                 new_dict[new_controller_position] = {}
-            for block_id, positions in groups.iteritems():
+            for block_id, positions in groups.items():
                 if block_id not in new_dict[new_controller_position]:
                     new_dict[new_controller_position][block_id] = set()
                 for block_position in positions:
@@ -285,9 +287,9 @@ class Logic(DefaultLogging, BlueprintUtils):
         """
         Delete links with invalid controller
         """
-        for controller_position in self._controller_position_to_block_id_to_block_positions.keys():
+        for controller_position in list(self._controller_position_to_block_id_to_block_positions.keys()):
             groups = self._controller_position_to_block_id_to_block_positions[controller_position]
-            for block_id in groups.keys():
+            for block_id in list(groups.keys()):
                 if self.is_valid_block_id(block_id):
                     self._update_groups(controller_position, block_id, smd)
                     continue
@@ -311,8 +313,8 @@ class Logic(DefaultLogging, BlueprintUtils):
         if old_position in self._controller_position_to_block_id_to_block_positions:
             groups = self._controller_position_to_block_id_to_block_positions.pop(old_position)
             self._controller_position_to_block_id_to_block_positions[new_position] = groups
-        for controller_position, groups in self._controller_position_to_block_id_to_block_positions.iteritems():
-            for block_id, positions in groups.iteritems():
+        for controller_position, groups in self._controller_position_to_block_id_to_block_positions.items():
+            for block_id, positions in groups.items():
                 if old_position in positions:
                     self._controller_position_to_block_id_to_block_positions[controller_position][block_id].remove(old_position)
                     self._controller_position_to_block_id_to_block_positions[controller_position][block_id].add(new_position)
@@ -326,7 +328,7 @@ class Logic(DefaultLogging, BlueprintUtils):
         @param entity_type:
         @type entity_type: int
         """
-        assert isinstance(entity_type, (int, long))
+        assert isinstance(entity_type, int)
         assert 0 <= entity_type <= 4
 
         position_core = (16, 16, 16)
@@ -354,11 +356,11 @@ class Logic(DefaultLogging, BlueprintUtils):
         output_stream.write("Controllers: {}\n".format(len(self._controller_position_to_block_id_to_block_positions)))
         output_stream.write("\n")
         if self._debug or self._verbose:
-            for controller_position, groups in self._controller_position_to_block_id_to_block_positions.iteritems():
-                output_stream.write("{}: #{}\n".format(controller_position, len(groups.keys())))
+            for controller_position, groups in self._controller_position_to_block_id_to_block_positions.items():
+                output_stream.write("{}: #{}\n".format(controller_position, len(list(groups.keys()))))
                 if not self._debug:
                     continue
-                for block_id, positions in groups.iteritems():
+                for block_id, positions in groups.items():
                     if len(positions) < 5:
                         output_stream.write("\t{}: {}\n".format(block_id, positions))
                     else:

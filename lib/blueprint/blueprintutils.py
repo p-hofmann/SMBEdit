@@ -1,3 +1,6 @@
+from __future__ import unicode_literals
+from builtins import range
+from builtins import object
 __author__ = 'Peter Hofmann'
 
 
@@ -722,7 +725,7 @@ class BlueprintUtils(object):
     @staticmethod
     def _get_hulls_dict():
         hull_dict = {}
-        for block_id in BlueprintUtils._block_ids["hull"].keys():
+        for block_id in list(BlueprintUtils._block_ids["hull"].keys()):
             hull_name = BlueprintUtils.get_block_name_by_id(block_id)
             if "Glass" in hull_name:
                 continue
@@ -952,7 +955,7 @@ class BlueprintUtils(object):
         @return: block name
         @rtype: str
         """
-        for category_name, category_ids in BlueprintUtils._block_ids.iteritems():
+        for category_name, category_ids in BlueprintUtils._block_ids.items():
             if block_id in category_ids:
                 return True
         return False
@@ -968,7 +971,7 @@ class BlueprintUtils(object):
         @return: block name
         @rtype: str
         """
-        for category_name, category_ids in BlueprintUtils._block_ids.iteritems():
+        for category_name, category_ids in BlueprintUtils._block_ids.items():
             if block_id in category_ids:
                 return category_ids[block_id]
         return "unknown ({})".format(block_id)
