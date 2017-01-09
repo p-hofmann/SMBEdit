@@ -1,3 +1,7 @@
+from __future__ import unicode_literals
+from future import standard_library
+standard_library.install_aliases()
+from builtins import object
 __author__ = 'Peter Hofmann'
 __version__ = '0.1.4'
 
@@ -6,7 +10,7 @@ import io
 import logging
 import random
 if sys.version_info <= (2, 8):
-    from StringIO import StringIO  # python 2.7
+    from io import StringIO  # python 2.7
 else:
     from io import StringIO  # python 3
 

@@ -1,3 +1,8 @@
+from __future__ import unicode_literals
+from __future__ import division
+from builtins import str
+from past.builtins import basestring
+from past.utils import old_div
 __author__ = 'Peter Hofmann'
 __version__ = '0.1.8'
 
@@ -474,7 +479,7 @@ class Validator(DefaultLogging):
             return 0
         statvfs = os.statvfs(directory)
         free_space = statvfs.f_frsize * statvfs.f_bfree
-        return free_space / math.pow(1024, power)
+        return old_div(free_space, math.pow(1024, power))
 
     def get_available_file_path(self, proposed_path):
         """

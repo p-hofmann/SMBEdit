@@ -1,3 +1,6 @@
+from __future__ import unicode_literals
+from builtins import map
+from builtins import range
 __author__ = 'Peter Hofmann'
 __version__ = '0.1.0'
 
@@ -92,7 +95,7 @@ class ArgumentHandler(Validator):
 
         if self._remove_blocks is not None:
             try:
-                self._remove_blocks = map(int, self._remove_blocks.split(','))
+                self._remove_blocks = list(map(int, self._remove_blocks.split(',')))
             except ValueError:
                 raise ValueError("Bad block id in: '{}'".format(self._remove_blocks))
 
@@ -238,7 +241,7 @@ class ArgumentHandler(Validator):
             "-ec", "--entity_class",
             default=None,
             type=int,
-            choices=range(9),
+            choices=list(range(9)),
             help='''change entity type to:
             0: General
             1: Mining

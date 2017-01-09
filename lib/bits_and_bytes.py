@@ -1,3 +1,7 @@
+from __future__ import unicode_literals
+from builtins import str
+from builtins import range
+from builtins import object
 __author__ = 'Peter Hofmann'
 
 import struct
