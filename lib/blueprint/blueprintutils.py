@@ -5,11 +5,15 @@ SHIP = 0
 SHOP = 1
 SPACE_STATION = 2
 ASTEROID = 3
-PLANET = 4
+MANAGED_ASTEROID = 4
+PLANET = 5
 
 
 class BlueprintUtils(object):
 
+	"""
+	@type _entity_classification: dict[int, dict[int, str]]
+	"""
 	# set to (8, 8, 8) in case of smd2 to smd3 conversion
 	offset = None
 
@@ -18,12 +22,13 @@ class BlueprintUtils(object):
 		SHOP: "Shop",
 		SPACE_STATION: "Space Station",
 		ASTEROID: "Asteroid",
+		MANAGED_ASTEROID: "Managed Asteroid",
 		PLANET: "Planet",
 	}
 
 	_entity_classification = {
 		# Ship
-		0: {
+		SHIP: {
 			0: "General",
 			1: "Mining",
 			2: "Support",
@@ -35,7 +40,7 @@ class BlueprintUtils(object):
 			8: "Scavenger",
 			},
 		# Station
-		2: {
+		SPACE_STATION: {
 			9: "General",
 			10: "Shipyard",
 			11: "Outpost",
@@ -45,11 +50,40 @@ class BlueprintUtils(object):
 			15: "Trade",
 			16: "Warp Gate",
 			17: "Shopping",
+			},
+		ASTEROID: {
+			18: "General",  # "NONE_ASTEROID",
+			},
+		MANAGED_ASTEROID: {
+			19: "General",  # "NONE_ASTEROID_MANAGED",
+			},
+		PLANET: {
+			20: "General"  # "NONE_PLANET"
+			},
+		SHOP: {
+			21: "General"  # "NONE_SHOP"
+			},
+		'?': {
+			22: "General"  # "NONE_ICO"
 			}
 		}
 
 	@staticmethod
-	def get_entity_classification_name(entity_type, entity_classification):
+	def get_entity_classification_default(entity_type):
+		"""
+		Return name of entity classification
+
+		@param entity_type:
+		@type entity_type: int
+
+		@rtype: str
+		"""
+		assert entity_type in BlueprintUtils._entity_classification, "Unknown entity type {}".format(entity_type)
+		class_list_sorted = sorted(BlueprintUtils._entity_classification[entity_type].keys())
+		return class_list_sorted[0]
+
+	@staticmethod
+	def get_entity_classification_name(entity_type, entity_classification=None):
 		"""
 		Return name of entity classification
 
@@ -61,6 +95,8 @@ class BlueprintUtils(object):
 		@rtype: str
 		"""
 		assert entity_type in BlueprintUtils._entity_classification
+		if entity_classification is None:
+			entity_classification = BlueprintUtils.get_entity_classification_default(entity_type)
 		assert entity_classification in BlueprintUtils._entity_classification[entity_type]
 		return BlueprintUtils._entity_classification[entity_type][entity_classification]
 
