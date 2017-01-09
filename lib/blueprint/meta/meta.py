@@ -5,12 +5,15 @@ import sys
 
 from lib.bits_and_bytes import ByteStream
 from lib.loggingwrapper import DefaultLogging
+from lib.blueprint.blueprintutils import BlueprintUtils
 from lib.blueprint.meta.datatype2 import DataType2
-from lib.blueprint.meta.datatype3 import DataType3
+from lib.blueprint.meta.datatype3 import DataType3, DockedEntity
 from lib.blueprint.meta.datatype4 import DataType4
 from lib.blueprint.meta.datatype5 import DataType5
 from lib.blueprint.meta.datatype6 import DataType6
 from lib.blueprint.meta.datatype7 import DataType7
+from lib.blueprint.meta.raildockentitylinks import RailDockedEntityLinks, RailDockedEntity, RailDockedEntityLink
+from lib.blueprint.smd3.smd import Smd
 
 
 # #######################################
@@ -128,7 +131,7 @@ class Meta(DefaultLogging):
 		output_stream.write_int32_unassigned(0)  # version
 		output_stream.write_byte(1)  # data byte 'Finish'
 
-	def _write_file(self, output_stream, relative_apth):
+	def _write_file(self, output_stream, relative_path):
 		"""
 		write values
 
@@ -142,13 +145,15 @@ class Meta(DefaultLogging):
 			self._logger.warning("Old style docked entities are not yet supported and are removed")
 		self._data_type_3.write_dummy(output_stream)
 
+		# self._data_type_3.write(output_stream, relative_path)
+
 		if self._version > (0, 0, 0, 4):
 			# data_type 6
 			self._data_type_6.write(output_stream)
 			# data_type 7
 			self._data_type_7.write(output_stream)
 		# data_type 4
-		self._data_type_4.write(output_stream, self._version, relative_apth)
+		self._data_type_4.write(output_stream, self._version, relative_path)
 		# data_type 5
 		self._data_type_5.write(output_stream)
 		# data_type 2
@@ -164,6 +169,7 @@ class Meta(DefaultLogging):
 		@param directory_blueprint: output directory
 		@type directory_blueprint: str
 		"""
+		self._version = max(self._valid_versions)
 		file_path = os.path.join(directory_blueprint, self._file_name)
 		with open(file_path, 'wb') as output_stream:
 			if relative_path is None:
@@ -175,6 +181,81 @@ class Meta(DefaultLogging):
 	# #######################################
 	# ###  Else
 	# #######################################
+
+	def has_old_docked_entities(self):
+		"""
+		True if entities are docked in the old way
+		@rtype: bool
+		"""
+		return self._data_type_3.has_data()
+
+	@staticmethod
+	def get_docked_entity_location(block_position, block_side_id):
+		"""
+		# 0: "FRONT ",
+		# 1: "BACK  ",
+		# 2: "TOP   ",
+		# 3: "BOTTOM",
+		# 4: "RIGHT ",
+		# 5: "LEFT  ",
+
+		@type block_position: tuple[int]
+		@type block_side_id: int
+
+		@rtype: tuple[int]
+		"""
+		if block_side_id == 0:
+			return BlueprintUtils.vector_addition(block_position, (0, 0, 1))
+		elif block_side_id == 1:
+			return BlueprintUtils.vector_subtraction(block_position, (0, 0, 1))
+		elif block_side_id == 2:
+			return BlueprintUtils.vector_addition(block_position, (0, 1, 0))
+		elif block_side_id == 3:
+			return BlueprintUtils.vector_subtraction(block_position, (0, 1, 0))
+		elif block_side_id == 4:
+			return BlueprintUtils.vector_subtraction(block_position, (1, 0, 0))
+		elif block_side_id == 5:
+			return BlueprintUtils.vector_addition(block_position, (1, 0, 0))
+
+	def update_docked_entities(self, smd, main_entity_label, rail_docked_label_prefix):
+		"""
+		Replace old style turrets with rail based turrets
+
+		@attention: Needs to be called before docker blocks are replaced.
+
+		@type smd: Smd
+		@type main_entity_label: str
+		@type rail_docked_label_prefix: str
+		"""
+		while self._data_type_3.has_data():
+			docked_entity_index, docker_entity = self._data_type_3.popitem()
+			assert isinstance(docker_entity, DockedEntity)
+			block = smd.get_block_at_position(docker_entity.position)
+			main_entity = RailDockedEntity()
+			rail_dock_entity = RailDockedEntity()
+			main_entity.set_by_block_side(
+				label=main_entity_label,
+				location=docker_entity.position,
+				block_id=BlueprintUtils.docking_to_rails[block.get_id()],
+				side=block.get_block_side_id()
+			)
+			rail_dock_entity.set(
+				label="{}{}".format(rail_docked_label_prefix, docked_entity_index),
+				location=(16, 15, 16),  # below core
+				block_id=663,  # Rail docker
+				byte_orientation_1=10,  # Bottom pointing forward
+				byte_orientation_2=1  # Bottom pointing forward
+			)
+
+			link = RailDockedEntityLink()
+			link.set(
+				docked_entity_location=self.get_docked_entity_location(docker_entity.position, block.get_block_side_id()),
+				entity_main=main_entity,
+				entity_docked=rail_dock_entity
+				)
+			links = RailDockedEntityLinks()
+			links.set([link])
+			self._data_type_4.add(docked_entity_index, links)
 
 	def move_center_by_vector(self, direction_vector):
 		"""

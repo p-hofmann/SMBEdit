@@ -142,7 +142,7 @@ class SMBEdit(ArgumentHandler):
 		else:
 			self._logger.info("Finished")
 
-	def run_commands(self, directory_input=None, directory_output=None, blueprint_path=None):
+	def run_commands(self, directory_input=None, directory_output=None, blueprint_path=None, entity_name=None):
 		is_docked_entity = True
 		if directory_input is None:
 			is_docked_entity = False
@@ -162,10 +162,17 @@ class SMBEdit(ArgumentHandler):
 		if blueprint_path is None:
 			blueprint_path = directory_output
 
+		if entity_name is not None:
+			docked_entity_name_prefix = entity_name
+		else:
+			entity_name = "ENTITY_SHIP_Main"
+			docked_entity_name_prefix = "ENTITY_SHIP_RAIL_DOCK_"
+
 		list_of_folders = os.listdir(directory_input)
 		for folder_name in list_of_folders:
 			if "ATTACHED_" not in folder_name:
 				continue
+			_, dock_index = folder_name.rsplit('_', 1)
 			directory_src = os.path.join(directory_input, folder_name)
 			directory_dst = None
 			if directory_output is not None:
@@ -173,7 +180,8 @@ class SMBEdit(ArgumentHandler):
 			self.run_commands(
 				directory_input=directory_src,
 				directory_output=directory_dst,
-				blueprint_path=blueprint_path)
+				blueprint_path=blueprint_path,
+				entity_name="{}{}".format(docked_entity_name_prefix, dock_index))
 
 		blueprint = Blueprint(
 			logfile=self._logfile,
@@ -184,6 +192,8 @@ class SMBEdit(ArgumentHandler):
 		blueprint_name = os.path.basename(directory_input)
 		self._logger.info("Reading blueprint '{}' ...".format(blueprint_name))
 		blueprint.read(directory_input)
+
+		blueprint.replace_outdated_docker_modules(entity_name, docked_entity_name_prefix, is_docked_entity)
 
 		if self._docked_entities or not is_docked_entity:
 

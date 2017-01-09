@@ -9,6 +9,7 @@ from lib.blueprint.header import Header
 from lib.blueprint.logic import Logic
 from lib.blueprint.meta.meta import Meta
 from lib.blueprint.smd3.smd import Smd
+from lib.blueprint.smd3.smdblock import SmdBlock
 
 
 class Blueprint(DefaultLogging, BlueprintUtils):
@@ -42,18 +43,20 @@ class Blueprint(DefaultLogging, BlueprintUtils):
 		"""
 		Read blueprint from a directory
 
+		@attention: smd data needs to be read before meta and logic. An offset will be set if smd2.
+
 		@param directory_blueprint: /../StarMade/blueprints/blueprint_name/
 		@type directory_blueprint: str
 		"""
+		self.smd3 = Smd(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
 		self.header = Header(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
 		self.logic = Logic(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
 		self.meta = Meta(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
-		self.smd3 = Smd(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
 
 		self.header.read(directory_blueprint)
+		self.smd3.read(directory_blueprint)
 		self.logic.read(directory_blueprint)
 		self.meta.read(directory_blueprint)
-		self.smd3.read(directory_blueprint)
 
 	# #######################################
 	# ###  Write
@@ -77,6 +80,24 @@ class Blueprint(DefaultLogging, BlueprintUtils):
 	# #######################################
 	# ###  Else
 	# #######################################
+
+	def replace_outdated_docker_modules(self, entity_name, rail_docked_label_prefix, is_docked_entity):
+		rail_docker_id = 663
+		if is_docked_entity and self.smd3.search(rail_docker_id) is None:
+			self._logger.info("Adding 'Rail docker' to docked entity.")
+			block = SmdBlock(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
+			block.update(
+				rail_docker_id, hit_points=100, active=False, bit_19=0, bit_22=0, bit_23=1, rotations=2)
+			position_below_core = (16, 15, 16)
+			self.smd3.add(position_below_core, block)
+			self.header.update(self.smd3)
+
+		if not self.meta.has_old_docked_entities():
+			return
+		self._logger.info("Replacing outdated docker modules")
+		self.meta.update_docked_entities(self.smd3, entity_name, rail_docked_label_prefix)
+		self.smd3.update(self.header.type)
+		self.header.update(self.smd3)
 
 	_ct_to_station_class = {
 		0: 9,  # General

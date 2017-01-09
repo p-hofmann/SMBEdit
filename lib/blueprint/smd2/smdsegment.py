@@ -305,9 +305,9 @@ class SmdSegment(DefaultLogging, BlueprintUtils):
 			if not self.is_valid_block_id(block.get_id(), entity_type):
 				self.remove_block(self.get_block_position_by_block_index(block_index))
 				continue
-			if block.get_id() not in self._docking_to_rails:
+			if block.get_id() not in self.docking_to_rails:
 				continue
-			updated_block_id = self._docking_to_rails[block.get_id()]
+			updated_block_id = self.docking_to_rails[block.get_id()]
 			if updated_block_id is None:
 				self.remove_block(self.get_block_position_by_block_index(block_index))
 				continue

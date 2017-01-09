@@ -91,7 +91,7 @@ class BlockOrientation(object):
 	def _get_bit_23(self):
 		return BitAndBytes.bits_parse(self._int_24bit, 23, 1)
 
-	def _get_block_side_id(self):
+	def get_block_side_id(self):
 		return BitAndBytes.bits_parse(self._int_24bit, 20, 3)
 
 	def _get_clockwise_rotations(self):
@@ -122,7 +122,7 @@ class BlockOrientation(object):
 			style = self.get_style()
 		if style == 0:
 			if block_side_id is None:
-				block_side_id = self._get_block_side_id()
+				block_side_id = self.get_block_side_id()
 			return BitAndBytes.bits_combine(block_side_id, new_int_24bit, 20)
 		if style != 0:
 			if bit_19 is None:
@@ -212,6 +212,19 @@ class BlockOrientation(object):
 		5: "LEFT  ",
 	}
 
+	_block_side_id_to_type_6 = {
+		# (19, 23, 22, rotations)
+		0: (0, 0, 0, 2),  # FRONT up
+		1: (0, 0, 1, 0),  # BACK down/up?
+		2: (0, 1, 1, 2),  # TOP forward
+		# 3: (0, 1, 0, 0),  # BOTTOM backwards
+		3: (0, 1, 0, 2),  # BOTTOM forward
+		# 4: (1, 0, 0, 1),  # pointing up
+		4: (1, 0, 0, 0),  # RIGHT forward
+		# 5: (1, 0, 1, 1),  # LEFT up
+		5: (1, 0, 1, 0),  # LEFT forward
+	}
+
 	def _orientation_to_stream(self, output_stream=sys.stdout):
 		"""
 
@@ -230,7 +243,7 @@ class BlockOrientation(object):
 			return self._bit_orientation_to_string()
 
 		if self.get_style == 0:
-			return "Side: {}".format(self._block_side_id_to_str[self._get_block_side_id()])
+			return "Side: {}".format(self._block_side_id_to_str[self.get_block_side_id()])
 
 		side = self._get_side_from_direction()
 		return_string = ""
@@ -244,7 +257,7 @@ class BlockOrientation(object):
 		return_string += "({},{},{}) ".format(self._get_bit_19(), self._get_bit_23(), self._get_bit_22())
 		rotation = "{}*".format(self._get_clockwise_rotations() * 90)
 		return_string += rotation.rjust(4) + "\t"
-		return_string += "F {}".format(self._get_block_side_id())
+		return_string += "F {}".format(self.get_block_side_id())
 		return return_string
 
 	def _get_side_from_direction(self):
