@@ -21,7 +21,7 @@ class Logic(DefaultLogging, BlueprintUtils):
 		self._label = "Logic"
 		super(Logic, self).__init__(logfile, verbose, debug)
 		self.version = 0
-		self.unknown_int = 0
+		self._controller_version = -1026
 		self._controller_position_to_block_id_to_block_positions = {}
 		# tail_data = None
 		return
@@ -78,6 +78,9 @@ class Logic(DefaultLogging, BlueprintUtils):
 		number_of_controllers = input_stream.read_int32_unassigned()
 		for entry_index in range(0, number_of_controllers):
 			position = input_stream.read_vector_3_int16()
+			if BlueprintUtils.offset is not None:
+				# smd2 to smd3 conversion
+				position = BlueprintUtils.vector_addition(position, BlueprintUtils.offset)
 			controller_position_to_groups[position] = self._read_dict_of_groups(input_stream)
 		return controller_position_to_groups
 
@@ -91,9 +94,12 @@ class Logic(DefaultLogging, BlueprintUtils):
 		self.version = input_stream.read_int32_unassigned()
 		assert self.version in self._valid_versions, "Unsupported version '{}' of '{}'.".format(self.version, self._file_name)
 		# assert self.version == 0, self.version
-		self.unknown_int = input_stream.read_int32()
-		if self.unknown_int >= 0:
+		self._controller_version = input_stream.read_int32()
+		if self._controller_version >= 0:
+			# is number_of_controllers, no controller_version indicates chunk 16
 			input_stream.seek(-4, whence=1)
+		if -1024 <= self._controller_version < 0:
+			raise NotImplemented("Unsupported logic.smbpl with controller version: v{}".format(-self._controller_version))
 		self._controller_position_to_block_id_to_block_positions = self._read_list_of_controllers(input_stream)
 
 	def read(self, directory_blueprint):
@@ -160,8 +166,8 @@ class Logic(DefaultLogging, BlueprintUtils):
 		@type output_stream: ByteStream
 		"""
 		output_stream.write_int32_unassigned(self.version)
-		if self.unknown_int < 0:
-			output_stream.write_int32(self.unknown_int)
+		if self._controller_version < 0:
+			output_stream.write_int32(self._controller_version)
 		self._write_list_of_controllers(output_stream)
 
 	def write(self, directory_blueprint):
@@ -171,6 +177,8 @@ class Logic(DefaultLogging, BlueprintUtils):
 		@param directory_blueprint: output directory
 		@type directory_blueprint: str
 		"""
+		self.version = max(self._valid_versions)
+		self._controller_version = -1026
 		file_path = os.path.join(directory_blueprint, self._file_name)
 		with open(file_path, 'wb') as output_stream:
 			self._write_file(ByteStream(output_stream))
