@@ -143,6 +143,7 @@ class Blueprint(DefaultLogging, BlueprintUtils):
 		@type block_id: int
 		"""
 		self.smd3.remove_blocks(block_id)
+		self.logic.update(self.smd3)
 		self.header.update(self.smd3)
 
 	def replace_hull(self, new_hull_type, hull_type=None):
