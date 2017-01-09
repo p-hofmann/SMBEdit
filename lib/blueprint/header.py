@@ -32,7 +32,7 @@ class Statistics(object):
 		self.support = 0
 		self.mining = 0
 
-	def read_statistics(self, input_stream):
+	def read(self, input_stream):
 		"""
 		Read statistic data from a byte stream
 
@@ -55,13 +55,14 @@ class Statistics(object):
 		if self.version > 0:
 			self.mining = input_stream.read_double()
 
-	def write_statistics(self, output_stream):
+	def write(self, output_stream):
 		"""
 		Write statistic data to a byte stream
 
 		@param output_stream: input stream
 		@type output_stream: ByteStream
 		"""
+		self.version = max(self._valid_versions)
 		output_stream.write_bool(self.has_statistics)
 		if not self.has_statistics:
 			return
@@ -104,12 +105,13 @@ class Header(DefaultLogging, BlueprintUtils):
 
 	_file_name = "header.smbph"
 
+	# version 0, 1 indicate chunk_16 blueprint
 	_valid_versions = {0, 1, 2, 3}
 
 	def __init__(self, logfile=None, verbose=False, debug=False):
 		super(Header, self).__init__(logfile, verbose, debug)
-		self.version = 2
-		self.type = 2
+		self.version = 3
+		self.type = 0
 		self.classification = 0
 		self.box_min = (0., 0., 0.)
 		self.box_max = (0., 0., 0.)
@@ -148,6 +150,8 @@ class Header(DefaultLogging, BlueprintUtils):
 		self.type = input_stream.read_int32_unassigned()
 		if self.version > 2:
 			self.classification = input_stream.read_int32_unassigned()
+		else:
+			self.classification = BlueprintUtils.get_entity_classification_default(self.type)
 		self.box_min = input_stream.read_vector_3_float()
 		self.box_max = input_stream.read_vector_3_float()
 
@@ -162,7 +166,7 @@ class Header(DefaultLogging, BlueprintUtils):
 		self._read_header(input_stream)
 		self._read_block_quantities(input_stream)
 		if self.version > 0:
-			self.statistics.read_statistics(input_stream)
+			self.statistics.read(input_stream)
 
 	def read(self, directory_blueprint):
 		"""
@@ -219,7 +223,7 @@ class Header(DefaultLogging, BlueprintUtils):
 		self._write_header(output_stream)
 		self._write_block_quantities(output_stream)
 		if self.version > 0:
-			self.statistics.write_statistics(output_stream)
+			self.statistics.write(output_stream)
 
 	def write(self, directory_blueprint):
 		"""
@@ -228,6 +232,7 @@ class Header(DefaultLogging, BlueprintUtils):
 		@param directory_blueprint: output directory
 		@type directory_blueprint: str
 		"""
+		self.version = max(self._valid_versions)
 		file_path = os.path.join(directory_blueprint, self._file_name)
 		with open(file_path, 'wb') as output_stream:
 			self._write_file(ByteStream(output_stream))
@@ -365,9 +370,9 @@ class Header(DefaultLogging, BlueprintUtils):
 				if not self.is_valid_block_id(block_id, self.type):
 					self.remove(block_id)
 					continue
-				if block_id not in self._docking_to_rails:
+				if block_id not in self.docking_to_rails:
 					continue
-				updated_block_id = self._docking_to_rails[block_id]
+				updated_block_id = self.docking_to_rails[block_id]
 				if updated_block_id is None:
 					self.remove(block_id)
 					continue
