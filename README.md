@@ -98,6 +98,13 @@ For example, if you have problems finding the core anchor of your huge shipyard,
 	python smbedit.py directory/my_blueprint -m 679 -o directory/new_blueprint
 ```
 
+### Remove blocks
+```
+-rm REMOVE_BLOCKS, --remove_blocks REMOVE_BLOCKS
+```
+
+It is possible to remove all blocks of a specific block id, or a list of comma separated block ids
+
 ### Replace blocks
 ```
 	-r {old_id},{new_id}:{hit_points}
@@ -200,12 +207,8 @@ The "Undeathinator" block  is replaced with a core.
 
 # Restrictions
 This editor works with StarMade v0.199.253 to v0.199.357.  
-Older blueprint versions, smd2 and some old smd3, can not be read.
-Use the StarMade client to update a blueprint if required.
-
-## Block orientation
-Reading the orientation of blocks is complicated and changing it significantly more so.
-An entity can be turned or tilted in a direction, but block orientations are kept for now.
+Older blueprint versions, smd2 and some old smd3, are not guaranteed to work.  
+Use the StarMade client to update a blueprint before use is recommended!
 
 ## Meta file / Docked entities
 The positions of docked entities and their file locations is written in the 'meta.smbpm' file.  
@@ -213,8 +216,7 @@ Reading/manipulation of the 'meta.smbpm' file is very rudimentary at the moment 
 If a blueprint is deleted after loading a single player game, or it fails to upload, it probably is because of a faulty meta file.
 
 ## Header file
-The statistical info of an entity, read from the 'header.smbph' file, is not updated after blocks are modified.
+The statistical info of an entity, read from the 'header.smbph' file is not updated after blocks are modified.
 
 ## Turrets / Docked entities
-Entities on rails can mostly be dealt with, but blueprints with old style docking will probably end up corrupted.  
-Entities docked to "Turret Docking Unit" and "Docking Module" are not yet supported.
+Old style docking, entities docked to "Turret Docking Unit" or "Docking Module" are converted to rail docking.
