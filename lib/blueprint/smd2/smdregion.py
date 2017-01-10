@@ -453,7 +453,7 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
             positions = positions.union(segment.search_all(block_id))
         return positions
 
-    def iteritems(self):
+    def items(self):
         """
         Iterate over each block and its global position, not the position within the segment
 

@@ -400,7 +400,7 @@ class Smd(DefaultLogging, BlueprintUtils):
             block_id_to_quantity[block.get_id()] += 1
         return block_id_to_quantity
 
-    def iteritems(self):
+    def items(self):
         """
         Iterate over each block and its global position, not the position within the segment
 

@@ -395,7 +395,7 @@ class SmdSegment(DefaultLogging, BlueprintUtils):
                 positions.add(self.get_block_position_by_block_index(block_index))
         return positions
 
-    def iteritems(self):
+    def items(self):
         """
         Iterate over each block and its global position, not the position within the segment
 
