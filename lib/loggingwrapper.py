@@ -11,6 +11,13 @@ import logging
 import random
 from io import StringIO
 
+if sys.version_info < (3,):
+    text_type = unicode
+    binary_type = str
+else:
+    text_type = str
+    binary_type = bytes
+
 logger = logging.getLogger(__name__)
 
 class LoggingWrapper(object):
@@ -23,7 +30,7 @@ class LoggingWrapper(object):
     DEBUG = logging.DEBUG
     NOTSET = logging.NOTSET
 
-    if sys.version_info <= (2, 8):
+    if sys.version_info < (3,):
         _levelNames = logging._levelNames
     else:
         _levelNames = logging._levelToName  # python 3
@@ -50,10 +57,10 @@ class LoggingWrapper(object):
         @return: None
         @rtype: None
         """
-        assert isinstance(label, str)
+        assert isinstance(label, text_type)
         assert isinstance(verbose, bool)
-        assert message_format is None or isinstance(message_format, str)
-        assert message_format is None or isinstance(date_format, str)
+        assert message_format is None or isinstance(message_format, text_type)
+        assert message_format is None or isinstance(date_format, text_type)
         assert stream is None or self.is_stream(stream)
 
         if message_format is None:
@@ -93,7 +100,10 @@ class LoggingWrapper(object):
 
     @staticmethod
     def is_stream(stream):
-        return isinstance(stream, io.IOBase) or isinstance(stream, io.TextIOBase)
+        if sys.version_info < (3,):
+            return isinstance(stream, (file, io.FileIO, StringIO)) or stream.__class__ is StringIO
+        else:
+            return isinstance(stream, (io.IOBase, io.FileIO, StringIO)) or stream.__class__ is StringIO
 
     def get_label(self):
         return self._label
@@ -257,7 +267,7 @@ class LoggingWrapper(object):
         @return: None
         @rtype: None
         """
-        assert isinstance(log_file, str) or self.is_stream(log_file)
+        assert isinstance(log_file, text_type) or self.is_stream(log_file)
         assert level in self._levelNames
 
         if LoggingWrapper._map_logfile_handler[self._label] is not None:
@@ -311,7 +321,7 @@ class DefaultLogging(object):
             self._logger.set_level(self._logger.DEBUG)
 
         self._logfile = None
-        if isinstance(logfile, str):
+        if isinstance(logfile, text_type):
             self._logfile = logfile
         else:
             if sys.version_info <= (2, 8):
