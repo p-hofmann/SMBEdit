@@ -104,8 +104,6 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
         for index in range(0, self._segments_in_a_cube):
             identifier, size = self._read_segment_index(input_stream)
             if identifier == -1:
-                if size > 0:
-                    print identifier, size
                 continue
             number_of_segments += 1
         for index in range(0, self._segments_in_a_cube):
@@ -122,9 +120,8 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
         # number_of_segments = self._read_region_header(input_stream)
         self._read_region_header(input_stream)
         # for _ in xrange(number_of_segments):
-        real_number_of_segments = 0
+        # real_number_of_segments = 0
         while not self._is_eof(input_stream):
-            real_number_of_segments +=1
             segment = SmdSegment(
                 version=self._version[3],
                 blocks_in_a_line=self._blocks_in_a_line_in_a_segment,
@@ -396,7 +393,7 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
         assert position_segment in self._position_to_segment, block_position
         self._position_to_segment[position_segment].remove_block(block_position)
 
-    def add(self, block_position, block):
+    def add(self, block_position, block, replace=True):
         """
         Add a block to the segment based on its global position
 
@@ -415,7 +412,7 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
                 verbose=self._verbose,
                 debug=self._debug)
             self._position_to_segment[position_segment].set_position(position_segment)
-        self._position_to_segment[position_segment].add(block_position, block)
+        self._position_to_segment[position_segment].add(block_position, block, replace)
 
     def search(self, block_id):
         """

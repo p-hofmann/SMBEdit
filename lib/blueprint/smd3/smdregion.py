@@ -358,7 +358,7 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
         assert position_segment in self.position_to_segment, block_position
         self.position_to_segment[position_segment].remove_block(block_position)
 
-    def add(self, block_position, block):
+    def add(self, block_position, block, replace=True):
         """
         Add a block to the segment based on its global position
 
@@ -376,7 +376,7 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
                 verbose=self._verbose,
                 debug=self._debug)
             self.position_to_segment[position_segment].set_position(position_segment)
-        self.position_to_segment[position_segment].add(block_position, block)
+        self.position_to_segment[position_segment].add(block_position, block, replace)
 
     def search(self, block_id):
         """

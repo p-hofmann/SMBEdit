@@ -81,7 +81,7 @@ class Smd(DefaultLogging, BlueprintUtils):
                     hit_points = BlueprintUtils.get_hp_by_hull_type(hull_type)
                 smd3block.set_int_24bit(smd2block.get_int_24bit())
                 smd3block.update(hit_points=hit_points)
-                self.add(smd3_position, smd3block)
+                self.add(smd3_position, smd3block, replace=False)
         else:
             raise RuntimeError("Unknown smd format.")
 
@@ -316,7 +316,7 @@ class Smd(DefaultLogging, BlueprintUtils):
         assert position_region in self.position_to_region, block_position
         self.position_to_region[position_region].remove_block(block_position)
 
-    def add(self, block_position, block):
+    def add(self, block_position, block, replace=True):
         """
         Add a block to the segment based on its global position
 
@@ -332,7 +332,7 @@ class Smd(DefaultLogging, BlueprintUtils):
                 logfile=self._logfile,
                 verbose=self._verbose,
                 debug=self._debug)
-        self.position_to_region[position_region].add(block_position, block)
+        self.position_to_region[position_region].add(block_position, block, replace)
 
     def search(self, block_id):
         """
