@@ -93,7 +93,7 @@ class LoggingWrapper(object):
 
     @staticmethod
     def is_stream(stream):
-        return isinstance(stream, (file, io.FileIO, StringIO)) or stream.__class__ is StringIO
+        return isinstance(stream, io.IOBase) or isinstance(stream, io.TextIOBase)
 
     def get_label(self):
         return self._label
