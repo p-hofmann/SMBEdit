@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 from builtins import str
 from builtins import range
 from builtins import object
+from builtins import bytes
 __author__ = 'Peter Hofmann'
 
 import struct
@@ -79,7 +80,7 @@ class ByteStream(object):
         @type byte_string: str
         @rtype: int
         """
-        return struct.unpack(">i", '\x00' + byte_string)[0]
+        return struct.unpack(">i", b'\x00' + byte_string)[0]
 
     def pack(self, value, data_type):
         """
@@ -123,7 +124,7 @@ class ByteStream(object):
             order=self._byte_order,
             type=data_type), byte_string)[0]
 
-    def _unpack(self, length, data_type, padding=""):
+    def _unpack(self, length, data_type, padding=b''):
         if self._byte_order == '>' or self._byte_order == '!':
             return self.unpack(padding + self._bytestream.read(length), data_type)
         return self.unpack(self._bytestream.read(length) + padding, data_type)
