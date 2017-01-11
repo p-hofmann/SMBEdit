@@ -116,21 +116,21 @@ class SmdSegment(DefaultLogging, BlueprintUtils):
             self._compressed_size = 0
             output_stream.write_int32_unassigned(self._compressed_size)   # 4 byte
         else:
-            byte_string = ""
+            byte_string = b""
             set_of_valid_block_index = set(self.block_index_to_block.keys())
             for block_index in range(0, self._blocks_in_a_cube):
                 if block_index in set_of_valid_block_index:
                     block_int_24 = self.block_index_to_block[block_index].get_int_24bit()
                     byte_string += ByteStream.pack_int24(block_int_24)
                     continue
-                byte_string += "\0" * 3
+                byte_string += b"\0" * 3
             compressed_data = zlib.compress(byte_string)
             self._compressed_size = len(compressed_data)
             output_stream.write_int32_unassigned(self._compressed_size)   # 4 byte
             output_stream.write(compressed_data)
 
         output_stream.seek((self._data_size-1)-self._compressed_size, 1)
-        output_stream.write("\0")  # this should fill the skipped positions with \0
+        output_stream.write(b"\0")  # this should fill the skipped positions with \0
 
     def _write_header(self, output_stream):
         """
