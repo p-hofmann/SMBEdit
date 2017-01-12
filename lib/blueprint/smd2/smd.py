@@ -87,7 +87,7 @@ class Smd(DefaultLogging, BlueprintUtils):
         if not os.path.exists(directory_data):
             os.mkdir(directory_data)
         # print self.position_to_region.keys()
-        for position, region in self.position_to_region:
+        for position, region in self.position_to_region.items():
             assert isinstance(region, SmdRegion)
             file_name = blueprint_name + "." + ".".join(map(str, position)) + ".smd2"
             file_path = os.path.join(directory_data, file_name)
@@ -232,7 +232,7 @@ class Smd(DefaultLogging, BlueprintUtils):
         @rtype: int
         """
         number_of_blocks = 0
-        for position, region in self.position_to_region:
+        for position, region in self.position_to_region.items():
             assert isinstance(region, SmdRegion)
             number_of_blocks += region.get_number_of_blocks()
         return number_of_blocks
