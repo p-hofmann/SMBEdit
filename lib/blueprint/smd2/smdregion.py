@@ -346,14 +346,14 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
         @param hull_type:
         @type hull_type: int | None
         """
-        for segment_position in list(self._position_to_segment.keys()):
+        for segment_position in self._position_to_segment:
             self._position_to_segment[segment_position].replace_hull(new_hull_type, hull_type)
 
     def replace_blocks(self, block_id, replace_id, replace_hp, compatible=False):
         """
         Replace all blocks of a specific id
         """
-        for segment_position in list(self._position_to_segment.keys()):
+        for segment_position in self._position_to_segment:
             self._position_to_segment[segment_position].replace_blocks(block_id, replace_id, replace_hp, compatible)
 
     def update(self, entity_type=0):
@@ -363,8 +363,7 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
         @param entity_type: ship=0/station=2/etc
         @type entity_type: int
         """
-        list_of_position_segment = list(self._position_to_segment.keys())
-        for position_segment in list_of_position_segment:
+        for position_segment in self._position_to_segment:
             self._position_to_segment[position_segment].update(entity_type)
         self._remove_empty_segments()
 
@@ -372,8 +371,7 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
         """
         Search for and remove segments with no blocks
         """
-        list_of_positions = list(self._position_to_segment.keys())
-        for position_segment in list_of_positions:
+        for position_segment in self._position_to_segment:
             if self._position_to_segment[position_segment].get_number_of_blocks() == 0:
                 self._logger.debug("'remove' Removing empty segment {}.".format(position_segment))
                 self._position_to_segment.pop(position_segment)
@@ -385,7 +383,7 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
         @param block_id:
         @type block_id: int
         """
-        for position in list(self._position_to_segment.keys()):
+        for position in self._position_to_segment:
             self._position_to_segment[position].remove_blocks(block_id)
 
     def remove_block(self, block_position):

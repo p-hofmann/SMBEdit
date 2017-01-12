@@ -252,7 +252,7 @@ class SmdSegment(DefaultLogging, BlueprintUtils):
         """
         Replace all blocks of a specific id
         """
-        for block_index in list(self.block_index_to_block.keys()):
+        for block_index in self.block_index_to_block:
             if self.block_index_to_block[block_index].get_id() == block_id:
                 if compatible:
                     self.block_index_to_block[block_index].set_id(replace_id)
@@ -275,7 +275,7 @@ class SmdSegment(DefaultLogging, BlueprintUtils):
         @param hull_type:
         @type hull_type: int | None
         """
-        for block_index in list(self.block_index_to_block.keys()):
+        for block_index in self.block_index_to_block:
             block_id = self.block_index_to_block[block_index].get_id()
             if not self.is_hull(block_id or block_id in self._replace_cache_negative):
                 continue
@@ -297,8 +297,8 @@ class SmdSegment(DefaultLogging, BlueprintUtils):
         @type entity_type: int
         """
         assert entity_type in self._entity_types
-        list_of_block_index = list(self.block_index_to_block.keys())
-        for block_index in list_of_block_index:
+
+        for block_index in self.block_index_to_block:
             block = self.block_index_to_block[block_index]
             if not self.is_valid_block_id(block.get_id(), entity_type):
                 self.remove_block(self.get_block_position_by_block_index(block_index))
@@ -318,7 +318,7 @@ class SmdSegment(DefaultLogging, BlueprintUtils):
         @param block_ids:
         @type block_ids: set[int]
         """
-        for block_index in list(self.block_index_to_block.keys()):
+        for block_index in self.block_index_to_block:
             if self.block_index_to_block[block_index].get_id() not in block_ids:
                 continue
             self.block_index_to_block.pop(block_index)
@@ -368,7 +368,7 @@ class SmdSegment(DefaultLogging, BlueprintUtils):
         @return: None or (x,y,z)
         @rtype: None | tuple[int]
         """
-        for block_index, block in list(self.block_index_to_block.items()):
+        for block_index, block in self.block_index_to_block.items():
             if block.get_id() == block_id:
                 return self.get_block_position_by_block_index(block_index)
         return None
@@ -384,7 +384,7 @@ class SmdSegment(DefaultLogging, BlueprintUtils):
         @rtype: set[tuple[int]]
         """
         positions = set()
-        for block_index, block in list(self.block_index_to_block.items()):
+        for block_index, block in self.block_index_to_block.items():
             if block.get_id() == block_id:
                 positions.add(self.get_block_position_by_block_index(block_index))
         return positions
@@ -396,7 +396,7 @@ class SmdSegment(DefaultLogging, BlueprintUtils):
         @return: (x,y,z), block
         @rtype: tuple[int], SmdBlock
         """
-        for block_index, block in list(self.block_index_to_block.items()):
+        for block_index, block in self.block_index_to_block.items():
             yield self.get_block_position_by_block_index(block_index), block
 
     def to_stream(self, output_stream=sys.stdout):

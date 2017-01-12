@@ -287,9 +287,9 @@ class Logic(DefaultLogging, BlueprintUtils):
         """
         Delete links with invalid controller
         """
-        for controller_position in list(self._controller_position_to_block_id_to_block_positions.keys()):
+        for controller_position in self._controller_position_to_block_id_to_block_positions:
             groups = self._controller_position_to_block_id_to_block_positions[controller_position]
-            for block_id in list(groups.keys()):
+            for block_id in groups:
                 if self.is_valid_block_id(block_id):
                     self._update_groups(controller_position, block_id, smd)
                     continue
@@ -357,7 +357,7 @@ class Logic(DefaultLogging, BlueprintUtils):
         output_stream.write("\n")
         if self._debug or self._verbose:
             for controller_position, groups in self._controller_position_to_block_id_to_block_positions.items():
-                output_stream.write("{}: #{}\n".format(controller_position, len(list(groups.keys()))))
+                output_stream.write("{}: #{}\n".format(controller_position, len(groups)))
                 if not self._debug:
                     continue
                 for block_id, positions in groups.items():

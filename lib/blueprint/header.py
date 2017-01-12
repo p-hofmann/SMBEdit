@@ -245,7 +245,7 @@ class Header(DefaultLogging, BlueprintUtils):
     # #######################################
 
     def iteritems(self):
-        for block_id in list(self.block_id_to_quantity.keys()):
+        for block_id in self.block_id_to_quantity:
             yield block_id, self.block_id_to_quantity[block_id]
 
     def _get_measure(self, index):
@@ -368,8 +368,7 @@ class Header(DefaultLogging, BlueprintUtils):
             self.set_box(min_vector=min_vector, max_vector=max_vector)
         else:
             # update manually and hope it reflects the smd data
-            block_id_list = list(self.block_id_to_quantity.keys())
-            for block_id in block_id_list:
+            for block_id in self.block_id_to_quantity:
                 if not self.is_valid_block_id(block_id, self.type):
                     self.remove(block_id)
                     continue

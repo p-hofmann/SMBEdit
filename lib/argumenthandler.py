@@ -95,7 +95,7 @@ class ArgumentHandler(Validator):
 
         if self._remove_blocks is not None:
             try:
-                self._remove_blocks = list(map(int, self._remove_blocks.split(',')))
+                self._remove_blocks = map(int, self._remove_blocks.split(','))
             except ValueError:
                 raise ValueError("Bad block id in: '{}'".format(self._remove_blocks))
 

@@ -108,7 +108,7 @@ class DataType6(DefaultLogging):
         """
         if self._debug:
             output_stream.write("DataType6: #{}\n".format(len(self._data)))
-            for index in list(self._data.keys()):
+            for index in self._data:
                 entry = self._data[index]
                 output_stream.write("{}\t{}\t{}\t{}\t{}\n".format(
                     entry["Pos"], entry["block_id"], entry["byte1"], entry["bool"], entry["byte1"]))

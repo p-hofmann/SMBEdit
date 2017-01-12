@@ -252,7 +252,7 @@ class Blueprint(DefaultLogging, BlueprintUtils):
             group_index = (position[0] + position[1]) % salvage_computer_count
             groups[group_index].add(position)
         position_salvage_computers = list(position_salvage_computers)
-        for group_index in list(groups.keys()):
+        for group_index in groups:
             self.logic.set_link(position_salvage_computers[group_index], 24, groups[group_index])
 
     def to_stream(self, output_stream=sys.stdout):

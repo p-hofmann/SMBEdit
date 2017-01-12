@@ -725,7 +725,7 @@ class BlueprintUtils(object):
     @staticmethod
     def _get_hulls_dict():
         hull_dict = {}
-        for block_id in list(BlueprintUtils._block_ids["hull"].keys()):
+        for block_id in BlueprintUtils._block_ids["hull"]:
             hull_name = BlueprintUtils.get_block_name_by_id(block_id)
             if "Glass" in hull_name:
                 continue

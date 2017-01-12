@@ -209,7 +209,7 @@ class DataType4(DefaultLogging):
 
         @rtype: tuple[TagPayload]
         """
-        for docked_entity_index in list(self._docked_entities.keys()):
+        for docked_entity_index in self._docked_entities:
             root_tag = self._docked_entities[docked_entity_index].get_root_tag()
             assert isinstance(root_tag, TagPayload)
             taglist1 = root_tag.payload

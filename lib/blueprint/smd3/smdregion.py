@@ -157,7 +157,7 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
         segment_header_size = 26
         # for _ in range(0, 16*16*16):
         segment_index_to_size = dict()
-        for position, segment in list(self.position_to_segment.items()):
+        for position, segment in self.position_to_segment.items():
             segment_index = self.get_segment_index_by_position(position)
             segment_index_to_size[segment_index] = self.position_to_segment[position].compressed_size + segment_header_size
 
@@ -221,7 +221,7 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
         @rtype: int
         """
         number_of_blocks = 0
-        for position, segment in list(self.position_to_segment.items()):
+        for position, segment in self.position_to_segment.items():
             assert isinstance(segment, SmdSegment)
             number_of_blocks += segment.get_number_of_blocks()
         return number_of_blocks
@@ -308,14 +308,14 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
         @param hull_type:
         @type hull_type: int | None
         """
-        for segment_position in list(self.position_to_segment.keys()):
+        for segment_position in self.position_to_segment:
             self.position_to_segment[segment_position].replace_hull(new_hull_type, hull_type)
 
     def replace_blocks(self, block_id, replace_id, replace_hp, compatible=False):
         """
         Replace all blocks of a specific id
         """
-        for segment_position in list(self.position_to_segment.keys()):
+        for segment_position in self.position_to_segment:
             self.position_to_segment[segment_position].replace_blocks(block_id, replace_id, replace_hp, compatible)
 
     def update(self, entity_type=0):
@@ -325,8 +325,7 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
         @param entity_type: ship=0/station=2/etc
         @type entity_type: int
         """
-        list_of_position_segment = list(self.position_to_segment.keys())
-        for position_segment in list_of_position_segment:
+        for position_segment in self.position_to_segment:
             self.position_to_segment[position_segment].update(entity_type)
         self._remove_empty_segments()
 
@@ -334,8 +333,7 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
         """
         Search for and remove segments with no blocks
         """
-        list_of_positions = list(self.position_to_segment.keys())
-        for position_segment in list_of_positions:
+        for position_segment in self.position_to_segment:
             if self.position_to_segment[position_segment].get_number_of_blocks() == 0:
                 self._logger.debug("'remove' Removing empty segment {}.".format(position_segment))
                 self.position_to_segment.pop(position_segment)
@@ -347,7 +345,7 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
         @param block_ids:
         @type block_ids: set[int]
         """
-        for position in list(self.position_to_segment.keys()):
+        for position in self.position_to_segment:
             self.position_to_segment[position].remove_blocks(block_ids)
 
     def remove_block(self, block_position):
@@ -393,7 +391,7 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
         @return: None or (x,y,z)
         @rtype: None | tuple[int]
         """
-        for position, segment in list(self.position_to_segment.items()):
+        for position, segment in self.position_to_segment.items():
             block_position = segment.search(block_id)
             if block_position is not None:
                 return block_position
@@ -410,7 +408,7 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
         @rtype: set[tuple[int]]
         """
         positions = set()
-        for position, segment in list(self.position_to_segment.items()):
+        for position, segment in self.position_to_segment.items():
             positions = positions.union(segment.search_all(block_id))
         return positions
 
@@ -421,9 +419,9 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
         @return: (x,y,z), block
         @rtype: tuple[int], SmdBlock
         """
-        for position_segment, segment in list(self.position_to_segment.items()):
+        for position_segment, segment in self.position_to_segment.items():
             assert isinstance(segment, SmdSegment)
-            for position_block, block in list(segment.items()):
+            for position_block, block in segment.items():
                 yield position_block, block
 
     def to_stream(self, output_stream=sys.stdout):
