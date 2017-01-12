@@ -55,7 +55,6 @@ class ItemGroup(object):
             assert abs(list_of_itrm_tags[1].id) == 3
             self._items[list_of_itrm_tags[0].payload] = list_of_itrm_tags[1].payload
 
-
     def to_tag(self):
         """
         -13:
@@ -92,16 +91,116 @@ class ItemGroup(object):
         @type output_stream: file
         """
         for block_id in self._items.keys():
-            output_stream.write("{} - {}: {}".format(self._label, block_id, self._items[block_id]))
+            output_stream.write("{} - {}: {}\n".format(self._label, block_id, self._items[block_id]))
+
+
+class ItemPulls(object):
+    """
+    Handling item pull tag structure
+
+    @type _item_pulls: dict[int, int]
+    """
+
+    def __init__(self):
+        self._unknown_number = 0
+        self._item_pulls = {}
+        self._label = ''
+
+    def from_tag(self, tag_payload):
+        """
+        -13:
+        {
+             -2: 0,
+            -13:
+            {  // pull stuff
+                -13: {-2: 331, -3: 99999, }
+                -13: {-2: 476, -3: 99999, }
+                -13: {-2: 978, -3: 99999, }
+                -13: {-2: 121, -3: 99999, }
+                -13: {-2: 423, -3: 99999, }
+                .....
+            }
+             -8: ''
+        }
+
+        @type tag_payload: TagPayload
+        """
+        assert isinstance(tag_payload, TagPayload)
+        assert abs(tag_payload.id) == 13
+        tag_list = tag_payload.payload
+        assert isinstance(tag_list, TagList)
+        list_of_tags = tag_list.get_list()
+
+        assert list_of_tags[2].id == 8
+        self._label = list_of_tags[2].payload
+
+        tag_payload = list_of_tags[1]
+        assert isinstance(tag_payload, TagPayload)
+        assert abs(tag_payload.id) == 13
+        tag_list = tag_payload.payload
+        assert isinstance(tag_list, TagList)
+        list_of_tags = tag_list.get_list()
+
+        for pull_tag in list_of_tags:
+            assert isinstance(pull_tag, TagPayload)
+            assert abs(pull_tag.id) == 13
+            pull_tag_list = pull_tag.payload
+            assert isinstance(pull_tag_list, TagList)
+            pull_list_of_tags = pull_tag_list.get_list()
+
+            assert pull_list_of_tags[0].id == -2
+            assert pull_list_of_tags[1].id == -3
+            self._item_pulls[pull_list_of_tags[0].payload] = pull_list_of_tags[1].payload
+
+    def to_tag(self):
+        """
+        -13:
+        {
+             -2: 0,
+            -13:
+            {  // pull stuff
+                -13: {-2: 331, -3: 99999, }
+                -13: {-2: 476, -3: 99999, }
+                -13: {-2: 978, -3: 99999, }
+                -13: {-2: 121, -3: 99999, }
+                -13: {-2: 423, -3: 99999, }
+                .....
+            }
+             -8: ''
+        }
+
+        @rtype: TagPayload
+        """
+        item_pulls_list = TagList()
+        item_pulls_list.add(TagPayload(-2, None, self._unknown_number))
+
+        item_pulls_item_list = TagList()
+        for item_id in self._item_pulls:
+            item_pull_list = TagList()
+            item_pull_list.add(TagPayload(-2, None, item_id))
+            item_pull_list.add(TagPayload(-3, None, self._item_pulls[item_id]))
+            item_pulls_item_list.add(TagPayload(-13, None, item_pull_list))
+        item_pulls_list.add(TagPayload(-13, None, item_pulls_item_list))
+
+        item_pulls_list.add(TagPayload(-8, None, self._label))
+        return TagPayload(-13, None, item_pulls_list)
+
+    def to_stream(self, output_stream=sys.stdout):
+        """
+        Stream values
+
+        @param output_stream: Output stream
+        @type output_stream: file
+        """
+        for item_id in self._item_pulls.keys():
+            output_stream.write("{}\t{}\n".format(item_id, self._item_pulls[item_id]))
 
 
 class Inventory(object):
     """
-    Handling Srotage tag structure
+    Handling storage inventory tag structure
 
-    @type _inventory_slot: list[int]
-    @type _item_ids: list[int]
-    @type _item_amount: list[int]
+    @type _inventory_slots: dict[tuple[int], int|ItemGroup]
     """
 
     _label = 'inv1'
@@ -109,12 +208,7 @@ class Inventory(object):
     _item_group_id = -32768
 
     def __init__(self):
-        self._inventory_slot = None
-
-    def set(self):
-        """
-        @type : str
-        """
+        self._inventory_slots = {}
 
     def from_tag(self, tag_payload):
         """
@@ -146,7 +240,7 @@ class Inventory(object):
         @type tag_payload: TagPayload
         """
         assert isinstance(tag_payload, TagPayload)
-        assert abs(tag_payload.id) == -13
+        assert tag_payload.id == 13
         tag_list = tag_payload.payload
         assert isinstance(tag_list, TagList)
         list_of_tags = tag_list.get_list()
@@ -175,23 +269,30 @@ class Inventory(object):
         @param output_stream: Output stream
         @type output_stream: file
         """
+        for item_slot, item_id in self._inventory_slots.keys():
+            output_stream.write("[{}]\t".format(item_slot))
+            if item_id < 0:
+                self._inventory_slots[item_slot, item_id].to_stream(output_stream)
+                continue
+            output_stream.write("{}: {}\n".format(item_id, self._inventory_slots[item_slot, item_id]))
 
 
 class Storage(object):
     """
     Handling Srotage tag structure
 
-    @type :
+    @type _unknown_number: int
+    @type _position: tuple[int]
+    @type _item_pulls: ItemPulls
+    @type _inventory: Inventory
     """
 
-    _label = 'stash'
-
     def __init__(self):
-
-    def set(self):
-        """
-        @type : str
-        """
+        self._label = 'stash'
+        self._unknown_number = 3
+        self._position = None
+        self._item_pulls = None
+        self._inventory = None
 
     def from_tag(self, tag_payload):
         """
@@ -199,10 +300,13 @@ class Storage(object):
         {
             -3: 3,
             -10: (7, 221, 33), // position
-            13: 'stash' {
-                -13: {
+            13: 'stash'
+            {
+                -13:
+                {
                      -2: 0,
-                    -13: {  // pull stuff
+                    -13:
+                    {  // pull stuff
                         -13: {-2: 331, -3: 99999, }
                         -13: {-2: 476, -3: 99999, }
                         -13: {-2: 978, -3: 99999, }
@@ -227,10 +331,29 @@ class Storage(object):
         @type tag_payload: TagPayload
         """
         assert isinstance(tag_payload, TagPayload)
-        assert abs(tag_payload.id) == -13
+        assert abs(tag_payload.id) == 13
         tag_list = tag_payload.payload
         assert isinstance(tag_list, TagList)
         list_of_tags = tag_list.get_list()
+
+        assert abs(list_of_tags[0].id) == 3
+        self._unknown_number = list_of_tags[0].payload
+        assert abs(list_of_tags[1].id) == 10
+        self._position = list_of_tags[1].payload
+        assert list_of_tags[2].id == 13
+        self._label = list_of_tags[2].name
+
+        tag_payload = list_of_tags[2].payload
+        assert isinstance(tag_payload, TagPayload)
+        assert abs(tag_payload.id) == 13
+        tag_list = tag_payload.payload
+        assert isinstance(tag_list, TagList)
+        list_of_tags = tag_list.get_list()
+
+        self._item_pulls = ItemPulls()
+        self._item_pulls.from_tag(list_of_tags[0])
+        self._inventory = Inventory()
+        self._inventory.from_tag(list_of_tags[1])
 
     def to_tag(self):
         """
