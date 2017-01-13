@@ -131,7 +131,7 @@ class TagUtil(object):
         if isinstance(payload, (TagPayload, TagList, TagPayloadList)):
             payload.to_stream(output_stream)
         else:
-            output_stream.write("{}, ".format(payload))
+            output_stream.write("{}".format(payload))
 
 
 class TagList(object):
@@ -142,6 +142,12 @@ class TagList(object):
 
     def __init__(self):
         self.tag_list = []
+
+    def __len__(self):
+        """
+        @rtype: int
+        """
+        return len(self.tag_list)
 
     # #######################################
     # ###  Read
@@ -183,10 +189,10 @@ class TagList(object):
         output_stream.write_byte(0)
 
     def to_stream(self, output_stream=sys.stdout):
-        output_stream.write(" {")
+        output_stream.write("{")
         for tag in self.tag_list:
             tag.to_stream(output_stream)
-        output_stream.write("} ")
+        output_stream.write("}")
 
     # #######################################
     # ###  Get
@@ -220,6 +226,12 @@ class TagPayloadList(TagUtil):
     def __init__(self):
         self.id = 0
         self.payload_list = []
+
+    def __len__(self):
+        """
+        @rtype: int
+        """
+        return len(self.payload_list)
 
     # #######################################
     # ###  Read
@@ -258,6 +270,28 @@ class TagPayloadList(TagUtil):
         for payload in self.payload_list:
             self._write_payload(payload, abs(self.id), output_stream)
 
+    # #######################################
+    # ###  Get
+    # #######################################
+
+    def get_list(self):
+        """
+        @rtype: list[TagPayload]
+        """
+        return self.payload_list
+
+    # #######################################
+    # ###  Set
+    # #######################################
+
+    def add(self, payload, payload_id=None):
+        """
+        @type payload: any
+        """
+        if payload_id is not None:
+            self.id = payload_id
+        self.payload_list.append(payload)
+
     def to_stream(self, output_stream=sys.stdout):
         output_stream.write("{}: [".format(self.id))
         for payload in self.payload_list:
@@ -273,6 +307,8 @@ class TagPayload(TagUtil):
     @type name: str | None
     @type payload: any
     """
+
+    _list_ids = {12, 13}
 
     def __init__(self, payload_id=0, name=None, payload=None):
         self.id = payload_id
@@ -320,12 +356,19 @@ class TagPayload(TagUtil):
         self._write_payload(self.payload, abs(self.id), output_stream)
 
     def to_stream(self, output_stream=sys.stdout):
+        if abs(self.id) in TagPayload._list_ids:
+            output_stream.write("\n")
         if self.id > 0:
             output_stream.write("{}: '{}' ".format(self.id, self.name))
         else:
             output_stream.write("{}: ".format(self.id))
+        if abs(self.id) == 8:
+            output_stream.write("'")
         self._payload_to_stream(self.payload, output_stream)
-        # output_stream.write("\n")
+        if abs(self.id) == 8:
+            output_stream.write("'")
+        if abs(self.id) not in TagPayload._list_ids:
+            output_stream.write(", ")
 
 
 class TagManager(DefaultLogging):
