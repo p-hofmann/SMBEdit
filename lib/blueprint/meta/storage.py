@@ -611,7 +611,7 @@ class Storage(object):
         tag_list_inventory.add(TagPayload(-3, None, self._unknown_number))
         tag_list_inventory.add(TagPayload(-10, None, self._position))
         tag_list_inventory.add(TagPayload(13, self._label, tag_list_stash))
-        return TagPayload(-13, self._label, tag_list_inventory)
+        return TagPayload(-13, None, tag_list_inventory)
 
     def to_stream(self, output_stream=sys.stdout):
         """
@@ -627,3 +627,56 @@ class Storage(object):
             self._item_pulls.to_stream()
             self._inventory.to_stream()
             output_stream.write("\n")
+
+class StorageList(object):
+    """
+    Handling Srotage tag structure
+
+    @type _list_of_storage: list[Storage]
+    """
+
+    def __init__(self):
+        self._list_of_storage = []
+
+    def __len__(self):
+        return len(self._list_of_storage)
+
+    def from_tag(self, tag_payload):
+        """
+        -13:
+        {
+        }
+
+        @type tag_payload: TagPayload
+        """
+        assert isinstance(tag_payload, TagPayload)
+        assert abs(tag_payload.id) == -13
+        tag_list = tag_payload.payload
+        assert isinstance(tag_list, TagList)
+        list_of_tags = tag_list.get_list()
+        for tag_payload in list_of_tags:
+            storage = Storage()
+            storage.from_tag(tag_payload)
+            self._list_of_storage.append(storage)
+
+    def to_tag(self):
+        """
+        -13:
+        {
+        }
+        @rtype: TagPayload
+        """
+        tag_list_storage_list = TagList()
+        for storage in self._list_of_storage:
+            tag_list_storage_list.add(storage.to_tag())
+        return TagPayload(-13, None, tag_list_storage_list)
+
+    def to_stream(self, output_stream=sys.stdout):
+        """
+        Stream values
+
+        @param output_stream: Output stream
+        @type output_stream: file
+        """
+        for storage in self._list_of_storage:
+            storage.to_stream(output_stream)
