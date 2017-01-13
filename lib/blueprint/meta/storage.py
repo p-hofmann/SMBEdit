@@ -1,7 +1,6 @@
 __author__ = 'Peter Hofmann'
 
 import sys
-
 from lib.blueprint.meta.tagmanager import TagPayload, TagList, TagPayloadList
 
 
@@ -96,92 +95,31 @@ class ItemGroup(object):
         output_stream.write("\n")
 
 
-class ItemSpecial(object):
+class ItemLogbook(object):
     """
-    @type _unknown_int32: int
-    @type _item_id: int
-    @type _item: ItemBlueprint|ItemDesign
-    @type _unknown_int16: int
+    @type _log_entry: str
     """
-
-    _item_id_blueprint = -9
-    _item_id_design = -15
-    _item_id_hand_held = -32
-    _item_id_helmet = -12
-
-    _valid_items = {
-        _item_id_blueprint,
-        _item_id_design,
-        _item_id_hand_held,
-        _item_id_helmet,
-    }
 
     def __init__(self):
-        self._unknown_int32 = 0
-        self._item_id = 0
-        self._item = None
-        self._unknown_int16 = -1
+        self._log_entry = "Personal Logbook"
 
     def from_tag(self, tag_payload):
         """
-        -13:
-        {
-             -3: 158460,
-             -2: -32,
-            -13: // item
-            -2: 1,
-        }
+        -8: 'Personal Logbook'
 
         @type tag_payload: TagPayload
         """
         assert isinstance(tag_payload, TagPayload)
-        assert abs(tag_payload.id) == 13
-        tag_list = tag_payload.payload
-        assert isinstance(tag_list, TagList)
-        list_of_tags = tag_list.get_list()
-
-        assert list_of_tags[0].id == -3
-        assert list_of_tags[1].id == -2
-        assert list_of_tags[3].id == -2
-        self._unknown_int32 = list_of_tags[0].payload
-        self._item_id = list_of_tags[1].payload
-        assert self._item_id in ItemSpecial._valid_items, "Unkown item: {}".format(self._item_id)
-        self._unknown_int16 = list_of_tags[3].payload
-
-        tag_payload = list_of_tags[2]
-        if self._item_id == self._item_id_blueprint:
-            self._item = ItemBlueprint()
-            self._item.from_tag(tag_payload)
-        elif self._item_id == self._item_id_design:
-            self._item = ItemDesign()
-            self._item.from_tag(tag_payload)
-        elif self._item_id == self._item_id_helmet:
-            self._item = ItemHelmet()
-            self._item.from_tag(tag_payload)
-        elif self._item_id == self._item_id_hand_held:
-            self._item = ItemHandHeld()
-            self._item.from_tag(tag_payload)
-        else:
-            raise NotImplementedError("Unknown item id: {}".format(self._item_id))
+        assert abs(tag_payload.id) == 8
+        self._log_entry = tag_payload.payload
 
     def to_tag(self):
         """
-        -13:
-        {
-             -3: 158460,
-             -2: -32,
-            -13: // item
-            -2: 1,
-        }
+        -8: 'Personal Logbook'
 
         @rtype: TagPayload
         """
-        tag_list_design = TagList()
-        tag_list_design.add(TagPayload(-3, None, self._unknown_int32))
-        tag_list_design.add(TagPayload(-2, None, self._item_id))
-        tag_list_design.add(self._item.to_tag())
-        tag_list_design.add(TagPayload(-2, None, self._unknown_int16))
-        return TagPayload(-13, None, tag_list_design)
+        return TagPayload(-8, None, self._log_entry)
 
     def to_stream(self, output_stream=sys.stdout):
         """
@@ -190,9 +128,7 @@ class ItemSpecial(object):
         @param output_stream: Output stream
         @type output_stream: file
         """
-        output_stream.write("{}\t".format(self._unknown_int32))
-        output_stream.write("{}\t".format(self._unknown_int16))
-        self._item.to_stream()
+        output_stream.write("Log: '{}'\n".format(self._log_entry))
 
 
 class ItemHelmet(object):
@@ -229,6 +165,374 @@ class ItemHelmet(object):
         @type output_stream: file
         """
         output_stream.write("{}\n".format(self._unknown_byte))
+
+
+class ItemTransporterMarker(object):
+    """
+    @type _mark_0: str
+    @type _mark_1: str
+    @type _unknown_long: int
+    @type _unknown_float: float
+    """
+
+    def __init__(self):
+        self._mark_0 = "unmarked"
+        self._mark_1 = "unmarked"
+        self._unknown_long = 0
+        self._unknown_float = .0
+
+    def from_tag(self, tag_payload):
+        """
+    -13: "Transporter Marker"
+    {
+        -8: 'unmarked',
+        -8: 'unmarked',
+        -4: -9223372036854775808,
+        -5: 1.39999997616,
+    }
+
+        @type tag_payload: TagPayload
+        """
+        assert isinstance(tag_payload, TagPayload)
+        assert abs(tag_payload.id) == 13
+        tag_list = tag_payload.payload
+        assert isinstance(tag_list, TagList)
+        list_of_tags = tag_list.get_list()
+        assert list_of_tags[0].id == -8
+        assert list_of_tags[1].id == -8
+        assert list_of_tags[2].id == -4
+        assert list_of_tags[3].id == -5
+        self._mark_0 = list_of_tags[0].payload
+        self._mark_1 = list_of_tags[1].payload
+        self._unknown_long = list_of_tags[2].payload
+        self._unknown_float = list_of_tags[3].payload
+
+    def to_tag(self):
+        """
+    -13: "Transporter Marker"
+    {
+        -8: 'unmarked',
+        -8: 'unmarked',
+        -4: -9223372036854775808,
+        -5: 1.39999997616,
+    }
+
+        @rtype: TagPayload
+        """
+        taglist_item = TagList()
+        taglist_item.add(TagPayload(-8, None, self._mark_0))
+        taglist_item.add(TagPayload(-8, None, self._mark_1))
+        taglist_item.add(TagPayload(-4, None, self._unknown_long))
+        taglist_item.add(TagPayload(-5, None, self._unknown_float))
+        return TagPayload(-13, None, taglist_item)
+
+    def to_stream(self, output_stream=sys.stdout):
+        """
+        Stream values
+
+        @param output_stream: Output stream
+        @type output_stream: file
+        """
+        output_stream.write("'{}'\t".format(self._mark_0))
+        output_stream.write("'{}'\t".format(self._mark_1))
+        output_stream.write("{}\t".format(self._unknown_long))
+        output_stream.write("{}\n".format(self._unknown_float))
+
+
+class ItemMarkerBeam(object):
+    """
+    @type _marked_entity_0: str
+    @type _marked_entity_1: str
+    @type _unknown_long: int
+    """
+
+    def __init__(self):
+        self._marked_entity_0 = "unmarked"
+        self._marked_entity_1 = "unmarked"
+        self._unknown_long = 0
+
+    def from_tag(self, tag_payload):
+        """
+        -13:
+        {
+            -8: 'unmarked',
+            -8: 'unmarked',
+            -4: -9223372036854775808,
+        }
+
+        @type tag_payload: TagPayload
+        """
+        assert isinstance(tag_payload, TagPayload)
+        assert abs(tag_payload.id) == 13
+        tag_list = tag_payload.payload
+        assert isinstance(tag_list, TagList)
+        list_of_tags = tag_list.get_list()
+        assert list_of_tags[0].id == -8
+        assert list_of_tags[1].id == -8
+        assert list_of_tags[2].id == -4
+        self._marked_entity_0 = list_of_tags[0].payload
+        self._marked_entity_1 = list_of_tags[1].payload
+        self._unknown_long = list_of_tags[2].payload
+
+    def to_tag(self):
+        """
+        -13:
+        {
+            -8: 'unmarked',
+            -8: 'unmarked',
+            -4: -9223372036854775808,
+        }
+
+        @rtype: TagPayload
+        """
+        taglist_item = TagList()
+        taglist_item.add(TagPayload(-8, None, self._marked_entity_0))
+        taglist_item.add(TagPayload(-8, None, self._marked_entity_1))
+        taglist_item.add(TagPayload(-4, None, self._unknown_long))
+        return TagPayload(-13, None, taglist_item)
+
+    def to_stream(self, output_stream=sys.stdout):
+        """
+        Stream values
+
+        @param output_stream: Output stream
+        @type output_stream: file
+        """
+        output_stream.write("'{}'\t".format(self._marked_entity_0))
+        output_stream.write("'{}'\t".format(self._marked_entity_1))
+        output_stream.write("{}\n".format(self._unknown_long))
+
+
+class ItemGrapple(object):
+    """
+    @type _unknown_float_0: float
+    @type _unknown_vector_float_x4: tuple[float]
+    @type _unknown_float_1: float
+    """
+
+    def __init__(self):
+        self._unknown_float_0 = 0
+        self._unknown_vector_float_x4 = 0
+        self._unknown_float_1 = 0
+
+    def from_tag(self, tag_payload):
+        """
+        -13: "Grapple"
+        {
+            -5: 50.0,
+            -15: (1.0, 1.0, 0.7940500974655151, 1.0),
+            -5: 150.0,
+        }
+
+        @type tag_payload: TagPayload
+        """
+        assert isinstance(tag_payload, TagPayload)
+        assert abs(tag_payload.id) == 13
+        tag_list = tag_payload.payload
+        assert isinstance(tag_list, TagList)
+        list_of_tags = tag_list.get_list()
+        assert list_of_tags[0].id == -5
+        assert list_of_tags[1].id == -15
+        assert list_of_tags[2].id == -5
+        self._unknown_float_0 = list_of_tags[0].payload
+        self._unknown_vector_float_x4 = list_of_tags[1].payload
+        self._unknown_float_1 = list_of_tags[2].payload
+
+    def to_tag(self):
+        """
+        -13: "Grapple"
+        {
+            -5: 50.0,
+            -15: (1.0, 1.0, 0.7940500974655151, 1.0),
+            -5: 150.0,
+        }
+
+        @rtype: TagPayload
+        """
+        taglist_item = TagList()
+        taglist_item.add(TagPayload(-5, None, self._unknown_float_0))
+        taglist_item.add(TagPayload(-15, None, self._unknown_vector_float_x4))
+        taglist_item.add(TagPayload(-5, None, self._unknown_float_1))
+        return TagPayload(-13, None, taglist_item)
+
+    def to_stream(self, output_stream=sys.stdout):
+        """
+        Stream values
+
+        @param output_stream: Output stream
+        @type output_stream: file
+        """
+        output_stream.write("{}\t".format(self._unknown_float_0))
+        output_stream.write("{}\t".format(self._unknown_vector_float_x4))
+        output_stream.write("{}\n".format(self._unknown_float_1))
+
+
+class ItemSniperRifle(object):
+    """
+    @type _unknown_int32_0: int
+    @type _unknown_float_0: float
+    @type _unknown_float_1: float
+    @type _unknown_vector_float_x4: tuple[float]
+    @type _unknown_float_2: float
+    """
+
+    def __init__(self):
+        self._unknown_int32_0 = 0
+        self._unknown_float_0 = 0
+        self._unknown_float_1 = 0
+        self._unknown_vector_float_x4 = 0
+        self._unknown_float_2 = 0
+
+    def from_tag(self, tag_payload):
+        """
+        -13: "Sniper Rifle"
+        {
+            -3: 100,
+            -5: 70.0,
+            -5: 5.0,
+            -15: (0.11056612432003021, 0.6573101282119751, 0.5764869451522827, 1.0),
+            -5: 400.0,
+        }
+
+        @type tag_payload: TagPayload
+        """
+        assert isinstance(tag_payload, TagPayload)
+        assert abs(tag_payload.id) == 13
+        tag_list = tag_payload.payload
+        assert isinstance(tag_list, TagList)
+        list_of_tags = tag_list.get_list()
+        assert list_of_tags[0].id == -3
+        assert list_of_tags[1].id == -5
+        assert list_of_tags[2].id == -5
+        assert list_of_tags[3].id == -15
+        assert list_of_tags[4].id == -5
+        self._unknown_int32_0 = list_of_tags[0].payload
+        self._unknown_float_0 = list_of_tags[1].payload
+        self._unknown_float_1 = list_of_tags[2].payload
+        self._unknown_vector_float_x4 = list_of_tags[3].payload
+        self._unknown_float_2 = list_of_tags[4].payload
+
+    def to_tag(self):
+        """
+        -13: "Sniper Rifle"
+        {
+            -3: 100,
+            -5: 70.0,
+            -5: 5.0,
+            -15: (0.11056612432003021, 0.6573101282119751, 0.5764869451522827, 1.0),
+            -5: 400.0,
+        }
+
+        @rtype: TagPayload
+        """
+        taglist_item = TagList()
+        taglist_item.add(TagPayload(-3, None, self._unknown_int32_0))
+        taglist_item.add(TagPayload(-5, None, self._unknown_float_0))
+        taglist_item.add(TagPayload(-5, None, self._unknown_float_1))
+        taglist_item.add(TagPayload(-15, None, self._unknown_vector_float_x4))
+        taglist_item.add(TagPayload(-5, None, self._unknown_float_2))
+        return TagPayload(-13, None, taglist_item)
+
+    def to_stream(self, output_stream=sys.stdout):
+        """
+        Stream values
+
+        @param output_stream: Output stream
+        @type output_stream: file
+        """
+        output_stream.write("{}\t".format(self._unknown_int32_0))
+        output_stream.write("{}\t".format(self._unknown_float_0))
+        output_stream.write("{}\t".format(self._unknown_float_1))
+        output_stream.write("{}\t".format(self._unknown_vector_float_x4))
+        output_stream.write("{}\n".format(self._unknown_float_2))
+
+
+class ItemRocketLauncher(object):
+    """
+    @type _unknown_int32_0: int
+    @type _unknown_float_0: float
+    @type _unknown_int32_1: int
+    @type _unknown_vector_float_x4: tuple[float]
+    @type _unknown_float_1: float
+    @type _unknown_float_2: float
+    """
+
+    def __init__(self):
+        self._unknown_int32_0 = 0
+        self._unknown_float_0 = 0
+        self._unknown_int32_1 = 0
+        self._unknown_vector_float_x4 = 0
+        self._unknown_float_1 = 0
+        self._unknown_float_2 = 0
+
+    def from_tag(self, tag_payload):
+        """
+        -13: "Rocket Launcher"
+        {
+            -3: 200,
+            -5: 30.0,
+            -3: 13000,
+            -15: (1.0, 0.8890293836593628, 0.48737263679504395, 1.0),
+            -5: 7.5,
+            -5: 300.0,
+        }
+
+        @type tag_payload: TagPayload
+        """
+        assert isinstance(tag_payload, TagPayload)
+        assert abs(tag_payload.id) == 13
+        tag_list = tag_payload.payload
+        assert isinstance(tag_list, TagList)
+        list_of_tags = tag_list.get_list()
+        assert list_of_tags[0].id == -3
+        assert list_of_tags[1].id == -5
+        assert list_of_tags[2].id == -3
+        assert list_of_tags[3].id == -15
+        assert list_of_tags[4].id == -5
+        assert list_of_tags[5].id == -5
+        self._unknown_int32_0 = list_of_tags[0].payload
+        self._unknown_float_0 = list_of_tags[1].payload
+        self._unknown_int32_1 = list_of_tags[2].payload
+        self._unknown_vector_float_x4 = list_of_tags[3].payload
+        self._unknown_float_1 = list_of_tags[4].payload
+        self._unknown_float_2 = list_of_tags[5].payload
+
+    def to_tag(self):
+        """
+        -13: "Rocket Launcher"
+        {
+            -3: 200,
+            -5: 30.0,
+            -3: 13000,
+            -15: (1.0, 0.8890293836593628, 0.48737263679504395, 1.0),
+            -5: 7.5,
+            -5: 300.0,
+        }
+
+        @rtype: TagPayload
+        """
+        taglist_item = TagList()
+        taglist_item.add(TagPayload(-3, None, self._unknown_int32_0))
+        taglist_item.add(TagPayload(-5, None, self._unknown_float_0))
+        taglist_item.add(TagPayload(-3, None, self._unknown_int32_1))
+        taglist_item.add(TagPayload(-15, None, self._unknown_vector_float_x4))
+        taglist_item.add(TagPayload(-5, None, self._unknown_float_1))
+        taglist_item.add(TagPayload(-5, None, self._unknown_float_2))
+        return TagPayload(-13, None, taglist_item)
+
+    def to_stream(self, output_stream=sys.stdout):
+        """
+        Stream values
+
+        @param output_stream: Output stream
+        @type output_stream: file
+        """
+        output_stream.write("{}\t".format(self._unknown_int32_0))
+        output_stream.write("{}\t".format(self._unknown_float_0))
+        output_stream.write("{}\t".format(self._unknown_int32_1))
+        output_stream.write("{}\t".format(self._unknown_vector_float_x4))
+        output_stream.write("{}\t".format(self._unknown_float_1))
+        output_stream.write("{}\n".format(self._unknown_float_2))
 
 
 class ItemHandHeld(object):
@@ -301,6 +605,166 @@ class ItemHandHeld(object):
         output_stream.write("{}\t".format(self._unknown_float))
         output_stream.write("{}\t".format(self._unknown_int32_1))
         output_stream.write("{}\n".format(self._unknown_vector_float_x4))
+
+
+class ItemTorch(object):
+    """
+    @type _unknown_vector_float_x4: tuple[float]
+    @type _unknown_byte: int
+    """
+
+    def __init__(self):
+        self._unknown_vector_float_x4 = 0
+        self._unknown_byte = 0
+
+    def from_tag(self, tag_payload):
+        """
+        -13:
+        {
+            -15: (1.0, 1.0, 1.0, 1.0),
+            -1: 0,
+        }
+
+        @type tag_payload: TagPayload
+        """
+        assert isinstance(tag_payload, TagPayload)
+        assert abs(tag_payload.id) == 13
+        tag_list = tag_payload.payload
+        assert isinstance(tag_list, TagList)
+        list_of_tags = tag_list.get_list()
+        assert list_of_tags[0].id == -15
+        assert list_of_tags[1].id == -1
+        self._unknown_vector_float_x4 = list_of_tags[0].payload
+        self._unknown_byte = list_of_tags[1].payload
+
+    def to_tag(self):
+        """
+        -13:
+        {
+            -15: (1.0, 1.0, 1.0, 1.0),
+            -1: 0,
+        }
+
+        @rtype: TagPayload
+        """
+        taglist_item = TagList()
+        taglist_item.add(TagPayload(-15, None, self._unknown_vector_float_x4))
+        taglist_item.add(TagPayload(-1, None, self._unknown_byte))
+        return TagPayload(-13, None, taglist_item)
+
+    def to_stream(self, output_stream=sys.stdout):
+        """
+        Stream values
+
+        @param output_stream: Output stream
+        @type output_stream: file
+        """
+        output_stream.write("{}\t".format(self._unknown_vector_float_x4))
+        output_stream.write("{}\n".format(self._unknown_byte))
+
+
+class ItemBuildProhibiter(object):
+    """
+    @type _unknown_float: tuple[float]
+    @type _unknown_byte: int
+    """
+
+    def __init__(self):
+        self._unknown_float = 0
+        self._unknown_byte = 0
+
+    def from_tag(self, tag_payload):
+        """
+        -13:
+        {
+            -5: 32.0,
+            -1: 0,
+        }
+
+        @type tag_payload: TagPayload
+        """
+        assert isinstance(tag_payload, TagPayload)
+        assert abs(tag_payload.id) == 13
+        tag_list = tag_payload.payload
+        assert isinstance(tag_list, TagList)
+        list_of_tags = tag_list.get_list()
+        assert list_of_tags[0].id == -5
+        assert list_of_tags[1].id == -1
+        self._unknown_float = list_of_tags[0].payload
+        self._unknown_byte = list_of_tags[1].payload
+
+    def to_tag(self):
+        """
+        -13:
+        {
+            -5: 32.0,
+            -1: 0,
+        }
+
+        @rtype: TagPayload
+        """
+        taglist_item = TagList()
+        taglist_item.add(TagPayload(-5, None, self._unknown_float))
+        taglist_item.add(TagPayload(-1, None, self._unknown_byte))
+        return TagPayload(-13, None, taglist_item)
+
+    def to_stream(self, output_stream=sys.stdout):
+        """
+        Stream values
+
+        @param output_stream: Output stream
+        @type output_stream: file
+        """
+        output_stream.write("{}\t".format(self._unknown_float))
+        output_stream.write("{}\n".format(self._unknown_byte))
+
+
+class ItemBlockStorage(object):
+    """
+    @type _unknown_byte_array: list[int]
+    """
+
+    def __init__(self):
+        self._unknown_byte_array = 0
+
+    def from_tag(self, tag_payload):
+        """
+        -13:
+        {
+            -7: [0, 0, 0, 0]
+        }
+
+        @type tag_payload: TagPayload
+        """
+        assert isinstance(tag_payload, TagPayload)
+        assert abs(tag_payload.id) == 13
+        tag_list = tag_payload.payload
+        assert isinstance(tag_list, TagList)
+        list_of_tags = tag_list.get_list()
+        assert list_of_tags[0].id == -7
+        self._unknown_byte_array = list_of_tags[0].payload
+
+    def to_tag(self):
+        """
+        -13:
+        {
+            -7: [0, 0, 0, 0]
+        }
+
+        @rtype: TagPayload
+        """
+        taglist_item = TagList()
+        taglist_item.add(TagPayload(-7, None, self._unknown_byte_array))
+        return TagPayload(-13, None, taglist_item)
+
+    def to_stream(self, output_stream=sys.stdout):
+        """
+        Stream values
+
+        @param output_stream: Output stream
+        @type output_stream: file
+        """
+        output_stream.write("{}\n".format(self._unknown_byte_array))
 
 
 class ItemDesign(object):
@@ -428,6 +892,146 @@ class ItemBlueprint(object):
         output_stream.write("{}\t".format(self._label))
 
 
+class ItemSpecial(object):
+    """
+    @type _unknown_int32: int
+    @type _item_id: int
+    @type _item: ItemBlueprint|ItemDesign
+    @type _item_type: int
+    """
+
+    _item_ids = {
+        -9: "Blueprint",
+        # ?? -10: "Recipe",
+        -11: "Logbook",
+        -12: "Helmet",
+        -13: "Build Prohibiter",
+        -14: "Torch",
+        -15: "Design",
+        -16: "Block Storage",
+        -32: "Weapon",
+    }
+
+    _item_types = {
+        1: "Laser",
+        2: "Healing Beam",
+        3: "Power Supply Beam",
+        4: "Marker Beam",
+        5: "Rocket Launcher",
+        6: "Sniper Rifle",
+        7: "Grapple",
+        9: "Transporter Marker"
+    }
+
+    def __init__(self):
+        self._unknown_int32 = 0
+        self._item_id = 0
+        self._item = None
+        self._item_type = -1
+
+    def from_tag(self, tag_payload):
+        """
+        -13:
+        {
+             -3: 158460,
+             -2: -32,
+            -13: // item
+            -2: 1,
+        }
+
+        @type tag_payload: TagPayload
+        """
+        assert isinstance(tag_payload, TagPayload)
+        assert abs(tag_payload.id) == 13
+        tag_list = tag_payload.payload
+        assert isinstance(tag_list, TagList)
+        list_of_tags = tag_list.get_list()
+
+        assert list_of_tags[0].id == -3
+        assert list_of_tags[1].id == -2
+        assert list_of_tags[3].id == -2
+        self._unknown_int32 = list_of_tags[0].payload
+        self._item_id = list_of_tags[1].payload
+        assert self._item_id in ItemSpecial._item_ids, "Unkown item id: {}".format(self._item_id)
+        self._item_type = list_of_tags[3].payload
+
+        tag_payload = list_of_tags[2]
+        if self._item_id == -9:
+            self._item = ItemBlueprint()
+            self._item.from_tag(tag_payload)
+        elif self._item_id == -11:
+            self._item = ItemLogbook()
+            self._item.from_tag(tag_payload)
+        elif self._item_id == -12:
+            self._item = ItemHelmet()
+            self._item.from_tag(tag_payload)
+        elif self._item_id == -13:
+            self._item = ItemBuildProhibiter()
+            self._item.from_tag(tag_payload)
+        elif self._item_id == -14:
+            self._item = ItemTorch()
+            self._item.from_tag(tag_payload)
+        elif self._item_id == -15:
+            self._item = ItemDesign()
+            self._item.from_tag(tag_payload)
+        elif self._item_id == -16:
+            self._item = ItemBlockStorage()
+            self._item.from_tag(tag_payload)
+        elif self._item_id == -32:
+            if self._item_type not in self._item_types:
+                raise NotImplementedError("Unknown item type: {}".format(self._item_type))
+            if 0 < self._item_type < 4:
+                self._item = ItemHandHeld()
+            elif self._item_type == 4:
+                self._item = ItemMarkerBeam()
+            elif self._item_type == 5:
+                self._item = ItemRocketLauncher()
+            elif self._item_type == 6:
+                self._item = ItemSniperRifle()
+            elif self._item_type == 7:
+                self._item = ItemGrapple()
+            elif self._item_type == 9:
+                self._item = ItemTransporterMarker()
+            else:
+                raise NotImplementedError("Unknown item type: {}".format(self._item_type))
+            self._item.from_tag(tag_payload)
+        else:
+            raise NotImplementedError("Unknown item id: {}".format(self._item_id))
+
+    def to_tag(self):
+        """
+        -13:
+        {
+             -3: 158460,
+             -2: -32,
+            -13: // item
+            -2: 1,
+        }
+
+        @rtype: TagPayload
+        """
+        tag_list_design = TagList()
+        tag_list_design.add(TagPayload(-3, None, self._unknown_int32))
+        tag_list_design.add(TagPayload(-2, None, self._item_id))
+        tag_list_design.add(self._item.to_tag())
+        tag_list_design.add(TagPayload(-2, None, self._item_type))
+        return TagPayload(-13, None, tag_list_design)
+
+    def to_stream(self, output_stream=sys.stdout):
+        """
+        Stream values
+
+        @param output_stream: Output stream
+        @type output_stream: file
+        """
+        output_stream.write("{}\t".format(self._unknown_int32))
+        if self._item_type in self._item_types:
+            output_stream.write("{}\t".format(self._item_types[self._item_type]))
+        else:
+            output_stream.write("{}\t".format(self._item_ids[self._item_id]))
+        self._item.to_stream()
+
+
 class ItemPulls(object):
     """
     Handling item pull tag structure
@@ -527,7 +1131,11 @@ class ItemPulls(object):
         @type output_stream: file
         """
         for item_id in sorted(self._item_pulls.keys()):
-            output_stream.write("'{}' {}\t{}\t{}\n".format(self._storage_name, self._unknown_number, item_id, self._item_pulls[item_id]))
+            output_stream.write("'{}' {}\t{}\t{}\n".format(
+                self._storage_name,
+                self._unknown_number,
+                item_id,
+                self._item_pulls[item_id]))
 
 
 class Inventory(object):
@@ -609,21 +1217,26 @@ class Inventory(object):
                 amount.from_tag(amount_tag)
                 self._inventory_slots[(slot_id, item_id)] = amount
             else:
-                amount = ItemSpecial()
-                amount.from_tag(amount_tag)
-                self._inventory_slots[(slot_id, item_id)] = amount
+                try:
+                    amount = ItemSpecial()
+                    amount.from_tag(amount_tag)
+                    self._inventory_slots[(slot_id, item_id)] = amount
+                except (NotImplementedError, AssertionError) as e:
+                    if len(e.args) > 0:
+                        sys.stderr.write("WARNING: [Storage] " + e.args[0] + "\n")
+                    continue
 
     def to_tag(self):
         """
         13: 'inv1'
         {
-                    -12:
-                        3: [0	1	2	3	4	5	6	7	8	9	10	11	12	13	14	15	16	17	18	19]
-                    -12:
-                        2: [4	545	54	334	46	414	416	6	38	24	30	48	335	333	415	417	16	32	978	544	-15	-9] ,
-                    -13: {
-                            -3: 25, -3: 69455, -3: 1, -3: 50, -3: 9, -3: 54, -3: 50, -3: 105, -3: 105, -3: 21450
-                     }
+            -12:
+                3: [0	1	2	3	4	5	6	7	8	9	10	11	12	13	14	15	16	17	18	19]
+            -12:
+                2: [4	545	54	334	46	414	416	6	38	24	30	48	335	333	415	417	16	32	978	544	-15	-9] ,
+            -13: {
+                    -3: 25, -3: 69455, -3: 1, -3: 50, -3: 9, -3: 54, -3: 50, -3: 105, -3: 105, -3: 21450
+             }
          }
 
         @rtype: TagPayload
@@ -661,7 +1274,7 @@ class Inventory(object):
 
 class Storage(object):
     """
-    Handling Srotage tag structure
+    Handling Storage tag structure
 
     @type _unknown_number: int
     @type _position: tuple[int]
@@ -758,7 +1371,7 @@ class Storage(object):
 
 class StorageList(object):
     """
-    Handling Srotage tag structure
+    Handling Storage list tag structure
 
     @type _list_of_storage: list[Storage]
     """
