@@ -118,7 +118,7 @@ class ItemSpecial(object):
 
     def __init__(self):
         self._unknown_int32 = 0
-        self._item_id = -15
+        self._item_id = 0
         self._item = None
         self._unknown_int16 = -1
 
@@ -128,7 +128,7 @@ class ItemSpecial(object):
         {
              -3: 158460,
              -2: -32,
-            -13:
+            -13: // item
             -2: 1,
         }
 
@@ -179,7 +179,7 @@ class ItemSpecial(object):
         tag_list_design = TagList()
         tag_list_design.add(TagPayload(-3, None, self._unknown_int32))
         tag_list_design.add(TagPayload(-2, None, self._item_id))
-        tag_list_design.add(TagPayload(-13, None, self._item.to_tag()))
+        tag_list_design.add(self._item.to_tag())
         tag_list_design.add(TagPayload(-2, None, self._unknown_int16))
         return TagPayload(-13, None, tag_list_design)
 
@@ -338,22 +338,16 @@ class ItemDesign(object):
         """
         -13:
         {
-             -3: 156363,
-             -2: -15,
-            -13:
-            {
-                -8: 'ENTITY_SHIP_Mining_Drone_1',
-                -8: 'Heavy_Mining_Drone_AM',
-            }
-             -2: -1,
+            -8: 'ENTITY_SHIP_Mining_Drone_1',
+            -8: 'Heavy_Mining_Drone_AM',
         }
 
         @rtype: TagPayload
         """
-        taglist_item = TagList()
-        taglist_item.add(TagPayload(-8, None, self._label_entity))
-        taglist_item.add(TagPayload(-8, None, self._label_design))
-        return TagPayload(-13, None, taglist_item)
+        tag_list_item = TagList()
+        tag_list_item.add(TagPayload(-8, None, self._label_entity))
+        tag_list_item.add(TagPayload(-8, None, self._label_design))
+        return TagPayload(-13, None, tag_list_item)
 
     def to_stream(self, output_stream=sys.stdout):
         """
@@ -645,6 +639,9 @@ class Inventory(object):
             else:
                 list_item_amounts.add(self._inventory_slots[(slot_id, item_id)].to_tag())
         tag_list_inventory = TagList()
+        tag_list_inventory.add(TagPayload(-12, None, list_item_slots))
+        tag_list_inventory.add(TagPayload(-12, None, list_item_id))
+        tag_list_inventory.add(TagPayload(-13, None, list_item_amounts))
         return TagPayload(13, self._label, tag_list_inventory)
 
     def to_stream(self, output_stream=sys.stdout):
