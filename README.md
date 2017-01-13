@@ -10,7 +10,7 @@ Input and output are either a directory of raw blueprints as found in "/../StarM
 
 ## Windows only (work without python)
 
-Download the smbedit-0.1.2.zip and extract SMEdit where you want.
+Download the [smbedit-0.1.2.zip](https://mega.nz/#!UwwTSLrD!9Doabud1FYF8ASQiZLj_W71lGgXC6x_DLShkmYHLnH4) and extract SMEdit where you want.
 That's it, you can now use SMEdit to modify your blueprint.
 
 Open a command prompt and go to the SMEdit folder.
