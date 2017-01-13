@@ -3,9 +3,35 @@ StarMade Blueprint Editor
 
 Yet another editor since others have become outdated.  
 This is a command line tool, there is no gui!  
-The script was written for python2.7 and is not compatible with python3, but should work on all platforms.  
+The script is compatible with both python2.7 and python3, and should work on all platforms.  
 Input and output are either a directory of raw blueprints as found in "/../StarMade/blueprints/" or a path to a '.sment' file.  
 
+# Installation
+
+## Windows only (work without python)
+
+Download the smbedit-0.1.2.zip and extract SMEdit where you want.
+That's it, you can now use SMEdit to modify your blueprint.
+
+Open a command prompt and go to the SMEdit folder.
+To see the help, type:
+```bash
+smbedit.exe --help 
+```
+
+## Windows, Mac and Linux
+
+Install python (2 or 3) and [pip](https://pip.pypa.io/en/stable/installing/). Then use pip to install `future`:
+
+```bash
+pip install future
+```
+
+Open a command prompt and go to the SMEdit folder.
+To see the help, type:
+```bash
+python smbedit.py --help 
+```
 
 # Usage
 Several command line arguments are available and (most) can be used all at once.  
@@ -94,8 +120,16 @@ The ids of blocks can be found at [starmadepedia](https://starmadepedia.net/wiki
 
 For example, if you have problems finding the core anchor of your huge shipyard, why not moving the station indicator directly on top of it? The id of the shipyard core anchor is 679.
 
+With the python script:
+
 ```
 python smbedit.py directory/my_blueprint -m 679 -o directory/new_blueprint
+```
+
+or with the executable (just replace `python smbedit.py` with `smbedit.exe`):
+
+```
+smbedit.exe directory/my_blueprint -m 679 -o directory/new_blueprint
 ```
 
 ### Remove blocks
@@ -220,3 +254,17 @@ The statistical info of an entity, read from the 'header.smbph' file is not upda
 
 ## Turrets / Docked entities
 Old style docking, entities docked to "Turret Docking Unit" or "Docking Module" are converted to rail docking.
+
+# Create the Windows executable (Windows only)
+
+First of all, install cx_Freeze:
+
+```bash
+pip install cx-freeze
+```
+
+Then, go to the SMBEdit folder and type:
+```bash
+python setup.py build
+```
+The executable should appear in the build folder.
