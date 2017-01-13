@@ -1272,22 +1272,84 @@ class Inventory(object):
             output_stream.write("{}: {}\n".format(item_id, self._inventory_slots[item_slot, item_id]))
 
 
-class Storage(object):
+class Stash(object):
     """
-    Handling Storage tag structure
+    Handling Stash tag structure
 
-    @type _unknown_number: int
-    @type _position: tuple[int]
+    @type _label: str
     @type _item_pulls: ItemPulls
     @type _inventory: Inventory
     """
 
     def __init__(self):
         self._label = 'stash'
-        self._unknown_number = 3
-        self._position = None
         self._item_pulls = None
         self._inventory = None
+
+    def from_tag(self, tag_payload):
+        """
+        13: 'stash'
+        {
+            -13: // pull stuff
+            13: // inventory stuff
+        }
+
+        @type tag_payload: TagPayload
+        """
+
+        assert isinstance(tag_payload, TagPayload)
+        assert tag_payload.id == 13
+        self._label = tag_payload.name
+        tag_list = tag_payload.payload
+        assert isinstance(tag_list, TagList)
+        list_of_tags = tag_list.get_list()
+
+        self._item_pulls = ItemPulls()
+        self._item_pulls.from_tag(list_of_tags[0])
+        self._inventory = Inventory()
+        self._inventory.from_tag(list_of_tags[1])
+
+    def to_tag(self):
+        """
+        13: 'stash'
+        {
+            -13:  // pull stuff
+             13: 'inv1'    // inventory stuff
+        }
+        @rtype: TagPayload
+        """
+        tag_list_stash = TagList()
+        tag_list_stash.add(self._item_pulls.to_tag())
+        tag_list_stash.add(self._inventory.to_tag())
+        return TagPayload(13, self._label, tag_list_stash)
+
+    def to_stream(self, output_stream=sys.stdout):
+        """
+        Stream values
+
+        @param output_stream: Output stream
+        @type output_stream: file
+        """
+        output_stream.write("{}\n".format(self._label))
+        if self._inventory is not None:
+            self._item_pulls.to_stream()
+            self._inventory.to_stream()
+            output_stream.write("\n")
+
+
+class Storage(object):
+    """
+    Handling Storage tag structure
+
+    @type _unknown_number: int
+    @type _position: tuple[int]
+    @type _stash: Stash
+    """
+
+    def __init__(self):
+        self._unknown_number = 3
+        self._position = None
+        self._stash = None
 
     def from_tag(self, tag_payload):
         """
@@ -1296,10 +1358,6 @@ class Storage(object):
             -3: 3,
             -10: (7, 221, 33), // position
             13: 'stash'
-            {
-                -13: // pull stuff
-                13: // inventory stuff
-            }
         }
 
         @type tag_payload: TagPayload
@@ -1315,19 +1373,9 @@ class Storage(object):
         assert abs(list_of_tags[1].id) == 10
         self._position = list_of_tags[1].payload
         assert list_of_tags[2].id == 13
-        self._label = list_of_tags[2].name
 
-        tag_payload = list_of_tags[2]
-        assert isinstance(tag_payload, TagPayload)
-        assert abs(tag_payload.id) == 13
-        tag_list = tag_payload.payload
-        assert isinstance(tag_list, TagList)
-        list_of_tags = tag_list.get_list()
-
-        self._item_pulls = ItemPulls()
-        self._item_pulls.from_tag(list_of_tags[0])
-        self._inventory = Inventory()
-        self._inventory.from_tag(list_of_tags[1])
+        self._stash = Stash()
+        self._stash.from_tag(list_of_tags[2])
 
     def to_tag(self):
         """
@@ -1336,21 +1384,13 @@ class Storage(object):
             -3: 3,
             -10: (7, 221, 33), // position
             13: 'stash'
-            {
-                -13:  // pull stuff
-                 13: 'inv1'    // inventory stuff
-            }
         }
         @rtype: TagPayload
         """
-        tag_list_stash = TagList()
-        tag_list_stash.add(self._item_pulls.to_tag())
-        tag_list_stash.add(self._inventory.to_tag())
-
         tag_list_inventory = TagList()
         tag_list_inventory.add(TagPayload(-3, None, self._unknown_number))
         tag_list_inventory.add(TagPayload(-10, None, self._position))
-        tag_list_inventory.add(TagPayload(13, self._label, tag_list_stash))
+        tag_list_inventory.add(self._stash.to_tag())
         return TagPayload(-13, None, tag_list_inventory)
 
     def to_stream(self, output_stream=sys.stdout):
@@ -1361,11 +1401,9 @@ class Storage(object):
         @type output_stream: file
         """
         output_stream.write("{}\t".format(self._position))
-        output_stream.write("{}\t".format(self._label))
-        output_stream.write("{}\n".format(self._unknown_number))
-        if self._inventory is not None:
-            self._item_pulls.to_stream()
-            self._inventory.to_stream()
+        output_stream.write("{}\t".format(self._unknown_number))
+        if self._stash is not None:
+            self._stash.to_stream()
             output_stream.write("\n")
 
 
