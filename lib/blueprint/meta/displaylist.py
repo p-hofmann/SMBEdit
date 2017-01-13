@@ -68,7 +68,7 @@ class DisplayList(object):
     """
 
     def __init__(self):
-        self._displays = None
+        self._displays = []
 
     def from_tag(self, tag_payload):
         """
@@ -79,6 +79,7 @@ class DisplayList(object):
 
         @type tag_payload: TagPayload
         """
+        self._displays = []
         assert isinstance(tag_payload, TagPayload)
         assert tag_payload.id == -13
         tag_list = tag_payload.payload
@@ -111,5 +112,6 @@ class DisplayList(object):
         @param output_stream: Output stream
         @type output_stream: file
         """
+        output_stream.write("Displays: #{}\n".format(len(self._displays)))
         for display in self._displays:
             display.to_stream(output_stream)
