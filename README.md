@@ -8,9 +8,9 @@ Input and output are either a directory of raw blueprints as found in "/../StarM
 
 # Installation
 
-## Windows only (work without python)
+## Windows only (standalone executable, run without any dependency)
 
-Download the [smbedit-0.1.2.zip](https://mega.nz/#!UwwTSLrD!9Doabud1FYF8ASQiZLj_W71lGgXC6x_DLShkmYHLnH4) and extract SMEdit where you want.
+Download the zip file on release page and extract SMEdit where you want.
 That's it, you can now use SMEdit to modify your blueprint.
 
 Open a command prompt and go to the SMEdit folder.
@@ -105,7 +105,7 @@ Available entity classes are:
 -m MOVE_CENTER, --move_center MOVE_CENTER
 ```
 
-The argument can be either a block id or a directional vector like '0,0,1'.
+The argument can be either a block id or a directional vector like "0,0,1".
 
 #### Move core/center in the direction of x,y,z 
 A positive x moves the core to the right.  
