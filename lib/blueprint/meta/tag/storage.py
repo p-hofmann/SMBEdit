@@ -1430,7 +1430,11 @@ class StorageList(object):
         @type tag_payload: TagPayload
         """
         assert isinstance(tag_payload, TagPayload)
-        assert tag_payload.id == -13, (tag_payload.id, tag_payload.name)
+        assert abs(tag_payload.id) == 13, (tag_payload.id, tag_payload.name)
+        if tag_payload.id == 13:
+            assert tag_payload.name == "controllerStructure", tag_payload.name
+            # old tag, not supported
+            return
         tag_list = tag_payload.payload
         assert isinstance(tag_list, TagList)
         list_of_tags = tag_list.get_list()
