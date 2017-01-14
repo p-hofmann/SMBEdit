@@ -1,6 +1,7 @@
 import sys
-from lib.blueprint.meta.tagmanager import TagPayload, TagList
-from lib.blueprint.meta.storage import Stash
+
+from lib.blueprint.meta.tag.tagmanager import TagPayload, TagList
+from lib.blueprint.meta.tag.storage import Stash
 
 
 class ShopSetting(object):

@@ -3,7 +3,7 @@ __author__ = 'Peter Hofmann'
 import sys
 
 from lib.blueprint.blueprintutils import BlueprintUtils
-from lib.blueprint.meta.tagmanager import TagPayload, TagList
+from lib.blueprint.meta.tag.tagmanager import TagPayload, TagList
 
 
 class RailDockedEntity(object):

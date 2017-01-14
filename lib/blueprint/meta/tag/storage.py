@@ -1,7 +1,8 @@
 __author__ = 'Peter Hofmann'
 
 import sys
-from lib.blueprint.meta.tagmanager import TagPayload, TagList, TagPayloadList
+
+from lib.blueprint.meta.tag.tagmanager import TagPayload, TagList, TagPayloadList
 
 
 class ItemGroup(object):
@@ -1429,7 +1430,7 @@ class StorageList(object):
         @type tag_payload: TagPayload
         """
         assert isinstance(tag_payload, TagPayload)
-        assert tag_payload.id == -13
+        assert tag_payload.id == -13, (tag_payload.id, tag_payload.name)
         tag_list = tag_payload.payload
         assert isinstance(tag_list, TagList)
         list_of_tags = tag_list.get_list()

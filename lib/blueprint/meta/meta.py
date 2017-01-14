@@ -12,7 +12,7 @@ from lib.blueprint.meta.datatype4 import DataType4
 from lib.blueprint.meta.datatype5 import DataType5
 from lib.blueprint.meta.datatype6 import DataType6
 from lib.blueprint.meta.datatype7 import DataType7
-from lib.blueprint.meta.raildockentitylinks import RailDockedEntityLinks, RailDockedEntity, RailDockedEntityLink
+from lib.blueprint.meta.tag.raildockentitylinks import RailDockedEntityLinks, RailDockedEntity, RailDockedEntityLink
 from lib.blueprint.smd3.smd import Smd
 
 

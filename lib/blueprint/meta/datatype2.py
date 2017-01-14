@@ -4,11 +4,8 @@ import sys
 
 from lib.bits_and_bytes import ByteStream
 from lib.loggingwrapper import DefaultLogging
-from lib.blueprint.meta.tagmanager import TagManager
-from lib.blueprint.meta.storage import StorageList
-from lib.blueprint.meta.aiconfig import AIConfig
-from lib.blueprint.meta.shop import Shop
-from lib.blueprint.meta.displaylist import DisplayList
+from lib.blueprint.meta.tag.tagmanager import TagManager
+from lib.blueprint.meta.tag.datatype2tagreader import Datatype2TagReader
 
 
 class DataType2(DefaultLogging):
@@ -73,33 +70,8 @@ class DataType2(DefaultLogging):
         """
         if self._debug:
             output_stream.write("DataType2\n")
-            root_tag = self._tag_data.get_root_tag()
-            tag_list = root_tag.payload
-            list_of_tag_paylaods = tag_list.get_list()
-
-            tag_payload = list_of_tag_paylaods[0]
-            sorage_list = StorageList()
-            sorage_list.from_tag(tag_payload)
-            sorage_list.to_stream(output_stream)
-            sorage_test = StorageList()
-            sorage_test.from_tag(sorage_list.to_tag())
-
-            tag_payload = list_of_tag_paylaods[4]
-            if tag_payload.id == 13 and "exS" in tag_payload.name:
-                shop = Shop()
-                shop.from_tag(tag_payload)
-                shop.to_stream(output_stream)
-
-            tag_payload = list_of_tag_paylaods[6]
-            display_list = DisplayList()
-            display_list.from_tag(tag_payload)
-            display_list.to_stream(output_stream)
-
-            tag_payload = list_of_tag_paylaods[6]
-            if tag_payload.id == 13 and "AIConfig" in tag_payload.name:
-                ai_config = AIConfig()
-                ai_config.from_tag(tag_payload)
-                ai_config.to_stream(output_stream)
-
+            reader = Datatype2TagReader()
+            reader.from_tag(self._tag_data.get_root_tag())
+            reader.to_stream()
             # self._tag_data.to_stream(output_stream)
             output_stream.write("\n")

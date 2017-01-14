@@ -1,5 +1,6 @@
 import sys
-from lib.blueprint.meta.tagmanager import TagPayload, TagList
+
+from lib.blueprint.meta.tag.tagmanager import TagPayload, TagList
 
 
 class Display(object):

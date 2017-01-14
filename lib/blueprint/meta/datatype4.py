@@ -6,8 +6,8 @@ import os
 from lib.bits_and_bytes import ByteStream
 from lib.loggingwrapper import DefaultLogging
 from lib.blueprint.blueprintutils import BlueprintUtils
-from lib.blueprint.meta.tagmanager import TagManager, TagList, TagPayload
-from lib.blueprint.meta.raildockentitylinks import RailDockedEntityLinks
+from lib.blueprint.meta.tag.tagmanager import TagManager, TagList, TagPayload
+from lib.blueprint.meta.tag.raildockentitylinks import RailDockedEntityLinks
 
 
 class DataType4(DefaultLogging):
