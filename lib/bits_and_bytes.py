@@ -6,7 +6,14 @@ from builtins import bytes
 __author__ = 'Peter Hofmann'
 
 import struct
+import sys
 
+if sys.version_info < (3,):
+    text_type = unicode
+    binary_type = str
+else:
+    text_type = str
+    binary_type = bytes
 
 class ByteStream(object):
     """
@@ -215,7 +222,8 @@ class ByteStream(object):
         @rtype: str
         """
         length = self.read_int16_unassigned()
-        return self._unpack(length, str(length) + 's')
+        string = self._unpack(length, '%is' % length)
+        return string.decode('utf8')
 
     def read_byte_array(self):
         """
@@ -428,7 +436,10 @@ class ByteStream(object):
         """
         length = len(value)
         self.write_int16_unassigned(length)
-        self._pack(value, str(length) + 's')
+        if isinstance(value, text_type):
+            self._pack(value.encode('utf-8'), '%is' % length)
+        else:
+            self._pack(value, '%is' % length)
 
     def write_byte_array(self, values):
         """
