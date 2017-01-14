@@ -7,7 +7,6 @@ import os
 import sys
 import zipfile
 import traceback
-import logging
 
 from lib.argumenthandler import ArgumentHandler
 from lib.blueprint.blueprint import Blueprint
@@ -280,8 +279,4 @@ def main():
         sys.stderr.write("\nAborted\n")
 
 if __name__ == "__main__":
-    logging.basicConfig(
-        format = "%(levelname) -10s %(asctime)s %(module)s:%(lineno)s %(funcName)s %(message)s",
-        level = logging.DEBUG
-    )
     main()
