@@ -68,7 +68,7 @@ class DataType2(DefaultLogging):
         @param output_stream: Output stream
         @type output_stream: fileIO
         """
-        if self._debug:
+        if self._debug and self._tag_data.has_data():
             output_stream.write("DataType2\n")
             reader = Datatype2TagReader()
             reader.from_tag(self._tag_data.get_root_tag())
