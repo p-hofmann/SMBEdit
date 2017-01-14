@@ -9,11 +9,11 @@ from lib.blueprint.meta.tag.shop import Shop
 from lib.blueprint.meta.tag.displaylist import DisplayList
 
 
-class WarpGateList(object):
+class GateList(object):
     """
     Race gate tag
 
-    @type _warp_gates: list[WarpGate]
+    @type _warp_gates: list[Gate]
     """
 
     def __init__(self):
@@ -38,7 +38,7 @@ class WarpGateList(object):
         assert isinstance(tag_list, TagList)
         list_of_tag_payloads = tag_list.get_list()
         for tag_payload in list_of_tag_payloads:
-            warp_gate = WarpGate()
+            warp_gate = Gate()
             warp_gate.from_tag(tag_payload)
             self._warp_gates.append(warp_gate)
 
@@ -68,14 +68,14 @@ class WarpGateList(object):
         @type output_stream: file
         """
         if len(self._warp_gates) == 0:
-            output_stream.write("No Warp Gates\n")
+            output_stream.write("No Gates\n")
             return
-        output_stream.write("Warp Gates\n")
+        output_stream.write("Gates:\n")
         for warp_gate in self._warp_gates:
             warp_gate.to_stream(output_stream)
 
 
-class WarpGate(object):
+class Gate(object):
     """
     Race gate tag
 
@@ -449,11 +449,11 @@ class Datatype2TagReader(object):
         self._unknown_5_tag = None
         self._displays = DisplayList()
         self._block_list = BlockList()
-        self._warp_gates = WarpGateList()
+        self._warp_gates = GateList()
         self._unknown_9_tag = None
         self._ai_config = AIConfig()
         self._unknown_11_tag = None
-        self._unknown_12_tag = None
+        self._race_gate = GateList()
         self._unknown_13_tag = None
         self._unknown_14_tag = TagPayload()
         return
@@ -549,7 +549,7 @@ class Datatype2TagReader(object):
             elif list_index == 11:
                 self._unknown_11_tag = tag_payload
             elif list_index == 12:
-                self._unknown_12_tag = tag_payload
+                self._race_gate.from_tag(tag_payload)
 
             elif list_index == 13:
                 self._unknown_13_tag = tag_payload
@@ -583,11 +583,11 @@ class Datatype2TagReader(object):
         output_stream.write("\n")
         # self._displays.to_stream(output_stream)
         # self._block_list.to_stream(output_stream)
-        output_stream.write("\n")
+        # output_stream.write("\n")
         if self._warp_gates is None:
             return
-        self._warp_gates.to_stream(output_stream)
-        output_stream.write("\n")
+        # self._warp_gates.to_stream(output_stream)
+        # output_stream.write("\n")
         if self._unknown_9_tag is None:
             return
         self._unknown_9_tag.to_stream(output_stream)
@@ -597,9 +597,9 @@ class Datatype2TagReader(object):
             return
         self._unknown_11_tag.to_stream(output_stream)
         output_stream.write("\n")
-        if self._unknown_12_tag is None:
+        if self._race_gate is None:
             return
-        self._unknown_12_tag.to_stream(output_stream)
+        self._race_gate.to_stream(output_stream)
         output_stream.write("\n")
         if self._unknown_13_tag is None:
             return
