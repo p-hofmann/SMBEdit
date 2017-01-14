@@ -21,9 +21,9 @@ class BlockOrientation(object):
     _bit_block_id_length = 11
 
     _bit_hit_points_start = 11
-    _bit_hit_points_length = 8
+    _bit_hit_points_length = 9
 
-    _bit_is_active_start = 19
+    _bit_is_active_start = 20
     _bit_is_active_length = 1
 
     def __init__(self, logfile=None, verbose=False, debug=False):

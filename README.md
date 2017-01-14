@@ -242,10 +242,9 @@ The "Undeathinator" block  is replaced with a core.
 # Restrictions
 This editor works with StarMade v0.199.253 to v0.199.357.  
 Older blueprint versions, smd2 and some old smd3, are not guaranteed to work.  
-Use the StarMade client to update a blueprint before use is recommended!
+It is recommended to use the StarMade client to update a blueprint before using with SMBEdit!
 
 ## Meta file / Docked entities
-The positions of docked entities and their file locations is written in the 'meta.smbpm' file.  
 Reading/manipulation of the 'meta.smbpm' file is very rudimentary at the moment and can lead to errors.  
 If a blueprint is deleted after loading a single player game, or it fails to upload, it probably is because of a faulty meta file.
 
@@ -253,7 +252,8 @@ If a blueprint is deleted after loading a single player game, or it fails to upl
 The statistical info of an entity, read from the 'header.smbph' file is not updated after blocks are modified.
 
 ## Turrets / Docked entities
-Old style docking, entities docked to "Turret Docking Unit" or "Docking Module" are converted to rail docking.
+
+Old style docked entities, docked to "Turret Docking Unit" or "Docking Module", are always converted to rail docked entities
 
 # Create the Windows executable (Windows only)
 

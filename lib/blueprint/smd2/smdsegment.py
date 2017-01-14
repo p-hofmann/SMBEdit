@@ -348,7 +348,7 @@ class SmdSegment(DefaultLogging, BlueprintUtils):
             self._logger.debug("Segment {} has no more blocks.".format(self._position))
             self._has_valid_data = False
 
-    def add(self, block_position, block):
+    def add(self, block_position, block, replace=True):
         """
         Add a block to the segment based on its global position
 
@@ -359,6 +359,9 @@ class SmdSegment(DefaultLogging, BlueprintUtils):
         """
         assert isinstance(block, SmdBlock)
         block_index = self.get_block_index_by_block_position(block_position)
+        if not replace and block_index in self.block_index_to_block:
+            self._logger.debug("Prevented block replacement")
+            return
         self.block_index_to_block[block_index] = block
         self._has_valid_data = True
 
