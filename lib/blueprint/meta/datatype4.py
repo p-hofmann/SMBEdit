@@ -17,7 +17,7 @@ class DataType4(DefaultLogging):
     @type _vector_float_0: tuple[float]
     @type _vector_float_1: tuple[float]
     @type _entity_label: str
-    @type _entity_unknown_list_of_tuple: dict[list]
+    @type _entity_wireless_logic_stuff: dict[int, tuple]
     @type _docked_entities: dict[int,TagManager]
     """
 
@@ -27,7 +27,7 @@ class DataType4(DefaultLogging):
         self._vector_float_0 = (0, 0, 0)
         self._vector_float_1 = (0, 0, 0)
         self._entity_label = ""
-        self._entity_unknown_list_of_tuple = {}
+        self._entity_wireless_logic_stuff = {}
         self._docked_entities = {}
         return
 
@@ -78,7 +78,7 @@ class DataType4(DefaultLogging):
         """
         return self.get_index(self.get_pos(var0) + var2, self.get_pos(var0, 16) + var3, self.get_pos(var0, 32) + var4)
 
-    def _read_unknown_d4_stuff(self, input_stream, unknown_number):
+    def _read_wireless_logic_stuff(self, input_stream, unknown_number):
         """
         Read unknown stuff from byte stream
 
@@ -110,12 +110,10 @@ class DataType4(DefaultLogging):
             unknown_number = 8
         if version >= (0, 0, 0, 2):
             self._entity_label = input_stream.read_string()  # utf
-            list_size_of_unknown_stuff = input_stream.read_int32()
-            self._entity_unknown_list_of_tuple = {}
-            if list_size_of_unknown_stuff > 0:
-                self._logger.warning("Reading unknown stuff.")
-            for some_index in range(list_size_of_unknown_stuff):
-                self._entity_unknown_list_of_tuple[some_index] = self._read_unknown_d4_stuff(input_stream, unknown_number)
+            number_of_wireless_connections = input_stream.read_int32()
+            self._entity_wireless_logic_stuff = {}
+            for some_index in range(number_of_wireless_connections):
+                self._entity_wireless_logic_stuff[some_index] = self._read_wireless_logic_stuff(input_stream, unknown_number)
 
         self._docked_entities = {}
         amount_of_docked_entities = input_stream.read_int32()
@@ -164,12 +162,12 @@ class DataType4(DefaultLogging):
             unknown_number = 8
         if version >= (0, 0, 0, 2):
             output_stream.write_string(self._entity_label)
-            list_size_of_unknown_stuff = len(self._entity_unknown_list_of_tuple)
+            list_size_of_unknown_stuff = len(self._entity_wireless_logic_stuff)
             output_stream.write_int32_unassigned(list_size_of_unknown_stuff)
             if list_size_of_unknown_stuff > 0:
                 self._logger.warning("Writing unknown stuff.")
-            for index in sorted(self._entity_unknown_list_of_tuple.keys()):
-                self._write_unknown_d4_stuff(output_stream, self._entity_unknown_list_of_tuple[index], unknown_number)
+            for index in sorted(self._entity_wireless_logic_stuff.keys()):
+                self._write_unknown_d4_stuff(output_stream, self._entity_wireless_logic_stuff[index], unknown_number)
 
         output_stream.write_int32_unassigned(len(self._docked_entities))
         for dock_index in sorted(self._docked_entities.keys()):
@@ -250,9 +248,12 @@ class DataType4(DefaultLogging):
         output_stream.write("DataType4: {}\n".format(len(self._docked_entities)))
         output_stream.write("Label: '{}'\t".format(self._entity_label))
         output_stream.write("Vector: '{}', '{}'\n".format(self._vector_float_0, self._vector_float_1))
-        list_size_of_unknown_stuff = len(self._entity_unknown_list_of_tuple)
+        list_size_of_unknown_stuff = len(self._entity_wireless_logic_stuff)
         if self._debug and list_size_of_unknown_stuff > 0:
-            output_stream.write("unknown tuple: #{}\n".format(len(self._entity_unknown_list_of_tuple)))
+            output_stream.write("Wireless connections: #{}\n".format(len(self._entity_wireless_logic_stuff)))
+            for index in self._entity_wireless_logic_stuff:
+                name, long0, long1 = self._entity_wireless_logic_stuff[index]
+                output_stream.write("{}: {} {}\n".format(name, long0, long1))
 
         if self._debug:
             for dock_index in sorted(self._docked_entities.keys()):
