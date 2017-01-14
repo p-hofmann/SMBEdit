@@ -9,6 +9,158 @@ from lib.blueprint.meta.tag.shop import Shop
 from lib.blueprint.meta.tag.displaylist import DisplayList
 
 
+class WarpGateList(object):
+    """
+    Race gate tag
+
+    @type _warp_gates: list[WarpGate]
+    """
+
+    def __init__(self):
+        self._warp_gates = []
+
+    def from_tag(self, tag_payload):
+        """
+        -13:
+        {
+            -13:
+        }
+                // no data
+        -1: 0
+
+        @type tag_payload: TagPayload
+        """
+        assert isinstance(tag_payload, TagPayload)
+        if tag_payload.id == -1:
+            return
+        assert tag_payload.id == -13, (tag_payload.id, tag_payload.name)
+        tag_list = tag_payload.payload
+        assert isinstance(tag_list, TagList)
+        list_of_tag_payloads = tag_list.get_list()
+        for tag_payload in list_of_tag_payloads:
+            warp_gate = WarpGate()
+            warp_gate.from_tag(tag_payload)
+            self._warp_gates.append(warp_gate)
+
+    def to_tag(self):
+        """
+        -13:
+        {
+            -13:
+        }
+                // no data
+        -1: 0
+
+        @rtype: TagPayload
+        """
+        if len(self._warp_gates) == 0:
+            return TagPayload(-1, None, 0)
+        tag_list = TagList()
+        for warp_gate in self._warp_gates:
+            tag_list.add(warp_gate.to_tag())
+        return TagPayload(-13, None, tag_list)
+
+    def to_stream(self, output_stream=sys.stdout):
+        """
+        Stream values
+
+        @param output_stream: Output stream
+        @type output_stream: file
+        """
+        if len(self._warp_gates) == 0:
+            output_stream.write("No Warp Gates\n")
+            return
+        output_stream.write("Warp Gates\n")
+        for warp_gate in self._warp_gates:
+            warp_gate.to_stream(output_stream)
+
+
+class WarpGate(object):
+    """
+    Race gate tag
+
+    @type _unknown_byte: float
+    @type _target_entity: str
+    @type _position_source: tuple[int]
+    """
+
+    def __init__(self):
+        self._unknown_byte = 1
+        self._target_entity = "none"
+        self._position_source = (0, 0, 0)
+        self._position_destination = (0, 0, 0)
+
+    def from_tag(self, tag_payload):
+        """
+        -13:
+        {
+            -10: (15, 17, 16),
+            -13:
+            {
+                -1: 1,
+                -8: 'none',
+                -10: (0, 0, 0),
+            }
+        }
+
+        @type tag_payload: TagPayload
+        """
+        assert isinstance(tag_payload, TagPayload)
+        assert tag_payload.id == -13, (tag_payload.id, tag_payload.name)
+        tag_list = tag_payload.payload
+        assert isinstance(tag_list, TagList)
+        list_of_tag_payloads = tag_list.get_list()
+        assert list_of_tag_payloads[0].id == -10
+        self._position_source = list_of_tag_payloads[0].payload
+
+        tag_payload = list_of_tag_payloads[1]
+        assert tag_payload.id == -13, (tag_payload.id, tag_payload.name)
+        tag_list = tag_payload.payload
+        assert isinstance(tag_list, TagList)
+        list_of_tag_payloads = tag_list.get_list()
+        assert list_of_tag_payloads[0].id == -1, list_of_tag_payloads[0].id
+        assert list_of_tag_payloads[1].id == -8
+        assert list_of_tag_payloads[2].id == -10
+        self._unknown_byte = list_of_tag_payloads[0].payload
+        self._target_entity = list_of_tag_payloads[1].payload
+        self._position_destination = list_of_tag_payloads[2].payload
+
+    def to_tag(self):
+        """
+        -13:
+        {
+            -10: (15, 17, 16),
+            -13:
+            {
+                -1: 1,
+                -8: 'none',
+                -10: (0, 0, 0),
+            }
+        }
+
+        @rtype: TagPayload
+        """
+        tag_list_destination = TagList()
+        tag_list_destination.add(TagPayload(-1, None, self._unknown_byte))
+        tag_list_destination.add(TagPayload(-8, None, self._target_entity))
+        tag_list_destination.add(TagPayload(-10, None, self._position_destination))
+
+        tag_list = TagList()
+        tag_list.add(TagPayload(-10, None, self._position_source))
+        tag_list.add(TagPayload(-13, None, tag_list_destination))
+        return TagPayload(-13, None, tag_list)
+
+    def to_stream(self, output_stream=sys.stdout):
+        """
+        Stream values
+
+        @param output_stream: Output stream
+        @type output_stream: file
+        """
+        output_stream.write("Local: {}\t".format(self._position_source))
+        output_stream.write("'{}': {}\n".format(self._target_entity, self._position_destination))
+
+
 class BlockList(object):
     """
     Handling BlockList tag structure
@@ -297,7 +449,7 @@ class Datatype2TagReader(object):
         self._unknown_5_tag = None
         self._displays = DisplayList()
         self._block_list = BlockList()
-        self._unknown_8_tag = None
+        self._warp_gates = WarpGateList()
         self._unknown_9_tag = None
         self._ai_config = AIConfig()
         self._unknown_11_tag = None
@@ -319,8 +471,10 @@ class Datatype2TagReader(object):
         6    -13: {}
         7    -13:
             {
-                -13: {-2: 478, -3: 0, }-13: {-2: 3, -3: 0, }-13: {-2: 937, -3: 0, }-13: {-2: 8, -3: 12, }-13: {-2: 122, -3: 2, }
-                -13: {-2: 22, -3: 0, }-13: {-2: 14, -3: 0, }-13: {-2: 15, -3: 0, }-13: {-2: 2, -3: 99, }-13: {-2: 671, -3: 0, }
+                -13: {-2: 478, -3: 0, }-13: {-2: 3, -3: 0, }-13: {-2: 937, -3: 0, }-13: {-2: 8, -3: 12, }
+                -13: {-2: 122, -3: 2, }
+                -13: {-2: 22, -3: 0, }-13: {-2: 14, -3: 0, }-13: {-2: 15, -3: 0, }-13: {-2: 2, -3: 99, }
+                -13: {-2: 671, -3: 0, }
                 -13: {-2: 331, -3: 0, } -13: {-2: 978, -3: 0, }
             }
         8    -1: 0,
@@ -383,7 +537,9 @@ class Datatype2TagReader(object):
             elif list_index == 7:
                 self._block_list.from_tag(tag_payload)
             elif list_index == 8:
-                self._unknown_8_tag = tag_payload
+                # self._warp_gates = tag_payload
+                self._warp_gates.from_tag(tag_payload)
+
             elif list_index == 9:
                 self._unknown_9_tag = tag_payload
 
@@ -428,9 +584,9 @@ class Datatype2TagReader(object):
         # self._displays.to_stream(output_stream)
         # self._block_list.to_stream(output_stream)
         output_stream.write("\n")
-        if self._unknown_8_tag is None:
+        if self._warp_gates is None:
             return
-        self._unknown_8_tag.to_stream(output_stream)
+        self._warp_gates.to_stream(output_stream)
         output_stream.write("\n")
         if self._unknown_9_tag is None:
             return
