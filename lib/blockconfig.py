@@ -1,3 +1,8 @@
+from __future__ import unicode_literals
+from builtins import next
+from builtins import str
+from builtins import map
+from builtins import object
 import csv
 import logging
 from lxml import etree
@@ -146,7 +151,7 @@ class BlockConfig(MetaBlockConfig):
             self._label_to_block[label].individual_sides = int(blockConfigNode.find("IndividualSides").text)
             slab_node = blockConfigNode.find("SlabIds")
             if slab_node is not None:
-                self._label_to_block[label].slab_ids = map(int, slab_node.text.split(", "))
+                self._label_to_block[label].slab_ids = list(map(int, slab_node.text.split(", ")))
             self._label_to_block[label].deprecated = blockConfigNode.find('Deprecated').text == "true"
 
             name_lower_case = self._label_to_block[label].name.lower()
