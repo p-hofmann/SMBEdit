@@ -166,13 +166,13 @@ class ByteStream(object):
         """
         @rtype: int
         """
-        return self._unpack(3, 'i', '\x00')
+        return self._unpack(3, 'i', b'\x00')
 
     def read_int24_unassigned(self):
         """
         @rtype: int
         """
-        return self._unpack(3, 'I', '\x00')
+        return self._unpack(3, 'I', b'\x00')
 
     def read_int32(self):
         """
