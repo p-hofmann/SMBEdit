@@ -1300,6 +1300,7 @@ class Stash(object):
 
         assert isinstance(tag_payload, TagPayload)
         assert tag_payload.id == 13
+        assert tag_payload.name == 'stash', tag_payload.name
         self._label = tag_payload.name
         tag_list = tag_payload.payload
         assert isinstance(tag_list, TagList)
