@@ -83,7 +83,7 @@ class Smd(DefaultLogging, BlueprintUtils):
                 smd3block.update(hit_points=hit_points)
                 self.add(smd3_position, smd3block, replace=False)
         else:
-            raise RuntimeError("Unknown smd format.")
+            raise RuntimeError("Unknown smd format: '{}'".format(directory_data))
 
     # #######################################
     # ###  Write
