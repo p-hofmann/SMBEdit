@@ -1,7 +1,6 @@
 __author__ = 'Peter Hofmann'
 
 import sys
-
 from lib.blueprint.meta.tag.tagmanager import TagPayload, TagList
 from lib.blueprint.meta.tag.storage import StorageList
 from lib.blueprint.meta.tag.aiconfig import AIConfig
@@ -648,11 +647,14 @@ class Datatype2TagReader(object):
             elif list_index == 3:
                 self._shield.from_tag(tag_payload)
             elif list_index == 4:
-                if tag_payload.id == 13:
-                    self._shop = Shop()
-                    self._shop.from_tag(tag_payload)
-                else:
-                    self._shop = Unknown4Ship()
+                try:
+                    if tag_payload.id == 13:
+                        self._shop = Shop()
+                        self._shop.from_tag(tag_payload)
+                    else:
+                        self._shop = Unknown4Ship()
+                except AssertionError as e:
+                    self._shop = tag_payload
 
             elif list_index == 5:
                 self._unknown_5_tag = tag_payload
