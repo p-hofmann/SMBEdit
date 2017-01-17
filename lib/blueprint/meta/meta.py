@@ -189,11 +189,14 @@ class Meta(DefaultLogging):
 
     def _smd2_to_smd3(self):
         offset = (8, 8, 8)
-        self._data_type_2.move_position(offset)
-        self._data_type_3.move_position(offset)
-        self._data_type_4.move_position(offset)
-        self._data_type_5.move_position(offset)
-        self._data_type_6.move_position(offset)
+        self.move_positions(offset)
+
+    def move_positions(self, vector_direction):
+        self._data_type_2.move_position(vector_direction)
+        self._data_type_3.move_position(vector_direction)
+        self._data_type_4.move_position(vector_direction)
+        self._data_type_5.move_position(vector_direction)
+        self._data_type_6.move_position(vector_direction)
 
     def has_old_docked_entities(self):
         """
