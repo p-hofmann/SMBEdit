@@ -31,8 +31,7 @@ class Logic(DefaultLogging, BlueprintUtils):
     # ###  Read
     # #######################################
 
-    @staticmethod
-    def _read_set_of_positions(input_stream):
+    def _read_set_of_positions(self, input_stream):
         """
         Read position data from byte stream
 
@@ -45,7 +44,11 @@ class Logic(DefaultLogging, BlueprintUtils):
         data = set()
         number_of_positions = input_stream.read_int32_unassigned()
         for _ in range(0, number_of_positions):
-            data.add(input_stream.read_vector_3_int16())
+            position = input_stream.read_vector_3_int16()
+            if self._offset is not None:
+                # smd2 to smd3 conversion
+                position = BlueprintUtils.vector_addition(position, self._offset)
+            data.add(position)
         return data
 
     def _read_dict_of_groups(self, input_stream):

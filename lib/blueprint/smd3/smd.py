@@ -69,11 +69,11 @@ class Smd(DefaultLogging, BlueprintUtils):
         elif file_name.endswith(".smd2"):
             self._logger.warning("'smd2' file format found.")
             self._logger.warning("'smd2' to 'smd3' conversion is imperfect and results in blocks that appear damaged.")
-            BlueprintUtils.offset = (8, 8, 8)
             smd2 = Smd2(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
             smd2.read(directory_blueprint)
+            offset = (8, 8, 8)
             for position, smd2block in smd2.iteritems():
-                smd3_position = BlueprintUtils.vector_addition(position, BlueprintUtils.offset)
+                smd3_position = BlueprintUtils.vector_addition(position, offset)
                 smd3block = SmdBlock(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
                 hit_points = 1
                 if BlueprintUtils.is_hull(smd2block.get_id()):

@@ -14,8 +14,6 @@ class BlueprintUtils(object):
     """
     @type _entity_classification: dict[int, dict[int, str]]
     """
-    # set to (8, 8, 8) in case of smd2 to smd3 conversion
-    offset = None
 
     _entity_types = {
         SHIP: "Ship",
