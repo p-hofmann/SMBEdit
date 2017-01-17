@@ -21,6 +21,7 @@ class Logic(DefaultLogging, BlueprintUtils):
         self._label = "Logic"
         super(Logic, self).__init__(logfile, verbose, debug)
         self.version = 0
+        self._offset = None
         self._controller_version = -1026
         self._controller_position_to_block_id_to_block_positions = {}
         # tail_data = None
@@ -78,9 +79,9 @@ class Logic(DefaultLogging, BlueprintUtils):
         number_of_controllers = input_stream.read_int32_unassigned()
         for entry_index in range(0, number_of_controllers):
             position = input_stream.read_vector_3_int16()
-            if BlueprintUtils.offset is not None:
+            if self._offset is not None:
                 # smd2 to smd3 conversion
-                position = BlueprintUtils.vector_addition(position, BlueprintUtils.offset)
+                position = BlueprintUtils.vector_addition(position, self._offset)
             controller_position_to_groups[position] = self._read_dict_of_groups(input_stream)
         return controller_position_to_groups
 
@@ -97,9 +98,11 @@ class Logic(DefaultLogging, BlueprintUtils):
         self._controller_version = input_stream.read_int32()
         if self._controller_version >= 0:
             # is number_of_controllers, no controller_version indicates chunk 16
+            self._offset = (8, 8, 8)
             input_stream.seek(-4, whence=1)
         if -1024 <= self._controller_version < 0:
-            raise NotImplemented("Unsupported logic.smbpl with controller version: v{}".format(-self._controller_version))
+            self._offset = (8, 8, 8)
+            raise NotImplementedError("Unsupported logic.smbpl with controller version: v{}".format(-self._controller_version))
         self._controller_position_to_block_id_to_block_positions = self._read_list_of_controllers(input_stream)
 
     def read(self, directory_blueprint):
