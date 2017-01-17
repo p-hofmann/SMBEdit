@@ -6,11 +6,74 @@ from lib.loggingwrapper import DefaultLogging
 from lib.blueprint.blueprintutils import BlueprintUtils
 
 
+class RailEntry(object):
+    """
+    Data type 6 rail meta data
+
+    @type _position: tuple[int]
+    """
+
+    def __init__(self):
+        self._position = None
+        self._block_id = 0
+        self._unknown_byte_0 = 0
+        self._active = False
+        self._unknown_byte_1 = 0
+        return
+
+    # #######################################
+    # ###  Read
+    # #######################################
+
+    def read(self, input_stream):
+        """
+        Read entry from byte stream (17 byte)
+
+        @param input_stream: input stream
+        @type input_stream: ByteStream
+        """
+        self._position = input_stream.read_vector_3_int32()
+        self._block_id = input_stream.read_int16()
+        self._unknown_byte_0 = input_stream.read_byte()
+        self._active = input_stream.read_bool()
+        self._unknown_byte_1 = input_stream.read_byte()
+
+    def write(self, output_stream):
+        """
+        Read entry from byte stream (17 byte)
+
+        @param output_stream: input stream
+        @type output_stream: ByteStream
+        """
+        output_stream.write_vector_3_int32(self._position),
+        output_stream.write_int16(self._block_id),
+        output_stream.write_byte(self._unknown_byte_0),
+        output_stream.write_bool(self._active),
+        output_stream.write_byte(self._unknown_byte_1)
+
+    def move_position(self, vector_direction):
+        self._position = BlueprintUtils.vector_addition(self._position, vector_direction)
+
+    def to_stream(self, output_stream=sys.stdout):
+        """
+        Stream values
+
+        @param output_stream: Output stream
+        @type output_stream: file
+        """
+        output_stream.write("{}\t{}\t{}\t{}\t{}\n".format(
+            self._position,
+            self._block_id,
+            self._unknown_byte_0,
+            self._active,
+            self._unknown_byte_1))
+
+
 class DataType6(DefaultLogging):
     """
     Reading data type 6 meta data
 
-    @type _data: dict[int,dict[str, any]]
+    @type _data: dict[int,RailEntry]
     """
 
     def __init__(self, logfile=None, verbose=False, debug=False):
@@ -19,26 +82,6 @@ class DataType6(DefaultLogging):
         self._has_data = 1
         self._data = {}
         return
-
-    # #######################################
-    # ###  Read
-    # #######################################
-
-    def _read_entry(self, input_stream):
-        """
-        Read entry from byte stream (17 byte)
-
-        @param input_stream: input stream
-        @type input_stream: ByteStream
-        """
-        entry = {
-            "Pos": input_stream.read_vector_3_int32(),
-            "block_id": input_stream.read_int16(),
-            "byte1": input_stream.read_byte(),
-            "bool": input_stream.read_bool(),
-            "byte2": input_stream.read_byte()
-            }
-        return entry
 
     def read(self, input_stream):
         """
@@ -55,25 +98,12 @@ class DataType6(DefaultLogging):
             self._data = {}
             for index in range(number_of_entries):
                 # self._data[unknown_byte] = input_stream.read_vector_x_int32(4)
-                self._data[index] = self._read_entry(input_stream)
+                self._data[index] = RailEntry()
+                self._data[index].read(input_stream)
 
     # #######################################
     # ###  Write
     # #######################################
-
-    def _write_entry(self, output_stream, entry):
-        """
-        Read entry from byte stream (17 byte)
-
-        @param output_stream: input stream
-        @type output_stream: ByteStream
-        """
-        output_stream.write_vector_3_int32(entry["Pos"]),
-        output_stream.write_int16(entry["block_id"]),
-        output_stream.write_byte(entry["byte1"]),
-        output_stream.write_bool(entry["bool"]),
-        output_stream.write_byte(entry["byte2"])
-        return entry
 
     def write(self, output_stream):
         """
@@ -92,7 +122,7 @@ class DataType6(DefaultLogging):
         elif self._has_data == 1:
             output_stream.write_int32_unassigned(len(self._data))
             for some_index in sorted(self._data.keys()):
-                self._write_entry(output_stream, self._data[some_index])
+                self._data[some_index].write(output_stream)
 
     # #######################################
     # ###  Else
@@ -100,7 +130,7 @@ class DataType6(DefaultLogging):
 
     def move_position(self, vector_direction):
         for index in self._data.keys():
-            self._data[index]["Pos"] = BlueprintUtils.vector_addition(self._data[index]["Pos"], vector_direction)
+            self._data[index].move_position(vector_direction)
 
     def to_stream(self, output_stream=sys.stdout):
         """
@@ -112,7 +142,5 @@ class DataType6(DefaultLogging):
         if self._debug:
             output_stream.write("DataType6: #{}\n".format(len(self._data)))
             for index in self._data.keys():
-                entry = self._data[index]
-                output_stream.write("{}\t{}\t{}\t{}\t{}\n".format(
-                    entry["Pos"], entry["block_id"], entry["byte1"], entry["bool"], entry["byte1"]))
+                self._data[index].to_stream(output_stream)
             output_stream.write("\n")
