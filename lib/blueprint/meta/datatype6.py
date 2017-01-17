@@ -3,6 +3,7 @@ __author__ = 'Peter Hofmann'
 import sys
 from lib.bits_and_bytes import ByteStream
 from lib.loggingwrapper import DefaultLogging
+from lib.blueprint.blueprintutils import BlueprintUtils
 
 
 class DataType6(DefaultLogging):
@@ -96,6 +97,10 @@ class DataType6(DefaultLogging):
     # #######################################
     # ###  Else
     # #######################################
+
+    def move_position(self, vector_direction):
+        for index in self._data.keys():
+            self._data[index]["Pos"] = BlueprintUtils.vector_addition(self._data[index]["Pos"], vector_direction)
 
     def to_stream(self, output_stream=sys.stdout):
         """

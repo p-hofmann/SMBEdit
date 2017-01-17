@@ -72,6 +72,9 @@ class DockedEntity(object):
     # ###  Else
     # #######################################
 
+    def move_position(self, vector_direction):
+        self.position = BlueprintUtils.vector_addition(self.position, vector_direction)
+
     def to_stream(self, output_stream=sys.stdout):
         """
         Stream values
@@ -166,6 +169,11 @@ class DataType3(DefaultLogging):
         @rtype: bool
         """
         return len(self._docked_entity) != 0
+
+    def move_position(self, vector_direction):
+        if self.has_data():
+            for dock_index in self._docked_entity.keys():
+                self._docked_entity[dock_index].move_position(vector_direction)
 
     def to_stream(self, output_stream=sys.stdout):
         """

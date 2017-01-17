@@ -62,6 +62,10 @@ class DataType5(DefaultLogging):
     def has_data(self):
         return self._tag_data.has_data()
 
+    def move_position(self, vector_direction):
+        if self.has_data():
+            self._tag_data.move_position(vector_direction)
+
     def to_stream(self, output_stream=sys.stdout):
         """
         Stream values

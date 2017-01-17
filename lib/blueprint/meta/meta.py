@@ -26,6 +26,7 @@ class Meta(DefaultLogging):
 
     _valid_versions = {
         (0, 0, 0, 0),
+        (0, 0, 0, 2),
         (0, 0, 0, 3),
         (0, 0, 0, 4),
         (0, 0, 0, 5),
@@ -104,6 +105,10 @@ class Meta(DefaultLogging):
         self.tail_data = input_stream.read()  # any data left?
         assert len(self.tail_data) == 0, "Unknown byte left: #{}".format(len(self.tail_data))
 
+        if self._version < (0, 0, 0, 4):
+            self._logger.warning("Converting smd2 to smd3 positions. v{}".format(self._version))
+            self._smd2_to_smd3()
+
     def read(self, directory_blueprint):
         """
         Read data from meta file in blueprint directory
@@ -181,6 +186,14 @@ class Meta(DefaultLogging):
     # #######################################
     # ###  Else
     # #######################################
+
+    def _smd2_to_smd3(self):
+        offset = (8, 8, 8)
+        self._data_type_2.move_position(offset)
+        self._data_type_3.move_position(offset)
+        self._data_type_4.move_position(offset)
+        self._data_type_5.move_position(offset)
+        self._data_type_6.move_position(offset)
 
     def has_old_docked_entities(self):
         """

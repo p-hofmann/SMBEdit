@@ -90,7 +90,7 @@ class DataType4(DefaultLogging):
         unknown_string = input_stream.read_string()  # utf
         unknown_long0 = input_stream.read_int64()
         unknown_long1 = input_stream.read_int64()
-        self._logger.debug("unknown_d4_stuff string: '{}'".format(unknown_string))
+        self._logger.debug("wireless_logic stuff string: '{}'".format(unknown_string))
         # if unknown_number != 0:
         #     unknown_long0 = self.shift_index(unknown_long0, unknown_number, unknown_number, unknown_number)
         #     unknown_long1 = self.shift_index(unknown_long1, unknown_number, unknown_number, unknown_number)
@@ -105,15 +105,15 @@ class DataType4(DefaultLogging):
         """
         self._vector_float_0 = input_stream.read_vector_3_float()
         self._vector_float_1 = input_stream.read_vector_3_float()
-        unknown_number = 0
+        offset = 0
         if version < (0, 0, 0, 4):
-            unknown_number = 8
+            offset = 8
         if version >= (0, 0, 0, 2):
             self._entity_label = input_stream.read_string()  # utf
             number_of_wireless_connections = input_stream.read_int32()
             self._entity_wireless_logic_stuff = {}
             for some_index in range(number_of_wireless_connections):
-                self._entity_wireless_logic_stuff[some_index] = self._read_wireless_logic_stuff(input_stream, unknown_number)
+                self._entity_wireless_logic_stuff[some_index] = self._read_wireless_logic_stuff(input_stream, offset)
 
         self._docked_entities = {}
         amount_of_docked_entities = input_stream.read_int32()
@@ -237,6 +237,10 @@ class DataType4(DefaultLogging):
                 tag_docked_entity_location.payload, direction_vector)
             tag_rail_location.payload = BlueprintUtils.vector_subtraction(
                 tag_rail_location.payload, direction_vector)
+
+    def move_position(self, vector_direction):
+        for docker_key in self._docked_entities.keys():
+            self._docked_entities[docker_key].move_position(vector_direction)
 
     def to_stream(self, output_stream=sys.stdout):
         """

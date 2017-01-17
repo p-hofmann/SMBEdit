@@ -47,8 +47,6 @@ class TagUtil(object):
         elif payload_type == 9:  # Float vector
             return input_stream.read_vector_3_float()
         elif payload_type == 10:  # int vector
-            if BlueprintUtils.offset is not None:
-                return BlueprintUtils.vector_addition(input_stream.read_vector_3_int32(), BlueprintUtils.offset)
             return input_stream.read_vector_3_int32()
         elif payload_type == 11:  # Byte vector
             return input_stream.read_vector_3_byte()
@@ -215,6 +213,10 @@ class TagList(object):
         assert isinstance(tag, (TagPayload, TagList, TagPayloadList))
         self.tag_list.append(tag)
 
+    def move_position(self, vector_direction):
+        for tag_payload in self.tag_list:
+            tag_payload.move_position(vector_direction)
+
 
 class TagPayloadList(TagUtil):
     """
@@ -292,6 +294,11 @@ class TagPayloadList(TagUtil):
             self.id = payload_id
         self.payload_list.append(payload)
 
+    def move_position(self, vector_direction):
+        if abs(self.id) == 10:
+            for index, payload in enumerate(self.payload_list):
+                self.payload_list[index] = BlueprintUtils.vector_addition(payload, vector_direction)
+
     def to_stream(self, output_stream=sys.stdout):
         output_stream.write("{}: [".format(self.id))
         for payload in self.payload_list:
@@ -354,6 +361,12 @@ class TagPayload(TagUtil):
         if self.id > 0:
             output_stream.write_string(self.name)
         self._write_payload(self.payload, abs(self.id), output_stream)
+
+    def move_position(self, vector_direction):
+        if abs(self.id) == 10:
+            self.payload = BlueprintUtils.vector_addition(self.payload, vector_direction)
+        elif abs(self.id) == 12 or abs(self.id) == 13:
+            self.payload.move_position(vector_direction)
 
     def to_stream(self, output_stream=sys.stdout):
         if abs(self.id) in TagPayload._list_ids:
@@ -457,6 +470,10 @@ class TagManager(DefaultLogging):
         @type tag_payload: TagPayload
         """
         self._root_tag = tag_payload
+
+    def move_position(self, vector_direction):
+        if self.has_data():
+            self._root_tag.move_position(vector_direction)
 
     # #######################################
     # ###  Else
