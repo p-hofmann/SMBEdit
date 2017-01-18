@@ -280,7 +280,8 @@ class Meta(DefaultLogging):
         @param direction_vector: vector
         @type direction_vector: tuple[int]
         """
-        self._data_type_4.move_center_by_vector(direction_vector)
+        direction_vector = BlueprintUtils.vector_subtraction((0, 0, 0), direction_vector)
+        self.move_positions(direction_vector)
 
     def to_stream(self, output_stream=sys.stdout):
         """
