@@ -95,6 +95,7 @@ class Logic(DefaultLogging, BlueprintUtils):
         @param input_stream: input stream
         @type input_stream: ByteStream
         """
+        self._offset = None
         self.version = input_stream.read_int32_unassigned()
         assert self.version in self._valid_versions, "Unsupported version '{}' of '{}'.".format(self.version, self._file_name)
         # assert self.version == 0, self.version
