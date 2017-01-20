@@ -13,6 +13,11 @@ from lib.blueprint.blueprintutils import BlueprintUtils
 # #######################################
 
 class Logic(DefaultLogging, BlueprintUtils):
+    """
+
+
+    @type _controller_position_to_block_id_to_block_positions: dict[tuple, dict[int, set[tuple[int]]]]
+    """
 
     _file_name = "logic.smbpl"
     _valid_versions = {0}
@@ -39,7 +44,7 @@ class Logic(DefaultLogging, BlueprintUtils):
         @type input_stream: ByteStream
 
         @return: set of positions
-        @rtype: set[int, int, int]
+        @rtype: set[tuple[int]]
         """
         data = set()
         number_of_positions = input_stream.read_int32_unassigned()
@@ -59,7 +64,7 @@ class Logic(DefaultLogging, BlueprintUtils):
         @type input_stream: ByteStream
 
         @return: dict of block id to set of positions
-        @rtype: dict[int, set[int, int, int]]
+        @rtype: dict[int, set[tuple[int]]]
         """
         block_id_to_positions = {}
         number_of_groups = input_stream.read_int32_unassigned()
@@ -76,7 +81,7 @@ class Logic(DefaultLogging, BlueprintUtils):
         @type input_stream: ByteStream
 
         @return: set of positions
-        @rtype: dict[tuple, dict[int, set[int, int, int]]]
+        @rtype: dict[tuple, dict[int, set[tuple[int]]]]
         """
         controller_position_to_groups = {}
         number_of_controllers = input_stream.read_int32_unassigned()
@@ -95,8 +100,10 @@ class Logic(DefaultLogging, BlueprintUtils):
         @param input_stream: input stream
         @type input_stream: ByteStream
         """
+        self._offset = None
         self.version = input_stream.read_int32_unassigned()
-        assert self.version in self._valid_versions, "Unsupported version '{}' of '{}'.".format(self.version, self._file_name)
+        assert self.version in self._valid_versions, "Unsupported version '{}' of '{}'.".format(
+            self.version, self._file_name)
         # assert self.version == 0, self.version
         self._controller_version = input_stream.read_int32()
         if self._controller_version >= 0:
@@ -105,7 +112,8 @@ class Logic(DefaultLogging, BlueprintUtils):
             input_stream.seek(-4, whence=1)
         if -1024 <= self._controller_version < 0:
             self._offset = (8, 8, 8)
-            raise NotImplementedError("Unsupported logic.smbpl with controller version: v{}".format(-self._controller_version))
+            raise NotImplementedError("Unsupported logic.smbpl with controller version: v{}".format(
+                -self._controller_version))
         self._controller_position_to_block_id_to_block_positions = self._read_list_of_controllers(input_stream)
 
     def read(self, directory_blueprint):
@@ -129,7 +137,7 @@ class Logic(DefaultLogging, BlueprintUtils):
         Write position data to a byte stream
 
         @param positions: dict of block id to list of positions
-        @type positions: set[int,int,int]
+        @type positions: set[tuple[int]]
         @param output_stream: output stream
         @type output_stream: ByteStream
         """
@@ -142,7 +150,7 @@ class Logic(DefaultLogging, BlueprintUtils):
         Write data to a byte stream
 
         @param groups: dict of block id to list of positions
-        @type groups: dict[int, set[int,int,int]]
+        @type groups: dict[int, set[tuple[int]]]
         @param output_stream: output stream
         @type output_stream: ByteStream
         """
@@ -242,7 +250,7 @@ class Logic(DefaultLogging, BlueprintUtils):
         Move center (core) in a specific direction and correct all links
 
         @param direction_vector: (x,y,z)
-        @type direction_vector: int,int,int
+        @type direction_vector: tuple[int]
         """
         new_dict = {}
         for controller_position, groups in self._controller_position_to_block_id_to_block_positions.iteritems():
@@ -273,7 +281,7 @@ class Logic(DefaultLogging, BlueprintUtils):
         Delete links to removed blocks
 
         @param controller_position:
-        @type controller_position: int,int,int
+        @type controller_position: tuple[int]
         @param block_id:
         @type block_id: int
         @param smd:
@@ -286,6 +294,8 @@ class Logic(DefaultLogging, BlueprintUtils):
                 self._controller_position_to_block_id_to_block_positions[controller_position][block_id].remove(position)
         if len(self._controller_position_to_block_id_to_block_positions[controller_position][block_id]) == 0:
             self._controller_position_to_block_id_to_block_positions[controller_position].pop(block_id)
+        if len(self._controller_position_to_block_id_to_block_positions[controller_position]) == 0:
+            self._controller_position_to_block_id_to_block_positions.pop(controller_position)
 
     def update(self, smd):
         """
@@ -306,9 +316,9 @@ class Logic(DefaultLogging, BlueprintUtils):
         Update the link from or to a block that moved position
 
         @param old_position:
-        @type old_position: int,int,int
+        @type old_position: tuple[int]
         @param new_position:
-        @type new_position: int,int,int
+        @type new_position: tuple[int]
         """
         assert isinstance(old_position, tuple)
         assert isinstance(new_position, tuple)
@@ -353,7 +363,7 @@ class Logic(DefaultLogging, BlueprintUtils):
         Stream logic values
 
         @param output_stream: Output stream
-        @type output_stream: fileIO
+        @type output_stream: file
         """
         output_stream.write("####\nLOGIC v{}\n####\n\n".format(self.version))
         # stream.write("UNKNOWN: {}\n\n".format(self.unknown_int))
