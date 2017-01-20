@@ -306,8 +306,7 @@ class Logic(DefaultLogging, BlueprintUtils):
                     self._update_groups(controller_position, block_id, smd)
                     continue
                 self._controller_position_to_block_id_to_block_positions[controller_position].pop(block_id)
-            if len(self._controller_position_to_block_id_to_block_positions[controller_position]) == 0:
-                self._controller_position_to_block_id_to_block_positions.pop(controller_position)
+        self._clean_up()
 
     def update_link(self, old_position, new_position):
         """
@@ -340,14 +339,32 @@ class Logic(DefaultLogging, BlueprintUtils):
         @param entity_type:
         @type entity_type: int
         """
-        assert isinstance(entity_type, (int, long))
-        assert 0 <= entity_type <= 4
+        assert isinstance(entity_type, int)
+        assert entity_type in BlueprintUtils._entity_types, "Unknown entity type: {}".format(entity_type)
 
         position_core = (16, 16, 16)
         if entity_type == 0:
             return
         if position_core in self._controller_position_to_block_id_to_block_positions:
             self._controller_position_to_block_id_to_block_positions.pop(position_core)
+        for controller_position in self._controller_position_to_block_id_to_block_positions.keys():
+            groups = self._controller_position_to_block_id_to_block_positions[controller_position]
+            for block_id, positions in groups.items():
+                if position_core not in positions:
+                    continue
+                self._controller_position_to_block_id_to_block_positions[controller_position][block_id].remove(position_core)
+        self._clean_up()
+
+    def _clean_up(self):
+        """
+        Remove empty links
+        """
+        for controller_position, groups in self._controller_position_to_block_id_to_block_positions.items():
+            for block_id in groups:
+                if len(self._controller_position_to_block_id_to_block_positions[controller_position][block_id]) == 0:
+                    self._controller_position_to_block_id_to_block_positions[controller_position].pop(block_id)
+            if len(self._controller_position_to_block_id_to_block_positions[controller_position]) == 0:
+                self._controller_position_to_block_id_to_block_positions.pop(controller_position)
 
     def remove_all(self):
         """
