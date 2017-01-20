@@ -294,8 +294,6 @@ class Logic(DefaultLogging, BlueprintUtils):
                 self._controller_position_to_block_id_to_block_positions[controller_position][block_id].remove(position)
         if len(self._controller_position_to_block_id_to_block_positions[controller_position][block_id]) == 0:
             self._controller_position_to_block_id_to_block_positions[controller_position].pop(block_id)
-        if len(self._controller_position_to_block_id_to_block_positions[controller_position]) == 0:
-            self._controller_position_to_block_id_to_block_positions.pop(controller_position)
 
     def update(self, smd):
         """
