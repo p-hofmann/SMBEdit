@@ -1,4 +1,3 @@
-import os
 from unittest import TestCase
 from StringIO import StringIO
 from lib.bits_and_bytes import ByteStream
@@ -8,18 +7,11 @@ from lib.blueprint.smd3.smd import Smd
 __author__ = 'Peter Hofmann'
 
 
-class Default(TestCase):
-    # _expected_output_format = "{level}: [{name}] {msg}"
-    directory_small_test_input = '/home/hofmann/StarMade/blueprints/Core_plus'
-    directory_small_test_output = '/home/hofmann/StarMade/blueprints/Core_plus_test'
-    # log_file_path2 = 'unittest_out2.log'
-    _positions_input = range(-288, 288, 32)
-
-
-class DefaultSetup(Default):
+class DefaultSetup(TestCase):
     """
     @type object: Logic
     """
+
     def __init__(self, methodName='runTest'):
         super(DefaultSetup, self).__init__(methodName)
         self.object = None
@@ -29,8 +21,8 @@ class DefaultSetup(Default):
 
     def tearDown(self):
         self.object = None
-        if os.path.exists(self.directory_small_test_output):
-            os.rmdir(self.directory_small_test_output)
+        # if os.path.exists(self.directory_output):
+        #     os.rmdir(self.directory_output)
 
 
 class TestLogic(DefaultSetup):
