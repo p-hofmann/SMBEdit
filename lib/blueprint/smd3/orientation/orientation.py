@@ -185,11 +185,8 @@ class Orientation(object):
         0: (0, 0, 0, 2),  # FRONT up
         1: (0, 0, 1, 0),  # BACK down/up?
         2: (0, 1, 1, 2),  # TOP forward
-        # 3: (0, 1, 0, 0),  # BOTTOM backwards
         3: (0, 1, 0, 2),  # BOTTOM forward
-        # 4: (1, 0, 0, 1),  # pointing up
         4: (1, 0, 0, 0),  # RIGHT forward
-        # 5: (1, 0, 1, 1),  # LEFT up
         5: (1, 0, 1, 0),  # LEFT forward
     }
 
@@ -197,7 +194,7 @@ class Orientation(object):
         """
 
         @param output_stream:
-        @type output_stream: FileIO
+        @type output_stream: file
         """
         output_stream.write(self._bit_orientation_to_string())
 
