@@ -820,7 +820,7 @@ class BlueprintUtils(object):
         @return:
         @rtype: bool
         """
-        style_3_categories = ["ores", "shards", "crafting", "minerals", "rails"]
+        style_3_categories = ["ores", "shards", "crafting", "minerals"]
         for category in style_3_categories:
             if block_id in BlueprintUtils._block_ids[category]:
                 return True
