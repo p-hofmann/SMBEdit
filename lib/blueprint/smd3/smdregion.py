@@ -43,6 +43,20 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
     # #######################################
 
     @staticmethod
+    def _is_eof(input_stream):
+        """
+        Read region header to a byte stream
+        The index of a segment is the linear representation of the location of a segment within a region.
+
+        @param input_stream: input stream
+        @type input_stream: ByteStream
+        """
+        if input_stream.read(1) == "":
+            return True
+        input_stream.seek(-1, whence=1)
+        return False
+
+    @staticmethod
     def _read_segment_index(input_stream):
         """
         Read a segment index from a byte stream
@@ -89,14 +103,16 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
         @type input_stream: ByteStream
         """
         segment_id_to_size = self._read_region_header(input_stream)
-        for segment_id in sorted(segment_id_to_size):
+        segment_id = 0
+        while not self._is_eof(input_stream):
+            segment_id += 1
             segment = SmdSegment(
                 blocks_in_a_line=self._blocks_in_a_line_in_a_segment,
                 logfile=self._logfile,
                 verbose=self._verbose,
                 debug=self._debug)
             segment.read(input_stream)
-            if not segment.has_valid_data or segment_id_to_size[segment_id] == 0:
+            if not segment.has_valid_data or segment_id not in segment_id_to_size or segment_id_to_size[segment_id] == 0:
                 continue
             self.position_to_segment[segment.position] = segment
 
