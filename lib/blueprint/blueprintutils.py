@@ -820,25 +820,13 @@ class BlueprintUtils(object):
         @return:
         @rtype: bool
         """
-        style_3_categories = ["ores", "shards", "crafting", "minerals", "rails"]
+        style_3_categories = ["ores", "shards", "crafting", "minerals"]
         for category in style_3_categories:
             if block_id in BlueprintUtils._block_ids[category]:
                 return True
         if block_id in BlueprintUtils._block_ids["plants"] and block_id != 104:  # and not Mushroom
             return True
 
-        if block_id == 977:  # White Light Bar
-            return True
-        if block_id == 976:  # Pipe
-            return True
-        if block_id == 975:  # Decorative Console (Blue)
-            return True
-        if block_id == 678:  # Shipyard Module
-            return True
-        if block_id == 679:  # Shipyard Core Anchor
-            return True
-        if block_id == 104:  # Mushroom
-            return True
         if block_id in BlueprintUtils._block_ids["lighting"]:
             block_name = BlueprintUtils.get_block_name_by_id(block_id).lower()
             if "Rod".lower() in block_name:
