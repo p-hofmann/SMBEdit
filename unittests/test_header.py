@@ -27,7 +27,18 @@ class DefaultSetup(TestCase):
 
 class TestHeader(DefaultSetup):
     def test__read_block_quantities(self):
-        self.fail()
+        block_id_to_quantity = {
+            1: 1,
+            2: 100
+        }
+        stream = ByteStream(StringIO())
+        stream.write_int32_unassigned(len(block_id_to_quantity))
+        for block_id in block_id_to_quantity:
+            stream.write_int16_unassigned(block_id)
+            stream.write_int32_unassigned(block_id_to_quantity[block_id])
+        stream.seek(0)
+        self.object._read_block_quantities(stream)
+        self.assertDictEqual(self.object.block_id_to_quantity, block_id_to_quantity)
 
     def test__read_header(self):
         self.fail()
