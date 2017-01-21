@@ -96,19 +96,19 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
         @param input_stream: input stream
         @type input_stream: ByteStream
 
-        @rtype: int
+        @rtype: dict[int, int]
         """
         self._version = input_stream.read_vector_4_byte()
         assert self._version in self._valid_versions, "Unsupported smd version: {}".format(self._version)
-        number_of_segments = 0
+        segment_id_to_size = {}
         for index in range(0, self._segments_in_a_cube):
             identifier, size = self._read_segment_index(input_stream)
             if identifier == -1:
                 continue
-            number_of_segments += 1
+            segment_id_to_size[identifier] = size
         for index in range(0, self._segments_in_a_cube):
             input_stream.read_int64_unassigned()
-        return number_of_segments
+        return segment_id_to_size
 
     def _read_file(self, input_stream):
         """
@@ -117,11 +117,10 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
         @param input_stream: input stream
         @type input_stream: ByteStream
         """
-        # number_of_segments = self._read_region_header(input_stream)
-        self._read_region_header(input_stream)
-        # for _ in xrange(number_of_segments):
-        # real_number_of_segments = 0
+        segment_id_to_size = self._read_region_header(input_stream)
+        segment_id = -1
         while not self._is_eof(input_stream):
+            segment_id += 1
             segment = SmdSegment(
                 version=self._version[3],
                 blocks_in_a_line=self._blocks_in_a_line_in_a_segment,
@@ -129,7 +128,7 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
                 verbose=self._verbose,
                 debug=self._debug)
             segment.read(input_stream)
-            if not segment._has_valid_data:
+            if not segment._has_valid_data or segment_id not in segment_id_to_size or segment_id_to_size[segment_id] == 0:
                 continue
             self._position_to_segment[segment._position] = segment
 
