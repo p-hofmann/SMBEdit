@@ -39,9 +39,6 @@ class DockedEntity(object):
         assert isinstance(input_stream, ByteStream)
         relative_path = input_stream.read_string()
         self.position = input_stream.read_vector_3_int32()
-        if BlueprintUtils.offset is not None:
-            # in case of sdm2 to sdm3
-            self.position = BlueprintUtils.vector_addition(self.position, BlueprintUtils.offset)
         self.size = input_stream.read_vector_3_float()
         self.style = input_stream.read_int16_unassigned()
         self.orientation = input_stream.read_byte()
