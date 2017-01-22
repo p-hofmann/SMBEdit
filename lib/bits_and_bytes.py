@@ -10,7 +10,8 @@ else:
     text_type = str
     binary_type = bytes
 
-class ByteStream(object):
+
+class BinaryStream(object):
     """
     Class idea based on:
     http://stackoverflow.com/questions/442188/readint-readbyte-readstring-etc-in-python/4338551#4338551

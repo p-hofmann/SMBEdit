@@ -75,7 +75,7 @@ class Smd(DefaultLogging):
             smd2.read(directory_blueprint)
             offset = (8, 8, 8)
             for position, smd2block in smd2.items():
-                smd3_position = Vector.vector_addition(position, offset)
+                smd3_position = Vector.addition(position, offset)
                 smd3block = SmdBlock(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
                 hit_points = 1
                 if BlockConfigHardcoded.is_hull(smd2block.get_id()):
@@ -182,7 +182,7 @@ class Smd(DefaultLogging):
         max_vector = [16, 16, 16]
         for position_block, block in self.items():
             assert isinstance(block, SmdBlock)
-            new_block_position = Vector.vector_subtraction(position_block, direction_vector)
+            new_block_position = Vector.subtraction(position_block, direction_vector)
             if entity_type == 0 and new_block_position == (16, 16, 16):
                 continue
             if block.get_id() == 1:  # core

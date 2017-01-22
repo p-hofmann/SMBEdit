@@ -2,7 +2,7 @@ __author__ = 'Peter Hofmann'
 
 import sys
 # import gzip
-from lib.bits_and_bytes import ByteStream
+from lib.bits_and_bytes import BinaryStream
 from lib.loggingwrapper import DefaultLogging
 from lib.utils.vector import Vector
 
@@ -20,7 +20,7 @@ class TagUtil(object):
         @param payload_type:
         @type payload_type: int
         @param input_stream:
-        @type input_stream: ByteStream
+        @type input_stream: BinaryStream
 
         @return:
         @rtype: any
@@ -84,7 +84,7 @@ class TagUtil(object):
         @param payload_type:
         @type payload_type: int
         @param output_stream: Output stream
-        @type output_stream: ByteStream
+        @type output_stream: BinaryStream
         """
         if isinstance(payload, (TagList, TagPayloadList)):
             payload.write(output_stream)  # 12 / 13
@@ -156,7 +156,7 @@ class TagList(object):
         Read a list of tags
 
         @param input_stream:
-        @type input_stream: ByteStream
+        @type input_stream: BinaryStream
 
         @return:
         @rtype: TagList
@@ -179,7 +179,7 @@ class TagList(object):
         write values
 
         @param output_stream: Output stream
-        @type output_stream: ByteStream
+        @type output_stream: BinaryStream
         """
         for tag in self.tag_list:
             tag.write(output_stream)
@@ -244,12 +244,12 @@ class TagPayloadList(TagUtil):
         Read list of data from the same tag type
 
         @param input_stream:
-        @type input_stream: ByteStream
+        @type input_stream: BinaryStream
 
         @return:
         @rtype: TagPayloadList
         """
-        assert isinstance(input_stream, ByteStream)
+        assert isinstance(input_stream, BinaryStream)
         self.id = input_stream.read_byte()
         length_list = input_stream.read_int32_unassigned()
         self.payload_list = []
@@ -265,7 +265,7 @@ class TagPayloadList(TagUtil):
         write values
 
         @param output_stream: Output stream
-        @type output_stream: ByteStream
+        @type output_stream: BinaryStream
         """
         output_stream.write_byte(self.id)
         output_stream.write_int32_unassigned(len(self.payload_list))
@@ -297,7 +297,7 @@ class TagPayloadList(TagUtil):
     def move_position(self, vector_direction):
         if abs(self.id) == 10:
             for index, payload in enumerate(self.payload_list):
-                self.payload_list[index] = Vector.vector_addition(payload, vector_direction)
+                self.payload_list[index] = Vector.addition(payload, vector_direction)
 
     def to_stream(self, output_stream=sys.stdout):
         output_stream.write("{}: [".format(self.id))
@@ -332,12 +332,12 @@ class TagPayload(TagUtil):
         """
 
         @param input_stream:
-        @type input_stream: ByteStream
+        @type input_stream: BinaryStream
 
         @return:
         @rtype: TagPayload
         """
-        assert isinstance(input_stream, ByteStream)
+        assert isinstance(input_stream, BinaryStream)
         self.id = input_stream.read_byte()
         if self.id != 0:
             if self.id > 0:
@@ -353,7 +353,7 @@ class TagPayload(TagUtil):
         write values
 
         @param output_stream: Output stream
-        @type output_stream: ByteStream
+        @type output_stream: BinaryStream
         """
         output_stream.write_byte(self.id)
         if self.id == 0:
@@ -364,7 +364,7 @@ class TagPayload(TagUtil):
 
     def move_position(self, vector_direction):
         if abs(self.id) == 10:
-            self.payload = Vector.vector_addition(self.payload, vector_direction)
+            self.payload = Vector.addition(self.payload, vector_direction)
         elif abs(self.id) == 12 or abs(self.id) == 13:
             self.payload.move_position(vector_direction)
 
@@ -412,7 +412,7 @@ class TagManager(DefaultLogging):
         Read tag root from byte stream
 
         @param input_stream: input stream
-        @type input_stream: ByteStream
+        @type input_stream: BinaryStream
         """
         self._version = input_stream.read_vector_x_byte(2)
 
@@ -435,7 +435,7 @@ class TagManager(DefaultLogging):
         write values
 
         @param output_stream: Output stream
-        @type output_stream: ByteStream
+        @type output_stream: BinaryStream
         """
         if not self.has_data():
             return

@@ -1,7 +1,7 @@
 __author__ = 'Peter Hofmann'
 
 import sys
-from lib.bits_and_bytes import ByteStream
+from lib.bits_and_bytes import BinaryStream
 from lib.loggingwrapper import DefaultLogging
 
 
@@ -27,7 +27,7 @@ class DataType7(DefaultLogging):
         Read from byte stream
 
         @param input_stream: input stream
-        @type input_stream: ByteStream
+        @type input_stream: BinaryStream
         """
         self._has_data = input_stream.read_byte()
         if self._has_data > 0:
@@ -50,7 +50,7 @@ class DataType7(DefaultLogging):
         write values
 
         @param output_stream: Output stream
-        @type output_stream: ByteStream
+        @type output_stream: BinaryStream
         """
         if len(self._data) == 0:
             return

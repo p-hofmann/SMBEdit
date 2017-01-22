@@ -3,7 +3,7 @@ __author__ = 'Peter Hofmann'
 import os
 import sys
 
-from lib.bits_and_bytes import ByteStream
+from lib.bits_and_bytes import BinaryStream
 from lib.loggingwrapper import DefaultLogging
 from lib.utils.vector import Vector
 
@@ -32,12 +32,12 @@ class DockedEntity(object):
         """
 
         @param input_stream:
-        @type input_stream: ByteStream
+        @type input_stream: BinaryStream
 
         @return:
         @rtype: int
         """
-        assert isinstance(input_stream, ByteStream)
+        assert isinstance(input_stream, BinaryStream)
         relative_path = input_stream.read_string()
         self.position = input_stream.read_vector_3_int32()
         self.size = input_stream.read_vector_3_float()
@@ -54,11 +54,11 @@ class DockedEntity(object):
         """
 
         @param output_stream:
-        @type output_stream: ByteStream
+        @type output_stream: BinaryStream
         @type dock_index: int
         @type relative_path: str
         """
-        assert isinstance(output_stream, ByteStream)
+        assert isinstance(output_stream, BinaryStream)
         new_relative_directory = os.path.join(relative_path, "ATTACHED_{}".format(dock_index))
         output_stream.write_string(new_relative_directory)
         output_stream.write_vector_3_int32(self.position)
@@ -71,7 +71,7 @@ class DockedEntity(object):
     # #######################################
 
     def move_position(self, vector_direction):
-        self.position = Vector.vector_addition(self.position, vector_direction)
+        self.position = Vector.addition(self.position, vector_direction)
 
     def to_stream(self, output_stream=sys.stdout):
         """
@@ -107,7 +107,7 @@ class DataType3(DefaultLogging):
         """
 
         @param input_stream:
-        @type input_stream: ByteStream
+        @type input_stream: BinaryStream
 
         @return:
         @rtype: dict
@@ -130,7 +130,7 @@ class DataType3(DefaultLogging):
         write dummy values
 
         @param output_stream: Output stream
-        @type output_stream: ByteStream
+        @type output_stream: BinaryStream
         """
         self._logger.debug("Writing")
         output_stream.write_byte(3)
@@ -141,7 +141,7 @@ class DataType3(DefaultLogging):
         write values
 
         @param output_stream: Output stream
-        @type output_stream: ByteStream
+        @type output_stream: BinaryStream
         """
         self._logger.debug("Writing")
         output_stream.write_byte(3)

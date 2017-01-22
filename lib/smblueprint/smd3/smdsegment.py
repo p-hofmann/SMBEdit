@@ -5,7 +5,7 @@ import zlib
 import datetime
 
 from lib.loggingwrapper import DefaultLogging
-from lib.bits_and_bytes import ByteStream
+from lib.bits_and_bytes import BinaryStream
 from lib.utils.blockconfighardcoded import BlockConfigHardcoded
 from lib.utils.blueprintentity import BlueprintEntity
 from lib.smblueprint.smd3.smdblock import SmdBlock
@@ -48,7 +48,7 @@ class SmdSegment(DefaultLogging):
         Size: 26 byte
 
         @param input_stream: input byte stream
-        @type input_stream: ByteStream
+        @type input_stream: BinaryStream
         """
         self.version = input_stream.read_byte()  # 1 byte
         self.timestamp = input_stream.read_int64_unassigned()
@@ -62,7 +62,7 @@ class SmdSegment(DefaultLogging):
         Size: 49126 byte
 
         @param input_stream: input byte stream
-        @type input_stream: ByteStream
+        @type input_stream: BinaryStream
         """
         decompressed_data = zlib.decompress(input_stream.read(self.compressed_size))
         self.block_index_to_block = {}
@@ -70,7 +70,7 @@ class SmdSegment(DefaultLogging):
         for block_index in range(number_of_blocks):
             position = block_index * 3
             block = SmdBlock(debug=self._debug)
-            int_24bit = ByteStream.unpack_int24(decompressed_data[position:position+3])
+            int_24bit = BinaryStream.unpack_int24(decompressed_data[position:position+3])
             block.set_int_24bit(int_24bit)
             if block.get_id() > 0:
                 self.block_index_to_block[block_index] = block
@@ -82,9 +82,9 @@ class SmdSegment(DefaultLogging):
         Always total size 49152 byte
 
         @param input_stream: input byte stream
-        @type input_stream: ByteStream
+        @type input_stream: BinaryStream
         """
-        assert isinstance(input_stream, ByteStream)
+        assert isinstance(input_stream, BinaryStream)
         self._read_header(input_stream)
         if not self.has_valid_data:
             input_stream.seek(49126, 1)  # skip presumably empty bytes
@@ -103,7 +103,7 @@ class SmdSegment(DefaultLogging):
         Size: 49126 byte + 4 byte because of compressed_size
 
         @param output_stream: input byte stream
-        @type output_stream: ByteStream
+        @type output_stream: BinaryStream
         """
         if not self.has_valid_data:
             self.compressed_size = 0
@@ -114,7 +114,7 @@ class SmdSegment(DefaultLogging):
             for block_index in range(0, self._blocks_in_a_cube):
                 if block_index in set_of_valid_block_index:
                     block_int_24 = self.block_index_to_block[block_index].get_int_24bit()
-                    byte_string += ByteStream.pack_int24(block_int_24)
+                    byte_string += BinaryStream.pack_int24(block_int_24)
                     continue
                 byte_string += b"\0" * 3
             compressed_data = zlib.compress(byte_string)
@@ -133,7 +133,7 @@ class SmdSegment(DefaultLogging):
         @attention: compressed_size, 4 bytes, will be written later when the size is known
 
         @param output_stream: input byte stream
-        @type output_stream: ByteStream
+        @type output_stream: BinaryStream
         """
         output_stream.write_byte(self.version)  # 1 byte
         output_stream.write_int64_unassigned(self.timestamp)  # 8 byte
@@ -146,9 +146,9 @@ class SmdSegment(DefaultLogging):
         Always total size 49152 byte
 
         @param output_stream: Output byte stream
-        @type output_stream: ByteStream
+        @type output_stream: BinaryStream
         """
-        assert isinstance(output_stream, ByteStream)
+        assert isinstance(output_stream, BinaryStream)
         self._write_header(output_stream)
         self._write_block_data(output_stream)
 

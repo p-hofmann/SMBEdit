@@ -3,7 +3,7 @@ __author__ = 'Peter Hofmann'
 import os
 import sys
 
-from lib.bits_and_bytes import ByteStream
+from lib.bits_and_bytes import BinaryStream
 from lib.loggingwrapper import DefaultLogging
 from lib.utils.blockconfighardcoded import BlockConfigHardcoded
 from lib.utils.vector import Vector
@@ -65,9 +65,9 @@ class Meta(DefaultLogging):
         Read data from byte stream
 
         @param input_stream: input stream
-        @type input_stream: ByteStream
+        @type input_stream: BinaryStream
         """
-        assert isinstance(input_stream, ByteStream)
+        assert isinstance(input_stream, BinaryStream)
         # self.version = input_stream.read_int32_unassigned()
         self._version = input_stream.read_vector_4_byte()
         assert self._version in self._valid_versions, "Unsupported version '{}' of '{}'.".format(
@@ -120,7 +120,7 @@ class Meta(DefaultLogging):
         """
         file_path = os.path.join(directory_blueprint, self._file_name)
         with open(file_path, 'rb') as input_stream:
-            self._read_file(ByteStream(input_stream))
+            self._read_file(BinaryStream(input_stream))
 
     # #######################################
     # ###  Write
@@ -133,7 +133,7 @@ class Meta(DefaultLogging):
         Until I know how a meta file has to look like, this will have to do
 
         @param output_stream: output stream
-        @type output_stream: ByteStream
+        @type output_stream: BinaryStream
         """
         output_stream.write_int32_unassigned(0)  # version
         output_stream.write_byte(1)  # data byte 'Finish'
@@ -143,7 +143,7 @@ class Meta(DefaultLogging):
         write values
 
         @param output_stream: Output stream
-        @type output_stream: ByteStream
+        @type output_stream: BinaryStream
         """
         output_stream.write_vector_4_byte(self._version)
 
@@ -181,9 +181,9 @@ class Meta(DefaultLogging):
         with open(file_path, 'wb') as output_stream:
             if relative_path is None:
                 self._logger.warning("Writing dummy meta file.")
-                self._write_dummy(ByteStream(output_stream))
+                self._write_dummy(BinaryStream(output_stream))
                 return
-            self._write_file(ByteStream(output_stream), relative_path)
+            self._write_file(BinaryStream(output_stream), relative_path)
 
     # #######################################
     # ###  Else
@@ -223,17 +223,17 @@ class Meta(DefaultLogging):
         @rtype: tuple[int]
         """
         if block_side_id == 0:
-            return Vector.vector_addition(block_position, (0, 0, 1))
+            return Vector.addition(block_position, (0, 0, 1))
         elif block_side_id == 1:
-            return Vector.vector_subtraction(block_position, (0, 0, 1))
+            return Vector.subtraction(block_position, (0, 0, 1))
         elif block_side_id == 2:
-            return Vector.vector_addition(block_position, (0, 1, 0))
+            return Vector.addition(block_position, (0, 1, 0))
         elif block_side_id == 3:
-            return Vector.vector_subtraction(block_position, (0, 1, 0))
+            return Vector.subtraction(block_position, (0, 1, 0))
         elif block_side_id == 4:
-            return Vector.vector_subtraction(block_position, (1, 0, 0))
+            return Vector.subtraction(block_position, (1, 0, 0))
         elif block_side_id == 5:
-            return Vector.vector_addition(block_position, (1, 0, 0))
+            return Vector.addition(block_position, (1, 0, 0))
 
     def update_docked_entities(self, smd, main_entity_label, rail_docked_label_prefix):
         """
@@ -282,7 +282,7 @@ class Meta(DefaultLogging):
         @param direction_vector: vector
         @type direction_vector: tuple[int]
         """
-        direction_vector = Vector.vector_subtraction((0, 0, 0), direction_vector)
+        direction_vector = Vector.subtraction((0, 0, 0), direction_vector)
         self.move_positions(direction_vector)
 
     def to_stream(self, output_stream=sys.stdout):

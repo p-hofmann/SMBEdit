@@ -199,7 +199,7 @@ class Blueprint(DefaultLogging):
         assert isinstance(block_id, int)
         position = self.smd3.search(block_id)
         assert position is not None, "Block id not found: {}".format(block_id)
-        distance = Vector.vector_distance(position, (16, 16, 16))
+        distance = Vector.distance(position, (16, 16, 16))
         if distance == 0:
             return
         direction_vector = Vector.get_direction_vector_to_center(position)

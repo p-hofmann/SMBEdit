@@ -161,7 +161,7 @@ class Smd(DefaultLogging):
         max_vector = [self._core_position, self._core_position, self._core_position]
         for position_block, block in self.items():
             assert isinstance(block, SmdBlock)
-            new_block_position = Vector.vector_subtraction(position_block, direction_vector)
+            new_block_position = Vector.subtraction(position_block, direction_vector)
             if entity_type == 0 and new_block_position == (self._core_position, self._core_position, self._core_position):
                 continue
             if block.get_id() == 1:  # core

@@ -4,7 +4,7 @@ import sys
 import math
 
 from lib.loggingwrapper import DefaultLogging
-from lib.bits_and_bytes import ByteStream
+from lib.bits_and_bytes import BinaryStream
 from lib.smblueprint.smd3.smdblock import SmdBlock
 from lib.smblueprint.smd3.smdsegment import SmdSegment
 
@@ -48,7 +48,7 @@ class SmdRegion(DefaultLogging):
         The index of a segment is the linear representation of the location of a segment within a region.
 
         @param input_stream: input stream
-        @type input_stream: ByteStream
+        @type input_stream: BinaryStream
         """
         if not input_stream.read(1):
             return True
@@ -67,7 +67,7 @@ class SmdRegion(DefaultLogging):
         The size is the actual size of the segment data, header (26 bytes) + size of compressed block data
 
         @param input_stream: input stream
-        @type input_stream: ByteStream
+        @type input_stream: BinaryStream
 
         @rtype: list[int]
         """
@@ -81,7 +81,7 @@ class SmdRegion(DefaultLogging):
         The index of a segment is the linear representation of the location of a segment within a region.
 
         @param input_stream: input stream
-        @type input_stream: ByteStream
+        @type input_stream: BinaryStream
 
         @rtype: dict[int, int]
         """
@@ -99,7 +99,7 @@ class SmdRegion(DefaultLogging):
         Read region data from a byte stream
 
         @param input_stream: input stream
-        @type input_stream: ByteStream
+        @type input_stream: BinaryStream
         """
         segment_id_to_size = self._read_region_header(input_stream)
         segment_id = 0
@@ -125,7 +125,7 @@ class SmdRegion(DefaultLogging):
         # print file_path
         self._logger.info("Reading file '{}'".format(file_path))
         with open(file_path, 'rb') as input_stream:
-            self._read_file(ByteStream(input_stream))
+            self._read_file(BinaryStream(input_stream))
 
     # #######################################
     # ###  Write
@@ -147,7 +147,7 @@ class SmdRegion(DefaultLogging):
         @param size: actual size of segment data: segment_header_size + compressed_size
         @type size: int
         @param output_stream: output stream
-        @type output_stream: ByteStream
+        @type output_stream: BinaryStream
         """
         output_stream.write_int16_unassigned(identifier)
         output_stream.write_int16_unassigned(size)
@@ -158,7 +158,7 @@ class SmdRegion(DefaultLogging):
         The index of a segment is the linear representation of the location of a segment within a region.
 
         @param output_stream: output stream
-        @type output_stream: ByteStream
+        @type output_stream: BinaryStream
         """
         # Version
         output_stream.write_vector_4_byte(self.version)
@@ -185,7 +185,7 @@ class SmdRegion(DefaultLogging):
         Write region data to a byte stream
 
         @param output_stream: output stream
-        @type output_stream: ByteStream
+        @type output_stream: BinaryStream
         """
         output_stream.seek(4+self._segments_in_a_cube*4)  # skip header: version(4byte) + 4096 segment index (4 byte)
         for position in sorted(list(self.position_to_segment.keys()), key=lambda tup: (tup[2], tup[1], tup[0])):
@@ -204,7 +204,7 @@ class SmdRegion(DefaultLogging):
         """
         # print file_path
         with open(file_path, 'wb') as output_stream:
-            self._write_file(ByteStream(output_stream))
+            self._write_file(BinaryStream(output_stream))
 
     # #######################################
     # ###  Get

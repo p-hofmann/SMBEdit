@@ -2,7 +2,7 @@ __author__ = 'Peter Hofmann'
 
 import sys
 
-from lib.bits_and_bytes import ByteStream
+from lib.bits_and_bytes import BinaryStream
 from lib.loggingwrapper import DefaultLogging
 from lib.smblueprint.meta.tag.tagmanager import TagManager
 from lib.smblueprint.meta.tag.datatype2tagreader import Datatype2TagReader
@@ -32,7 +32,7 @@ class DataType2(DefaultLogging):
         Read tags from byte stream
 
         @param input_stream: input stream
-        @type input_stream: ByteStream
+        @type input_stream: BinaryStream
         """
         self._tag_data = TagManager(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
         self._tag_data.read(input_stream)
@@ -46,7 +46,7 @@ class DataType2(DefaultLogging):
         write values
 
         @param output_stream: Output stream
-        @type output_stream: ByteStream
+        @type output_stream: BinaryStream
         """
         if not self.has_data():
             return

@@ -7,7 +7,7 @@ from lib.loggingwrapper import DefaultLogging
 from lib.utils.blueprintentity import BlueprintEntity
 from lib.utils.blockconfighardcoded import BlockConfigHardcoded
 from lib.utils.vector import Vector
-from lib.bits_and_bytes import ByteStream
+from lib.bits_and_bytes import BinaryStream
 from lib.smblueprint.smd3.smd import Smd
 
 
@@ -39,7 +39,7 @@ class Statistics(object):
         Read statistic data from a byte stream
 
         @param input_stream: input stream
-        @type input_stream: ByteStream
+        @type input_stream: BinaryStream
         """
         self.has_statistics = input_stream.read_bool()
         if not self.has_statistics:
@@ -62,7 +62,7 @@ class Statistics(object):
         Write statistic data to a byte stream
 
         @param output_stream: input stream
-        @type output_stream: ByteStream
+        @type output_stream: BinaryStream
         """
         self.version = max(self._valid_versions)
         output_stream.write_bool(self.has_statistics)
@@ -130,9 +130,9 @@ class Header(DefaultLogging):
         Read block quantities from a byte stream
 
         @param input_stream: input stream
-        @type input_stream: ByteStream
+        @type input_stream: BinaryStream
         """
-        assert isinstance(input_stream, ByteStream)
+        assert isinstance(input_stream, BinaryStream)
         num_of_block_types = input_stream.read_int32_unassigned()
         for index in range(0, num_of_block_types):
             block_identifier = input_stream.read_int16_unassigned()
@@ -144,9 +144,9 @@ class Header(DefaultLogging):
         Read header data from a byte stream
 
         @param input_stream: input stream
-        @type input_stream: ByteStream
+        @type input_stream: BinaryStream
         """
-        assert isinstance(input_stream, ByteStream)
+        assert isinstance(input_stream, BinaryStream)
         self.version = input_stream.read_int32_unassigned()
         assert self.version in self._valid_versions, "Unsupported version '{}' of '{}'.".format(self.version, self._file_name)
         self.type = input_stream.read_int32_unassigned()
@@ -162,9 +162,9 @@ class Header(DefaultLogging):
         Read blueprint header data from a byte stream
 
         @param input_stream: input stream
-        @type input_stream: ByteStream
+        @type input_stream: BinaryStream
         """
-        assert isinstance(input_stream, ByteStream)
+        assert isinstance(input_stream, BinaryStream)
         self._read_header(input_stream)
         self._read_block_quantities(input_stream)
         if self.version > 0:
@@ -179,7 +179,7 @@ class Header(DefaultLogging):
         """
         file_path = os.path.join(directory_blueprint, self._file_name)
         with open(file_path, 'rb') as input_stream:
-            self._read_file(ByteStream(input_stream))
+            self._read_file(BinaryStream(input_stream))
 
     # #######################################
     # ###  Write
@@ -190,9 +190,9 @@ class Header(DefaultLogging):
         Write block quantities to a byte stream
 
         @param output_stream: input stream
-        @type output_stream: ByteStream
+        @type output_stream: BinaryStream
         """
-        assert isinstance(output_stream, ByteStream)
+        assert isinstance(output_stream, BinaryStream)
         num_of_block_types = len(self.block_id_to_quantity)
         output_stream.write_int32_unassigned(num_of_block_types)
         for identifier, quantity in self.block_id_to_quantity.items():
@@ -204,9 +204,9 @@ class Header(DefaultLogging):
         Write header data to a byte stream
 
         @param output_stream: input stream
-        @type output_stream: ByteStream
+        @type output_stream: BinaryStream
         """
-        assert isinstance(output_stream, ByteStream)
+        assert isinstance(output_stream, BinaryStream)
         output_stream.write_int32_unassigned(self.version)
         output_stream.write_int32_unassigned(self.type)
         if self.version > 2:
@@ -219,9 +219,9 @@ class Header(DefaultLogging):
         Write header data to a byte stream
 
         @param output_stream: output stream
-        @type output_stream: ByteStream
+        @type output_stream: BinaryStream
         """
-        assert isinstance(output_stream, ByteStream)
+        assert isinstance(output_stream, BinaryStream)
         self._write_header(output_stream)
         self._write_block_quantities(output_stream)
         if self.version > 0:
@@ -237,7 +237,7 @@ class Header(DefaultLogging):
         self.version = max(self._valid_versions)
         file_path = os.path.join(directory_blueprint, self._file_name)
         with open(file_path, 'wb') as output_stream:
-            self._write_file(ByteStream(output_stream))
+            self._write_file(BinaryStream(output_stream))
 
     # #######################################
     # ###  Else
@@ -408,10 +408,10 @@ class Header(DefaultLogging):
         @param max_vector:  (x,y,z)
         @type max_vector:  int, int, int
         """
-        min_vector = Vector.vector_subtraction(min_vector, (1, 1, 1))
-        max_vector = Vector.vector_addition(max_vector, (2, 2, 2))
-        self.box_min = Vector.vector_subtraction(min_vector, (16, 16, 16))
-        self.box_max = Vector.vector_subtraction(max_vector, (16, 16, 16))
+        min_vector = Vector.subtraction(min_vector, (1, 1, 1))
+        max_vector = Vector.addition(max_vector, (2, 2, 2))
+        self.box_min = Vector.subtraction(min_vector, (16, 16, 16))
+        self.box_max = Vector.subtraction(max_vector, (16, 16, 16))
 
     def to_stream(self, output_stream=sys.stdout):
         """

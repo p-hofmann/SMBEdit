@@ -7,7 +7,7 @@ class Vector(object):
     """
 
     @staticmethod
-    def vector_addition(vector1, vector2):
+    def addition(vector1, vector2):
         """
         Add one vector to another
 
@@ -26,7 +26,7 @@ class Vector(object):
         return tuple(result)
 
     @staticmethod
-    def vector_subtraction(vector1, vector2):
+    def subtraction(vector1, vector2):
         """
         Subtract vector2 from vector1
 
@@ -45,7 +45,7 @@ class Vector(object):
         return tuple(result)
 
     @staticmethod
-    def vector_distance(vector1, vector2):
+    def distance(vector1, vector2):
         """
         Calculate distance between two vectors
 
@@ -75,7 +75,7 @@ class Vector(object):
 
         @rtype: int, int, int
         """
-        return Vector.vector_subtraction(position, Vector._core_position)
+        return Vector.subtraction(position, Vector._core_position)
 
     # #######################################
     # ###  Turning
@@ -114,10 +114,10 @@ class Vector(object):
         """
         multiplicator = Vector._turn_multiplicator[tilt_index]
         indexes = Vector._turn_indexes[tilt_index]
-        new_block_position = Vector.vector_subtraction(position, Vector._core_position)
+        new_block_position = Vector.subtraction(position, Vector._core_position)
         new_block_position = (
             multiplicator[0]*new_block_position[indexes[0]],
             multiplicator[1]*new_block_position[indexes[1]],
             multiplicator[2]*new_block_position[indexes[2]])
-        new_block_position = Vector.vector_addition(new_block_position, Vector._core_position)
+        new_block_position = Vector.addition(new_block_position, Vector._core_position)
         return new_block_position

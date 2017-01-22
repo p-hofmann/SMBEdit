@@ -2,7 +2,7 @@ __author__ = 'Peter Hofmann'
 
 import sys
 
-from lib.bits_and_bytes import ByteStream
+from lib.bits_and_bytes import BinaryStream
 from lib.loggingwrapper import DefaultLogging
 from lib.utils.vector import Vector
 
@@ -31,7 +31,7 @@ class RailEntry(object):
         Read entry from byte stream (17 byte)
 
         @param input_stream: input stream
-        @type input_stream: ByteStream
+        @type input_stream: BinaryStream
         """
         self._position = input_stream.read_vector_3_int32()
         self._block_id = input_stream.read_int16()
@@ -44,7 +44,7 @@ class RailEntry(object):
         Read entry from byte stream (17 byte)
 
         @param output_stream: input stream
-        @type output_stream: ByteStream
+        @type output_stream: BinaryStream
         """
         output_stream.write_vector_3_int32(self._position),
         output_stream.write_int16(self._block_id),
@@ -53,7 +53,7 @@ class RailEntry(object):
         output_stream.write_byte(self._unknown_byte_1)
 
     def move_position(self, vector_direction):
-        self._position = Vector.vector_addition(self._position, vector_direction)
+        self._position = Vector.addition(self._position, vector_direction)
 
     def to_stream(self, output_stream=sys.stdout):
         """
@@ -89,7 +89,7 @@ class DataType6(DefaultLogging):
         Read from byte stream
 
         @param input_stream: input stream
-        @type input_stream: ByteStream
+        @type input_stream: BinaryStream
         """
         self._has_data = input_stream.read_byte()
         if self._has_data == 0:
@@ -111,7 +111,7 @@ class DataType6(DefaultLogging):
         write values
 
         @param output_stream: Output stream
-        @type output_stream: ByteStream
+        @type output_stream: BinaryStream
         """
         if len(self._data) == 0:
             return

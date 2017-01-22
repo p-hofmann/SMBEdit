@@ -3,7 +3,7 @@ __author__ = 'Peter Hofmann'
 import sys
 import os
 
-from lib.bits_and_bytes import ByteStream
+from lib.bits_and_bytes import BinaryStream
 from lib.loggingwrapper import DefaultLogging
 from lib.utils.vector import Vector
 from lib.smblueprint.meta.tag.tagmanager import TagManager, TagList, TagPayload
@@ -84,7 +84,7 @@ class DataType4(DefaultLogging):
         Read unknown stuff from byte stream
 
         @param input_stream: input stream
-        @type input_stream: ByteStream
+        @type input_stream: BinaryStream
 
         @rtype Tuple[str, int, int]
         """
@@ -102,7 +102,7 @@ class DataType4(DefaultLogging):
         Read rail docker data?
 
         @param input_stream: input stream
-        @type input_stream: ByteStream
+        @type input_stream: BinaryStream
         """
         self._vector_float_0 = input_stream.read_vector_3_float()
         self._vector_float_1 = input_stream.read_vector_3_float()
@@ -136,7 +136,7 @@ class DataType4(DefaultLogging):
         Write some stuff to byte stream
 
         @param output_stream: output_stream
-        @type output_stream: ByteStream
+        @type output_stream: BinaryStream
         """
         # if unknown_number != 0:
         #     unknown_long0 = self.shift_index(unknown_long0, unknown_number, unknown_number, unknown_number)
@@ -150,7 +150,7 @@ class DataType4(DefaultLogging):
         write values
 
         @param output_stream: Output stream
-        @type output_stream: ByteStream
+        @type output_stream: BinaryStream
         """
         self._logger.debug("Writing")
         output_stream.write_byte(4)
@@ -234,9 +234,9 @@ class DataType4(DefaultLogging):
         @type direction_vector: tuple[int]
         """
         for tag_docked_entity_location, tag_rail_location in self._get_docker_related_location_tags():
-            tag_docked_entity_location.payload = Vector.vector_subtraction(
+            tag_docked_entity_location.payload = Vector.subtraction(
                 tag_docked_entity_location.payload, direction_vector)
-            tag_rail_location.payload = Vector.vector_subtraction(
+            tag_rail_location.payload = Vector.subtraction(
                 tag_rail_location.payload, direction_vector)
 
     def move_position(self, vector_direction):

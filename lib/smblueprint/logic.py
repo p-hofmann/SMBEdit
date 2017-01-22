@@ -3,7 +3,7 @@ __author__ = 'Peter Hofmann'
 import os
 import sys
 from lib.loggingwrapper import DefaultLogging
-from lib.bits_and_bytes import ByteStream
+from lib.bits_and_bytes import BinaryStream
 from lib.utils.blockconfighardcoded import BlockConfigHardcoded
 from lib.utils.blueprintentity import BlueprintEntity
 from lib.utils.vector import Vector
@@ -42,7 +42,7 @@ class Logic(DefaultLogging):
         Read position data from byte stream
 
         @param input_stream: input stream
-        @type input_stream: ByteStream
+        @type input_stream: BinaryStream
 
         @return: set of positions
         @rtype: set[tuple[int]]
@@ -53,7 +53,7 @@ class Logic(DefaultLogging):
             position = input_stream.read_vector_3_int16()
             if self._offset is not None:
                 # smd2 to smd3 conversion
-                position = Vector.vector_addition(position, self._offset)
+                position = Vector.addition(position, self._offset)
             data.add(position)
         return data
 
@@ -62,7 +62,7 @@ class Logic(DefaultLogging):
         Read controller group data from byte stream
 
         @param input_stream: input stream
-        @type input_stream: ByteStream
+        @type input_stream: BinaryStream
 
         @return: dict of block id to set of positions
         @rtype: dict[int, set[tuple[int]]]
@@ -79,7 +79,7 @@ class Logic(DefaultLogging):
         Read controller data from byte stream
 
         @param input_stream: input stream
-        @type input_stream: ByteStream
+        @type input_stream: BinaryStream
 
         @return: set of positions
         @rtype: dict[tuple, dict[int, set[tuple[int]]]]
@@ -90,7 +90,7 @@ class Logic(DefaultLogging):
             position = input_stream.read_vector_3_int16()
             if self._offset is not None:
                 # smd2 to smd3 conversion
-                position = Vector.vector_addition(position, self._offset)
+                position = Vector.addition(position, self._offset)
             controller_position_to_groups[position] = self._read_dict_of_groups(input_stream)
         return controller_position_to_groups
 
@@ -99,7 +99,7 @@ class Logic(DefaultLogging):
         Read data from byte stream
 
         @param input_stream: input stream
-        @type input_stream: ByteStream
+        @type input_stream: BinaryStream
         """
         self._offset = None
         self.version = input_stream.read_int32_unassigned()
@@ -126,7 +126,7 @@ class Logic(DefaultLogging):
         """
         file_path = os.path.join(directory_blueprint, self._file_name)
         with open(file_path, 'rb') as input_stream:
-            self._read_file(ByteStream(input_stream))
+            self._read_file(BinaryStream(input_stream))
 
     # #######################################
     # ###  Write
@@ -140,7 +140,7 @@ class Logic(DefaultLogging):
         @param positions: dict of block id to list of positions
         @type positions: set[tuple[int]]
         @param output_stream: output stream
-        @type output_stream: ByteStream
+        @type output_stream: BinaryStream
         """
         output_stream.write_int32_unassigned(len(positions))
         for position in positions:
@@ -153,7 +153,7 @@ class Logic(DefaultLogging):
         @param groups: dict of block id to list of positions
         @type groups: dict[int, set[tuple[int]]]
         @param output_stream: output stream
-        @type output_stream: ByteStream
+        @type output_stream: BinaryStream
         """
         output_stream.write_int32_unassigned(len(groups))
         for block_id, positions in groups.items():
@@ -165,7 +165,7 @@ class Logic(DefaultLogging):
         Write controller data to a byte stream
 
         @param output_stream: output stream
-        @type output_stream: ByteStream
+        @type output_stream: BinaryStream
         """
         num_controllers = len(self._controller_position_to_block_id_to_block_positions)
         output_stream.write_int32_unassigned(num_controllers)
@@ -178,7 +178,7 @@ class Logic(DefaultLogging):
         Write data to a byte stream
 
         @param output_stream: output stream
-        @type output_stream: ByteStream
+        @type output_stream: BinaryStream
         """
         output_stream.write_int32_unassigned(self.version)
         if self._controller_version < 0:
@@ -196,7 +196,7 @@ class Logic(DefaultLogging):
         self._controller_version = -1026
         file_path = os.path.join(directory_blueprint, self._file_name)
         with open(file_path, 'wb') as output_stream:
-            self._write_file(ByteStream(output_stream))
+            self._write_file(BinaryStream(output_stream))
 
     # #######################################
     # ###  Turning
@@ -255,7 +255,7 @@ class Logic(DefaultLogging):
         """
         new_dict = {}
         for controller_position, groups in self._controller_position_to_block_id_to_block_positions.items():
-            new_controller_position = Vector.vector_subtraction(controller_position, direction_vector)
+            new_controller_position = Vector.subtraction(controller_position, direction_vector)
             if entity_type == 0 and new_controller_position == (16, 16, 16):  # replaced block
                 continue
             if entity_type == 0 and controller_position == (16, 16, 16):  # core
@@ -266,7 +266,7 @@ class Logic(DefaultLogging):
                 if block_id not in new_dict[new_controller_position]:
                     new_dict[new_controller_position][block_id] = set()
                 for block_position in positions:
-                    new_block_position = Vector.vector_subtraction(block_position, direction_vector)
+                    new_block_position = Vector.subtraction(block_position, direction_vector)
                     if entity_type == 0 and new_block_position == (16, 16, 16):  # replaced block
                         continue
                     new_dict[new_controller_position][block_id].add(new_block_position)
