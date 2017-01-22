@@ -8,6 +8,69 @@ from lib.blueprint.meta.tag.shop import Shop
 from lib.blueprint.meta.tag.displaylist import DisplayList
 
 
+class Unknown5(object):
+    """
+
+    @type _unknown_list_0: TagPayload
+    @type _unknown_list_1: TagPayload
+    @type _unknown_list_2: TagPayload
+    """
+
+    def __init__(self):
+        self._label = 'a'
+        self._unknown_list_0 = TagPayload(-13, None, TagList())
+        self._unknown_list_1 = TagPayload(-13, None, TagList())
+        self._unknown_list_2 = TagPayload(-13, None, TagList())
+
+    def from_tag(self, tag_payload):
+        """
+        13: 'a'
+        {
+            -13: {} -13: {} -13: {}
+        }
+
+        @type tag_payload: TagPayload
+        """
+        assert tag_payload.id == 13, (tag_payload.id, tag_payload.name)
+        assert tag_payload.name == self._label, tag_payload.name
+        tag_list = tag_payload.payload
+        assert isinstance(tag_list, TagList)
+        list_of_tag_payloads = tag_list.get_list()
+        assert list_of_tag_payloads[0].id == -13
+        assert list_of_tag_payloads[1].id == -13
+        assert list_of_tag_payloads[2].id == -13
+        self._unknown_list_0 = list_of_tag_payloads[0]
+        self._unknown_list_1 = list_of_tag_payloads[1]
+        self._unknown_list_2 = list_of_tag_payloads[2]
+
+    def to_tag(self):
+        """
+        13: 'a'
+        {
+            -13: {} -13: {} -13: {}
+        }
+
+        @rtype: TagPayload
+        """
+        tag_list = TagList()
+        tag_list.add(self._unknown_list_0)
+        tag_list.add(self._unknown_list_1)
+        tag_list.add(self._unknown_list_2)
+        return TagPayload(13, self._label, tag_list)
+
+    def to_stream(self, output_stream=sys.stdout):
+        """
+        Stream values
+
+        @param output_stream: Output stream
+        @type output_stream: file
+        """
+        output_stream.write("Unknown5 values:\n")
+        self._unknown_list_0.to_stream(output_stream)
+        self._unknown_list_1.to_stream(output_stream)
+        self._unknown_list_2.to_stream(output_stream)
+
+
 class Unknown11(object):
     """
 
@@ -570,17 +633,17 @@ class Datatype2TagReader(object):
         self._unknown_1 = Unknown1()
         self._power = Power()
         self._shield = Shield()
-        self._shop = None
-        self._unknown_5_tag = None
+        self._shop = Unknown4Ship()
+        self._unknown_5_tag = Unknown5()
         self._displays = DisplayList()
         self._block_list = BlockList()
         self._warp_gates = GateList()
-        self._unknown_9_tag = None
+        self._unknown_9_tag = TagPayload(-13, None, TagList())  # TODO
         self._ai_config = AIConfig()
         self._unknown_11 = Unknown11()
         self._race_gate = GateList()
-        self._unknown_13_tag = None
-        self._unknown_14_tag = TagPayload()
+        self._unknown_13_tag = TagPayload(-13, None, TagList())
+        self._unknown_14_tag = TagPayload(-13, None, TagList())
         return
 
     def from_tag(self, tag_payload_root):
