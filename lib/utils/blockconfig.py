@@ -1,6 +1,8 @@
 import csv
 import logging
 from lxml import etree
+from lib.utils.blockconfighardcoded import BlockConfigHardcoded
+from lib.utils.blueprintentity import BlueprintEntity, SHIP
 
 logger = logging.getLogger(__name__)
 
@@ -31,6 +33,7 @@ class BlockInfo(object):
         self.tier = None
 
         self.deprecated = False
+        self.is_station_block = False
 
     def __str__(self):
         text = ""
@@ -47,6 +50,44 @@ class BlockInfo(object):
 
     def __repr__(self):
         return self.name
+
+    def is_hull(self):
+        """
+        @rtype: bool
+        """
+        return self.tier is not None
+
+    def is_rail(self):
+        """
+        @rtype: bool
+        """
+        return BlockConfigHardcoded.is_rail(self.id)
+
+    def is_valid(self, entity_type=0):
+        """
+        Test if an id is outdated or not valid for a specific entity type
+
+        @param entity_type:
+        @type entity_type: int
+
+        @return:
+        @rtype: bool
+        """
+        assert entity_type in BlueprintEntity.entity_types
+        if BlockConfigHardcoded.is_deprecated(self.id):
+            return False
+        if entity_type == SHIP and BlockConfigHardcoded.is_station(self.id):
+            return False
+        if entity_type != SHIP and self.id == 1:
+            return False
+        return True
+
+    def get_details(self):
+        """
+        Return detail ids
+        @rtype: tuple[int|None]
+        """
+        return self.tier, self.color, self.shape
 
     @staticmethod
     def _list_index_to_string(values, list_index):
@@ -82,14 +123,38 @@ class MetaBlockConfig(object):
             exit()
 
     def __iter__(self):
-        for block_id in sorted(self._id_to_block.keys()):
+        for block_id in sorted(self._id_to_block):
             yield self._id_to_block[block_id]
 
 
 class BlockConfig(MetaBlockConfig):
     """
     docstring for BlockConfig
+
+    @type _hulls_dict: dict[int, dict[int, dict[int, int]]]
     """
+
+    _hulls_dict = None
+
+    def _get_hulls_dict(self):
+        hull_dict = {}
+        for block_id in self._id_to_block:
+            if not self._id_to_block[block_id].is_hull():
+                continue
+            hull_type = self._id_to_block[block_id].tier
+            color = self._id_to_block[block_id].color
+            shape_id = self._id_to_block[block_id].shape
+            if hull_type not in hull_dict:
+                hull_dict[hull_type] = {}
+            if color not in hull_dict[hull_type]:
+                hull_dict[hull_type][color] = [0] * len(self.colors)
+            hull_dict[hull_type][color][shape_id] = block_id
+        return hull_dict
+
+    def get_block_id_by_details(self, hull_type, color, shape_id):
+        if self._hulls_dict is None:
+            self._hulls_dict = self._get_hulls_dict()
+        return self._hulls_dict[hull_type][color][shape_id]
 
     colors = [
         "dark grey", "black", "white", "purple", "pink", "blue",
@@ -101,6 +166,46 @@ class BlockConfig(MetaBlockConfig):
     tiers = ["hull", "standard armor", "advanced armor", "crystal armor", "hazard armor"]
 
     slabs = ["1/4", "1/2", "3/4"]
+
+    def from_hard_coded(self):
+        for block_id, name in BlockConfigHardcoded.items():
+            self._id_to_block[block_id] = BlockInfo()
+            self._id_to_block[block_id].name = name
+            self._id_to_block[block_id].hit_points = 1
+            self._id_to_block[block_id].can_activate = BlockConfigHardcoded.is_activatable_block(block_id)
+            self._id_to_block[block_id].block_style = BlockConfigHardcoded.get_block_style(block_id)
+            self._id_to_block[block_id].deprecated = BlockConfigHardcoded.is_deprecated(block_id)
+
+            name_lower_case = self._id_to_block[block_id].name.lower()
+
+            # Check for color name
+            if "dark grey" in name_lower_case:
+                self._id_to_block[block_id].color = self.colors.index("dark grey")
+            else:
+                for index, color in enumerate(BlockConfig.colors):
+                    if color in name_lower_case:
+                        self._id_to_block[block_id].color = index
+                        break
+
+            # Check for shape name
+            self._id_to_block[block_id].shape = 0
+            for index, shape in enumerate(BlockConfig.shapes):
+                if shape in name_lower_case:
+                    self._id_to_block[block_id].shape = index
+                    break
+
+            # Check for tier armor name
+            for index, tier in enumerate(BlockConfig.tiers):
+                if tier in name_lower_case:
+                    self._id_to_block[block_id].tier = index
+                    self._id_to_block[block_id].hit_points = BlockConfigHardcoded.get_hp_by_hull_type(index)
+                    break
+
+            # Check for slabe
+            for index, slab in enumerate(BlockConfig.slabs):
+                if slab in name_lower_case:
+                    self._id_to_block[block_id].slab = index
+                    break
 
     def read(self, file_path_block_types, file_path_block_config):
         """
@@ -118,12 +223,12 @@ class BlockConfig(MetaBlockConfig):
             next(csvreader, None)
             # and read
             for row in csvreader:
-                type, blockid = row
-                blockid = int(blockid)
-                self._id_to_block[blockid] = BlockInfo()
-                self._id_to_block[blockid].id = blockid
+                block_type, block_id = row
+                block_id = int(block_id)
+                self._id_to_block[block_id] = BlockInfo()
+                self._id_to_block[block_id].id = block_id
                 # dict(label=row[0], block_id=row[1])
-                self._label_to_block[type] = self._id_to_block[blockid]
+                self._label_to_block[block_type] = self._id_to_block[block_id]
 
         tree = etree.parse(file_path_block_config)
         # fill the flags dict with id values
