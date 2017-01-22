@@ -7,7 +7,7 @@ import zipfile
 import traceback
 
 from lib.argumenthandler import ArgumentHandler
-from lib.blueprint.blueprint import Blueprint
+from lib.blueprint import Blueprint
 
 
 class SMBEdit(ArgumentHandler):
