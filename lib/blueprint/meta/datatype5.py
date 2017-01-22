@@ -43,6 +43,8 @@ class DataType5(DefaultLogging):
         @param output_stream: Output stream
         @type output_stream: ByteStream
         """
+        # if not self.has_data():
+        #     return
         self._logger.debug("Writing")
         output_stream.write_byte(5)
         file_position_size = output_stream.tell()

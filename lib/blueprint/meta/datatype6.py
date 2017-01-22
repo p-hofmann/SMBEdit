@@ -79,7 +79,7 @@ class DataType6(DefaultLogging):
     def __init__(self, logfile=None, verbose=False, debug=False):
         self._label = "DataType6"
         super(DataType6, self).__init__(logfile, verbose, debug)
-        self._has_data = 1
+        self._has_data = 0
         self._data = {}
         return
 
@@ -112,8 +112,8 @@ class DataType6(DefaultLogging):
         @param output_stream: Output stream
         @type output_stream: ByteStream
         """
-        # if len(self._data) == 0:
-        #     return
+        if len(self._data) == 0:
+            return
         self._logger.debug("Writing")
         output_stream.write_byte(6)
         output_stream.write_byte(self._has_data)
