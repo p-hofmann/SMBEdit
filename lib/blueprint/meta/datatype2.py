@@ -5,18 +5,21 @@ import sys
 
 from lib.bits_and_bytes import ByteStream
 from lib.loggingwrapper import DefaultLogging
-from lib.blueprint.meta.tagmanager import TagManager
+from lib.blueprint.meta.tag.tagmanager import TagManager
+from lib.blueprint.meta.tag.datatype2tagreader import Datatype2TagReader
 
 
 class DataType2(DefaultLogging):
     """
     Reading data type 2 meta data
 
+    @type _is_station: bool
     @type _tag_data: TagManager
     """
 
     def __init__(self, logfile=None, verbose=False, debug=False):
         self._label = "DataType2"
+        self._is_station = False
         super(DataType2, self).__init__(logfile, verbose, debug)
         self._tag_data = TagManager(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
         return
@@ -59,6 +62,10 @@ class DataType2(DefaultLogging):
     def has_data(self):
         return self._tag_data.has_data()
 
+    def move_position(self, vector_direction):
+        if self.has_data():
+            self._tag_data.move_position(vector_direction)
+
     def to_stream(self, output_stream=sys.stdout):
         """
         Stream values
@@ -66,7 +73,10 @@ class DataType2(DefaultLogging):
         @param output_stream: Output stream
         @type output_stream: fileIO
         """
-        if self._debug:
+        if self._debug and self._tag_data.has_data():
             output_stream.write("DataType2\n")
-            self._tag_data.to_stream(output_stream)
+            reader = Datatype2TagReader()
+            reader.from_tag(self._tag_data.get_root_tag())
+            reader.to_stream()
+            # self._tag_data.to_stream(output_stream)
             output_stream.write("\n")

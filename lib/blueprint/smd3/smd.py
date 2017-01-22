@@ -74,11 +74,11 @@ class Smd(DefaultLogging, BlueprintUtils):
         elif file_name.endswith(".smd2"):
             self._logger.warning("'smd2' file format found.")
             self._logger.warning("'smd2' to 'smd3' conversion is imperfect and results in blocks that appear damaged.")
-            BlueprintUtils.offset = (8, 8, 8)
             smd2 = Smd2(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
             smd2.read(directory_blueprint)
+            offset = (8, 8, 8)
             for position, smd2block in smd2.items():
-                smd3_position = BlueprintUtils.vector_addition(position, BlueprintUtils.offset)
+                smd3_position = BlueprintUtils.vector_addition(position, offset)
                 smd3block = SmdBlock(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
                 hit_points = 1
                 if BlueprintUtils.is_hull(smd2block.get_id()):
@@ -88,7 +88,7 @@ class Smd(DefaultLogging, BlueprintUtils):
                 smd3block.update(hit_points=hit_points)
                 self.add(smd3_position, smd3block, replace=False)
         else:
-            raise RuntimeError("Unknown smd format.")
+            raise RuntimeError("Unknown smd format: '{}'".format(directory_data))
 
     # #######################################
     # ###  Write
@@ -293,7 +293,8 @@ class Smd(DefaultLogging, BlueprintUtils):
         """
         Search for and remove regions with no blocks
         """
-        for position_region in self.position_to_region:
+        list_of_position_region = list(self.position_to_region.keys())
+        for position_region in list_of_position_region:
             if self.position_to_region[position_region].get_number_of_blocks() == 0:
                 self._logger.debug("'remove' Removing empty region {}.".format(position_region))
                 self.position_to_region.pop(position_region)
@@ -305,7 +306,7 @@ class Smd(DefaultLogging, BlueprintUtils):
         @param block_ids:
         @type block_ids: set[int]
         """
-        for position in self.position_to_region:
+        for position in list(self.position_to_region.keys()):
             self.position_to_region[position].remove_blocks(block_ids)
 
     def remove_block(self, block_position):
@@ -477,8 +478,8 @@ class Smd(DefaultLogging, BlueprintUtils):
         @type position: tuple[int]
         @rtype: int
         """
-        periphery_index = int(0)
-        power = int(1)
+        periphery_index = 0
+        power = 1
         for x in range(position[0]-1, position[0]+2):
             for y in range(position[1]-1, position[1]+2):
                 for z in range(position[2]-1, position[2]+2):
@@ -499,8 +500,8 @@ class Smd(DefaultLogging, BlueprintUtils):
         @rtype: int
         """
         assert 1 <= periphery_range <= 3
-        periphery_index = int(0)
-        power = int(1)
+        periphery_index = 0
+        power = 1
         range_p = [-1, 0, 1]
         for x in range_p:
             for y in range_p:

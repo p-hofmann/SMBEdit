@@ -42,9 +42,6 @@ class DockedEntity(object):
         assert isinstance(input_stream, ByteStream)
         relative_path = input_stream.read_string()
         self.position = input_stream.read_vector_3_int32()
-        if BlueprintUtils.offset is not None:
-            # in case of sdm2 to sdm3
-            self.position = BlueprintUtils.vector_addition(self.position, BlueprintUtils.offset)
         self.size = input_stream.read_vector_3_float()
         self.style = input_stream.read_int16_unassigned()
         self.orientation = input_stream.read_byte()
@@ -74,6 +71,9 @@ class DockedEntity(object):
     # #######################################
     # ###  Else
     # #######################################
+
+    def move_position(self, vector_direction):
+        self.position = BlueprintUtils.vector_addition(self.position, vector_direction)
 
     def to_stream(self, output_stream=sys.stdout):
         """
@@ -169,6 +169,11 @@ class DataType3(DefaultLogging):
         @rtype: bool
         """
         return len(self._docked_entity) != 0
+
+    def move_position(self, vector_direction):
+        if self.has_data():
+            for dock_index in self._docked_entity.keys():
+                self._docked_entity[dock_index].move_position(vector_direction)
 
     def to_stream(self, output_stream=sys.stdout):
         """
