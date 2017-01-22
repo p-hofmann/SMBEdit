@@ -5,7 +5,8 @@ import sys
 
 from lib.bits_and_bytes import ByteStream
 from lib.loggingwrapper import DefaultLogging
-from lib.blueprintutils import BlueprintUtils
+from lib.utils.blockconfighardcoded import BlockConfigHardcoded
+from lib.utils.vector import Vector
 from lib.smblueprint.meta.datatype2 import DataType2
 from lib.smblueprint.meta.datatype3 import DataType3, DockedEntity
 from lib.smblueprint.meta.datatype4 import DataType4
@@ -222,17 +223,17 @@ class Meta(DefaultLogging):
         @rtype: tuple[int]
         """
         if block_side_id == 0:
-            return BlueprintUtils.vector_addition(block_position, (0, 0, 1))
+            return Vector.vector_addition(block_position, (0, 0, 1))
         elif block_side_id == 1:
-            return BlueprintUtils.vector_subtraction(block_position, (0, 0, 1))
+            return Vector.vector_subtraction(block_position, (0, 0, 1))
         elif block_side_id == 2:
-            return BlueprintUtils.vector_addition(block_position, (0, 1, 0))
+            return Vector.vector_addition(block_position, (0, 1, 0))
         elif block_side_id == 3:
-            return BlueprintUtils.vector_subtraction(block_position, (0, 1, 0))
+            return Vector.vector_subtraction(block_position, (0, 1, 0))
         elif block_side_id == 4:
-            return BlueprintUtils.vector_subtraction(block_position, (1, 0, 0))
+            return Vector.vector_subtraction(block_position, (1, 0, 0))
         elif block_side_id == 5:
-            return BlueprintUtils.vector_addition(block_position, (1, 0, 0))
+            return Vector.vector_addition(block_position, (1, 0, 0))
 
     def update_docked_entities(self, smd, main_entity_label, rail_docked_label_prefix):
         """
@@ -253,7 +254,7 @@ class Meta(DefaultLogging):
             main_entity.set_by_block_side(
                 label=main_entity_label,
                 location=docker_entity.position,
-                block_id=BlueprintUtils.docking_to_rails[block.get_id()],
+                block_id=BlockConfigHardcoded.docking_to_rails[block.get_id()],
                 side=block.get_block_side_id()
             )
             rail_dock_entity.set(
@@ -281,7 +282,7 @@ class Meta(DefaultLogging):
         @param direction_vector: vector
         @type direction_vector: tuple[int]
         """
-        direction_vector = BlueprintUtils.vector_subtraction((0, 0, 0), direction_vector)
+        direction_vector = Vector.vector_subtraction((0, 0, 0), direction_vector)
         self.move_positions(direction_vector)
 
     def to_stream(self, output_stream=sys.stdout):

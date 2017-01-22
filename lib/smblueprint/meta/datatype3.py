@@ -5,7 +5,7 @@ import sys
 
 from lib.bits_and_bytes import ByteStream
 from lib.loggingwrapper import DefaultLogging
-from lib.blueprintutils import BlueprintUtils
+from lib.utils.vector import Vector
 
 
 class DockedEntity(object):
@@ -71,7 +71,7 @@ class DockedEntity(object):
     # #######################################
 
     def move_position(self, vector_direction):
-        self.position = BlueprintUtils.vector_addition(self.position, vector_direction)
+        self.position = Vector.vector_addition(self.position, vector_direction)
 
     def to_stream(self, output_stream=sys.stdout):
         """

@@ -5,7 +5,9 @@ import os
 import math
 
 from lib.loggingwrapper import DefaultLogging
-from lib.blueprintutils import BlueprintUtils
+from lib.utils.blockconfighardcoded import BlockConfigHardcoded
+from lib.utils.autoshape import AutoShape
+from lib.utils.vector import Vector
 from lib.smblueprint.smd3.smdregion import SmdRegion
 from lib.smblueprint.smd2.smd import Smd as Smd2
 from lib.smblueprint.smd3.smdblock import SmdBlock
@@ -73,12 +75,12 @@ class Smd(DefaultLogging):
             smd2.read(directory_blueprint)
             offset = (8, 8, 8)
             for position, smd2block in smd2.items():
-                smd3_position = BlueprintUtils.vector_addition(position, offset)
+                smd3_position = Vector.vector_addition(position, offset)
                 smd3block = SmdBlock(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
                 hit_points = 1
-                if BlueprintUtils.is_hull(smd2block.get_id()):
-                    hull_type, color, shape_id = BlueprintUtils.get_hull_details(smd2block.get_id())
-                    hit_points = BlueprintUtils.get_hp_by_hull_type(hull_type)
+                if BlockConfigHardcoded.is_hull(smd2block.get_id()):
+                    hull_type, color, shape_id = BlockConfigHardcoded.get_hull_details(smd2block.get_id())
+                    hit_points = BlockConfigHardcoded.get_hp_by_hull_type(hull_type)
                 smd3block.set_int_24bit(smd2block.get_int_24bit())
                 smd3block.update(hit_points=hit_points)
                 self.add(smd3_position, smd3block, replace=False)
@@ -180,7 +182,7 @@ class Smd(DefaultLogging):
         max_vector = [16, 16, 16]
         for position_block, block in self.items():
             assert isinstance(block, SmdBlock)
-            new_block_position = BlueprintUtils.vector_subtraction(position_block, direction_vector)
+            new_block_position = Vector.vector_subtraction(position_block, direction_vector)
             if entity_type == 0 and new_block_position == (16, 16, 16):
                 continue
             if block.get_id() == 1:  # core
@@ -222,7 +224,7 @@ class Smd(DefaultLogging):
             assert isinstance(block, SmdBlock)
             new_block_position = position_block
             if block.get_id() != 1:  # core
-                new_block_position = BlueprintUtils.tilt_turn_position(position_block, tilt_index)
+                new_block_position = Vector.tilt_turn_position(position_block, tilt_index)
                 # block.tilt_turn(tilt_index)  # todo: needs fixing
             new_smd.add(new_block_position, block)
 
@@ -549,11 +551,11 @@ class Smd(DefaultLogging):
                         block_tmp = self.get_block_at_position(position_tmp)
                         block_id = block_tmp.get_id()
                         is_angled_shape = False
-                        if BlueprintUtils.is_hull(block_id):
-                            block_hull_type, color, shape_id = BlueprintUtils.get_hull_details(block_id)
+                        if BlockConfigHardcoded.is_hull(block_id):
+                            block_hull_type, color, shape_id = BlockConfigHardcoded.get_hull_details(block_id)
                             if shape_id in angle_shapes:
                                 is_angled_shape = True
-                        elif "wedge" in BlueprintUtils.get_block_name_by_id(block_id).lower():
+                        elif "wedge" in BlockConfigHardcoded.get_block_name_by_id(block_id).lower():
                             is_angled_shape = True
                         shape_periphery.append(is_angled_shape)
         return tuple(shape_periphery)
@@ -568,22 +570,22 @@ class Smd(DefaultLogging):
         """
         for position, block in self.items():
             block_id = block.get_id()
-            if not BlueprintUtils.is_hull(block_id):
+            if not BlockConfigHardcoded.is_hull(block_id):
                 continue
 
             periphery_index = self.get_position_periphery_index(position, 1)
-            if auto_wedge and periphery_index in BlueprintUtils.peripheries[4]:
+            if auto_wedge and periphery_index in AutoShape.peripheries[4]:
                 # "wedge"
                 new_shape_id = 4
-            elif auto_tetra and periphery_index in BlueprintUtils.peripheries[6]:
+            elif auto_tetra and periphery_index in AutoShape.peripheries[6]:
                 # tetra
                 new_shape_id = 6
             else:
                 continue
 
-            bit_19, bit_22, bit_23, rotations = BlueprintUtils.peripheries[new_shape_id][periphery_index]
-            block_hull_type, color, shape_id = BlueprintUtils.get_hull_details(block_id)
-            new_block_id = BlueprintUtils.get_hull_id_by_details(block_hull_type, color, new_shape_id)
+            bit_19, bit_22, bit_23, rotations = AutoShape.peripheries[new_shape_id][periphery_index]
+            block_hull_type, color, shape_id = BlockConfigHardcoded.get_hull_details(block_id)
+            new_block_id = BlockConfigHardcoded.get_hull_id_by_details(block_hull_type, color, new_shape_id)
             block.update(block_id=new_block_id, bit_19=bit_19, bit_22=bit_22, bit_23=bit_23, rotations=rotations)
 
     def auto_hull_shape_dependent(self, block_shape_id):
@@ -595,18 +597,18 @@ class Smd(DefaultLogging):
         """
         for position, block in self.items():
             block_id = block.get_id()
-            if not BlueprintUtils.is_hull(block_id):
+            if not BlockConfigHardcoded.is_hull(block_id):
                 continue
 
             periphery_index = self.get_position_periphery_index(position, 1)
-            if periphery_index not in BlueprintUtils.peripheries[block_shape_id]:
+            if periphery_index not in AutoShape.peripheries[block_shape_id]:
                 continue
             periphery_shape = self.get_position_shape_periphery(position, 1)
-            if periphery_shape not in BlueprintUtils.peripheries[block_shape_id][periphery_index]:
+            if periphery_shape not in AutoShape.peripheries[block_shape_id][periphery_index]:
                 continue
-            bit_19, bit_22, bit_23, rotations = BlueprintUtils.peripheries[block_shape_id][periphery_index][periphery_shape]
-            block_hull_type, color, shape_id = BlueprintUtils.get_hull_details(block_id)
-            new_block_id = BlueprintUtils.get_hull_id_by_details(block_hull_type, color, block_shape_id)
+            bit_19, bit_22, bit_23, rotations = AutoShape.peripheries[block_shape_id][periphery_index][periphery_shape]
+            block_hull_type, color, shape_id = BlockConfigHardcoded.get_hull_details(block_id)
+            new_block_id = BlockConfigHardcoded.get_hull_id_by_details(block_hull_type, color, block_shape_id)
             block.update(block_id=new_block_id, bit_19=bit_19, bit_22=bit_22, bit_23=bit_23, rotations=rotations)
 
     def auto_hull_shape(self, auto_wedge, auto_tetra, auto_corner, auto_hepta=None):
@@ -638,7 +640,7 @@ class Smd(DefaultLogging):
         """
         peripheries = {}
         for position, block in self.items():
-            if not BlueprintUtils.is_hull(block.get_id()):
+            if not BlockConfigHardcoded.is_hull(block.get_id()):
                 continue
             # wedge 599
             # corner 600
@@ -676,7 +678,7 @@ class Smd(DefaultLogging):
         peripheries = {}
         bad_orientations = 0
         for position, block in self.items():
-            if not BlueprintUtils.is_hull(block.get_id()):
+            if not BlockConfigHardcoded.is_hull(block.get_id()):
                 continue
             # wedge 599
             # corner 600

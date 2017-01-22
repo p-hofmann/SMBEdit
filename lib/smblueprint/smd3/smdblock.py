@@ -3,7 +3,7 @@ __author__ = 'Peter Hofmann'
 import sys
 
 from lib.bits_and_bytes import BitAndBytes
-from lib.blueprintutils import BlueprintUtils
+from lib.utils.blockconfighardcoded import BlockConfigHardcoded
 from lib.smblueprint.smd3.blockorientation import BlockOrientation
 
 
@@ -53,7 +53,7 @@ class SmdBlock(BlockOrientation):
         @type block_id: int
         """
         assert self.get_style() == 0
-        assert BlueprintUtils.get_block_style(block_id) == 6
+        assert BlockConfigHardcoded.get_block_style(block_id) == 6
         side_id = self.get_block_side_id()
         assert side_id in self._block_side_id_to_type_6, "Bad side id: {}".format(side_id)
         bit_19, bit_23, bit_22, rotations = self._block_side_id_to_type_6[side_id]
@@ -85,7 +85,7 @@ class SmdBlock(BlockOrientation):
         elif not active:
             active = 1
 
-        style = BlueprintUtils.get_block_style(block_id)
+        style = BlockConfigHardcoded.get_block_style(block_id)
         int_24bit = 0
         int_24bit = BitAndBytes.bits_combine(block_id, int_24bit, 0)
         int_24bit = BitAndBytes.bits_combine(hit_points, int_24bit, 11)
@@ -184,4 +184,4 @@ class SmdBlock(BlockOrientation):
         output_stream.write("HP: {}\t".format(self.get_hit_points()))
         output_stream.write("Active: {}\t".format(self.is_active()))
         output_stream.write("Or.: {}\t".format(self._orientation_to_string()))
-        output_stream.write("{}\n".format(BlueprintUtils.get_block_name_by_id(self.get_id())))
+        output_stream.write("{}\n".format(BlockConfigHardcoded.get_block_name_by_id(self.get_id())))

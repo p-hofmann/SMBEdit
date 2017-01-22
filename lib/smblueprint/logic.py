@@ -4,7 +4,9 @@ import os
 import sys
 from lib.loggingwrapper import DefaultLogging
 from lib.bits_and_bytes import ByteStream
-from lib.blueprintutils import BlueprintUtils
+from lib.utils.blockconfighardcoded import BlockConfigHardcoded
+from lib.utils.blueprintentity import BlueprintEntity
+from lib.utils.vector import Vector
 
 
 # #######################################
@@ -51,7 +53,7 @@ class Logic(DefaultLogging):
             position = input_stream.read_vector_3_int16()
             if self._offset is not None:
                 # smd2 to smd3 conversion
-                position = BlueprintUtils.vector_addition(position, self._offset)
+                position = Vector.vector_addition(position, self._offset)
             data.add(position)
         return data
 
@@ -88,7 +90,7 @@ class Logic(DefaultLogging):
             position = input_stream.read_vector_3_int16()
             if self._offset is not None:
                 # smd2 to smd3 conversion
-                position = BlueprintUtils.vector_addition(position, self._offset)
+                position = Vector.vector_addition(position, self._offset)
             controller_position_to_groups[position] = self._read_dict_of_groups(input_stream)
         return controller_position_to_groups
 
@@ -210,12 +212,12 @@ class Logic(DefaultLogging):
         """
         new_data = {}
         for controller_position, groups in self._controller_position_to_block_id_to_block_positions.items():
-            new_controller_position = BlueprintUtils.tilt_turn_position(controller_position, index_turn_tilt)
+            new_controller_position = Vector.tilt_turn_position(controller_position, index_turn_tilt)
             new_data[new_controller_position] = {}
             for block_id, positions in groups.items():
                 new_data[new_controller_position][block_id] = set()
                 for position in positions:
-                    new_position = BlueprintUtils.tilt_turn_position(position, index_turn_tilt)
+                    new_position = Vector.tilt_turn_position(position, index_turn_tilt)
                     new_data[new_controller_position][block_id].add(new_position)
         self._controller_position_to_block_id_to_block_positions = new_data
 
@@ -253,7 +255,7 @@ class Logic(DefaultLogging):
         """
         new_dict = {}
         for controller_position, groups in self._controller_position_to_block_id_to_block_positions.items():
-            new_controller_position = BlueprintUtils.vector_subtraction(controller_position, direction_vector)
+            new_controller_position = Vector.vector_subtraction(controller_position, direction_vector)
             if entity_type == 0 and new_controller_position == (16, 16, 16):  # replaced block
                 continue
             if entity_type == 0 and controller_position == (16, 16, 16):  # core
@@ -264,7 +266,7 @@ class Logic(DefaultLogging):
                 if block_id not in new_dict[new_controller_position]:
                     new_dict[new_controller_position][block_id] = set()
                 for block_position in positions:
-                    new_block_position = BlueprintUtils.vector_subtraction(block_position, direction_vector)
+                    new_block_position = Vector.vector_subtraction(block_position, direction_vector)
                     if entity_type == 0 and new_block_position == (16, 16, 16):  # replaced block
                         continue
                     new_dict[new_controller_position][block_id].add(new_block_position)
@@ -301,7 +303,7 @@ class Logic(DefaultLogging):
         for controller_position in self._controller_position_to_block_id_to_block_positions:
             groups = self._controller_position_to_block_id_to_block_positions[controller_position]
             for block_id in groups:
-                if BlueprintUtils.is_valid_block_id(block_id):
+                if BlockConfigHardcoded.is_valid_block_id(block_id):
                     self._update_groups(controller_position, block_id, smd)
                     continue
                 self._controller_position_to_block_id_to_block_positions[controller_position].pop(block_id)
@@ -339,7 +341,7 @@ class Logic(DefaultLogging):
         @type entity_type: int
         """
         assert isinstance(entity_type, int)
-        assert entity_type in BlueprintUtils.entity_types, "Unknown entity type: {}".format(entity_type)
+        assert entity_type in BlueprintEntity.entity_types, "Unknown entity type: {}".format(entity_type)
 
         position_core = (16, 16, 16)
         if entity_type == 0:

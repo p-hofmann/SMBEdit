@@ -3,7 +3,7 @@ __author__ = 'Peter Hofmann'
 import sys
 
 from lib.bits_and_bytes import BitAndBytes
-from lib.blueprintutils import BlueprintUtils
+from lib.utils.blockconfighardcoded import BlockConfigHardcoded
 
 
 # DefaultLogging
@@ -80,7 +80,7 @@ class BlockOrientation(object):
         block_id = self.get_id()
         if block_id == 0:
             return None
-        return BlueprintUtils.get_block_style(block_id)
+        return BlockConfigHardcoded.get_block_style(block_id)
 
     def _get_bit_19(self):
         return BitAndBytes.bits_parse(self._int_24bit, 19, 1)

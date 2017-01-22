@@ -4,10 +4,11 @@ import os
 import sys
 
 from lib.loggingwrapper import DefaultLogging
-from lib.blueprintutils import BlueprintUtils
+from lib.utils.blueprintentity import BlueprintEntity
+from lib.utils.blockconfighardcoded import BlockConfigHardcoded
+from lib.utils.vector import Vector
 from lib.bits_and_bytes import ByteStream
 from lib.smblueprint.smd3.smd import Smd
-
 
 
 # #######################################
@@ -152,7 +153,7 @@ class Header(DefaultLogging):
         if self.version > 2:
             self.classification = input_stream.read_int32_unassigned()
         else:
-            self.classification = BlueprintUtils.get_entity_classification_default(self.type)
+            self.classification = BlueprintEntity.get_entity_classification_default(self.type)
         self.box_min = input_stream.read_vector_3_float()
         self.box_max = input_stream.read_vector_3_float()
 
@@ -260,17 +261,17 @@ class Header(DefaultLogging):
         @return: Type of blueprint
         @rtype: str
         """
-        return BlueprintUtils.entity_types[self.type]
+        return BlueprintEntity.entity_types[self.type]
 
     def get_classification_name(self):
         """
         @return: classification of blueprint
         @rtype: str
         """
-        assert self.type in BlueprintUtils.entity_classification, "Unknown entity type: {}.".format(self.type)
-        assert self.classification in BlueprintUtils.entity_classification[self.type], "{} has no class id: {}.".format(
+        assert self.type in BlueprintEntity.entity_classification, "Unknown entity type: {}.".format(self.type)
+        assert self.classification in BlueprintEntity.entity_classification[self.type], "{} has no class id: {}.".format(
             self.get_type_name(), self.classification)
-        return BlueprintUtils.entity_classification[self.type][self.classification]
+        return BlueprintEntity.entity_classification[self.type][self.classification]
 
     def get_width(self):
         """
@@ -317,8 +318,8 @@ class Header(DefaultLogging):
         @type entity_class: int
         """
         assert isinstance(entity_class, int)
-        assert self.type in BlueprintUtils.entity_classification, "Unknown entity type: {}.".format(self.type)
-        assert entity_class in BlueprintUtils.entity_classification[self.type], "{} has no class id: {}.".format(
+        assert self.type in BlueprintEntity.entity_classification, "Unknown entity type: {}.".format(self.type)
+        assert entity_class in BlueprintEntity.entity_classification[self.type], "{} has no class id: {}.".format(
             self.get_type_name(), entity_class)
         self.classification = entity_class
 
@@ -367,12 +368,12 @@ class Header(DefaultLogging):
         else:
             # update manually and hope it reflects the smd data
             for block_id in self.block_id_to_quantity:
-                if not BlueprintUtils.is_valid_block_id(block_id, self.type):
+                if not BlockConfigHardcoded.is_valid_block_id(block_id, self.type):
                     self.remove(block_id)
                     continue
-                if block_id not in BlueprintUtils.docking_to_rails:
+                if block_id not in BlockConfigHardcoded.docking_to_rails:
                     continue
-                updated_block_id = BlueprintUtils.docking_to_rails[block_id]
+                updated_block_id = BlockConfigHardcoded.docking_to_rails[block_id]
                 if updated_block_id is None:
                     self.remove(block_id)
                     continue
@@ -407,10 +408,10 @@ class Header(DefaultLogging):
         @param max_vector:  (x,y,z)
         @type max_vector:  int, int, int
         """
-        min_vector = BlueprintUtils.vector_subtraction(min_vector, (1, 1, 1))
-        max_vector = BlueprintUtils.vector_addition(max_vector, (2, 2, 2))
-        self.box_min = BlueprintUtils.vector_subtraction(min_vector, (16, 16, 16))
-        self.box_max = BlueprintUtils.vector_subtraction(max_vector, (16, 16, 16))
+        min_vector = Vector.vector_subtraction(min_vector, (1, 1, 1))
+        max_vector = Vector.vector_addition(max_vector, (2, 2, 2))
+        self.box_min = Vector.vector_subtraction(min_vector, (16, 16, 16))
+        self.box_max = Vector.vector_subtraction(max_vector, (16, 16, 16))
 
     def to_stream(self, output_stream=sys.stdout):
         """
@@ -426,7 +427,7 @@ class Header(DefaultLogging):
             self.get_height(),
             self.get_length()
             ))
-        if self.type in BlueprintUtils.entity_classification:
+        if self.type in BlueprintEntity.entity_classification:
             output_stream.write("Classification: {}\n".format(self.get_classification_name()))
 
         if self._verbose or self._debug:
@@ -439,7 +440,7 @@ class Header(DefaultLogging):
 
         if self._verbose or self._debug:
             for identifier, quantity in self.block_id_to_quantity.items():
-                output_stream.write("{}: {}\n".format(BlueprintUtils.get_block_name_by_id(identifier), quantity))
+                output_stream.write("{}: {}\n".format(BlockConfigHardcoded.get_block_name_by_id(identifier), quantity))
             output_stream.write("\n")
             self.statistics.to_stream(output_stream)
         output_stream.flush()

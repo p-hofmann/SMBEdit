@@ -4,7 +4,7 @@ import sys
 
 from lib.bits_and_bytes import ByteStream
 from lib.loggingwrapper import DefaultLogging
-from lib.blueprintutils import BlueprintUtils
+from lib.utils.vector import Vector
 
 
 class RailEntry(object):
@@ -53,7 +53,7 @@ class RailEntry(object):
         output_stream.write_byte(self._unknown_byte_1)
 
     def move_position(self, vector_direction):
-        self._position = BlueprintUtils.vector_addition(self._position, vector_direction)
+        self._position = Vector.vector_addition(self._position, vector_direction)
 
     def to_stream(self, output_stream=sys.stdout):
         """

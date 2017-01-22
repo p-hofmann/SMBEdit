@@ -5,7 +5,7 @@ import os
 
 from lib.bits_and_bytes import ByteStream
 from lib.loggingwrapper import DefaultLogging
-from lib.blueprintutils import BlueprintUtils
+from lib.utils.vector import Vector
 from lib.smblueprint.meta.tag.tagmanager import TagManager, TagList, TagPayload
 from lib.smblueprint.meta.tag.raildockentitylinks import RailDockedEntityLinks
 
@@ -49,7 +49,8 @@ class DataType4(DefaultLogging):
         @return:
         @rtype: int
         """
-        return int((var2 & str('ffff')) << 32) + int((var1 & str('ffff')) << 16) + int(var0 & str('ffff'))
+        # return int((var2 & str('ffff')) << 32) + int((var1 & str('ffff')) << 16) + int(var0 & str('ffff'))
+        return 0
 
     @staticmethod
     def get_pos(var0, shift=0):
@@ -233,9 +234,9 @@ class DataType4(DefaultLogging):
         @type direction_vector: tuple[int]
         """
         for tag_docked_entity_location, tag_rail_location in self._get_docker_related_location_tags():
-            tag_docked_entity_location.payload = BlueprintUtils.vector_subtraction(
+            tag_docked_entity_location.payload = Vector.vector_subtraction(
                 tag_docked_entity_location.payload, direction_vector)
-            tag_rail_location.payload = BlueprintUtils.vector_subtraction(
+            tag_rail_location.payload = Vector.vector_subtraction(
                 tag_rail_location.payload, direction_vector)
 
     def move_position(self, vector_direction):

@@ -4,7 +4,8 @@ import os
 import sys
 
 from lib.loggingwrapper import DefaultLogging
-from lib.blueprintutils import BlueprintUtils
+from lib.utils.blockconfighardcoded import BlockConfigHardcoded
+from lib.utils.vector import Vector
 from lib.smblueprint.header import Header
 from lib.smblueprint.logic import Logic
 from lib.smblueprint.meta.meta import Meta
@@ -166,7 +167,7 @@ class Blueprint(DefaultLogging):
         @type replace_id: int
         @type replace_hp: int
         """
-        compatible = BlueprintUtils.are_compatible_blocks(block_id, replace_id)
+        compatible = BlockConfigHardcoded.are_compatible_blocks(block_id, replace_id)
         self.smd3.replace_blocks(block_id, replace_id, replace_hp, compatible)
         self.header.update(self.smd3)
 
@@ -198,10 +199,10 @@ class Blueprint(DefaultLogging):
         assert isinstance(block_id, int)
         position = self.smd3.search(block_id)
         assert position is not None, "Block id not found: {}".format(block_id)
-        distance = BlueprintUtils.vector_distance(position, (16, 16, 16))
+        distance = Vector.vector_distance(position, (16, 16, 16))
         if distance == 0:
             return
-        direction_vector = BlueprintUtils.get_direction_vector_to_center(position)
+        direction_vector = Vector.get_direction_vector_to_center(position)
         self.move_center_by_vector(direction_vector)
 
     def move_center_by_vector(self, direction_vector):

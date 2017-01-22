@@ -4,7 +4,7 @@ import sys
 # import gzip
 from lib.bits_and_bytes import ByteStream
 from lib.loggingwrapper import DefaultLogging
-from lib.blueprintutils import BlueprintUtils
+from lib.utils.vector import Vector
 
 
 class TagUtil(object):
@@ -297,7 +297,7 @@ class TagPayloadList(TagUtil):
     def move_position(self, vector_direction):
         if abs(self.id) == 10:
             for index, payload in enumerate(self.payload_list):
-                self.payload_list[index] = BlueprintUtils.vector_addition(payload, vector_direction)
+                self.payload_list[index] = Vector.vector_addition(payload, vector_direction)
 
     def to_stream(self, output_stream=sys.stdout):
         output_stream.write("{}: [".format(self.id))
@@ -364,7 +364,7 @@ class TagPayload(TagUtil):
 
     def move_position(self, vector_direction):
         if abs(self.id) == 10:
-            self.payload = BlueprintUtils.vector_addition(self.payload, vector_direction)
+            self.payload = Vector.vector_addition(self.payload, vector_direction)
         elif abs(self.id) == 12 or abs(self.id) == 13:
             self.payload.move_position(vector_direction)
 

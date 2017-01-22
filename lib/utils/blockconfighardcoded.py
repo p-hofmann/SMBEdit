@@ -1,102 +1,12 @@
+from lib.utils.blueprintentity import BlueprintEntity, SHIP
+
 __author__ = 'Peter Hofmann'
 
 
-SHIP = 0
-SHOP = 1
-SPACE_STATION = 2
-ASTEROID = 3
-MANAGED_ASTEROID = 4
-PLANET = 5
-
-
-class BlueprintUtils(object):
-
+class BlockConfigHardcoded(object):
     """
-    @type entity_classification: dict[int, dict[int, str]]
+    Hardcoded block config
     """
-
-    entity_types = {
-        SHIP: "Ship",
-        SHOP: "Shop",
-        SPACE_STATION: "Space Station",
-        ASTEROID: "Asteroid",
-        MANAGED_ASTEROID: "Managed Asteroid",
-        PLANET: "Planet",
-    }
-
-    entity_classification = {
-        # Ship
-        SHIP: {
-            0: "General",
-            1: "Mining",
-            2: "Support",
-            3: "Cargo",
-            4: "Attack",
-            5: "Defence",
-            6: "Carrier",
-            7: "Scout",
-            8: "Scavenger",
-            },
-        # Station
-        SPACE_STATION: {
-            9: "General",
-            10: "Shipyard",
-            11: "Outpost",
-            12: "Defense",
-            13: "Mining",
-            14: "Factory",
-            15: "Trade",
-            16: "Warp Gate",
-            17: "Shopping",
-            },
-        ASTEROID: {
-            18: "General",  # "NONE_ASTEROID",
-            },
-        MANAGED_ASTEROID: {
-            19: "General",  # "NONE_ASTEROID_MANAGED",
-            },
-        PLANET: {
-            20: "General"  # "NONE_PLANET"
-            },
-        SHOP: {
-            21: "General"  # "NONE_SHOP"
-            },
-        '?': {
-            22: "General"  # "NONE_ICO"
-            }
-        }
-
-    @staticmethod
-    def get_entity_classification_default(entity_type):
-        """
-        Return name of entity classification
-
-        @param entity_type:
-        @type entity_type: int
-
-        @rtype: str
-        """
-        assert entity_type in BlueprintUtils.entity_classification, "Unknown entity type {}".format(entity_type)
-        class_list_sorted = sorted(BlueprintUtils.entity_classification[entity_type].keys())
-        return class_list_sorted[0]
-
-    @staticmethod
-    def get_entity_classification_name(entity_type, entity_classification=None):
-        """
-        Return name of entity classification
-
-        @param entity_type:
-        @type entity_type: int
-        @param entity_classification:
-        @type entity_classification: int
-
-        @rtype: str
-        """
-        assert entity_type in BlueprintUtils.entity_classification
-        if entity_classification is None:
-            entity_classification = BlueprintUtils.get_entity_classification_default(entity_type)
-        assert entity_classification in BlueprintUtils.entity_classification[entity_type]
-        return BlueprintUtils.entity_classification[entity_type][entity_classification]
 
     _block_ids = dict()
 
@@ -690,12 +600,12 @@ class BlueprintUtils(object):
 
     @staticmethod
     def get_hp_by_hull_type(hull_type):
-        return BlueprintUtils._hp_by_hull_type[hull_type]
+        return BlockConfigHardcoded._hp_by_hull_type[hull_type]
 
     @staticmethod
     def get_hull_details(block_id):
         # "White Standard Armor Corner"
-        hull_name = BlueprintUtils.get_block_name_by_id(block_id)
+        hull_name = BlockConfigHardcoded.get_block_name_by_id(block_id)
         if "Hull" in hull_name:
             hull_type = 0
             color, shape = hull_name.split('Hull', 1)
@@ -714,17 +624,17 @@ class BlueprintUtils(object):
         else:
             raise Exception("Unknown Hull: '{}'".format(hull_name))
         shape = shape.strip()
-        assert shape in BlueprintUtils._block_shapes, "Unknown Shape: '{}'".format(shape)
-        return hull_type, color.strip(), BlueprintUtils._block_shapes[shape]
+        assert shape in BlockConfigHardcoded._block_shapes, "Unknown Shape: '{}'".format(shape)
+        return hull_type, color.strip(), BlockConfigHardcoded._block_shapes[shape]
 
     @staticmethod
     def _get_hulls_dict():
         hull_dict = {}
-        for block_id in BlueprintUtils._block_ids["hull"]:
-            hull_name = BlueprintUtils.get_block_name_by_id(block_id)
+        for block_id in BlockConfigHardcoded._block_ids["hull"]:
+            hull_name = BlockConfigHardcoded.get_block_name_by_id(block_id)
             if "Glass" in hull_name:
                 continue
-            hull_type, color, shape_id = BlueprintUtils.get_hull_details(block_id)
+            hull_type, color, shape_id = BlockConfigHardcoded.get_hull_details(block_id)
             if hull_type not in hull_dict:
                 hull_dict[hull_type] = {}
             if color not in hull_dict[hull_type]:
@@ -743,7 +653,7 @@ class BlueprintUtils(object):
         if block_id == 663:
             # exclude rail docker
             return False
-        return block_id in BlueprintUtils._block_ids["rails"]
+        return block_id in BlockConfigHardcoded._block_ids["rails"]
 
     @staticmethod
     def is_hull(block_id):
@@ -751,17 +661,17 @@ class BlueprintUtils(object):
         @type block_id: int
         @rtype: bool
         """
-        if block_id in BlueprintUtils._glass_ids:
+        if block_id in BlockConfigHardcoded._glass_ids:
             return False
-        return block_id in BlueprintUtils._block_ids["hull"]
+        return block_id in BlockConfigHardcoded._block_ids["hull"]
 
     _hulls_dict = None
 
     @staticmethod
     def get_hull_id_by_details(hull_type, color, shape_id):
-        if BlueprintUtils._hulls_dict is None:
-            BlueprintUtils._hulls_dict = BlueprintUtils._get_hulls_dict()
-        return BlueprintUtils._hulls_dict[hull_type][color][shape_id]
+        if BlockConfigHardcoded._hulls_dict is None:
+            BlockConfigHardcoded._hulls_dict = BlockConfigHardcoded._get_hulls_dict()
+        return BlockConfigHardcoded._hulls_dict[hull_type][color][shape_id]
 
     @staticmethod
     def _is_slab(block_id):
@@ -776,7 +686,7 @@ class BlueprintUtils(object):
         @rtype: bool
         """
         slab_shapes = ["1/4", "1/2", "3/4"]
-        block_name = BlueprintUtils.get_block_name_by_id(block_id)
+        block_name = BlockConfigHardcoded.get_block_name_by_id(block_id)
         for shape in slab_shapes:
             if shape in block_name:
                 return True
@@ -793,7 +703,7 @@ class BlueprintUtils(object):
         @return:
         @rtype: bool
         """
-        if block_id in BlueprintUtils._block_ids["rails"]:
+        if block_id in BlockConfigHardcoded._block_ids["rails"]:
             return True
         if block_id == 977:  # White Light Bar
             return True
@@ -822,13 +732,13 @@ class BlueprintUtils(object):
         """
         style_3_categories = ["ores", "shards", "crafting", "minerals"]
         for category in style_3_categories:
-            if block_id in BlueprintUtils._block_ids[category]:
+            if block_id in BlockConfigHardcoded._block_ids[category]:
                 return True
-        if block_id in BlueprintUtils._block_ids["plants"] and block_id != 104:  # and not Mushroom
+        if block_id in BlockConfigHardcoded._block_ids["plants"] and block_id != 104:  # and not Mushroom
             return True
 
-        if block_id in BlueprintUtils._block_ids["lighting"]:
-            block_name = BlueprintUtils.get_block_name_by_id(block_id).lower()
+        if block_id in BlockConfigHardcoded._block_ids["lighting"]:
+            block_name = BlockConfigHardcoded.get_block_name_by_id(block_id).lower()
             if "Rod".lower() in block_name:
                 return True
         return False
@@ -849,13 +759,13 @@ class BlueprintUtils(object):
         @rtype: bool
         """
         style_0_categories = ["hull", "circuits", "motherboards", "ingots", "crystals", "decorative"]
-        if BlueprintUtils._is_slab(block_id):
+        if BlockConfigHardcoded._is_slab(block_id):
             return True
-        if BlueprintUtils._is_activatable_block(block_id):
+        if BlockConfigHardcoded._is_activatable_block(block_id):
             return True
-        if block_id in BlueprintUtils._block_ids["docking"]:  # no wedges
+        if block_id in BlockConfigHardcoded._block_ids["docking"]:  # no wedges
             return True
-        if block_id in BlueprintUtils._block_ids["nature"] and block_id not in BlueprintUtils._block_ids["plants"]:
+        if block_id in BlockConfigHardcoded._block_ids["nature"] and block_id not in BlockConfigHardcoded._block_ids["plants"]:
             return True
 
         if block_id == 976:  # Pipe
@@ -864,9 +774,9 @@ class BlueprintUtils(object):
             return False
 
         for category in style_0_categories:
-            if block_id in BlueprintUtils._block_ids[category]:
+            if block_id in BlockConfigHardcoded._block_ids[category]:
                 shapes = ["wedge", "corner", "tetra", "hepta"]
-                block_name = BlueprintUtils.get_block_name_by_id(block_id).lower()
+                block_name = BlockConfigHardcoded.get_block_name_by_id(block_id).lower()
                 for shape in shapes:
                     if shape in block_name:
                         return False
@@ -892,8 +802,8 @@ class BlueprintUtils(object):
         @return: style
         @rtype: int
         """
-        assert BlueprintUtils.is_known_id(block_id), "Unknown block id: {}".format(block_id)
-        block_name = BlueprintUtils.get_block_name_by_id(block_id).lower()
+        assert BlockConfigHardcoded.is_known_id(block_id), "Unknown block id: {}".format(block_id)
+        block_name = BlockConfigHardcoded.get_block_name_by_id(block_id).lower()
         if "wedge" in block_name:
             return 1
         if "corner" in block_name:
@@ -902,11 +812,11 @@ class BlueprintUtils(object):
             return 4
         if "hepta" in block_name:
             return 5
-        if BlueprintUtils._is_block_style_6(block_id):
+        if BlockConfigHardcoded._is_block_style_6(block_id):
             return 6
-        if BlueprintUtils._is_block_style_3(block_id):
+        if BlockConfigHardcoded._is_block_style_3(block_id):
             return 3
-        if BlueprintUtils._is_block_style_0(block_id):
+        if BlockConfigHardcoded._is_block_style_0(block_id):
             return 0
         raise Exception("Unknown block style for id: {}".format(block_id))
 
@@ -923,7 +833,7 @@ class BlueprintUtils(object):
         @return:
         @rtype: bool
         """
-        if BlueprintUtils.get_block_style(block_id_1) == BlueprintUtils.get_block_style(block_id_2):
+        if BlockConfigHardcoded.get_block_style(block_id_1) == BlockConfigHardcoded.get_block_style(block_id_2):
                 return True
         return False
 
@@ -938,7 +848,7 @@ class BlueprintUtils(object):
         @return: block name
         @rtype: str
         """
-        for category_name, category_ids in BlueprintUtils._block_ids.items():
+        for category_name, category_ids in BlockConfigHardcoded._block_ids.items():
             if block_id in category_ids:
                 return True
         return False
@@ -954,7 +864,7 @@ class BlueprintUtils(object):
         @return: block name
         @rtype: str
         """
-        for category_name, category_ids in BlueprintUtils._block_ids.items():
+        for category_name, category_ids in BlockConfigHardcoded._block_ids.items():
             if block_id in category_ids:
                 return category_ids[block_id]
         return "unknown ({})".format(block_id)
@@ -972,10 +882,10 @@ class BlueprintUtils(object):
         @return:
         @rtype: bool
         """
-        assert entity_type in BlueprintUtils.entity_types
-        if block_id in BlueprintUtils._block_ids["outdated"]:
+        assert entity_type in BlueprintEntity.entity_types
+        if block_id in BlockConfigHardcoded._block_ids["outdated"]:
             return False
-        if entity_type == SHIP and block_id in BlueprintUtils._block_ids["station"]:
+        if entity_type == SHIP and block_id in BlockConfigHardcoded._block_ids["station"]:
             return False
         if entity_type != SHIP and block_id == 1:
             return False
@@ -993,284 +903,33 @@ class BlueprintUtils(object):
         @rtype: bool
         """
         assert isinstance(block_id, int)
-        if block_id in BlueprintUtils._block_ids["logic"]:
+        if block_id in BlockConfigHardcoded._block_ids["logic"]:
             return True
-        if block_id in BlueprintUtils._block_ids["doors"]:
+        if block_id in BlockConfigHardcoded._block_ids["doors"]:
             return True
-        if block_id in BlueprintUtils._block_ids["lighting"]:
-            block_name = BlueprintUtils.get_block_name_by_id(block_id).lower()
+        if block_id in BlockConfigHardcoded._block_ids["lighting"]:
+            block_name = BlockConfigHardcoded.get_block_name_by_id(block_id).lower()
             if "Rod".lower() in block_name:
                 return False
             if block_id == 977:  # White Light Bar
                 return False
             return True
-        if block_id in BlueprintUtils._block_ids["medical"]:
+        if block_id in BlockConfigHardcoded._block_ids["medical"]:
             return True
-        if block_id in BlueprintUtils._block_ids["factions"]:
+        if block_id in BlockConfigHardcoded._block_ids["factions"]:
             return True
-        if block_id in BlueprintUtils._block_ids["systems"]:
+        if block_id in BlockConfigHardcoded._block_ids["systems"]:
             return True
-        if block_id in BlueprintUtils._block_ids["effects"]:
+        if block_id in BlockConfigHardcoded._block_ids["effects"]:
             return True
-        if block_id in BlueprintUtils._block_ids["tools"]:
+        if block_id in BlockConfigHardcoded._block_ids["tools"]:
             return True
-        if block_id in BlueprintUtils._block_ids["weapons"]:
+        if block_id in BlockConfigHardcoded._block_ids["weapons"]:
             return True
-        if block_id in BlueprintUtils._block_ids["station"]:
+        if block_id in BlockConfigHardcoded._block_ids["station"]:
             if block_id == 678:  # Shipyard Module
                 return False
             if block_id == 679:  # Shipyard Core Anchor
                 return False
             return True
         return False
-
-    @staticmethod
-    def vector_addition(vector1, vector2):
-        """
-        Add one vector to another
-
-        @param vector1: (x,y,z)
-        @type vector1: int, int, int
-        @param vector2: (x,y,z)
-        @type vector2: int, int, int
-
-        @return:
-        @rtype: int, int, int
-        """
-        assert len(vector1) == len(vector2)
-        result = [0] * len(vector1)
-        for index in range(0, len(vector1)):
-            result[index] = vector1[index] + vector2[index]
-        return tuple(result)
-
-    @staticmethod
-    def vector_subtraction(vector1, vector2):
-        """
-        Subtract vector2 from vector1
-
-        @param vector1: (x,y,z)
-        @type vector1: int, int, int
-        @param vector2: (x,y,z)
-        @type vector2: int, int, int
-
-        @return:
-        @rtype: int, int, int
-        """
-        assert len(vector1) == len(vector2)
-        result = [0] * len(vector1)
-        for index in range(0, len(vector1)):
-            result[index] = vector1[index] - vector2[index]
-        return tuple(result)
-
-    @staticmethod
-    def vector_distance(vector1, vector2):
-        """
-        Calculate distance between two vectors
-
-        @param vector1: (x,y,z)
-        @type vector1: int, int, int
-        @param vector2: (x,y,z)
-        @type vector2: int, int, int
-
-        @return: Distance between two vectors
-        @rtype: int
-        """
-        assert len(vector1) == len(vector2)
-        distance = 0
-        for index in range(0, len(vector1)):
-            distance += abs(vector1[index] - vector2[index])
-        return distance
-
-    _core_position = (16, 16, 16)
-
-    @staticmethod
-    def get_direction_vector_to_center(position):
-        """
-        Relocate center/core in a direction
-
-        @param position: vector
-        @type position: int, int, int
-
-        @rtype: int, int, int
-        """
-        return BlueprintUtils.vector_subtraction(position, BlueprintUtils._core_position)
-
-    # #######################################
-    # ###  Turning
-    # #######################################
-
-    _turn_indexes = {
-        0: (0, 2, 1),  # tilt up
-        1: (0, 2, 1),  # tilt down
-        2: (2, 1, 0),  # turn right
-        3: (2, 1, 0),  # turn left
-        4: (1, 0, 2),  # tilt right
-        5: (1, 0, 2),  # tilt left
-    }
-
-    _turn_multiplicator = {
-        0: (1, 1, -1),  # tilt up
-        1: (1, -1, 1),  # tilt down
-        2: (-1, 1, 1),  # turn right
-        3: (1, 1, -1),  # turn left
-        4: (-1, 1, 1),  # tilt right
-        5: (1, -1, 1),  # tilt left
-    }
-
-    @staticmethod
-    def tilt_turn_position(position, tilt_index):
-        """
-        Turn or tilt this entity.
-
-        @param position:
-        @type position: tuple
-        @param tilt_index: integer representing a specific turn
-        @type tilt_index: int
-
-        @return: new minimum and maximum coordinates of the blueprint
-        @rtype: tuple[int,int,int], tuple[int,int,int]
-        """
-        multiplicator = BlueprintUtils._turn_multiplicator[tilt_index]
-        indexes = BlueprintUtils._turn_indexes[tilt_index]
-        new_block_position = BlueprintUtils.vector_subtraction(position, BlueprintUtils._core_position)
-        new_block_position = (
-            multiplicator[0]*new_block_position[indexes[0]],
-            multiplicator[1]*new_block_position[indexes[1]],
-            multiplicator[2]*new_block_position[indexes[2]])
-        new_block_position = BlueprintUtils.vector_addition(new_block_position, BlueprintUtils._core_position)
-        return new_block_position
-
-    peripheries = dict()
-    # "cube": 0,
-    # "1/4": 1,
-    # "1/2": 2,
-    # "3/4": 3,
-    # "Wedge": 4,
-    # "Corner": 5,
-    # "Tetra": 6,
-    # "Hepta": 7,
-
-    # wedge
-    peripheries[4] = {
-        # [bit_19, bit_22, bit_23, rotations]
-        15: [0, 0, 0, 3],
-        54: [0, 0, 1, 3],
-        43: [0, 0, 0, 0],
-        27: [0, 0, 1, 0],
-        58: [0, 0, 1, 2],
-        29: [0, 1, 0, 1],
-        39: [0, 0, 0, 2],
-        23: [0, 0, 1, 1],
-        53: [0, 1, 0, 2],
-        57: [0, 1, 0, 0],
-        60: [0, 1, 0, 3],
-        46: [0, 0, 0, 1],
-    }
-
-    # corner
-    peripheries[5] = {
-        # (): [bit_19, bit_22, bit_23, rotations]
-        38: {
-            (True, True, False): (1, 1, 0, 0),
-            (True, False, True): (0, 0, 1, 2),
-            (False, True, True): (0, 0, 0, 2),
-        },
-        7: {
-            (False, True, True): (1, 0, 0, 0),
-            (True, False, True): (0, 0, 0, 1),
-            (True, True, False): (0, 0, 1, 3),
-        },
-        42: {
-            (False, True, True): (0, 0, 0, 3),
-            (True, True, False): (1, 1, 0, 3),
-            (True, False, True): (0, 1, 1, 3),
-        },
-        11: {
-            (False, True, True): (1, 0, 0, 3),
-            (True, True, False): (0, 1, 1, 0),
-            (True, False, True): (0, 0, 0, 0),
-        },
-        52: {
-            (False, True, True): (0, 0, 1, 1),
-            (True, True, False): (1, 1, 0, 1),
-            (True, False, True): (0, 1, 0, 2),
-        },
-        21: {
-            (False, True, True): (1, 0, 0, 1),
-            (True, False, True): (0, 0, 1, 0),
-            (True, True, False): (0, 1, 0, 1),
-        },
-        56: {
-            (False, True, True): (0, 1, 1, 2),
-            (True, False, True): (0, 1, 0, 3),
-            (True, True, False): (1, 1, 0, 2),
-        },
-        25: {
-            (False, True, True): (1, 0, 0, 2),
-            (True, True, False): (0, 1, 0, 0),
-            (True, False, True): (0, 1, 1, 1),
-        },
-}
-
-    # tetra
-    peripheries[6] = {
-        # [bit_19, bit_22, bit_23, rotations]
-        56: [0, 1, 0, 3],
-        38: [0, 0, 0, 2],
-        21: [0, 1, 0, 1],
-        25: [0, 1, 0, 0],
-        11: [0, 0, 0, 0],
-        42: [0, 0, 0, 3],
-        7: [0, 0, 0, 1],
-        52: [0, 1, 0, 2],
-        }
-
-    # hepta
-    peripheries[7] = {
-        59: {
-            (True, False, False, True, False): (0, 0, 0, 3),
-            (True, True, False, False, False): (0, 1, 0, 3),
-            (False, True, False, False, True): (0, 1, 0, 0),
-            (False, False, False, True, True): (0, 0, 0, 0),
-        },
-        47: {
-            (True, False, True, False, False): (0, 0, 0, 3),
-            (True, False, False, True, False): (0, 0, 0, 2),
-            (False, False, False, True, True): (0, 0, 0, 1),
-            (False, False, True, False, True): (0, 0, 0, 0),
-        },
-        55: {
-            (True, True, False, False, False): (0, 1, 0, 2),
-            (True, False, False, True, False): (0, 0, 0, 2),
-            (False, True, False, False, True): (0, 1, 0, 1),
-            (False, False, False, True, True): (0, 0, 0, 1),
-        },
-        63: {
-            (False, True, True, False, False, True): (0, 1, 0, 0),
-            (True, True, True, False, False, False): (0, 1, 0, 3),
-            (True, False, True, False, True, False): (0, 0, 0, 3),
-            (False, False, False, True, True, True): (0, 0, 0, 1),
-            (True, True, False, True, False, False): (0, 1, 0, 2),
-            (False, True, False, True, False, True): (0, 1, 0, 1),
-            (True, False, False, True, True, False): (0, 0, 0, 2),
-            (False, False, True, False, True, True): (0, 0, 0, 0),
-        },
-        61: {
-            (True, False, True, False, False): (0, 1, 0, 2),
-            (False, False, True, False, True): (0, 1, 0, 1),
-            (True, True, False, False, False): (0, 1, 0, 3),
-            (False, True, False, False, True): (0, 1, 0, 0),
-        },
-        62: {
-            (False, True, False, True, False): (0, 0, 0, 3),
-            (False, False, True, True, False): (0, 0, 0, 2),
-            (True, False, True, False, False): (0, 1, 0, 2),
-            (True, True, False, False, False): (0, 1, 0, 3),
-        },
-        31: {
-            (False, True, False, True, False): (0, 1, 0, 1),
-            (False, False, True, False, True): (0, 0, 0, 0),
-            (False, True, True, False, False): (0, 1, 0, 0),
-            (False, False, False, True, True): (0, 0, 0, 1),
-        },
-    }
