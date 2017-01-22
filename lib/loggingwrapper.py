@@ -1,7 +1,3 @@
-from __future__ import unicode_literals
-from future import standard_library
-standard_library.install_aliases()
-from builtins import object
 __author__ = 'Peter Hofmann'
 __version__ = '0.1.4'
 
@@ -10,13 +6,6 @@ import io
 import logging
 import random
 from io import StringIO
-
-if sys.version_info < (3,):
-    text_type = unicode
-    binary_type = str
-else:
-    text_type = str
-    binary_type = bytes
 
 logger = logging.getLogger(__name__)
 
@@ -57,10 +46,10 @@ class LoggingWrapper(object):
         @return: None
         @rtype: None
         """
-        assert isinstance(label, text_type)
+        assert isinstance(label, str)
         assert isinstance(verbose, bool)
-        assert message_format is None or isinstance(message_format, text_type)
-        assert message_format is None or isinstance(date_format, text_type)
+        assert message_format is None or isinstance(message_format, str)
+        assert message_format is None or isinstance(date_format, str)
         assert stream is None or self.is_stream(stream)
 
         if message_format is None:
@@ -267,7 +256,7 @@ class LoggingWrapper(object):
         @return: None
         @rtype: None
         """
-        assert isinstance(log_file, text_type) or self.is_stream(log_file)
+        assert isinstance(log_file, str) or self.is_stream(log_file)
         assert level in self._levelNames
 
         if LoggingWrapper._map_logfile_handler[self._label] is not None:
@@ -321,10 +310,10 @@ class DefaultLogging(object):
             self._logger.set_level(self._logger.DEBUG)
 
         self._logfile = None
-        if isinstance(logfile, text_type):
+        if isinstance(logfile, str):
             self._logfile = logfile
         else:
-            if sys.version_info <= (2, 8):
+            if sys.version_info < (3,):
                 if isinstance(logfile, (file, io.FileIO)):
                     self._logfile = logfile.name
             else:
@@ -376,7 +365,7 @@ class DefaultLogging(object):
         @return: True if stream
         @rtype: bool
         """
-        if sys.version_info <= (2, 8):
+        if sys.version_info < (3,):
             return isinstance(stream, (file, io.FileIO, StringIO)) or stream.__class__ is StringIO
         else:
             return isinstance(stream, (io.IOBase, io.FileIO, StringIO)) or stream.__class__ is StringIO

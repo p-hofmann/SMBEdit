@@ -1,18 +1,19 @@
 from cx_Freeze import setup, Executable
+from smbedit import __version__ as version
 
 # Dependencies are automatically detected, but it might need
 # fine tuning.
-buildOptions = dict(packages = [], excludes = [])
+buildOptions = dict(packages=[], excludes=[])
 
 executables = [
     Executable('smbedit.py', 'Console')
 ]
 
 setup(name='SMBEdit',
-      version = '0.1.2',
-      description = 'StarMade Blueprint Editor',
-      options = dict(build_exe = buildOptions),
-      executables = executables)
+      version=version,
+      description='StarMade Blueprint Editor',
+      options=dict(build_exe=buildOptions),
+      executables=executables)
 
 # Some issue with TCL can occur on Windows 
 #

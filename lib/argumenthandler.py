@@ -1,6 +1,3 @@
-from __future__ import unicode_literals
-from builtins import map
-from builtins import range
 __author__ = 'Peter Hofmann'
 __version__ = '0.1.0'
 
@@ -29,7 +26,7 @@ class ArgumentHandler(Validator):
         Constructor of Argumenthandler
 
         @param logfile: file handler or file path to a log file
-        @type logfile: file | FileIO | StringIO | basestring
+        @type logfile: file | FileIO | StringIO | str
         @param verbose: Not verbose means that only warnings and errors will be past to stream
         @type verbose: bool
         @param debug: Display debug messages
@@ -48,7 +45,8 @@ class ArgumentHandler(Validator):
         self._index_turn_tilt = None  # options.turn
         self._replace_hull = options.replace_hull
         self._replace = options.replace
-        self._remove_blocks = options.remove_blocks
+        self._remove_blocks = None
+        remove_blocks = options.remove_blocks
         self._move_center = options.move_center
         self._update = options.update
         self._auto_hull_shape = (options.auto_wedge, options.auto_tetra, options.auto_corner, options.auto_hepta)
@@ -93,9 +91,9 @@ class ArgumentHandler(Validator):
             if self._path_output is not None:
                 self._directory_output = self._clean_dir_path(self._path_output)
 
-        if self._remove_blocks is not None:
+        if remove_blocks is not None:
             try:
-                self._remove_blocks = map(int, self._remove_blocks.split(','))
+                self._remove_blocks = list(map(int, remove_blocks.split(',')))
             except ValueError:
                 raise ValueError("Bad block id in: '{}'".format(self._remove_blocks))
 

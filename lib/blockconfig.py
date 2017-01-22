@@ -1,8 +1,3 @@
-from __future__ import unicode_literals
-from builtins import next
-from builtins import str
-from builtins import map
-from builtins import object
 import csv
 import logging
 from lxml import etree

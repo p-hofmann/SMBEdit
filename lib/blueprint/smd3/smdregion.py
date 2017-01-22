@@ -1,7 +1,3 @@
-from __future__ import division
-from __future__ import unicode_literals
-from builtins import range
-from past.utils import old_div
 __author__ = 'Peter Hofmann'
 
 import sys
@@ -55,7 +51,7 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
         @param input_stream: input stream
         @type input_stream: ByteStream
         """
-        if input_stream.read(1) == "":
+        if not input_stream.read(1):
             return True
         input_stream.seek(-1, whence=1)
         return False

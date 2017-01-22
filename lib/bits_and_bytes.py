@@ -1,8 +1,3 @@
-from __future__ import unicode_literals
-from builtins import str
-from builtins import range
-from builtins import object
-from builtins import bytes
 __author__ = 'Peter Hofmann'
 
 import struct
@@ -46,14 +41,14 @@ class ByteStream(object):
     p     char[]              string
     P     void *              integer           (5), (3)
 
-    @type _bytestream: file
+    @type _bytestream:
     """
 
     def __init__(self, bytestream, byte_order=">"):
         """
 
         @param bytestream:
-        @type bytestream: FileIO
+        @type bytestream: FileIO[str]
         @param byte_order:
         @type byte_order: str
         """
@@ -77,14 +72,14 @@ class ByteStream(object):
     def pack_int24(int_24bit):
         """
         @type int_24bit: int
-        @rtype: str
+        @rtype: str | bytes
         """
         return struct.pack('>i', int_24bit)[1:]
 
     @staticmethod
     def unpack_int24(byte_string):
         """
-        @type byte_string: str
+        @type byte_string: str | bytes
         @rtype: int
         """
         return struct.unpack(">i", b'\x00' + byte_string)[0]
@@ -99,7 +94,7 @@ class ByteStream(object):
         @type data_type: str
 
         @return: byte string
-        @rtype: str
+        @rtype: str | bytes
         """
         return struct.pack("{order}{type}".format(
             order=self._byte_order,
@@ -120,7 +115,7 @@ class ByteStream(object):
         Pack value to byte string
 
         @param byte_string: value to be packed
-        @type byte_string: str
+        @type byte_string: str | bytes
         @param data_type: datatype
         @type data_type: str
 
@@ -354,7 +349,7 @@ class ByteStream(object):
 
     def write(self, value):
         """
-        @type value: str
+        @type value: : str | bytes
         """
         self._bytestream.write(value)
 

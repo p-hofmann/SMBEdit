@@ -2,38 +2,30 @@ StarMade Blueprint Editor
 ====
 
 Yet another editor since others have become outdated.  
-This is a command line tool, there is no gui!  
-The script is compatible with both python2.7 and python3, and should work on all platforms.  
+This is a command line tool, there is no user interface!  
+SMBEdit is compatible with both python2.7 and python3, and should work on all platforms.  
 Input and output are either a directory of raw blueprints as found in "/../StarMade/blueprints/" or a path to a '.sment' file.  
 
 # Installation
+##Python
+Unix users have python by default.  
+Windows users have to install:
 
-## Windows only (standalone executable, run without any dependency)
+* python2.7 https://www.python.org/download/releases/2.7/
+* python3.6 https://www.python.org/downloads/release/python-360/
 
-Download the zip file on release page and extract SMEdit where you want.
+##SMBEdit
+Download the zip file on release page and extract SMEdit anywhere you want.
 That's it, you can now use SMEdit to modify your blueprint.
 
+# Usage
 Open a command prompt and go to the SMEdit folder.
 To see the help, type:
-```bash
-smbedit.exe --help 
+
 ```
-
-## Windows, Mac and Linux
-
-Install python (2 or 3) and [pip](https://pip.pypa.io/en/stable/installing/). Then use pip to install `future`:
-
-```bash
-pip install future
-```
-
-Open a command prompt and go to the SMEdit folder.
-To see the help, type:
-```bash
 python smbedit.py --help 
 ```
 
-# Usage
 Several command line arguments are available and (most) can be used all at once.  
 
 ### Display all available command line arguments
@@ -259,12 +251,16 @@ Old style docked entities, docked to "Turret Docking Unit" or "Docking Module", 
 
 First of all, install cx_Freeze:
 
-```bash
+```
+bash
 pip install cx-freeze
 ```
 
 Then, go to the SMBEdit folder and type:
-```bash
-python setup.py build
+
 ```
+bash
+python make.py build
+```
+
 The executable should appear in the build folder.

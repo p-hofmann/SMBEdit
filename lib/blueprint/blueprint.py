@@ -1,10 +1,7 @@
-from __future__ import unicode_literals
-from builtins import range
 __author__ = 'Peter Hofmann'
 
 import os
 import sys
-
 from lib.loggingwrapper import DefaultLogging
 from lib.blueprint.blueprintutils import BlueprintUtils
 from lib.blueprint.header import Header
@@ -21,7 +18,7 @@ class Blueprint(DefaultLogging, BlueprintUtils):
         Constructor
 
         @param logfile: file handler or file path to a log file
-        @type logfile: file | FileIO | StringIO | basestring
+        @type logfile: file | FileIO | StringIO | str
         @param verbose: Not verbose means that only warnings and errors will be past to stream
         @type verbose: bool
         @param debug: Display debug messages

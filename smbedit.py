@@ -1,7 +1,5 @@
-from __future__ import unicode_literals
-from past.builtins import basestring
 __author__ = 'Peter Hofmann'
-__version__ = '0.1.0'
+__version__ = '0.1.2'
 
 import os
 import sys
@@ -26,7 +24,7 @@ class SMBEdit(ArgumentHandler):
         Constructor of Starmade Blueprint Editor
 
         @param logfile: file handler or file path to a log file
-        @type logfile: file | FileIO | StringIO | basestring
+        @type logfile: file | str
         @param verbose: Not verbose means that only warnings and errors will be past to stream
         @type verbose: bool
         @param debug: Display debug messages
@@ -81,7 +79,7 @@ class SMBEdit(ArgumentHandler):
             tmp = self._move_center.split(',')
             assert len(tmp) == 3, "Bad vector: '{}'".format(self._move_center)
             for index, value in enumerate(tmp):
-                assert isinstance(value, basestring)
+                assert isinstance(value, str)
                 # assert value.isdigit(), "Bad vector: '{}'".format(move_center)
                 direction_vector[index] = int(value)
             blueprint.move_center_by_vector(tuple(direction_vector))
@@ -264,7 +262,7 @@ def main():
             logfile=logfile,
             verbose=verbose,
             debug=debug
-            ) as manipulator:
+                ) as manipulator:
             manipulator.run()
     except (KeyboardInterrupt, SystemExit, Exception, ValueError, RuntimeError) as e:
         if debug:

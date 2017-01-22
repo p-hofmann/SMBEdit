@@ -1,8 +1,3 @@
-from __future__ import division
-from __future__ import unicode_literals
-from builtins import map
-from builtins import range
-from past.utils import old_div
 __author__ = 'Peter Hofmann'
 
 import sys
@@ -159,7 +154,7 @@ class Smd(DefaultLogging, BlueprintUtils):
         @rtype: int
         """
         blocks_in_a_line_in_a_region = self._blocks_in_a_line_in_a_segment * self._segments_in_a_line_of_a_region
-        return int(math.floor(old_div((value+old_div(blocks_in_a_line_in_a_region,2)), float(blocks_in_a_line_in_a_region))))
+        return int(math.floor((value + int(blocks_in_a_line_in_a_region / 2)) / float(blocks_in_a_line_in_a_region)))
 
     # #######################################
     # ###  moving blocks
@@ -452,7 +447,10 @@ class Smd(DefaultLogging, BlueprintUtils):
             try:
                 self.remove_block(position_core)
             except AssertionError as exception_object:
-                self._logger.debug("'set_type' exception: {}".format(exception_object.message))
+                message = ""
+                if len(exception_object.args) > 0:
+                    message = exception_object.args[0]
+                self._logger.debug("'set_type' exception: {}".format(message))
         self.update(entity_type)  # remove blocks invalid for ships and other cleanup
 
     def to_stream(self, output_stream=sys.stdout):

@@ -1,7 +1,3 @@
-from __future__ import division
-from __future__ import unicode_literals
-from builtins import range
-from past.utils import old_div
 __author__ = 'Peter Hofmann'
 
 import sys
@@ -64,7 +60,7 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
         @param input_stream: input stream
         @type input_stream: ByteStream
         """
-        if input_stream.read(1) == "":
+        if not input_stream.read(1):
             return True
         input_stream.seek(-1, whence=1)
         return False
@@ -299,7 +295,7 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
         @return: segment x or y or z coordinate
         @rtype: int
         """
-        return int(math.floor(old_div(value, float(self._blocks_in_a_line_in_a_segment))) * self._blocks_in_a_line_in_a_segment)
+        return int(math.floor(value / float(self._blocks_in_a_line_in_a_segment)) * self._blocks_in_a_line_in_a_segment)
 
     def get_segment_index_by_position(self, segment_position):
         """
@@ -317,9 +313,9 @@ class SmdRegion(DefaultLogging, BlueprintUtils):
         offset = self._blocks_in_a_line_in_a_segment * self._segments_in_a_line / 2
         tmp = [0, 0, 0]
         bialias = float(self._blocks_in_a_line_in_a_segment)
-        tmp[0] = int(math.floor(old_div((segment_position[0]+offset), bialias)))
-        tmp[1] = int(math.floor(old_div((segment_position[1]+offset), bialias)))
-        tmp[2] = int(math.floor(old_div((segment_position[2]+offset), bialias)))
+        tmp[0] = int(math.floor((segment_position[0]+offset) / bialias))
+        tmp[1] = int(math.floor((segment_position[1]+offset) / bialias))
+        tmp[2] = int(math.floor((segment_position[2]+offset) / bialias))
         return \
             (tmp[0] % self._segments_in_a_line) + \
             (tmp[1] % self._segments_in_a_line) * self._segments_in_a_line + \
