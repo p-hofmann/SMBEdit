@@ -656,6 +656,17 @@ class BlockConfigHardcoded(object):
         return block_id in BlockConfigHardcoded._block_ids["rails"]
 
     @staticmethod
+    def is_station(block_id):
+        """
+        @type block_id: int
+        @rtype: bool
+        """
+        if block_id == 663:
+            # exclude rail docker
+            return False
+        return block_id in BlockConfigHardcoded._block_ids["station"]
+
+    @staticmethod
     def is_hull(block_id):
         """
         @type block_id: int
@@ -761,7 +772,7 @@ class BlockConfigHardcoded(object):
         style_0_categories = ["hull", "circuits", "motherboards", "ingots", "crystals", "decorative"]
         if BlockConfigHardcoded._is_slab(block_id):
             return True
-        if BlockConfigHardcoded._is_activatable_block(block_id):
+        if BlockConfigHardcoded.is_activatable_block(block_id):
             return True
         if block_id in BlockConfigHardcoded._block_ids["docking"]:  # no wedges
             return True
@@ -870,6 +881,27 @@ class BlockConfigHardcoded(object):
         return "unknown ({})".format(block_id)
 
     @staticmethod
+    def items():
+        """
+        Iterate over all block ids
+
+        @return: Tuple[int, str]
+        """
+        for category_name, category_ids in BlockConfigHardcoded._block_ids.items():
+            for block_id, name in category_ids.items():
+                yield block_id, name
+
+    @staticmethod
+    def is_deprecated(block_id):
+        """
+        Return True if block id is no longer up to date
+
+        @type block_id: int
+        @rtype: bool
+        """
+        return block_id in BlockConfigHardcoded._block_ids["outdated"]
+
+    @staticmethod
     def is_valid_block_id(block_id, entity_type=0):
         """
         Test if an id is outdated or not valid for a specific entity type
@@ -883,7 +915,7 @@ class BlockConfigHardcoded(object):
         @rtype: bool
         """
         assert entity_type in BlueprintEntity.entity_types
-        if block_id in BlockConfigHardcoded._block_ids["outdated"]:
+        if BlockConfigHardcoded.is_deprecated(block_id):
             return False
         if entity_type == SHIP and block_id in BlockConfigHardcoded._block_ids["station"]:
             return False
@@ -892,7 +924,7 @@ class BlockConfigHardcoded(object):
         return True
 
     @staticmethod
-    def _is_activatable_block(block_id):
+    def is_activatable_block(block_id):
         """
         Test if an id is of am activatable block (style 0 block)
 
