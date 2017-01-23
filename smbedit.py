@@ -7,6 +7,7 @@ import zipfile
 import traceback
 
 from lib.argumenthandler import ArgumentHandler
+from lib.utils.blockconfig import block_config
 from lib.blueprint import Blueprint
 
 
@@ -123,6 +124,10 @@ class SMBEdit(ArgumentHandler):
 
     def run(self):
         try:
+            if self._directory_starmade is not None:
+                block_config.read(self._directory_starmade)
+            else:
+                block_config.from_hard_coded()
             self.run_commands()
 
             if self._path_output is not None and self._is_archived:

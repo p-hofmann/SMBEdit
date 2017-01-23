@@ -4,7 +4,7 @@ import os
 import sys
 
 from lib.loggingwrapper import DefaultLogging
-from lib.utils.blockconfighardcoded import BlockConfigHardcoded
+from lib.utils.blockconfig import block_config
 from lib.utils.vector import Vector
 from lib.smblueprint.header import Header
 from lib.smblueprint.logic import Logic
@@ -167,7 +167,7 @@ class Blueprint(DefaultLogging):
         @type replace_id: int
         @type replace_hp: int
         """
-        compatible = BlockConfigHardcoded.are_compatible_blocks(block_id, replace_id)
+        compatible = block_config[block_id].block_style == block_config[replace_id].block_style
         self.smd3.replace_blocks(block_id, replace_id, replace_hp, compatible)
         self.header.update(self.smd3)
 

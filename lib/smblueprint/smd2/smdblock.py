@@ -3,7 +3,7 @@ __author__ = 'Peter Hofmann'
 import sys
 
 from lib.bits_and_bytes import BitAndBytes
-from lib.utils.blockconfighardcoded import BlockConfigHardcoded
+from lib.utils.blockconfig import block_config
 from lib.smblueprint.smd2.blockorientation import BlockOrientation
 
 
@@ -70,7 +70,7 @@ class SmdBlock(BlockOrientation):
         elif not active:
             active = 1
 
-        style = BlockConfigHardcoded.get_block_style(block_id)
+        style = block_config[block_id].block_style
         int_24bit = 0
         int_24bit = BitAndBytes.bits_combine(block_id, int_24bit, self._bit_block_id_start)
         if style == 0:  # For blocks with an activation status
@@ -169,4 +169,4 @@ class SmdBlock(BlockOrientation):
         output_stream.write("HP: {}\t".format(self.get_hit_points()))
         output_stream.write("Active: {}\t".format(self.is_active()))
         output_stream.write("Or.: {}\t".format(self._orientation_to_string()))
-        output_stream.write("{}\n".format(BlockConfigHardcoded.get_block_name_by_id(self.get_id())))
+        output_stream.write("{}\n".format(block_config[self.get_id()].name))

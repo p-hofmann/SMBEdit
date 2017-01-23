@@ -1,6 +1,8 @@
 import csv
+import os
 import logging
 from lxml import etree
+from lib.validator import Validator
 from lib.utils.blockconfighardcoded import BlockConfigHardcoded
 from lib.utils.blueprintentity import BlueprintEntity, SHIP
 
@@ -63,6 +65,19 @@ class BlockInfo(object):
         """
         return BlockConfigHardcoded.is_rail(self.id)
 
+    def is_docking(self):
+        """
+        @rtype: bool
+        """
+        return self.id in BlockConfigHardcoded.docking_to_rails
+
+    def get_rail_equivalent(self):
+        """
+        @rtype: int | None
+        """
+        assert self.is_docking(), "Not docking block"
+        return BlockConfigHardcoded.docking_to_rails[self.id]
+
     def is_valid(self, entity_type=0):
         """
         Test if an id is outdated or not valid for a specific entity type
@@ -109,11 +124,19 @@ class MetaBlockConfig(object):
         self._label_to_block = dict()
 
     def __getattr__(self, block_id):
-        """access to block config from the class"""
+        """
+        access to block config from the class
+
+        @rtype: BlockInfo
+        """
         return self._id_to_block[block_id]
 
     def __getitem__(self, int_block_id):
-        """access to block config from the class"""
+        """
+        access to block config from the class
+
+        @rtype: BlockInfo
+        """
         try:
             return self._id_to_block[int(int_block_id)]
         except Exception as e:
@@ -123,11 +146,16 @@ class MetaBlockConfig(object):
             exit()
 
     def __iter__(self):
+        """
+        access to block config from the class
+
+        @rtype:
+        """
         for block_id in sorted(self._id_to_block):
             yield self._id_to_block[block_id]
 
 
-class BlockConfig(MetaBlockConfig):
+class BlockConfig(MetaBlockConfig, ):
     """
     docstring for BlockConfig
 
@@ -166,6 +194,10 @@ class BlockConfig(MetaBlockConfig):
     tiers = ["hull", "standard armor", "advanced armor", "crystal armor", "hazard armor"]
 
     slabs = ["1/4", "1/2", "3/4"]
+
+    def get_shape_id(self, name):
+        assert name.lower() in self.shapes, "Unknown shape: {}".format(name)
+        return self.shapes[name.lower()]
 
     def from_hard_coded(self):
         for block_id, name in BlockConfigHardcoded.items():
@@ -207,14 +239,29 @@ class BlockConfig(MetaBlockConfig):
                     self._id_to_block[block_id].slab = index
                     break
 
-    def read(self, file_path_block_types, file_path_block_config):
+    def read(self, directory_starmade):
+        """
+
+        @param directory_starmade: StarMade directory
+        @type directory_starmade: str
+        """
+        validator = Validator()
+        assert validator.validate_dir(directory_starmade)
+        directory_config = os.path.join(directory_starmade, "data", "config")
+
+        file_path_block_types = os.path.join(directory_config, "BlockTypes.properties")
+        file_path_block_config = os.path.join(directory_config, "BlockConfig.xml")
+        assert validator.validate_file(file_path_block_config)
+        assert validator.validate_file(file_path_block_types)
+        self._read(file_path_block_types, file_path_block_config)
+
+    def _read(self, file_path_block_types, file_path_block_config):
         """
 
         @param file_path_block_types:
         @type file_path_block_types: str
         @param file_path_block_config:
         @type file_path_block_config: str
-        @return:
         """
         with open(file_path_block_types, 'r') as csvfile:
             csvreader = csv.reader(csvfile, delimiter='=')
@@ -282,3 +329,5 @@ class BlockConfig(MetaBlockConfig):
                 if slab in name_lower_case:
                     self._label_to_block[label].slab = index
                     break
+
+block_config = BlockConfig()

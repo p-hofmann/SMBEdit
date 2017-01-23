@@ -5,7 +5,7 @@ import sys
 
 from lib.loggingwrapper import DefaultLogging
 from lib.utils.blueprintentity import BlueprintEntity
-from lib.utils.blockconfighardcoded import BlockConfigHardcoded
+from lib.utils.blockconfig import block_config
 from lib.utils.vector import Vector
 from lib.bits_and_bytes import BinaryStream
 from lib.smblueprint.smd3.smd import Smd
@@ -368,12 +368,12 @@ class Header(DefaultLogging):
         else:
             # update manually and hope it reflects the smd data
             for block_id in self.block_id_to_quantity:
-                if not BlockConfigHardcoded.is_valid_block_id(block_id, self.type):
+                if not block_config[block_id].is_valid(self.type):
                     self.remove(block_id)
                     continue
-                if block_id not in BlockConfigHardcoded.docking_to_rails:
+                if not block_config[block_id].is_docking():
                     continue
-                updated_block_id = BlockConfigHardcoded.docking_to_rails[block_id]
+                updated_block_id = block_config[block_id].get_rail_equivalent()
                 if updated_block_id is None:
                     self.remove(block_id)
                     continue
@@ -440,7 +440,7 @@ class Header(DefaultLogging):
 
         if self._verbose or self._debug:
             for identifier, quantity in self.block_id_to_quantity.items():
-                output_stream.write("{}: {}\n".format(BlockConfigHardcoded.get_block_name_by_id(identifier), quantity))
+                output_stream.write("{}: {}\n".format(block_config[identifier].name, quantity))
             output_stream.write("\n")
             self.statistics.to_stream(output_stream)
         output_stream.flush()

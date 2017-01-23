@@ -6,7 +6,7 @@ import datetime
 
 from lib.loggingwrapper import DefaultLogging
 from lib.bits_and_bytes import BinaryStream
-from lib.utils.blockconfighardcoded import BlockConfigHardcoded
+from lib.utils.blockconfig import block_config
 from lib.utils.blueprintentity import BlueprintEntity
 from lib.smblueprint.smd3.smdblock import SmdBlock
 
@@ -276,17 +276,18 @@ class SmdSegment(DefaultLogging):
         """
         for block_index in self.block_index_to_block:
             block_id = self.block_index_to_block[block_index].get_id()
-            if not BlockConfigHardcoded.is_hull(block_id or block_id in self._replace_cache_negative):
+            if not block_config[block_id].is_hull() or block_id in self._replace_cache_negative:
                 continue
             if block_id not in self._replace_cache_positive:
-                block_hull_type, color, shape_id = BlockConfigHardcoded.get_hull_details(block_id)
-                if hull_type is not None and hull_type != block_hull_type:  # not replaced
+                hull_tier, color_id, shape_id = block_config[block_id].get_details()
+                if hull_type is not None and hull_type != hull_tier:  # not replaced
                     self._replace_cache_negative.add(block_id)
                     continue
-                new_block_id = BlockConfigHardcoded.get_hull_id_by_details(new_hull_type, color, shape_id)
+                new_block_id = block_config.get_hull_id_by_details(new_hull_type, color_id, shape_id)
                 self._replace_cache_positive[block_id] = new_block_id
-            self.block_index_to_block[block_index].set_id(self._replace_cache_positive[block_id])
-            self.block_index_to_block[block_index].set_hit_points(BlockConfigHardcoded.get_hp_by_hull_type(new_hull_type))
+            new_block_id = self._replace_cache_positive[block_id]
+            self.block_index_to_block[block_index].set_id(new_block_id)
+            self.block_index_to_block[block_index].set_hit_points(block_config[new_block_id].hit_points)
 
     def update(self, entity_type=0):
         """
@@ -299,12 +300,12 @@ class SmdSegment(DefaultLogging):
 
         for block_index in self.block_index_to_block:
             block = self.block_index_to_block[block_index]
-            if not BlockConfigHardcoded.is_valid_block_id(block.get_id(), entity_type):
+            if not block_config[block.get_id()].is_valid(entity_type):
                 self.remove_block(self.get_block_position_by_block_index(block_index))
                 continue
-            if block.get_id() not in BlockConfigHardcoded.docking_to_rails:
+            if not block_config[block.get_id()].is_docking():
                 continue
-            updated_block_id = BlockConfigHardcoded.docking_to_rails[block.get_id()]
+            updated_block_id = block_config[block.get_id()].get_rail_equivalent()
             if updated_block_id is None:
                 self.remove_block(self.get_block_position_by_block_index(block_index))
                 continue

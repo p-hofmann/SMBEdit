@@ -5,7 +5,7 @@ import os
 import math
 
 from lib.loggingwrapper import DefaultLogging
-from lib.utils.blockconfighardcoded import BlockConfigHardcoded
+from lib.utils.blockconfig import block_config
 from lib.utils.autoshape import AutoShape
 from lib.utils.vector import Vector
 from lib.smblueprint.smd3.smdregion import SmdRegion
@@ -77,10 +77,7 @@ class Smd(DefaultLogging):
             for position, smd2block in smd2.items():
                 smd3_position = Vector.addition(position, offset)
                 smd3block = SmdBlock(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
-                hit_points = 1
-                if BlockConfigHardcoded.is_hull(smd2block.get_id()):
-                    hull_type, color, shape_id = BlockConfigHardcoded.get_hull_details(smd2block.get_id())
-                    hit_points = BlockConfigHardcoded.get_hp_by_hull_type(hull_type)
+                hit_points = block_config[smd2block.get_id()].hit_points
                 smd3block.set_int_24bit(smd2block.get_int_24bit())
                 smd3block.update(hit_points=hit_points)
                 self.add(smd3_position, smd3block, replace=False)
@@ -536,7 +533,7 @@ class Smd(DefaultLogging):
         @rtype: tple[int]
         """
         assert 1 <= periphery_range <= 3
-        angle_shapes = {4, 6}  # 5, 7,
+        angle_shapes = {block_config.get_shape_id("wedge"), block_config.get_shape_id("tetra")}  # 5, 7,
         shape_periphery = []
         range_p = [-1, 0, 1]
         for x in range_p:
@@ -551,11 +548,7 @@ class Smd(DefaultLogging):
                         block_tmp = self.get_block_at_position(position_tmp)
                         block_id = block_tmp.get_id()
                         is_angled_shape = False
-                        if BlockConfigHardcoded.is_hull(block_id):
-                            block_hull_type, color, shape_id = BlockConfigHardcoded.get_hull_details(block_id)
-                            if shape_id in angle_shapes:
-                                is_angled_shape = True
-                        elif "wedge" in BlockConfigHardcoded.get_block_name_by_id(block_id).lower():
+                        if block_config[block_id].shape in angle_shapes:
                             is_angled_shape = True
                         shape_periphery.append(is_angled_shape)
         return tuple(shape_periphery)
@@ -570,7 +563,7 @@ class Smd(DefaultLogging):
         """
         for position, block in self.items():
             block_id = block.get_id()
-            if not BlockConfigHardcoded.is_hull(block_id):
+            if not block_config[block_id].is_hull():
                 continue
 
             periphery_index = self.get_position_periphery_index(position, 1)
@@ -584,8 +577,8 @@ class Smd(DefaultLogging):
                 continue
 
             bit_19, bit_22, bit_23, rotations = AutoShape.peripheries[new_shape_id][periphery_index]
-            block_hull_type, color, shape_id = BlockConfigHardcoded.get_hull_details(block_id)
-            new_block_id = BlockConfigHardcoded.get_hull_id_by_details(block_hull_type, color, new_shape_id)
+            block_hull_tier, color_id, shape_id = block_config[block_id].get_details()
+            new_block_id = block_config.get_hull_id_by_details(block_hull_tier, color_id, new_shape_id)
             block.update(block_id=new_block_id, bit_19=bit_19, bit_22=bit_22, bit_23=bit_23, rotations=rotations)
 
     def auto_hull_shape_dependent(self, block_shape_id):
@@ -597,7 +590,7 @@ class Smd(DefaultLogging):
         """
         for position, block in self.items():
             block_id = block.get_id()
-            if not BlockConfigHardcoded.is_hull(block_id):
+            if not block_config[block_id].is_hull():
                 continue
 
             periphery_index = self.get_position_periphery_index(position, 1)
@@ -607,8 +600,8 @@ class Smd(DefaultLogging):
             if periphery_shape not in AutoShape.peripheries[block_shape_id][periphery_index]:
                 continue
             bit_19, bit_22, bit_23, rotations = AutoShape.peripheries[block_shape_id][periphery_index][periphery_shape]
-            block_hull_type, color, shape_id = BlockConfigHardcoded.get_hull_details(block_id)
-            new_block_id = BlockConfigHardcoded.get_hull_id_by_details(block_hull_type, color, block_shape_id)
+            block_hull_type, color, shape_id = block_config[block_id].get_details()
+            new_block_id = block_config.get_block_id_by_details(block_hull_type, color, block_shape_id)
             block.update(block_id=new_block_id, bit_19=bit_19, bit_22=bit_22, bit_23=bit_23, rotations=rotations)
 
     def auto_hull_shape(self, auto_wedge, auto_tetra, auto_corner, auto_hepta=None):
@@ -640,7 +633,7 @@ class Smd(DefaultLogging):
         """
         peripheries = {}
         for position, block in self.items():
-            if not BlockConfigHardcoded.is_hull(block.get_id()):
+            if not block_config[block.get_id()].is_hull():
                 continue
             # wedge 599
             # corner 600
@@ -678,7 +671,7 @@ class Smd(DefaultLogging):
         peripheries = {}
         bad_orientations = 0
         for position, block in self.items():
-            if not BlockConfigHardcoded.is_hull(block.get_id()):
+            if not block_config[block.get_id()].is_hull():
                 continue
             # wedge 599
             # corner 600

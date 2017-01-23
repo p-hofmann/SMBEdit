@@ -3,7 +3,7 @@ __author__ = 'Peter Hofmann'
 import sys
 
 from lib.bits_and_bytes import BitAndBytes
-from lib.utils.blockconfighardcoded import BlockConfigHardcoded
+from lib.utils.blockconfig import block_config
 
 
 class Orientation(object):
@@ -88,7 +88,7 @@ class Orientation(object):
         """
         block_id = self.get_id()
         assert block_id != 0
-        return BlockConfigHardcoded.get_block_style(block_id)
+        return block_config[block_id].block_style()
 
     def get_orientation(self):
         """

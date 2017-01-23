@@ -5,7 +5,7 @@ import sys
 
 from lib.bits_and_bytes import BinaryStream
 from lib.loggingwrapper import DefaultLogging
-from lib.utils.blockconfighardcoded import BlockConfigHardcoded
+from lib.utils.blockconfig import block_config
 from lib.utils.vector import Vector
 from lib.smblueprint.meta.datatype2 import DataType2
 from lib.smblueprint.meta.datatype3 import DataType3, DockedEntity
@@ -254,7 +254,7 @@ class Meta(DefaultLogging):
             main_entity.set_by_block_side(
                 label=main_entity_label,
                 location=docker_entity.position,
-                block_id=BlockConfigHardcoded.docking_to_rails[block.get_id()],
+                block_id=block_config[block.get_id()].get_rail_equivalent(),
                 side=block.get_block_side_id()
             )
             rail_dock_entity.set(

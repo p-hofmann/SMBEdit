@@ -2,7 +2,7 @@ __author__ = 'Peter Hofmann'
 
 import sys
 
-from lib.utils.blockconfighardcoded import BlockConfigHardcoded
+from lib.utils.blockconfig import block_config
 from lib.smblueprint.meta.tag.tagmanager import TagPayload, TagList
 
 
@@ -188,7 +188,7 @@ class RailDockedEntityLink(object):
         @type entity_docked: RailDockedEntity
         @type docked_entity_location: tuple[int]
         """
-        assert BlockConfigHardcoded.is_rail(entity_main.get_block_id()), "Expected Rail id but got {}.".format(
+        assert block_config[entity_main.get_block_id()].is_rail(), "Expected Rail id but got {}.".format(
             entity_docked.get_block_id())
         assert entity_docked.get_block_id() == 663, "Expected Rail Docker id but got {}.".format(
             entity_docked.get_block_id())

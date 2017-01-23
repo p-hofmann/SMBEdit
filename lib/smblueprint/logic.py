@@ -4,7 +4,7 @@ import os
 import sys
 from lib.loggingwrapper import DefaultLogging
 from lib.bits_and_bytes import BinaryStream
-from lib.utils.blockconfighardcoded import BlockConfigHardcoded
+from lib.utils.blockconfig import block_config
 from lib.utils.blueprintentity import BlueprintEntity
 from lib.utils.vector import Vector
 
@@ -303,7 +303,7 @@ class Logic(DefaultLogging):
         for controller_position in self._controller_position_to_block_id_to_block_positions:
             groups = self._controller_position_to_block_id_to_block_positions[controller_position]
             for block_id in groups:
-                if BlockConfigHardcoded.is_valid_block_id(block_id):
+                if block_config[block_id].is_valid():
                     self._update_groups(controller_position, block_id, smd)
                     continue
                 self._controller_position_to_block_id_to_block_positions[controller_position].pop(block_id)

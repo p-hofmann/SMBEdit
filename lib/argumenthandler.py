@@ -54,12 +54,15 @@ class ArgumentHandler(Validator):
         self._entity_class = options.entity_class
         self._summary = options.summary
         temp_directory = options.tmp_dir
+        self._directory_starmade = options.starmade
         self._is_archived = False
         if self._path_input.endswith(".sment"):
             self._is_archived = True
 
         assert temp_directory is None or self.validate_dir(temp_directory)
         assert self._path_output is None or self.validate_dir(self._path_output, only_parent=True)
+        assert self._directory_starmade is None or self.validate_dir(
+            self._directory_starmade, file_names=["StarMade.jar"], key='-sm'), "Bad StarMade directory."
 
         self._directory_output = None
         if self._is_archived:  # .sment file
@@ -163,6 +166,11 @@ class ArgumentHandler(Validator):
             help="Directory for temporary data in case of 'sment' files.")
 
         group_input = parser.add_argument_group('optional arguments')
+        group_input.add_argument(
+            "-sm", "--starmade",
+            default=None,
+            type=str,
+            help="Directory path to the StarMade folder, attempting to read block config there.")
         group_input.add_argument(
             "-s", "--summary",
             action='store_true',
