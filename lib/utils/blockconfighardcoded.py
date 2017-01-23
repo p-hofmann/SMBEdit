@@ -814,6 +814,8 @@ class BlockConfigHardcoded(object):
         @rtype: int
         """
         assert BlockConfigHardcoded.is_known_id(block_id), "Unknown block id: {}".format(block_id)
+        if BlockConfigHardcoded.is_deprecated(block_id):
+            return -1
         block_name = BlockConfigHardcoded.get_block_name_by_id(block_id).lower()
         if "wedge" in block_name:
             return 1
