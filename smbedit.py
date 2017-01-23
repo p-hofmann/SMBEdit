@@ -211,6 +211,10 @@ class SMBEdit(ArgumentHandler):
                 self._logger.info("Moving center/core of blueprint...")
                 self._move_center_or_core(blueprint)
 
+            if not is_docked_entity and self._mirror_axis is not None:
+                self._logger.info("Mirror at axis...")
+                blueprint.mirror_axis(axis_index=self._mirror_axis[0], reverse=self._mirror_axis[1])
+
             if self._replace is not None:
                 self._logger.info("Replacing blocks...")
                 self._replace_blocks(blueprint)

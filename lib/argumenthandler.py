@@ -48,6 +48,8 @@ class ArgumentHandler(Validator):
         self._remove_blocks = None
         remove_blocks = options.remove_blocks
         self._move_center = options.move_center
+        mirror_axis = options.mirror_axis
+        self._mirror_axis = None
         self._update = options.update
         self._auto_hull_shape = (options.auto_wedge, options.auto_tetra, options.auto_corner, options.auto_hepta)
         self._entity_type = options.entity_type
@@ -99,6 +101,17 @@ class ArgumentHandler(Validator):
                 self._remove_blocks = list(map(int, remove_blocks.split(',')))
             except ValueError:
                 raise ValueError("Bad block id in: '{}'".format(self._remove_blocks))
+        if mirror_axis is not None:
+            axis = ['x', 'y', 'z']
+            if 'r' in mirror_axis:
+                assert len(mirror_axis) == 2, "Invalid mirror argument: '{}'".format(mirror_axis)
+                reverse = True
+                mirror_axis = mirror_axis.strip('r')
+            else:
+                assert len(mirror_axis) == 1, "Invalid mirror argument: '{}'".format(mirror_axis)
+                reverse = False
+            assert mirror_axis in axis, "Invalid mirror axis: '{}'".format(mirror_axis)
+            self._mirror_axis = (axis.index(mirror_axis), reverse)
 
     def __exit__(self, type, value, traceback):
         super(ArgumentHandler, self).__exit__(type, value, traceback)
@@ -268,6 +281,17 @@ class ArgumentHandler(Validator):
             default=None,
             type=str,
             help="Either a block id or a directional vector like '0,0,1', for moving center (Core) one block forward.")
+
+        group_input.add_argument(
+            "-ma", "--mirror_axis",
+            default=None,
+            choices=['x', 'y', 'z', 'xr', 'yr', 'zr'],
+            type=str,
+            help='''Mirror entity at core/center at a specific axis:
+            x Left to Right
+            y Top to Bottom
+            z Front to Back
+     ''')
 
         group_input.add_argument(
             "-r", "--replace",

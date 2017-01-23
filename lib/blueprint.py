@@ -44,20 +44,18 @@ class Blueprint(DefaultLogging):
         """
         Read blueprint from a directory
 
-        @attention: smd data needs to be read before meta and logic. An offset will be set if smd2.
-
         @param directory_blueprint: /../StarMade/blueprints/blueprint_name/
         @type directory_blueprint: str
         """
-        self.smd3 = Smd(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
         self.header = Header(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
         self.logic = Logic(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
         self.meta = Meta(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
+        self.smd3 = Smd(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
 
         self.header.read(directory_blueprint)
-        self.smd3.read(directory_blueprint)
         self.logic.read(directory_blueprint)
         self.meta.read(directory_blueprint)
+        self.smd3.read(directory_blueprint)
 
     # #######################################
     # ###  Write
@@ -210,7 +208,7 @@ class Blueprint(DefaultLogging):
         Relocate center/core in a direction
 
         @param direction_vector: vector
-        @type direction_vector: int, int, int
+        @type direction_vector: tuple[int]
         """
         assert isinstance(direction_vector, tuple)
         min_vector, max_vector = self.smd3.move_center(direction_vector, self.header.type)
@@ -218,6 +216,23 @@ class Blueprint(DefaultLogging):
         self.header.set_box(min_vector, max_vector)
         self.header.update(self.smd3)
         self.meta.move_center_by_vector(direction_vector)
+
+    def mirror_axis(self, axis_index=0, reverse=False):
+        """
+        Relocate center/core in a direction
+
+        @param axis_index:  0: x left to right
+                            1: y top to bottom
+                            2: z front to back
+        @type axis_index: int
+        @param reverse: reverse mirror direction
+        @type reverse: bool
+        """
+        min_vector, max_vector = self.smd3.mirror(axis_index=axis_index, reverse=reverse)
+        # self.logic.mirror(axis_index=axis_index, reverse=reverse)
+        self.header.set_box(min_vector, max_vector)
+        self.header.update(self.smd3)
+        # self.meta.mirror(axis_index=axis_index, reverse=reverse)
 
     def turn_tilt(self, index_turn_tilt):
         """

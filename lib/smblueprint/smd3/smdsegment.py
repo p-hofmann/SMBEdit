@@ -298,7 +298,7 @@ class SmdSegment(DefaultLogging):
         """
         assert entity_type in BlueprintEntity.entity_types
 
-        for block_index in self.block_index_to_block:
+        for block_index in list(self.block_index_to_block.keys()):
             block = self.block_index_to_block[block_index]
             if not block_config[block.get_id()].is_valid(entity_type):
                 self.remove_block(self.get_block_position_by_block_index(block_index))

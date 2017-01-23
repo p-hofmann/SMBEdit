@@ -167,7 +167,7 @@ class Smd(DefaultLogging):
         @type direction_vector: int,int,int
 
         @return: new minimum and maximum coordinates of the blueprint
-        @rtype: tuple[int,int,int], tuple[int,int,int]
+        @rtype: tuple[tuple[int]]
         """
         new_smd = Smd(
             segments_in_a_line_of_a_region=self._segments_in_a_line_of_a_region,
@@ -184,6 +184,57 @@ class Smd(DefaultLogging):
                 continue
             if block.get_id() == 1:  # core
                 new_block_position = position_block
+            new_smd.add(new_block_position, block)
+
+            for index, value in enumerate(new_block_position):
+                if value < min_vector[index]:
+                    min_vector[index] = value
+                if value > max_vector[index]:
+                    max_vector[index] = value
+        del self.position_to_region
+        self.position_to_region = new_smd.position_to_region
+        return tuple(min_vector), tuple(max_vector)
+
+    def mirror(self, axis_index, reverse=False):
+        """
+        Mirror at center (core), top to bottom, left to right, front to back
+
+        @param axis_index:  0: x left to right
+                            1: y top to bottom
+                            2: z front to back
+        @type axis_index: int
+        @type reverse: bool
+
+        @return: new minimum and maximum coordinates of the blueprint
+        @rtype: tuple[tuple[int]]
+        """
+        new_smd = Smd(
+            segments_in_a_line_of_a_region=self._segments_in_a_line_of_a_region,
+            blocks_in_a_line_of_a_segment=self._blocks_in_a_line_in_a_segment,
+            logfile=self._logfile,
+            verbose=self._verbose,
+            debug=self._debug)
+        min_vector = [16, 16, 16]
+        max_vector = [16, 16, 16]
+        vector_factor = [1] * 3
+        vector_factor[axis_index] = -1
+        position_core = (16, 16, 16)
+        for position_block, block in self.items():
+            assert isinstance(block, SmdBlock)
+            if position_block[axis_index] == position_core[axis_index]:
+                new_smd.add(position_block, block)
+                continue
+            if reverse:
+                mirror = position_block[axis_index] < position_core[axis_index]
+            else:
+                mirror = position_block[axis_index] > position_core[axis_index]
+            if not mirror:
+                continue
+            new_smd.add(position_block, block)
+            position_tmp = Vector.subtraction(position_block, position_core)
+            position_tmp = Vector.multiplication(position_tmp, vector_factor)
+            new_block_position = Vector.addition(position_tmp, position_core)
+            # todo: mirror orientation
             new_smd.add(new_block_position, block)
 
             for index, value in enumerate(new_block_position):
