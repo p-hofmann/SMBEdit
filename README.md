@@ -2,12 +2,30 @@ StarMade Blueprint Editor
 ====
 
 Yet another editor since others have become outdated.  
-This is a command line tool, there is no gui!  
-The script was written for python2.7 and is not compatible with python3, but should work on all platforms.  
+This is a command line tool, there is no user interface!  
+SMBEdit is compatible with both python2.7 and python3, and should work on all platforms.  
 Input and output are either a directory of raw blueprints as found in "/../StarMade/blueprints/" or a path to a '.sment' file.  
 
+# Installation
+##Python
+Unix users have python by default.  
+Windows users have to install:
+
+* python2.7 https://www.python.org/download/releases/2.7/
+* python3.6 https://www.python.org/downloads/release/python-360/
+
+##SMBEdit
+Download the zip file on release page and extract SMEdit anywhere you want.
+That's it, you can now use SMEdit to modify your blueprint.
 
 # Usage
+Open a command prompt and go to the SMEdit folder.
+To see the help, type:
+
+```
+python smbedit.py --help 
+```
+
 Several command line arguments are available and (most) can be used all at once.  
 
 ### Display all available command line arguments
@@ -79,7 +97,7 @@ Available entity classes are:
 -m MOVE_CENTER, --move_center MOVE_CENTER
 ```
 
-The argument can be either a block id or a directional vector like '0,0,1'.
+The argument can be either a block id or a directional vector like "0,0,1".
 
 #### Move core/center in the direction of x,y,z 
 A positive x moves the core to the right.  
@@ -94,8 +112,16 @@ The ids of blocks can be found at [starmadepedia](https://starmadepedia.net/wiki
 
 For example, if you have problems finding the core anchor of your huge shipyard, why not moving the station indicator directly on top of it? The id of the shipyard core anchor is 679.
 
+With the python script:
+
 ```
 python smbedit.py directory/my_blueprint -m 679 -o directory/new_blueprint
+```
+
+or with the executable (just replace `python smbedit.py` with `smbedit.exe`):
+
+```
+smbedit.exe directory/my_blueprint -m 679 -o directory/new_blueprint
 ```
 
 ### Remove blocks
@@ -218,4 +244,23 @@ If a blueprint is deleted after loading a single player game, or it fails to upl
 The statistical info of an entity, read from the 'header.smbph' file is not updated after blocks are modified.
 
 ## Turrets / Docked entities
+
 Old style docked entities, docked to "Turret Docking Unit" or "Docking Module", are always converted to rail docked entities
+
+# Create the Windows executable (Windows only)
+
+First of all, install cx_Freeze:
+
+```
+bash
+pip install cx-freeze
+```
+
+Then, go to the SMBEdit folder and type:
+
+```
+bash
+python make.py build
+```
+
+The executable should appear in the build folder.

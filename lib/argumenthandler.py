@@ -26,7 +26,7 @@ class ArgumentHandler(Validator):
         Constructor of Argumenthandler
 
         @param logfile: file handler or file path to a log file
-        @type logfile: file | FileIO | StringIO | basestring
+        @type logfile: file | FileIO | StringIO | str
         @param verbose: Not verbose means that only warnings and errors will be past to stream
         @type verbose: bool
         @param debug: Display debug messages
@@ -45,7 +45,8 @@ class ArgumentHandler(Validator):
         self._index_turn_tilt = None  # options.turn
         self._replace_hull = options.replace_hull
         self._replace = options.replace
-        self._remove_blocks = options.remove_blocks
+        self._remove_blocks = None
+        remove_blocks = options.remove_blocks
         self._move_center = options.move_center
         self._update = options.update
         self._auto_hull_shape = (options.auto_wedge, options.auto_tetra, options.auto_corner, options.auto_hepta)
@@ -53,12 +54,15 @@ class ArgumentHandler(Validator):
         self._entity_class = options.entity_class
         self._summary = options.summary
         temp_directory = options.tmp_dir
+        self._directory_starmade = options.starmade
         self._is_archived = False
         if self._path_input.endswith(".sment"):
             self._is_archived = True
 
         assert temp_directory is None or self.validate_dir(temp_directory)
         assert self._path_output is None or self.validate_dir(self._path_output, only_parent=True)
+        assert self._directory_starmade is None or self.validate_dir(
+            self._directory_starmade, file_names=["StarMade.jar"], key='-sm'), "Bad StarMade directory."
 
         self._directory_output = None
         if self._is_archived:  # .sment file
@@ -90,9 +94,9 @@ class ArgumentHandler(Validator):
             if self._path_output is not None:
                 self._directory_output = self._clean_dir_path(self._path_output)
 
-        if self._remove_blocks is not None:
+        if remove_blocks is not None:
             try:
-                self._remove_blocks = map(int, self._remove_blocks.split(','))
+                self._remove_blocks = list(map(int, remove_blocks.split(',')))
             except ValueError:
                 raise ValueError("Bad block id in: '{}'".format(self._remove_blocks))
 
@@ -124,7 +128,6 @@ class ArgumentHandler(Validator):
         """
         parser = argparse.ArgumentParser(
             usage="python %(prog)s directory_blueprint",
-            version="{label} {version}".format(label=label, version=version),
             description="""
     #######################################
     #    {label}#
@@ -136,6 +139,10 @@ class ArgumentHandler(Validator):
                 version=version.ljust(24)
             ),
             formatter_class=argparse.RawTextHelpFormatter)
+
+        parser.add_argument('-V', '--version',
+                            action='version',
+                            version="{label} {version}".format(label=label, version=version),)
 
         parser.add_argument(
             "-silent", "--silent",
@@ -159,6 +166,11 @@ class ArgumentHandler(Validator):
             help="Directory for temporary data in case of 'sment' files.")
 
         group_input = parser.add_argument_group('optional arguments')
+        group_input.add_argument(
+            "-sm", "--starmade",
+            default=None,
+            type=str,
+            help="Directory path to the StarMade folder, attempting to read block config there.")
         group_input.add_argument(
             "-s", "--summary",
             action='store_true',
@@ -238,7 +250,7 @@ class ArgumentHandler(Validator):
             "-ec", "--entity_class",
             default=None,
             type=int,
-            choices=range(9),
+            choices=list(range(9)),
             help='''change entity type to:
             0: General
             1: Mining

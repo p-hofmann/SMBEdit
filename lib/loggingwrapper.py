@@ -5,11 +5,9 @@ import sys
 import io
 import logging
 import random
-if sys.version_info <= (2, 8):
-    from StringIO import StringIO  # python 2.7
-else:
-    from io import StringIO  # python 3
+from io import StringIO
 
+logger = logging.getLogger(__name__)
 
 class LoggingWrapper(object):
     CRITICAL = logging.CRITICAL
@@ -21,7 +19,7 @@ class LoggingWrapper(object):
     DEBUG = logging.DEBUG
     NOTSET = logging.NOTSET
 
-    if sys.version_info <= (2, 8):
+    if sys.version_info < (3,):
         _levelNames = logging._levelNames
     else:
         _levelNames = logging._levelToName  # python 3
@@ -91,7 +89,10 @@ class LoggingWrapper(object):
 
     @staticmethod
     def is_stream(stream):
-        return isinstance(stream, (file, io.FileIO, StringIO)) or stream.__class__ is StringIO
+        if sys.version_info < (3,):
+            return isinstance(stream, (file, io.FileIO, StringIO)) or stream.__class__ is StringIO
+        else:
+            return isinstance(stream, (io.IOBase, io.FileIO, StringIO)) or stream.__class__ is StringIO
 
     def get_label(self):
         return self._label
@@ -107,15 +108,18 @@ class LoggingWrapper(object):
         @return: None
         @rtype: None
         """
-        list_of_handlers = list(self._logger.handlers)
-        for item in list_of_handlers:
-            self._logger.removeHandler(item)
-        if self._label not in LoggingWrapper._map_logfile_handler:
-            return
+        if hasattr(self, '_logger'):
+            list_of_handlers = list(self._logger.handlers)
+            for item in list_of_handlers:
+                self._logger.removeHandler(item)
+            if self._label not in LoggingWrapper._map_logfile_handler:
+                return
 
-        logfile_handler = LoggingWrapper._map_logfile_handler.pop(self._label)
-        if logfile_handler is not None:
-            logfile_handler.close()
+            logfile_handler = LoggingWrapper._map_logfile_handler.pop(self._label)
+            if logfile_handler is not None:
+                logfile_handler.close()
+        else:
+            logger.warning('no attribute named "_logger"')
 
     def info(self, message):
         """
@@ -309,7 +313,7 @@ class DefaultLogging(object):
         if isinstance(logfile, str):
             self._logfile = logfile
         else:
-            if sys.version_info <= (2, 8):
+            if sys.version_info < (3,):
                 if isinstance(logfile, (file, io.FileIO)):
                     self._logfile = logfile.name
             else:
@@ -361,7 +365,7 @@ class DefaultLogging(object):
         @return: True if stream
         @rtype: bool
         """
-        if sys.version_info <= (2, 8):
+        if sys.version_info < (3,):
             return isinstance(stream, (file, io.FileIO, StringIO)) or stream.__class__ is StringIO
         else:
             return isinstance(stream, (io.IOBase, io.FileIO, StringIO)) or stream.__class__ is StringIO
