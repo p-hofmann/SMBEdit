@@ -80,7 +80,7 @@ class BlockOrientation(object):
         block_id = self.get_id()
         if block_id == 0:
             return None
-        return block_config[block_id].block_style()
+        return block_config[block_id].block_style
 
     def _get_bit_19(self):
         return BitAndBytes.bits_parse(self._int_24bit, 19, 1)
