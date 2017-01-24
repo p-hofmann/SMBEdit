@@ -79,25 +79,19 @@ class Meta(DefaultLogging):
             if data_type == 1:  # Finish
                 break
             elif data_type == 2:  # TagManager # aLt.class
-                self._data_type_2 = DataType2(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
                 self._data_type_2.read(input_stream)
                 break
             elif data_type == 3:  # Docking
-                self._data_type_3 = DataType3(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
                 self._data_type_3.read(input_stream)
             elif data_type == 4:  # Unknown stuff
-                self._data_type_4 = DataType4(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
                 self._data_type_4.read(input_stream, self._version)
             elif data_type == 5:  # Unknown byte array
-                self._data_type_5 = DataType5(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
                 self._data_type_5.read(input_stream)  # aLt.class
                 # if self._data_type_5.has_data():
                 #     break
             elif data_type == 6:  # Unknown byte array
-                self._data_type_6 = DataType6(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
                 self._data_type_6.read(input_stream)  # aLt.class
             elif data_type == 7:  # Unknown byte array
-                self._data_type_7 = DataType7(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
                 self._data_type_7.read(input_stream)  # aLt.class
             else:
                 msg = "read_file unknown data type: {}".format(data_type)
@@ -117,6 +111,12 @@ class Meta(DefaultLogging):
         @param directory_blueprint: input directory
         @type directory_blueprint: str
         """
+        self._data_type_2 = DataType2(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
+        self._data_type_3 = DataType3(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
+        self._data_type_4 = DataType4(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
+        self._data_type_5 = DataType5(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
+        self._data_type_6 = DataType6(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
+        self._data_type_7 = DataType7(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
         file_path = os.path.join(directory_blueprint, self._file_name)
         with open(file_path, 'rb') as input_stream:
             self._read_file(BinaryStream(input_stream))
