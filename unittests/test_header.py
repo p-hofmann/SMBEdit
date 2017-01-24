@@ -18,6 +18,11 @@ class DefaultSetup(TestCase):
 
     def setUp(self):
         self.object = Header()
+        self.object.add(88, 100)
+        self.object.classification = 1
+        self.object.box_min = [-2, -2, -2]
+        self.object.box_max = [2, 2, 2]
+        self.object.type = 0
 
     def tearDown(self):
         self.object = None
@@ -27,6 +32,7 @@ class DefaultSetup(TestCase):
 
 class TestHeader(DefaultSetup):
     def test__read_block_quantities(self):
+        self.object.remove(88)
         block_id_to_quantity = {
             1: 1,
             2: 100
@@ -65,43 +71,52 @@ class TestHeader(DefaultSetup):
         self.fail()
 
     def test__get_measure(self):
-        self.fail()
+        self.assertEqual(self.object._get_measure(0), 4)
 
     def test_get_type_name(self):
-        self.fail()
+        self.assertEqual(self.object.get_type_name(), "Ship")
 
     def test_get_classification_name(self):
-        self.fail()
+        self.assertEqual(self.object.get_classification_name(), "General")
 
     def test_get_width(self):
-        self.fail()
+        self.assertEqual(self.object.get_width(), 4)
 
     def test_get_height(self):
-        self.fail()
+        self.assertEqual(self.object.get_height(), 4)
 
     def test_get_length(self):
-        self.fail()
+        self.assertEqual(self.object.get_length(), 4)
 
     def test_add(self):
-        self.fail()
+        self.object.add(88, 100)
+        self.object.add(80, 100)
+        self.assertEqual(len(self.object.block_id_to_quantity), 2)
+        self.assertEqual(self.object.block_id_to_quantity[88], 200)
+        self.assertEqual(self.object.block_id_to_quantity[80], 100)
 
     def test_set_class(self):
-        self.fail()
+        self.object.set_class(5)
+        self.assertRaises(AssertionError, self.object.set_class, 15)
 
     def test_set_type(self):
-        self.fail()
+        self.object.set_type(2)
+        self.assertEqual(self.object.classification, 0)
+        self.assertRaises(AssertionError, self.object.set_type, 15)
 
     def test_set_quantities(self):
-        self.fail()
+        self.object.remove(88)
+        block_id_to_quantity = {
+            1: 1,
+            2: 100
+        }
+        self.object.set_quantities(block_id_to_quantity)
+        self.assertDictEqual(self.object.block_id_to_quantity, block_id_to_quantity)
 
     def test_update(self):
-        self.fail()
+        self.object.update()
+        self.assertEqual(len(self.object.block_id_to_quantity), 0)
 
     def test_remove(self):
-        self.fail()
-
-    def test_set_box(self):
-        self.fail()
-
-    def test_to_stream(self):
-        self.fail()
+        self.object.remove(88)
+        self.assertEqual(len(self.object.block_id_to_quantity), 0)
