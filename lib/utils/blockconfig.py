@@ -202,6 +202,7 @@ class BlockConfig(MetaBlockConfig, ):
     def from_hard_coded(self):
         for block_id, name in BlockConfigHardcoded.items():
             self._id_to_block[block_id] = BlockInfo()
+            self._id_to_block[block_id].id = block_id
             self._id_to_block[block_id].name = name
             self._id_to_block[block_id].hit_points = 1
             self._id_to_block[block_id].can_activate = BlockConfigHardcoded.is_activatable_block(block_id)
