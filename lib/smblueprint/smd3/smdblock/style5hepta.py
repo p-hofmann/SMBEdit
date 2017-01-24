@@ -1,4 +1,4 @@
-from lib.smblueprint.smd3.orientation.style4tetra import Style4Tetra
+from lib.smblueprint.smd3.smdblock.style4tetra import Style4Tetra
 
 
 __author__ = 'Peter Hofmann'

@@ -45,6 +45,25 @@ class Vector(object):
         return tuple(result)
 
     @staticmethod
+    def multiplication(vector1, vector2):
+        """
+        multiply entries of vector2 with vector1
+
+        @param vector1: (x,y,z)
+        @type vector1: int, int, int
+        @param vector2: (x,y,z)
+        @type vector2: int, int, int
+
+        @return:
+        @rtype: int, int, int
+        """
+        assert len(vector1) == len(vector2)
+        result = [0] * len(vector1)
+        for index in range(0, len(vector1)):
+            result[index] = vector1[index] * vector2[index]
+        return tuple(result)
+
+    @staticmethod
     def distance(vector1, vector2):
         """
         Calculate distance between two vectors

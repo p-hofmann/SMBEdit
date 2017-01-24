@@ -10,7 +10,7 @@ from lib.utils.autoshape import AutoShape
 from lib.utils.vector import Vector
 from lib.smblueprint.smd3.smdregion import SmdRegion
 from lib.smblueprint.smd2.smd import Smd as Smd2
-from lib.smblueprint.smd3.smdblock import SmdBlock
+from lib.smblueprint.smd3.smdblock.block import Block
 
 
 class Smd(DefaultLogging):
@@ -76,7 +76,7 @@ class Smd(DefaultLogging):
             offset = (8, 8, 8)
             for position, smd2block in smd2.items():
                 smd3_position = Vector.addition(position, offset)
-                smd3block = SmdBlock(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
+                smd3block = Block(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
                 hit_points = block_config[smd2block.get_id()].hit_points
                 smd3block.set_int_24bit(smd2block.get_int_24bit())
                 smd3block.update(hit_points=hit_points)
@@ -119,7 +119,7 @@ class Smd(DefaultLogging):
         @param position: tuple[int]
 
         @return:
-        @rtype: SmdBlock
+        @rtype: Block
         """
         region_position = self.get_region_position_of_position(position)
         assert region_position in self.position_to_region, "No block at position: {}".format(position)
@@ -167,7 +167,7 @@ class Smd(DefaultLogging):
         @type direction_vector: int,int,int
 
         @return: new minimum and maximum coordinates of the blueprint
-        @rtype: tuple[int,int,int], tuple[int,int,int]
+        @rtype: tuple[tuple[int]]
         """
         new_smd = Smd(
             segments_in_a_line_of_a_region=self._segments_in_a_line_of_a_region,
@@ -178,13 +178,66 @@ class Smd(DefaultLogging):
         min_vector = [16, 16, 16]
         max_vector = [16, 16, 16]
         for position_block, block in self.items():
-            assert isinstance(block, SmdBlock)
+            assert isinstance(block, Block)
             new_block_position = Vector.subtraction(position_block, direction_vector)
             if entity_type == 0 and new_block_position == (16, 16, 16):
                 continue
             if block.get_id() == 1:  # core
                 new_block_position = position_block
             new_smd.add(new_block_position, block)
+
+            for index, value in enumerate(new_block_position):
+                if value < min_vector[index]:
+                    min_vector[index] = value
+                if value > max_vector[index]:
+                    max_vector[index] = value
+        del self.position_to_region
+        self.position_to_region = new_smd.position_to_region
+        return tuple(min_vector), tuple(max_vector)
+
+    def mirror(self, axis_index, reverse=False):
+        """
+        Mirror at center (core), top to bottom, left to right, front to back
+
+        @param axis_index:  0: x left to right
+                            1: y top to bottom
+                            2: z front to back
+        @type axis_index: int
+        @type reverse: bool
+
+        @return: new minimum and maximum coordinates of the blueprint
+        @rtype: tuple[tuple[int]]
+        """
+        new_smd = Smd(
+            segments_in_a_line_of_a_region=self._segments_in_a_line_of_a_region,
+            blocks_in_a_line_of_a_segment=self._blocks_in_a_line_in_a_segment,
+            logfile=self._logfile,
+            verbose=self._verbose,
+            debug=self._debug)
+        min_vector = [16, 16, 16]
+        max_vector = [16, 16, 16]
+        vector_factor = [1] * 3
+        vector_factor[axis_index] = -1
+        position_core = (16, 16, 16)
+        for position_block, block in self.items():
+            assert isinstance(block, Block)
+            if position_block[axis_index] == position_core[axis_index]:
+                new_smd.add(position_block, block)
+                continue
+            if reverse:
+                mirror = position_block[axis_index] < position_core[axis_index]
+            else:
+                mirror = position_block[axis_index] > position_core[axis_index]
+            if not mirror:
+                continue
+            new_smd.add(position_block, block)
+            position_tmp = Vector.subtraction(position_block, position_core)
+            position_tmp = Vector.multiplication(position_tmp, vector_factor)
+            new_block_position = Vector.addition(position_tmp, position_core)
+            new_block = Block()
+            new_block.set_int_24bit(block.get_int_24bit())
+            new_block.mirror(axis_index)
+            new_smd.add(new_block_position, new_block)
 
             for index, value in enumerate(new_block_position):
                 if value < min_vector[index]:
@@ -218,7 +271,7 @@ class Smd(DefaultLogging):
         min_vector = [16, 16, 16]
         max_vector = [16, 16, 16]
         for position_block, block in self.items():
-            assert isinstance(block, SmdBlock)
+            assert isinstance(block, Block)
             new_block_position = position_block
             if block.get_id() != 1:  # core
                 new_block_position = Vector.tilt_turn_position(position_block, tilt_index)
@@ -322,7 +375,7 @@ class Smd(DefaultLogging):
         @param block_position: x,y,z position of block
         @type block_position: int,int,int
         @param block: A block! :)
-        @type block: SmdBlock
+        @type block: Block
         """
         assert isinstance(block_position, tuple)
         position_region = self.get_region_position_of_position(block_position)
@@ -404,7 +457,7 @@ class Smd(DefaultLogging):
         for position_region, region in self.position_to_region.items():
             assert isinstance(region, SmdRegion), type(region)
             for position_block, block in region.items():
-                assert isinstance(block, SmdBlock), type(block)
+                assert isinstance(block, Block), type(block)
                 yield position_block, block
 
     def get_min_max_vector(self):
@@ -417,7 +470,7 @@ class Smd(DefaultLogging):
         min_vector = [16, 16, 16]
         max_vector = [16, 16, 16]
         for position_block, block in self.items():
-            assert isinstance(block, SmdBlock)
+            assert isinstance(block, Block)
             for index, value in enumerate(position_block):
                 if value < min_vector[index]:
                     min_vector[index] = value
@@ -439,7 +492,7 @@ class Smd(DefaultLogging):
 
         position_core = (16, 16, 16)
         if entity_type == 0:  # Ship
-            core_block = SmdBlock()
+            core_block = Block()
             core_block.update(block_id=1, hit_points=250, active=False)
             self.add(position_core, core_block)
         else:  # not a ship
@@ -648,7 +701,7 @@ class Smd(DefaultLogging):
             bit_19 = block._get_bit_19()
             bit_22 = block._get_bit_22()
             bit_23 = block._get_bit_23()
-            rotations = block._get_clockwise_rotations()
+            rotations = block._get_rotations()
             if periphery_index in peripheries:
                 tmp = (bit_19, bit_22, bit_23, rotations)
                 if peripheries[periphery_index] != tmp:
@@ -687,7 +740,7 @@ class Smd(DefaultLogging):
             bit_19 = block._get_bit_19()
             bit_22 = block._get_bit_22()
             bit_23 = block._get_bit_23()
-            rotations = block._get_clockwise_rotations()
+            rotations = block._get_rotations()
             orientation = (bit_19, bit_22, bit_23, rotations)
 
             if all(periphery_shape):

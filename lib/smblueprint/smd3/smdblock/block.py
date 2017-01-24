@@ -4,16 +4,40 @@ import sys
 
 from lib.bits_and_bytes import BitAndBytes
 from lib.utils.blockconfig import block_config
-from lib.smblueprint.smd3.blockorientation import BlockOrientation
+from lib.smblueprint.smd3.smdblock.style0 import Style0
+from lib.smblueprint.smd3.smdblock.style1wedge import Style1Wedge
+from lib.smblueprint.smd3.smdblock.style2corner import Style2Corner
+from lib.smblueprint.smd3.smdblock.style3 import Style3
+from lib.smblueprint.smd3.smdblock.style4tetra import Style4Tetra
+from lib.smblueprint.smd3.smdblock.style5hepta import Style5Hepta
+from lib.smblueprint.smd3.smdblock.style6 import Style6
 
 
-class SmdBlock(BlockOrientation):
+class Block(object):
+
+    _bit_block_id_start = 0
+    _bit_block_id_length = 11
+
+    _bit_hit_points_start = 11
+    _bit_hit_points_length = 8
+
+    _bit_is_active_start = 19
+    _bit_is_active_length = 1
 
     def __init__(self, logfile=None, verbose=False, debug=False):
-        super(SmdBlock, self).__init__(logfile=logfile, verbose=verbose, debug=debug)
+        self._int_24bit = 0
+        # super(Block, self).__init__(logfile=logfile, verbose=verbose, debug=debug)
         self._label = "SmdBlock"
 
     # Get
+
+    def get_id(self):
+        """
+        Returns the block id
+
+        @rtype: int
+        """
+        return BitAndBytes.bits_parse(self._int_24bit, self._bit_block_id_start, self._bit_block_id_length)
 
     def get_hit_points(self):
         """
@@ -24,6 +48,16 @@ class SmdBlock(BlockOrientation):
         if self.get_id() == 0:
             return None
         return BitAndBytes.bits_parse(self._int_24bit, 11, 8)
+
+    def get_style(self):
+        """
+        Returns the block style
+
+        @rtype: int | None
+        """
+        block_id = self.get_id()
+        assert block_id != 0
+        return block_config[block_id].block_style
 
     def is_active(self):
         """
@@ -44,7 +78,42 @@ class SmdBlock(BlockOrientation):
         """
         return BitAndBytes.bits_parse(self._int_24bit, 19, 1)
 
+    def get_orientation(self, style=None):
+        if style is None:
+            style = self.get_style()
+        if style == 0:
+            return Style0(self._int_24bit)
+        if style == 1:
+            return Style1Wedge(self._int_24bit)
+        if style == 2:
+            return Style2Corner(self._int_24bit)
+        if style == 3:
+            return Style3(self._int_24bit)
+        if style == 4:
+            return Style4Tetra(self._int_24bit)
+        if style == 5:
+            return Style5Hepta(self._int_24bit)
+        if style == 6:
+            return Style6(self._int_24bit)
+
+    def get_int_24bit(self):
+        """
+        Get integer representing block
+
+        @rtype int_24bit: int
+        """
+        return self._int_24bit
+
     # Set
+
+    def set_int_24bit(self, int_24bit):
+        """
+        Set integer representing block
+
+        @param int_24bit:
+        @type int_24bit: int
+        """
+        self._int_24bit = int_24bit
 
     def convert_to_type_6(self, block_id):
         """
@@ -54,11 +123,11 @@ class SmdBlock(BlockOrientation):
         """
         assert self.get_style() == 0
         assert block_config[block_id].block_style == 6
-        side_id = self.get_block_side_id()
-        assert side_id in self._block_side_id_to_type_6, "Bad side id: {}".format(side_id)
-        bit_19, bit_23, bit_22, rotations = self._block_side_id_to_type_6[side_id]
+        orientation = Style0(self._int_24bit)
+        bit_19, bit_23, bit_22, rotations = orientation.to_style6_bits()
+        hit_points = block_config[block_id].hit_points
         self.update(
-            block_id=block_id, bit_19=bit_19, bit_22=bit_22, bit_23=bit_23, rotations=rotations, active=False, hit_points=100)
+            block_id=block_id, bit_19=bit_19, bit_22=bit_22, bit_23=bit_23, rotations=rotations, active=False, hit_points=hit_points)
         return
 
     def update(self, block_id=None, hit_points=None, active=None, block_side_id=None, bit_19=None, bit_22=None, bit_23=None, rotations=None):
@@ -91,7 +160,8 @@ class SmdBlock(BlockOrientation):
         int_24bit = BitAndBytes.bits_combine(hit_points, int_24bit, 11)
         if style == 0:  # For blocks with an activation status
             int_24bit = BitAndBytes.bits_combine(active, int_24bit, 19)
-        self._int_24bit = self._bits_combine_orientation(
+        orientation = self.get_orientation(style)
+        self._int_24bit = orientation.bit_combine(
             int_24bit, style=style, bit_19=bit_19, bit_22=bit_22, bit_23=bit_23,
             rotations=rotations, block_side_id=block_side_id)
         # '[1:]' since only the last three bytes of an integer are used for block information.
@@ -125,49 +195,15 @@ class SmdBlock(BlockOrientation):
         assert self.get_style() == 0, "Block id {} has no 'active' status".format(self.get_id())
         self.update(active=active)
 
-    # #######################################
-    # ###  Turning
-    # #######################################
-
-    def tilt_turn(self, index):
-        """
-        Turn the block.
-
-        @attention: This does not work right, yet.
-
-        @param index: index representing a specific turn
-        @type index: int
-        """
-        if index == 0:
-            self.tilt_up()
-        elif index == 1:
-            self.tilt_down()
-        elif index == 2:
-            self.turn_right()
-        elif index == 3:
-            self.turn_left()
-        elif index == 4:
-            self.tilt_right()
-        elif index == 5:
-            self.tilt_left()
-
-    def tilt_up(self):
-        self.turn_270_x()
-
-    def tilt_down(self):
-        self.turn_90_x()
-
-    def turn_right(self):
-        self.turn_90_y()
-
-    def turn_left(self):
-        self.turn_270_y()
-
-    def tilt_right(self):
-        self.turn_90_z()
-
-    def tilt_left(self):
-        self.turn_270_z()
+    def mirror(self, axis_index):
+        orientation = self.get_orientation()
+        if axis_index == 0:
+            orientation.mirror_x()
+        if axis_index == 1:
+            orientation.mirror_y()
+        if axis_index == 2:
+            orientation.mirror_z()
+        self._int_24bit = orientation.bit_combine(self._int_24bit)
 
     # #######################################
     # ###  Stream
@@ -183,5 +219,6 @@ class SmdBlock(BlockOrientation):
         output_stream.write("({})\t".format(self.get_style()))
         output_stream.write("HP: {}\t".format(self.get_hit_points()))
         output_stream.write("Active: {}\t".format(self.is_active()))
-        output_stream.write("Or.: {}\t".format(self._orientation_to_string()))
+        orientation = self.get_orientation()
+        output_stream.write("Or.: {}\t".format(orientation.to_string()))
         output_stream.write("{}\n".format(block_config[self.get_id()].name))

@@ -17,7 +17,6 @@ from lib.smblueprint.meta.tag.raildockentitylinks import RailDockedEntityLinks, 
 from lib.smblueprint.smd3.smd import Smd
 
 
-
 # #######################################
 # ###  META
 # #######################################
@@ -251,11 +250,12 @@ class Meta(DefaultLogging):
             block = smd.get_block_at_position(docker_entity.position)
             main_entity = RailDockedEntity()
             rail_dock_entity = RailDockedEntity()
+            block_side_id = block.get_orientation().get_block_side_id()
             main_entity.set_by_block_side(
                 label=main_entity_label,
                 location=docker_entity.position,
                 block_id=block_config[block.get_id()].get_rail_equivalent(),
-                side=block.get_block_side_id()
+                side=block_side_id
             )
             rail_dock_entity.set(
                 label="{}{}".format(rail_docked_label_prefix, docked_entity_index),
@@ -267,7 +267,7 @@ class Meta(DefaultLogging):
 
             link = RailDockedEntityLink()
             link.set(
-                docked_entity_location=self.get_docked_entity_location(docker_entity.position, block.get_block_side_id()),
+                docked_entity_location=self.get_docked_entity_location(docker_entity.position, block_side_id),
                 entity_main=main_entity,
                 entity_docked=rail_dock_entity
                 )
