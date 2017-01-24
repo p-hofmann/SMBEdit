@@ -21,7 +21,7 @@ class DefaultSetup(TestCase):
         # corner 600
         # hepta 601
         # tetra 602
-        self.default_orientation = (0, 0, 0, 1)
+        self.default_orientation = (0, 1, 0, 3)
         self.object.update(
             block_id=599,
             hit_points=75,
@@ -94,5 +94,5 @@ class TestBlock(DefaultSetup):
 
     def test_mirror(self):
         self.object.mirror(0)
-        expected_orientation = (0, 0, 0, 3)
+        expected_orientation = (0, 1, 0, 1)
         self.assertTupleEqual(self.object.get_orientation().get_orientation_values(), expected_orientation)
