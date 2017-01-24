@@ -368,7 +368,7 @@ class Header(DefaultLogging):
             self.set_box(min_vector=min_vector, max_vector=max_vector)
         else:
             # update manually and hope it reflects the smd data
-            for block_id in self.block_id_to_quantity:
+            for block_id in list(self.block_id_to_quantity.keys()):
                 if not block_config[block_id].is_valid(self.type):
                     self.remove(block_id)
                     continue
