@@ -401,8 +401,9 @@ class Logic(DefaultLogging):
         """
         Remove empty links
         """
-        for controller_position, groups in self._controller_position_to_block_id_to_block_positions.items():
-            for block_id in groups:
+        for controller_position in list(self._controller_position_to_block_id_to_block_positions.keys()):
+            groups = self._controller_position_to_block_id_to_block_positions[controller_position]
+            for block_id in list(groups.keys()):
                 if len(self._controller_position_to_block_id_to_block_positions[controller_position][block_id]) == 0:
                     self._controller_position_to_block_id_to_block_positions[controller_position].pop(block_id)
             if len(self._controller_position_to_block_id_to_block_positions[controller_position]) == 0:
