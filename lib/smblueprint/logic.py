@@ -277,6 +277,47 @@ class Logic(DefaultLogging):
         del self._controller_position_to_block_id_to_block_positions
         self._controller_position_to_block_id_to_block_positions = new_dict
 
+    def mirror(self, axis_index, reverse=False):
+        """
+        Mirror at center (core), top to bottom, left to right, front to back
+
+        @param axis_index:  0: x left to right
+                            1: y top to bottom
+                            2: z front to back
+        @type axis_index: int
+        @type reverse: bool
+        """
+        position_core = (16, 16, 16)
+        new_dict = {}  # mirror_position
+        for controller_position, groups in self._controller_position_to_block_id_to_block_positions.items():
+            if reverse:
+                mirror = controller_position[axis_index] <= position_core[axis_index]
+            else:
+                mirror = controller_position[axis_index] >= position_core[axis_index]
+            if not mirror:
+                continue
+            new_dict[controller_position] = {}
+            new_controller_position = Vector.mirror_position(controller_position, axis_index, position_mirror=position_core)
+            new_dict[new_controller_position] = {}
+
+            for block_id, positions in groups.items():
+                for block_position in positions:
+                    if reverse:
+                        mirror = block_position[axis_index] <= position_core[axis_index]
+                    else:
+                        mirror = block_position[axis_index] >= position_core[axis_index]
+                    if not mirror:
+                        continue
+                    if block_id not in new_dict[controller_position]:
+                        new_dict[controller_position][block_id] = set()
+                        new_dict[new_controller_position][block_id] = set()
+                    new_block_position = Vector.mirror_position(block_position, axis_index, position_mirror=position_core)
+                    new_dict[controller_position][block_id].add(block_position)
+                    new_dict[new_controller_position][block_id].add(new_block_position)
+
+        del self._controller_position_to_block_id_to_block_positions
+        self._controller_position_to_block_id_to_block_positions = new_dict
+
     def _update_groups(self, controller_position, block_id, smd):
         """
         Delete links to removed blocks
@@ -360,8 +401,9 @@ class Logic(DefaultLogging):
         """
         Remove empty links
         """
-        for controller_position, groups in self._controller_position_to_block_id_to_block_positions.items():
-            for block_id in groups:
+        for controller_position in list(self._controller_position_to_block_id_to_block_positions.keys()):
+            groups = self._controller_position_to_block_id_to_block_positions[controller_position]
+            for block_id in list(groups.keys()):
                 if len(self._controller_position_to_block_id_to_block_positions[controller_position][block_id]) == 0:
                     self._controller_position_to_block_id_to_block_positions[controller_position].pop(block_id)
             if len(self._controller_position_to_block_id_to_block_positions[controller_position]) == 0:

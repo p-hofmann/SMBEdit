@@ -229,7 +229,8 @@ class Blueprint(DefaultLogging):
         @type reverse: bool
         """
         min_vector, max_vector = self.smd3.mirror(axis_index=axis_index, reverse=reverse)
-        # self.logic.mirror(axis_index=axis_index, reverse=reverse)
+        self.logic.update(self.smd3)
+        self.logic.mirror(axis_index=axis_index, reverse=reverse)
         self.header.set_box(min_vector, max_vector)
         self.header.update(self.smd3)
         # self.meta.mirror(axis_index=axis_index, reverse=reverse)

@@ -140,3 +140,21 @@ class Vector(object):
             multiplicator[2]*new_block_position[indexes[2]])
         new_block_position = Vector.addition(new_block_position, Vector._core_position)
         return new_block_position
+
+    @staticmethod
+    def mirror_position(position_block, axis_index, position_mirror=None):
+        """
+
+        @param position_block:
+        @param axis_index:
+        @param position_mirror:
+        @return:
+        """
+        if position_mirror is None:
+            position_mirror = Vector._core_position
+        vector_factor = [1] * 3
+        vector_factor[axis_index] = -1
+        position_tmp = Vector.subtraction(position_block, position_mirror)
+        position_tmp = Vector.multiplication(position_tmp, vector_factor)
+        return Vector.addition(position_tmp, position_mirror)
+

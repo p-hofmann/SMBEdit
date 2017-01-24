@@ -61,8 +61,7 @@ class Style1Wedge(Orientation):
             bit_22 = self._get_bit_22()
         if bit_23 is None:
             bit_23 = self._get_bit_23()
-        new_int_24bit <<= 5
-        new_int_24bit >>= 5
+        new_int_24bit &= 0b000001111111111111111111
         new_int_24bit = BitAndBytes.bits_combine(rotations, new_int_24bit, Orientation._bit_rotation_start)
         new_int_24bit = BitAndBytes.bits_combine(bit_22, new_int_24bit, 22)
         new_int_24bit = BitAndBytes.bits_combine(bit_23, new_int_24bit, 23)

@@ -43,8 +43,7 @@ class Style0(Orientation):
         """
         if block_side_id is None:
             block_side_id = self.get_block_side_id()
-        new_int_24bit <<= 4
-        new_int_24bit >>= 4
+        new_int_24bit &= 0b000011111111111111111111
         return BitAndBytes.bits_combine(block_side_id, new_int_24bit, Orientation._bit_block_side_start)
 
     def to_style6_bits(self):
@@ -66,6 +65,8 @@ class Style0(Orientation):
         Mirror left - right
         """
         side_id = self.get_block_side_id()
+        if side_id not in [4, 5]:
+            return
         side_id = Style0._turn_y_90(side_id)
         side_id = Style0._turn_y_90(side_id)
         int_24 = self._int_24bit
@@ -76,6 +77,8 @@ class Style0(Orientation):
         Mirror top - down
         """
         side_id = self.get_block_side_id()
+        if side_id not in [2, 3]:
+            return
         side_id = Style0._turn_z_90(side_id)
         side_id = Style0._turn_z_90(side_id)
         int_24 = self._int_24bit
@@ -87,6 +90,8 @@ class Style0(Orientation):
         Mirror front - back
         """
         side_id = self.get_block_side_id()
+        if side_id not in [0, 1]:
+            return
         side_id = Style0._turn_x_90(side_id)
         side_id = Style0._turn_x_90(side_id)
         int_24 = self._int_24bit
