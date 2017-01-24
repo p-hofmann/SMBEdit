@@ -23,6 +23,7 @@ class DefaultSetup(TestCase):
         self.object.box_min = [-2, -2, -2]
         self.object.box_max = [2, 2, 2]
         self.object.type = 0
+        self.object.version = 3
 
     def tearDown(self):
         self.object = None
@@ -46,29 +47,32 @@ class TestHeader(DefaultSetup):
         self.object._read_block_quantities(stream)
         self.assertDictEqual(self.object.block_id_to_quantity, block_id_to_quantity)
 
-    def test__read_header(self):
-        self.fail()
-
-    def test__read_file(self):
-        self.fail()
-
-    def test_read(self):
-        self.fail()
+    def test__read_write_header(self):
+        stream = BinaryStream(StringIO())
+        self.object._write_file(stream)
+        stream.seek(0)
+        self.object._read_header(stream)
 
     def test__write_block_quantities(self):
-        self.fail()
+        stream = BinaryStream(StringIO())
+        self.object._write_block_quantities(stream)
+        stream.seek(0)
+        self.object._read_block_quantities(stream)
 
-    def test__write_header(self):
-        self.fail()
+    def test__read_file(self):
+        stream = BinaryStream(StringIO())
+        self.object._write_file(stream)
+        stream.seek(0)
+        self.object._read_file(stream)
 
-    def test__write_file(self):
-        self.fail()
-
-    def test_write(self):
-        self.fail()
+    def test__write_file(self,):
+        stream = BinaryStream(StringIO())
+        self.object._write_file(stream)
 
     def test_iteritems(self):
-        self.fail()
+        for block_id, quantity in self.object.iteritems():
+            self.assertEqual(block_id, 88)
+            self.assertEqual(quantity, 100)
 
     def test__get_measure(self):
         self.assertEqual(self.object._get_measure(0), 4)
@@ -77,7 +81,7 @@ class TestHeader(DefaultSetup):
         self.assertEqual(self.object.get_type_name(), "Ship")
 
     def test_get_classification_name(self):
-        self.assertEqual(self.object.get_classification_name(), "General")
+        self.assertEqual(self.object.get_classification_name(), "Mining")
 
     def test_get_width(self):
         self.assertEqual(self.object.get_width(), 4)
@@ -102,7 +106,7 @@ class TestHeader(DefaultSetup):
     def test_set_type(self):
         self.object.set_type(2)
         self.assertEqual(self.object.classification, 0)
-        self.assertRaises(AssertionError, self.object.set_type, 15)
+        self.assertRaises(AssertionError, self.object.set_class, 0)
 
     def test_set_quantities(self):
         self.object.remove(88)
