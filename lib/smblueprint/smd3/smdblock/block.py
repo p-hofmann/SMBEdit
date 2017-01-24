@@ -45,8 +45,7 @@ class Block(object):
 
         @rtype: int
         """
-        if self.get_id() == 0:
-            return None
+        assert self.get_id() != 0, "Block id 0 has no hit points."
         return BitAndBytes.bits_parse(self._int_24bit, 11, 8)
 
     def get_style(self):
@@ -143,6 +142,8 @@ class Block(object):
         elif block_id == 0:
             self._int_24bit = 0
             return
+        else:
+            hit_points = block_config[block_id].hit_points
 
         if hit_points is None:
             hit_points = self.get_hit_points()
