@@ -1,7 +1,7 @@
 from unittest import TestCase
 from StringIO import StringIO
-from lib.bits_and_bytes import ByteStream
-from lib.blueprint.header import Header
+from lib.bits_and_bytes import BinaryStream
+from lib.smblueprint.header import Header
 # from lib.blueprint.smd3.smd import Smd
 
 __author__ = 'Peter Hofmann'
@@ -31,7 +31,7 @@ class TestHeader(DefaultSetup):
             1: 1,
             2: 100
         }
-        stream = ByteStream(StringIO())
+        stream = BinaryStream(StringIO())
         stream.write_int32_unassigned(len(block_id_to_quantity))
         for block_id in block_id_to_quantity:
             stream.write_int16_unassigned(block_id)
