@@ -333,8 +333,9 @@ class Header(DefaultLogging):
         @type entity_type: int
         """
         assert isinstance(entity_type, int)
-        assert 0 <= entity_type <= 4
+        assert self.type in BlueprintEntity.entity_classification, "Unknown entity type: {}.".format(self.type)
         self.type = entity_type
+        self.classification = 0
 
         block_id_core = 1
         if entity_type > 0:
@@ -379,6 +380,15 @@ class Header(DefaultLogging):
                     continue
                 quantity = self.block_id_to_quantity.pop(block_id)
                 self.block_id_to_quantity[updated_block_id] = quantity
+        self._clean_up()
+
+    def _clean_up(self):
+        """
+        Remove empty links
+        """
+        for block_id in list(self.block_id_to_quantity.keys()):
+            if len(self.block_id_to_quantity[block_id]) == 0:
+                self.block_id_to_quantity.pop(block_id)
 
     def remove(self, block_id, quantity=None):
         """
