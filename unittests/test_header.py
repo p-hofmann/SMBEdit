@@ -75,7 +75,7 @@ class TestHeader(DefaultSetup):
         self.object._write_file(stream)
 
     def test_iteritems(self):
-        for block_id, quantity in self.object.iteritems():
+        for block_id, quantity in self.object.items():
             self.assertEqual(block_id, 88)
             self.assertEqual(quantity, 100)
 
