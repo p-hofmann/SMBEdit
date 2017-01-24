@@ -237,10 +237,6 @@ class Smd(DefaultLogging):
             new_block = Block()
             new_block.set_int_24bit(block.get_int_24bit())
             new_block.mirror(axis_index)
-            if new_block.get_style() in [1, 2, 5, 6]:
-                orientation_original = block.get_orientation().get_orientation_values()
-                orientation_mirror = new_block.get_orientation().get_orientation_values()
-                assert orientation_original != orientation_mirror, "{}: {} {}".format(new_block.get_style(), orientation_original, orientation_mirror)
             new_smd.add(new_block_position, new_block)
 
             for index, value in enumerate(new_block_position):

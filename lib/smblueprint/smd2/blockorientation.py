@@ -116,11 +116,8 @@ class BlockOrientation(object):
         if style == 0:
             if block_side_id is None:
                 block_side_id = self._get_block_side_id()
+            new_int_24bit &= 0b000011111111111111111111
             return BitAndBytes.bits_combine(block_side_id, new_int_24bit, 20)
-        if style != 0:
-            if bit_19 is None:
-                bit_19 = self._get_bit_19()
-            new_int_24bit = BitAndBytes.bits_combine(bit_19, new_int_24bit, 19)
 
         if rotations is None:
             rotations = self._get_clockwise_rotations()
@@ -128,6 +125,10 @@ class BlockOrientation(object):
             bit_22 = self._get_bit_22()
         if bit_23 is None:
             bit_23 = self._get_bit_23()
+        if bit_19 is None:
+            bit_19 = self._get_bit_19()
+        new_int_24bit &= 0b000001111111111111111111
+        new_int_24bit = BitAndBytes.bits_combine(bit_19, new_int_24bit, 19)
         new_int_24bit = BitAndBytes.bits_combine(rotations, new_int_24bit, 20)
         new_int_24bit = BitAndBytes.bits_combine(bit_22, new_int_24bit, 22)
         new_int_24bit = BitAndBytes.bits_combine(bit_23, new_int_24bit, 23)

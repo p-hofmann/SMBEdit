@@ -43,8 +43,7 @@ class Style0(Orientation):
         """
         if block_side_id is None:
             block_side_id = self.get_block_side_id()
-        new_int_24bit <<= 4
-        new_int_24bit >>= 4
+        new_int_24bit &= 0b000011111111111111111111
         return BitAndBytes.bits_combine(block_side_id, new_int_24bit, Orientation._bit_block_side_start)
 
     def to_style6_bits(self):
