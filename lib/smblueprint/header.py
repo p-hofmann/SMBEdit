@@ -387,7 +387,7 @@ class Header(DefaultLogging):
         Remove empty links
         """
         for block_id in list(self.block_id_to_quantity.keys()):
-            if len(self.block_id_to_quantity[block_id]) == 0:
+            if self.block_id_to_quantity[block_id] == 0:
                 self.block_id_to_quantity.pop(block_id)
 
     def remove(self, block_id, quantity=None):
