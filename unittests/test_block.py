@@ -59,17 +59,17 @@ class TestBlock(DefaultSetup):
         expected_orientation = self.default_orientation
         self.assertTupleEqual(self.object.get_orientation().get_orientation_values(), expected_orientation)
 
-    def test_get_int_24bit(self):
-        self.fail()
-
-    def test_set_int_24bit(self):
-        self.fail()
+    def test_int_24bit(self):
+        int24 = 123456
+        self.object.set_int_24bit(int24)
+        self.assertEqual(self.object.get_int_24bit(), int24)
 
     def test_convert_to_type_6(self):
-        self.fail()
-
-    def test_update(self):
-        self.fail()
+        expected_orientation = (0, 0, 0, 2)
+        self.object.set_int_24bit(0)
+        self.object.set_id(7)
+        self.object.convert_to_type_6(665)
+        self.assertTupleEqual(self.object.get_orientation().get_orientation_values(), expected_orientation)
 
     def test_set_id(self): #
         self.object.set_id(604)
