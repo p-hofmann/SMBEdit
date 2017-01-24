@@ -243,7 +243,7 @@ class Header(DefaultLogging):
     # ###  Else
     # #######################################
 
-    def iteritems(self):
+    def items(self):
         for block_id in self.block_id_to_quantity:
             yield block_id, self.block_id_to_quantity[block_id]
 
