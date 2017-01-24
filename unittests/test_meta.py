@@ -29,7 +29,7 @@ class DefaultSetup(TestCase):
 
 
 class TestMeta(DefaultSetup):
-    def test__read_file(self):
+    def test_read_file(self):
         for directory_blueprint in self._blueprints:
             self.object.read(directory_blueprint)
 

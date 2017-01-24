@@ -2,7 +2,7 @@ from unittest import TestCase
 from StringIO import StringIO
 from lib.bits_and_bytes import BinaryStream
 from lib.smblueprint.header import Header
-# from lib.blueprint.smd3.smd import Smd
+from blueprints import Blueprint
 
 __author__ = 'Peter Hofmann'
 
@@ -15,6 +15,7 @@ class DefaultSetup(TestCase):
     def __init__(self, methodName='runTest'):
         super(DefaultSetup, self).__init__(methodName)
         self.object = None
+        self._blueprints = Blueprint()
 
     def setUp(self):
         self.object = Header()
@@ -32,6 +33,10 @@ class DefaultSetup(TestCase):
 
 
 class TestHeader(DefaultSetup):
+    def test_read_file(self):
+        for directory_blueprint in self._blueprints:
+            self.object.read(directory_blueprint)
+
     def test__read_block_quantities(self):
         self.object.remove(88)
         block_id_to_quantity = {

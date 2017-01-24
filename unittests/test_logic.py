@@ -4,6 +4,7 @@ from lib.bits_and_bytes import BinaryStream
 from lib.smblueprint.logic import Logic
 from lib.smblueprint.smd3.smd import Smd
 from lib.utils.blockconfig import block_config
+from blueprints import Blueprint
 
 __author__ = 'Peter Hofmann'
 
@@ -20,6 +21,7 @@ class DefaultSetup(TestCase):
     def setUp(self):
         block_config.from_hard_coded()
         self.object = Logic()
+        self._blueprints = Blueprint()
 
     def tearDown(self):
         self.object = None
@@ -28,6 +30,10 @@ class DefaultSetup(TestCase):
 
 
 class TestLogic(DefaultSetup):
+    def test_read_file(self):
+        for directory_blueprint in self._blueprints:
+            self.object.read(directory_blueprint)
+
     def test_bad_version(self):
         input_stream = BinaryStream(StringIO())
         input_stream.write_int32_unassigned(1)
