@@ -50,7 +50,7 @@ class Style4Tetra(Orientation):
         """
         @rtype: str
         """
-        orientation = self.get_orientation()
+        orientation = self.get_orientation_values()
         tuple_str = self._orientation_to_tuple_str[orientation]
         slopes = ", ".join(tuple_str)
         return "Sloped sides: {}".format(slopes)

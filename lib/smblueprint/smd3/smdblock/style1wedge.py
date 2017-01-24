@@ -41,7 +41,7 @@ class Style1Wedge(Orientation):
         """
         @rtype: str
         """
-        orientation = self.get_orientation()
+        orientation = self.get_orientation_values()
         return "Square sides: {}".format(self._orientation_to_str[orientation])
 
     def bit_combine(self, new_int_24bit, bit_23=None, bit_22=None, rotations=None, **kwargs):

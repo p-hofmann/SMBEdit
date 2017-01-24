@@ -92,7 +92,7 @@ class Style2Corner(Orientation):
         """
         @rtype: str
         """
-        orientation = self.get_orientation()
+        orientation = self.get_orientation_values()
         tuple_str = self._orientation_to_tuple_str[orientation]
         square = tuple_str[0]
         slopes = ", ".join(tuple_str[1:])
@@ -134,7 +134,7 @@ class Style2Corner(Orientation):
         """
         Mirror Left - Right
         """
-        bit_19, bit_23, bit_22, rotations = self.get_orientation()
+        bit_19, bit_23, bit_22, rotations = self.get_orientation_values()
         tuple_str = self._orientation_to_tuple_str[(bit_19, bit_23, bit_22, rotations)]
         replacements = {"Left": "Right", "Right": "Left"}
         tuple_str = self._replace_string(tuple_str, replacements)
@@ -146,7 +146,7 @@ class Style2Corner(Orientation):
         """
         Mirror Top - Bottom
         """
-        bit_19, bit_23, bit_22, rotations = self.get_orientation()
+        bit_19, bit_23, bit_22, rotations = self.get_orientation_values()
         tuple_str = self._orientation_to_tuple_str[(bit_19, bit_23, bit_22, rotations)]
         replacements = {"Top": "Bottom", "Bottom": "Top"}
         tuple_str = self._replace_string(tuple_str, replacements)
@@ -159,7 +159,7 @@ class Style2Corner(Orientation):
         """
         Mirror Front - Back
         """
-        bit_19, bit_23, bit_22, rotations = self.get_orientation()
+        bit_19, bit_23, bit_22, rotations = self.get_orientation_values()
         tuple_str = self._orientation_to_tuple_str[(bit_19, bit_23, bit_22, rotations)]
         replacements = {"Front": "Back", "Back": "Front"}
         tuple_str = self._replace_string(tuple_str, replacements)

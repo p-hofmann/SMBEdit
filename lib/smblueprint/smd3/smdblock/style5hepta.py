@@ -20,7 +20,7 @@ class Style5Hepta(Style4Tetra):
         """
         @rtype: str
         """
-        orientation = self.get_orientation()
+        orientation = self.get_orientation_values()
         tuple_str = self._orientation_to_tuple_str[orientation]
         squares = ", ".join(tuple_str)
         return "Square sides: {}".format(squares)

@@ -21,15 +21,16 @@ class DefaultSetup(TestCase):
         # corner 600
         # hepta 601
         # tetra 602
+        self.default_orientation = (0, 0, 0, 1)
         self.object.update(
             block_id=599,
             hit_points=75,
             active=None,
             block_side_id=None,
-            bit_19=0,
-            bit_23=0,
-            bit_22=0,
-            rotations=1
+            bit_19=self.default_orientation[0],
+            bit_23=self.default_orientation[1],
+            bit_22=self.default_orientation[2],
+            rotations=self.default_orientation[3]
         )
 
     def tearDown(self):
@@ -55,8 +56,8 @@ class TestBlock(DefaultSetup):
         self.assertEqual(self.object._get_active_value(), 0)
 
     def test_get_orientation(self):
-        expected_orientation = (0, 0, 0, 3)
-        self.assertTupleEqual(self.object.get_orientation(), expected_orientation)
+        expected_orientation = self.default_orientation
+        self.assertTupleEqual(self.object.get_orientation().get_orientation_values(), expected_orientation)
 
     def test_get_int_24bit(self):
         self.fail()
@@ -71,9 +72,9 @@ class TestBlock(DefaultSetup):
         self.fail()
 
     def test_set_id(self): #
-        self.object.set_hit_points(604)
+        self.object.set_id(604)
         self.assertEqual(self.object.get_id(), 604)
-        self.test_get_id()
+        self.test_get_hit_points()
         self.test_get_style()
         self.test_is_active()
         self.test__get_active_value()
@@ -89,9 +90,9 @@ class TestBlock(DefaultSetup):
         self.test_get_orientation()
 
     def test_set_active(self):
-        self.fail()
+        self.assertRaises(AssertionError, self.object.set_active, True)
 
     def test_mirror(self):
         self.object.mirror(0)
         expected_orientation = (0, 0, 0, 3)
-        self.assertTupleEqual(self.object.get_orientation().get_orientation(), expected_orientation)
+        self.assertTupleEqual(self.object.get_orientation().get_orientation_values(), expected_orientation)
