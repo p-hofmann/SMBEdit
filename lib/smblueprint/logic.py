@@ -300,9 +300,9 @@ class Logic(DefaultLogging):
         """
         Delete links with invalid controller
         """
-        for controller_position in self._controller_position_to_block_id_to_block_positions:
+        for controller_position in list(self._controller_position_to_block_id_to_block_positions.keys()):
             groups = self._controller_position_to_block_id_to_block_positions[controller_position]
-            for block_id in groups:
+            for block_id in list(groups.keys()):
                 if block_config[block_id].is_valid():
                     self._update_groups(controller_position, block_id, smd)
                     continue
