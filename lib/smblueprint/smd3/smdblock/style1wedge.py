@@ -1,4 +1,4 @@
-from lib.smblueprint.smd3.orientation.orientation import Orientation
+from lib.smblueprint.smd3.smdblock.orientation import Orientation, BitAndBytes
 
 
 __author__ = 'Peter Hofmann'
@@ -44,6 +44,30 @@ class Style1Wedge(Orientation):
         orientation = self.get_orientation()
         return "Square sides: {}".format(self._orientation_to_str[orientation])
 
+    def bit_combine(self, new_int_24bit, bit_23=None, bit_22=None, rotations=None, **kwargs):
+        """
+        Set orientation bits of an integer
+
+        @type new_int_24bit: int
+        @type bit_22: int
+        @type bit_23: int
+        @type rotations: int
+
+        @rtype: int
+        """
+        if rotations is None:
+            rotations = self._get_rotations()
+        if bit_22 is None:
+            bit_22 = self._get_bit_22()
+        if bit_23 is None:
+            bit_23 = self._get_bit_23()
+        new_int_24bit <<= 5
+        new_int_24bit >>= 5
+        new_int_24bit = BitAndBytes.bits_combine(rotations, new_int_24bit, Orientation._bit_rotation_start)
+        new_int_24bit = BitAndBytes.bits_combine(bit_22, new_int_24bit, 22)
+        new_int_24bit = BitAndBytes.bits_combine(bit_23, new_int_24bit, 23)
+        return new_int_24bit
+
     # #######################################
     # ###  Mirror
     # #######################################
@@ -58,7 +82,7 @@ class Style1Wedge(Orientation):
             # no change
             return
         rotations = (rotations + 2) % 4
-        self._int_24bit = self._bits_combine_orientation(self._int_24bit, rotations=rotations)
+        self._int_24bit = self.bit_combine(self._int_24bit, rotations=rotations)
 
     def mirror_y(self):
         """
@@ -70,7 +94,7 @@ class Style1Wedge(Orientation):
             # no change
             return
         bit_22 = (bit_22 + 1) % 2
-        self._int_24bit = self._bits_combine_orientation(self._int_24bit, bit_22=bit_22)
+        self._int_24bit = self.bit_combine(self._int_24bit, bit_22=bit_22)
 
     # front - back
     def mirror_z(self):
@@ -86,4 +110,4 @@ class Style1Wedge(Orientation):
             rotations = (rotations + 2) % 4
         else:
             rotations = (rotations + 1) % 4
-        self._int_24bit = self._bits_combine_orientation(self._int_24bit, rotations=rotations)
+        self._int_24bit = self.bit_combine(self._int_24bit, rotations=rotations)

@@ -8,7 +8,7 @@ from lib.loggingwrapper import DefaultLogging
 from lib.bits_and_bytes import BinaryStream
 from lib.utils.blockconfig import block_config
 from lib.utils.blueprintentity import BlueprintEntity
-from lib.smblueprint.smd3.smdblock import SmdBlock
+from lib.smblueprint.smd3.smdblock.block import Block
 
 
 class SmdSegment(DefaultLogging):
@@ -18,7 +18,7 @@ class SmdSegment(DefaultLogging):
     The Position coordinates are always a multiple of 32, like (32, 0, 128)
     Example: The core, or center of a blueprint is (16,16,16) and the position of its segment is (0,0,0)
 
-    @type block_index_to_block: dict[int, SmdBlock]
+    @type block_index_to_block: dict[int, Block]
     @type position: tuple[int]
     """
 
@@ -69,7 +69,7 @@ class SmdSegment(DefaultLogging):
         number_of_blocks = int(len(decompressed_data) / 3)
         for block_index in range(number_of_blocks):
             position = block_index * 3
-            block = SmdBlock(debug=self._debug)
+            block = Block(debug=self._debug)
             int_24bit = BinaryStream.unpack_int24(decompressed_data[position:position+3])
             block.set_int_24bit(int_24bit)
             if block.get_id() > 0:
@@ -202,7 +202,7 @@ class SmdSegment(DefaultLogging):
         @param position: tuple[int]
 
         @return:
-        @rtype: SmdBlock
+        @rtype: Block
         """
         block_index = self.get_block_index_by_block_position(position)
         assert block_index in self.block_index_to_block
@@ -257,7 +257,7 @@ class SmdSegment(DefaultLogging):
                     self.block_index_to_block[block_index].set_id(replace_id)
                     self.block_index_to_block[block_index].set_hit_points(replace_hp)
                 else:
-                    new_block = SmdBlock(debug=self._debug)
+                    new_block = Block(debug=self._debug)
                     new_block.set_id(block_id)
                     new_block.set_hit_points(replace_hp)
                     self.block_index_to_block[block_index] = new_block
@@ -350,10 +350,10 @@ class SmdSegment(DefaultLogging):
         @param block_position: x,y,z position of block
         @type block_position: int,int,int
         @param block: A block! :)
-        @type block: SmdBlock
+        @type block: Block
         @type replace: bool
         """
-        assert isinstance(block, SmdBlock)
+        assert isinstance(block, Block)
         block_index = self.get_block_index_by_block_position(block_position)
         if not replace and block_index in self.block_index_to_block:
             self._logger.debug("Prevented block replacement")

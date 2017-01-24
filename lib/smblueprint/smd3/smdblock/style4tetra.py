@@ -1,4 +1,4 @@
-from lib.smblueprint.smd3.orientation.orientation import Orientation
+from lib.smblueprint.smd3.smdblock.orientation import Orientation, BitAndBytes
 
 
 __author__ = 'Peter Hofmann'
@@ -55,6 +55,26 @@ class Style4Tetra(Orientation):
         slopes = ", ".join(tuple_str)
         return "Sloped sides: {}".format(slopes)
 
+    def bit_combine(self, new_int_24bit, bit_22=None, rotations=None, **kwargs):
+        """
+        Set orientation bits of an integer
+
+        @type new_int_24bit: int
+        @type bit_22: int
+        @type rotations: int
+
+        @rtype: int
+        """
+        if rotations is None:
+            rotations = self._get_rotations()
+        if bit_22 is None:
+            bit_22 = self._get_bit_22()
+        new_int_24bit <<= 5
+        new_int_24bit >>= 5
+        new_int_24bit = BitAndBytes.bits_combine(rotations, new_int_24bit, Orientation._bit_rotation_start)
+        new_int_24bit = BitAndBytes.bits_combine(bit_22, new_int_24bit, 22)
+        return new_int_24bit
+
     # #######################################
     # ###  Mirror
     # #######################################
@@ -69,7 +89,7 @@ class Style4Tetra(Orientation):
         replacements = {"Left": "Right", "Right": "Left"}
         tuple_str = self._replace_string(tuple_str, replacements)
         bit_22, rotations = self._tuple_str_to_orientation[tuple_str]
-        self._int_24bit = self._bits_combine_orientation(
+        self._int_24bit = self.bit_combine(
             self._int_24bit, bit_22=bit_22, rotations=rotations)
 
     def mirror_y(self):
@@ -79,7 +99,7 @@ class Style4Tetra(Orientation):
         rotations = self._get_rotations()
         bit_22 = self._get_bit_22()
         bit_22 = (bit_22 + 1) % 2
-        self._int_24bit = self._bits_combine_orientation(
+        self._int_24bit = self.bit_combine(
             self._int_24bit, bit_22=bit_22, rotations=rotations)
 
     # front - back
@@ -93,5 +113,5 @@ class Style4Tetra(Orientation):
         replacements = {"Front": "Back", "Back": "Front"}
         tuple_str = self._replace_string(tuple_str, replacements)
         bit_22, rotations = self._tuple_str_to_orientation[tuple_str]
-        self._int_24bit = self._bits_combine_orientation(
+        self._int_24bit = self.bit_combine(
             self._int_24bit, bit_22=bit_22, rotations=rotations)

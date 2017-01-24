@@ -1,4 +1,4 @@
-from lib.smblueprint.smd3.orientation.orientation import Orientation
+from lib.smblueprint.smd3.smdblock.orientation import Orientation, BitAndBytes
 
 
 __author__ = 'Peter Hofmann'
@@ -32,6 +32,31 @@ class Style0(Orientation):
         side_id = self.get_block_side_id()
         return "Facing: {}".format(self._orientation_to_str[side_id])
 
+    def bit_combine(self, new_int_24bit, block_side_id=None, **kwargs):
+        """
+        Set orientation bits of an integer
+
+        @type new_int_24bit: int
+        @type block_side_id: int
+
+        @rtype: int
+        """
+        if block_side_id is None:
+            block_side_id = self.get_block_side_id()
+        new_int_24bit <<= 4
+        new_int_24bit >>= 4
+        return BitAndBytes.bits_combine(block_side_id, new_int_24bit, Orientation._bit_block_side_start)
+
+    def to_style6_bits(self):
+        """
+        Return style 6 bits representing side id
+
+        @rtype: tuple[int]
+        """
+        side_id = self.get_block_side_id()
+        assert side_id in self._block_side_id_to_type_6, "Bad side id: {}".format(side_id)
+        return self._block_side_id_to_type_6[side_id]
+
     # #######################################
     # ###  Mirror
     # #######################################
@@ -44,7 +69,7 @@ class Style0(Orientation):
         side_id = Style0._turn_y_90(side_id)
         side_id = Style0._turn_y_90(side_id)
         int_24 = self._int_24bit
-        self._int_24bit = self._bits_combine_orientation(int_24, block_side_id=side_id)
+        self._int_24bit = self.bit_combine(int_24, block_side_id=side_id)
 
     def mirror_y(self):
         """
@@ -54,7 +79,7 @@ class Style0(Orientation):
         side_id = Style0._turn_z_90(side_id)
         side_id = Style0._turn_z_90(side_id)
         int_24 = self._int_24bit
-        self._int_24bit = self._bits_combine_orientation(int_24, block_side_id=side_id)
+        self._int_24bit = self.bit_combine(int_24, block_side_id=side_id)
 
     # front - back
     def mirror_z(self):
@@ -65,7 +90,7 @@ class Style0(Orientation):
         side_id = Style0._turn_x_90(side_id)
         side_id = Style0._turn_x_90(side_id)
         int_24 = self._int_24bit
-        self._int_24bit = self._bits_combine_orientation(int_24, block_side_id=side_id)
+        self._int_24bit = self.bit_combine(int_24, block_side_id=side_id)
 
     # #######################################
     # ###  Turning type 0

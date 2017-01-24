@@ -1,4 +1,4 @@
-from lib.smblueprint.smd3.orientation.orientation import Orientation
+from lib.smblueprint.smd3.smdblock.orientation import Orientation, BitAndBytes
 
 
 __author__ = 'Peter Hofmann'
@@ -98,6 +98,34 @@ class Style2Corner(Orientation):
         slopes = ", ".join(tuple_str[1:])
         return "Square sides: {}, sloped sides: {}".format(square, slopes)
 
+    def bit_combine(self, new_int_24bit, bit_19=None, bit_23=None, bit_22=None, rotations=None, **kwargs):
+        """
+        Set orientation bits of an integer
+
+        @type new_int_24bit: int
+        @type bit_19: int
+        @type bit_22: int
+        @type bit_23: int
+        @type rotations: int
+
+        @rtype: int
+        """
+        if bit_19 is None:
+            bit_19 = self._get_bit_19()
+        if rotations is None:
+            rotations = self._get_rotations()
+        if bit_22 is None:
+            bit_22 = self._get_bit_22()
+        if bit_23 is None:
+            bit_23 = self._get_bit_23()
+        new_int_24bit <<= 5
+        new_int_24bit >>= 5
+        new_int_24bit = BitAndBytes.bits_combine(bit_19, new_int_24bit, 19)
+        new_int_24bit = BitAndBytes.bits_combine(rotations, new_int_24bit, Orientation._bit_rotation_start)
+        new_int_24bit = BitAndBytes.bits_combine(bit_22, new_int_24bit, 22)
+        new_int_24bit = BitAndBytes.bits_combine(bit_23, new_int_24bit, 23)
+        return new_int_24bit
+
     # #######################################
     # ###  Mirror
     # #######################################
@@ -111,7 +139,7 @@ class Style2Corner(Orientation):
         replacements = {"Left": "Right", "Right": "Left"}
         tuple_str = self._replace_string(tuple_str, replacements)
         bit_19, bit_23, bit_22, rotations = self._tuple_str_to_orientation[tuple_str]
-        self._int_24bit = self._bits_combine_orientation(
+        self._int_24bit = self.bit_combine(
             self._int_24bit, bit_19=bit_19, bit_22=bit_22, bit_23=bit_23, rotations=rotations)
 
     def mirror_y(self):
@@ -123,7 +151,7 @@ class Style2Corner(Orientation):
         replacements = {"Top": "Bottom", "Bottom": "Top"}
         tuple_str = self._replace_string(tuple_str, replacements)
         bit_19, bit_23, bit_22, rotations = self._tuple_str_to_orientation[tuple_str]
-        self._int_24bit = self._bits_combine_orientation(
+        self._int_24bit = self.bit_combine(
             self._int_24bit, bit_19=bit_19, bit_22=bit_22, bit_23=bit_23, rotations=rotations)
 
     # front - back
@@ -136,5 +164,5 @@ class Style2Corner(Orientation):
         replacements = {"Front": "Back", "Back": "Front"}
         tuple_str = self._replace_string(tuple_str, replacements)
         bit_19, bit_23, bit_22, rotations = self._tuple_str_to_orientation[tuple_str]
-        self._int_24bit = self._bits_combine_orientation(
+        self._int_24bit = self.bit_combine(
             self._int_24bit, bit_19=bit_19, bit_22=bit_22, bit_23=bit_23, rotations=rotations)
