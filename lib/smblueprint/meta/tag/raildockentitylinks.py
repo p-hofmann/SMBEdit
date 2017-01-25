@@ -3,6 +3,7 @@ __author__ = 'Peter Hofmann'
 import sys
 
 from lib.utils.blockconfig import block_config
+from lib.utils.vector import Vector
 from lib.smblueprint.meta.tag.tagmanager import TagPayload, TagList
 
 
@@ -64,6 +65,14 @@ class RailDockedEntity(object):
         self._byte_orientation_2 = 0
         self._unknown_byte_1 = 100
         return
+
+    def move_position(self, vector_direction):
+        """
+        Move positions of rail docked entities
+
+        @type vector_direction: tuple[int]
+        """
+        self._location = Vector.addition(self._location, vector_direction)
 
     def set_by_block_side(self, label, location, block_id, side):
         """
@@ -181,6 +190,15 @@ class RailDockedEntityLink(object):
         self._unknown_byte_2 = 0
         return
 
+    def move_position(self, vector_direction):
+        """
+        Move positions of rail docked entities
+
+        @type vector_direction: tuple[int]
+        """
+        self._docked_entity_location = Vector.addition(self._docked_entity_location, vector_direction)
+        self._entity_main.move_position(vector_direction)
+
     def set(self, docked_entity_location, entity_main, entity_docked):
         """
 
@@ -274,6 +292,15 @@ class RailDockedEntityLinks(object):
     def __init__(self):
         self._list_links = []
         return
+
+    def move_position(self, vector_direction):
+        """
+        Move positions of rail docked entities
+
+        @type vector_direction: tuple[int]
+        """
+        for docker_link in self._list_links:
+            docker_link.move_position(vector_direction)
 
     def set(self, links):
         """
