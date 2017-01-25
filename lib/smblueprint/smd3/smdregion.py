@@ -344,8 +344,7 @@ class SmdRegion(DefaultLogging):
         """
         Search for and remove segments with no blocks
         """
-        list_of_positions = list(self.position_to_segment.keys())
-        for position_segment in list_of_positions:
+        for position_segment in list(self.position_to_segment.keys()):
             if self.position_to_segment[position_segment].get_number_of_blocks() == 0:
                 self._logger.debug("'remove' Removing empty segment {}.".format(position_segment))
                 self.position_to_segment.pop(position_segment)

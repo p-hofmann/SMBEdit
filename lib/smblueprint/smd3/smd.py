@@ -347,8 +347,7 @@ class Smd(DefaultLogging):
         """
         Search for and remove regions with no blocks
         """
-        list_of_position_region = list(self.position_to_region.keys())
-        for position_region in list_of_position_region:
+        for position_region in list(self.position_to_region.keys()):
             if self.position_to_region[position_region].get_number_of_blocks() == 0:
                 self._logger.debug("'remove' Removing empty region {}.".format(position_region))
                 self.position_to_region.pop(position_region)
