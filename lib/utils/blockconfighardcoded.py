@@ -627,21 +627,6 @@ class BlockConfigHardcoded(object):
         assert shape in BlockConfigHardcoded._block_shapes, "Unknown Shape: '{}'".format(shape)
         return hull_type, color.strip(), BlockConfigHardcoded._block_shapes[shape]
 
-    @staticmethod
-    def _get_hulls_dict():
-        hull_dict = {}
-        for block_id in BlockConfigHardcoded._block_ids["hull"]:
-            hull_name = BlockConfigHardcoded.get_block_name_by_id(block_id)
-            if "Glass" in hull_name:
-                continue
-            hull_type, color, shape_id = BlockConfigHardcoded.get_hull_details(block_id)
-            if hull_type not in hull_dict:
-                hull_dict[hull_type] = {}
-            if color not in hull_dict[hull_type]:
-                hull_dict[hull_type][color] = [0] * 8
-            hull_dict[hull_type][color][shape_id] = block_id
-        return hull_dict
-
     _glass_ids = {63, 329, 330, 368, 367, 815, 816, 817}
 
     @staticmethod
@@ -677,12 +662,6 @@ class BlockConfigHardcoded(object):
         return block_id in BlockConfigHardcoded._block_ids["hull"]
 
     _hulls_dict = None
-
-    @staticmethod
-    def get_hull_id_by_details(hull_type, color, shape_id):
-        if BlockConfigHardcoded._hulls_dict is None:
-            BlockConfigHardcoded._hulls_dict = BlockConfigHardcoded._get_hulls_dict()
-        return BlockConfigHardcoded._hulls_dict[hull_type][color][shape_id]
 
     @staticmethod
     def _is_slab(block_id):

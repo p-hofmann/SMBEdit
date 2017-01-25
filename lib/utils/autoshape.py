@@ -7,17 +7,15 @@ class AutoShape(object):
     """
 
     peripheries = dict()
+    # shapes = ["cube", "wedge", "corner", "tetra", "hepta"]
     # "cube": 0,
-    # "1/4": 1,
-    # "1/2": 2,
-    # "3/4": 3,
-    # "Wedge": 4,
-    # "Corner": 5,
-    # "Tetra": 6,
-    # "Hepta": 7,
+    # "Wedge": 1,
+    # "Corner": 2,
+    # "Tetra": 3,
+    # "Hepta": 4,
 
     # wedge
-    peripheries[4] = {
+    peripheries[1] = {
         # [bit_19, bit_22, bit_23, rotations]
         15: [0, 0, 0, 3],
         54: [0, 0, 1, 3],
@@ -34,7 +32,7 @@ class AutoShape(object):
     }
 
     # corner
-    peripheries[5] = {
+    peripheries[2] = {
         # (): [bit_19, bit_22, bit_23, rotations]
         38: {
             (True, True, False): (1, 1, 0, 0),
@@ -79,7 +77,7 @@ class AutoShape(object):
 }
 
     # tetra
-    peripheries[6] = {
+    peripheries[3] = {
         # [bit_19, bit_22, bit_23, rotations]
         56: [0, 1, 0, 3],
         38: [0, 0, 0, 2],
@@ -92,7 +90,7 @@ class AutoShape(object):
         }
 
     # hepta
-    peripheries[7] = {
+    peripheries[4] = {
         59: {
             (True, False, False, True, False): (0, 0, 0, 3),
             (True, True, False, False, False): (0, 1, 0, 3),

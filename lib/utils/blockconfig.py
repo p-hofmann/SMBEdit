@@ -1,12 +1,9 @@
 import csv
 import os
-import logging
 from lxml import etree
 from lib.validator import Validator
 from lib.utils.blockconfighardcoded import BlockConfigHardcoded
 from lib.utils.blueprintentity import BlueprintEntity, SHIP
-
-logger = logging.getLogger(__name__)
 
 
 class BlockInfo(object):
@@ -31,7 +28,6 @@ class BlockInfo(object):
 
         self.color = None
         self.shape = None
-        self.slab = None
         self.tier = None
 
         self.deprecated = False
@@ -46,7 +42,6 @@ class BlockInfo(object):
         text += "color: {}\t".format(self._list_index_to_string(BlockConfig.colors, self.color))
         text += "shape: {}\t".format(self._list_index_to_string(BlockConfig.shapes, self.shape))
         text += "tier: {}\t".format(self._list_index_to_string(BlockConfig.tiers, self.tier))
-        text += "slab: {}\t".format(self._list_index_to_string(BlockConfig.slabs, self.slab))
         text += "{}\t".format(self.name)
         return text
 
@@ -139,11 +134,10 @@ class MetaBlockConfig(object):
         """
         try:
             return self._id_to_block[int(int_block_id)]
-        except Exception as e:
-            logger.error(str(e) + 'unknown block id')
-            logger.error(
-                'Have you loaded the last version of the Starmade configuration files ?')
-            exit()
+        except KeyError as e:
+            msg = 'Unknown block id: {}. '.format(int_block_id)
+            msg += 'Have you loaded the last version of the Starmade configuration files ?'
+            raise KeyError(msg)
 
     def __iter__(self):
         """
@@ -164,24 +158,23 @@ class BlockConfig(MetaBlockConfig, ):
 
     _hulls_dict = None
 
-    def _get_hulls_dict(self):
-        hull_dict = {}
+    def _make_hulls_dict(self):
+        self._hulls_dict = {}
         for block_id in self._id_to_block:
             if not self._id_to_block[block_id].is_hull():
                 continue
             hull_type = self._id_to_block[block_id].tier
             color = self._id_to_block[block_id].color
             shape_id = self._id_to_block[block_id].shape
-            if hull_type not in hull_dict:
-                hull_dict[hull_type] = {}
-            if color not in hull_dict[hull_type]:
-                hull_dict[hull_type][color] = [0] * len(self.colors)
-            hull_dict[hull_type][color][shape_id] = block_id
-        return hull_dict
+            if hull_type not in self._hulls_dict:
+                self._hulls_dict[hull_type] = {}
+            if color not in self._hulls_dict[hull_type]:
+                self._hulls_dict[hull_type][color] = {}
+            self._hulls_dict[hull_type][color][shape_id] = block_id
 
     def get_block_id_by_details(self, hull_type, color, shape_id):
         if self._hulls_dict is None:
-            self._hulls_dict = self._get_hulls_dict()
+            self._make_hulls_dict()
         return self._hulls_dict[hull_type][color][shape_id]
 
     colors = [
@@ -189,15 +182,13 @@ class BlockConfig(MetaBlockConfig, ):
         "teal", "green", "yellow", "orange", "red", "brown", "grey"
         ]
 
-    shapes = ["cube", "wedge", "corner", "tetra", "hepta"]
+    shapes = ["cube", "wedge", "corner", "tetra", "hepta", "1/4", "1/2", "3/4"]
 
     tiers = ["hull", "standard armor", "advanced armor", "crystal armor", "hazard armor"]
 
-    slabs = ["1/4", "1/2", "3/4"]
-
     def get_shape_id(self, name):
         assert name.lower() in self.shapes, "Unknown shape: {}".format(name)
-        return self.shapes[name.lower()]
+        return self.shapes.index(name.lower())
 
     def from_hard_coded(self):
         for block_id, name in BlockConfigHardcoded.items():
@@ -234,12 +225,6 @@ class BlockConfig(MetaBlockConfig, ):
                 if tier in name_lower_case:
                     self._id_to_block[block_id].tier = index
                     self._id_to_block[block_id].hit_points = BlockConfigHardcoded.get_hp_by_hull_type(index)
-                    break
-
-            # Check for slabe
-            for index, slab in enumerate(BlockConfig.slabs):
-                if slab in name_lower_case:
-                    self._id_to_block[block_id].slab = index
                     break
 
     def read(self, directory_starmade):
@@ -325,12 +310,6 @@ class BlockConfig(MetaBlockConfig, ):
             for index, tier in enumerate(BlockConfig.tiers):
                 if tier in name_lower_case:
                     self._label_to_block[label].tier = index
-                    break
-
-            # Check for slabe
-            for index, slab in enumerate(BlockConfig.slabs):
-                if slab in name_lower_case:
-                    self._label_to_block[label].slab = index
                     break
 
 block_config = BlockConfig()
