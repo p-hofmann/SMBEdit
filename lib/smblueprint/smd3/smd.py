@@ -58,6 +58,12 @@ class Smd(DefaultLogging):
         file_list = sorted(os.listdir(directory_data))
         assert len(file_list) > 0, "No smd files found"
         file_name = file_list[0]
+        file_path = os.path.join(directory_data, file_name)
+        if os.path.isdir(file_path) and file_name.startswith("ATTACHED_"):
+            directory_data = os.path.join(directory_data, file_name)
+            file_list = sorted(os.listdir(directory_data))
+            assert len(file_list) > 0, "No smd files found"
+            file_name = file_list[0]
         if file_name.endswith(".smd3"):
             for file_name in file_list:
                 file_path = os.path.join(directory_data, file_name)
@@ -70,7 +76,8 @@ class Smd(DefaultLogging):
                 self.position_to_region[position].read(file_path)
         elif file_name.endswith(".smd2"):
             self._logger.warning("'smd2' file format found.")
-            self._logger.warning("'smd2' to 'smd3' conversion is imperfect and results in blocks that appear damaged.")
+            msg = "'smd2'->'smd3' conversion can results in blocks with low hit points if '-sm' argument is not used."
+            self._logger.warning(msg)
             smd2 = Smd2(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
             smd2.read(directory_blueprint)
             offset = (8, 8, 8)
