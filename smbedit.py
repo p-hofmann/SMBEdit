@@ -93,18 +93,13 @@ class SMBEdit(ArgumentHandler):
         @type blueprint: Blueprint
         """
         assert isinstance(self._replace, str)
-        assert ',' in self._replace, "Bad replace: '{}'".format(self._replace)
-        old_block_id, suffix = self._replace.split(',')
+        assert ':' in self._replace, "Bad replace: '{}'".format(self._replace)
+        old_block_id, replace_id = self._replace.split(':')
         assert old_block_id.isdigit(), "Bad old block id: '{}'".format(old_block_id)
-        old_block_id = int(old_block_id)
-
-        assert ':' in suffix, "Bad replace: '{}'".format(self._replace)
-        replace_id, replace_hp = suffix.split(':')
         assert replace_id.isdigit(), "Bad replace block id: '{}'".format(replace_id)
-        assert replace_hp.isdigit(), "Bad replace block hp: '{}'".format(replace_hp)
+        old_block_id = int(old_block_id)
         replace_id = int(replace_id)
-        replace_hp = int(replace_hp)
-        blueprint.replace_blocks(old_block_id, replace_id, replace_hp)
+        blueprint.replace_blocks(old_block_id, replace_id)
 
     def _replace_hull_and_armor(self, blueprint):
         """

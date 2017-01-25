@@ -56,7 +56,7 @@ class ArgumentHandler(Validator):
         self._entity_class = options.entity_class
         self._summary = options.summary
         temp_directory = options.tmp_dir
-        self._directory_starmade = options.starmade
+        self._directory_starmade = options.starmade_dir
         self._is_archived = False
         if self._path_input.endswith(".sment"):
             self._is_archived = True
@@ -180,7 +180,7 @@ class ArgumentHandler(Validator):
 
         group_input = parser.add_argument_group('optional arguments')
         group_input.add_argument(
-            "-sm", "--starmade",
+            "-sm", "--starmade_dir",
             default=None,
             type=str,
             help="Directory path to the StarMade folder, attempting to read block config there.")
@@ -294,16 +294,17 @@ class ArgumentHandler(Validator):
      ''')
 
         group_input.add_argument(
-            "-r", "--replace",
-            default=None,
-            type=str,
-            help="old_id,new_id:hit_points")
-
-        group_input.add_argument(
             "-rm", "--remove_blocks",
             default=None,
             type=str,
             help="Remove all blocks of the given block id.")
+
+        group_input.add_argument(
+            "-r", "--replace",
+            default=None,
+            type=str,
+            help="""'old_id:new_id'
+            Use '-sm' argument to ensure correct hit point for replaced block.""")
 
         group_input.add_argument(
             "-rh", "--replace_hull",
@@ -326,7 +327,7 @@ class ArgumentHandler(Validator):
         group_input.add_argument(
             "path_input",
             type=str,
-            help="Directory of a blue print or sment file path.")
+            help="Directory of a blue print or '*.sment' file path.")
 
         if args is None:
             return parser.parse_args()

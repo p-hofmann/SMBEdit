@@ -84,9 +84,9 @@ class Blueprint(DefaultLogging):
         rail_docker_id = 663
         if is_docked_entity and self.smd3.search(rail_docker_id) is None:
             self._logger.info("Adding 'Rail docker' to docked entity.")
-            block = Block(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
+            block = Block()
             block.update(
-                rail_docker_id, hit_points=100, active=False, bit_19=0, bit_22=0, bit_23=1, rotations=2)
+                rail_docker_id, active=False, bit_19=0, bit_22=0, bit_23=1, rotations=2)
             position_below_core = (16, 15, 16)
             self.smd3.add(position_below_core, block)
             self.header.update(self.smd3)
@@ -157,16 +157,15 @@ class Blueprint(DefaultLogging):
         self.smd3.replace_hull(new_hull_type, hull_type)
         self.header.update(self.smd3)
 
-    def replace_blocks(self, block_id, replace_id, replace_hp):
+    def replace_blocks(self, block_id, replace_id):
         """
         Replace all blocks of a specific id
 
         @type block_id: int
         @type replace_id: int
-        @type replace_hp: int
         """
         compatible = block_config[block_id].block_style == block_config[replace_id].block_style
-        self.smd3.replace_blocks(block_id, replace_id, replace_hp, compatible)
+        self.smd3.replace_blocks(block_id, replace_id, compatible)
         self.header.update(self.smd3)
 
     def update(self):

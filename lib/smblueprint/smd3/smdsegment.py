@@ -69,7 +69,7 @@ class SmdSegment(DefaultLogging):
         number_of_blocks = int(len(decompressed_data) / 3)
         for block_index in range(number_of_blocks):
             position = block_index * 3
-            block = Block(debug=self._debug)
+            block = Block()
             int_24bit = BinaryStream.unpack_int24(decompressed_data[position:position+3])
             block.set_int_24bit(int_24bit)
             if block.get_id() > 0:
@@ -247,7 +247,7 @@ class SmdSegment(DefaultLogging):
     # ###  Get
     # #######################################
 
-    def replace_blocks(self, block_id, replace_id, replace_hp, compatible=False):
+    def replace_blocks(self, block_id, replace_id, compatible=False):
         """
         Replace all blocks of a specific id
         """
@@ -255,11 +255,9 @@ class SmdSegment(DefaultLogging):
             if self.block_index_to_block[block_index].get_id() == block_id:
                 if compatible:
                     self.block_index_to_block[block_index].set_id(replace_id)
-                    self.block_index_to_block[block_index].set_hit_points(replace_hp)
                 else:
-                    new_block = Block(debug=self._debug)
+                    new_block = Block()
                     new_block.set_id(block_id)
-                    new_block.set_hit_points(replace_hp)
                     self.block_index_to_block[block_index] = new_block
 
     _replace_cache_positive = {}
