@@ -162,11 +162,11 @@ class Meta(DefaultLogging):
         self._data_type_4.write(output_stream, self._version, relative_path)
         # data_type 5
         self._data_type_5.write(output_stream)
-        # data_type 2
-        if self._data_type_2.has_data():
-            self._data_type_2.write(output_stream)
-        else:
-            output_stream.write_byte(1)
+        # data_type 2   # todo: needs distinction between station and ship
+        # if self._data_type_2.has_data():
+        #     self._data_type_2.write(output_stream)
+        # else:
+        output_stream.write_byte(1)
 
     def write(self, directory_blueprint, relative_path=None):
         """
