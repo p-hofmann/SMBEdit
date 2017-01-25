@@ -200,48 +200,17 @@ class DataType4(DefaultLogging):
         tag_manager.set_root_tag(rail_docker_links.to_tag())
         self._docked_entities[docked_entity_index] = tag_manager
 
-    def _get_docker_related_location_tags(self):
-        """
-
-        @rtype: tuple[TagPayload]
-        """
-        for docked_entity_index in self._docked_entities:
-            root_tag = self._docked_entities[docked_entity_index].get_root_tag()
-            assert isinstance(root_tag, TagPayload)
-            taglist1 = root_tag.payload
-            assert isinstance(taglist1, TagList)
-            number_of_entries = taglist1.tag_list[0].payload
-            assert number_of_entries == 1, number_of_entries
-            taglist2 = taglist1.tag_list[1].payload
-            assert isinstance(taglist2, TagList)
-            taglist3 = taglist2.tag_list[0].payload
-            assert isinstance(taglist3, TagList)
-            taglist4 = taglist3.tag_list[0].payload
-            assert isinstance(taglist4, TagList)
-
-            tag_docked_entity_location = taglist3.tag_list[4]
-            assert tag_docked_entity_location.id == -10, tag_docked_entity_location.id
-
-            tag_rail_location = taglist4.tag_list[1]
-            assert tag_rail_location.id == -10, tag_rail_location.id
-            yield tag_docked_entity_location, tag_rail_location
-
-    def move_center_by_vector(self, direction_vector):
-        """
-        Relocate docked entities in a direction
-
-        @param direction_vector: vector
-        @type direction_vector: tuple[int]
-        """
-        for tag_docked_entity_location, tag_rail_location in self._get_docker_related_location_tags():
-            tag_docked_entity_location.payload = Vector.subtraction(
-                tag_docked_entity_location.payload, direction_vector)
-            tag_rail_location.payload = Vector.subtraction(
-                tag_rail_location.payload, direction_vector)
-
     def move_position(self, vector_direction):
+        """
+        Move positions of rail docked entities
+
+        @type vector_direction: tuple[int]
+        """
         for docker_key in self._docked_entities.keys():
-            self._docked_entities[docker_key].move_position(vector_direction)
+            rail_docker_links = RailDockedEntityLinks()
+            rail_docker_links.from_tag(self._docked_entities[docker_key].get_root_tag())
+            rail_docker_links.move_position(vector_direction)
+            self._docked_entities[docker_key].set_root_tag(rail_docker_links.to_tag())
 
     def to_stream(self, output_stream=sys.stdout):
         """
