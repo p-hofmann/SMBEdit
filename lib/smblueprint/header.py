@@ -17,6 +17,9 @@ from lib.smblueprint.smd3.smd import Smd
 
 
 class Statistics(object):
+    """
+    Statistics must be written for header version 3 or entity will be classified as ship even if type says station.
+    """
 
     _valid_versions = {0, 1}
 
@@ -65,9 +68,10 @@ class Statistics(object):
         @type output_stream: BinaryStream
         """
         self.version = max(self._valid_versions)
+        self.has_statistics = True
         output_stream.write_bool(self.has_statistics)
-        if not self.has_statistics:
-            return
+        # if not self.has_statistics:
+        #     return
         output_stream.write_int16_unassigned(self.version)
         output_stream.write_double(self.offensive0)
         output_stream.write_double(self.defensive)
@@ -341,7 +345,6 @@ class Header(DefaultLogging):
         if entity_type > 0:
             if block_id_core in self.block_id_to_quantity:
                 self.remove(block_id_core)
-            self.statistics.has_statistics = False  # statistics only for ships
         elif block_id_core not in self.block_id_to_quantity:
             self.add(block_id_core, 1)
 
