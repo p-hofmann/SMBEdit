@@ -155,16 +155,13 @@ It is possible to remove all blocks of a specific block id, or a list of comma s
 
 ### Replace blocks
 ```
--r {old_id},{new_id}:{hit_points}
+-r {old_id}:{new_id}
 ```
 
-Replace a block of a specific id with another one. Hit points are also required.
-Id and Hp can be looked for at [starmadepedia](https://starmadepedia.net/wiki/ID_list).
-
-Hit points - Hull type  
-75 - Basic Hull  
-100 - Standard Armor  
-250 - Advanced Armor  
+Replace a block of a specific id with another one.  
+In most cases, hit points can only be set correct if the '--starmade_dir' is used.
+If this is not done, blocks will be set to 1 hp.  
+Ids can be looked for at [starmadepedia](https://starmadepedia.net/wiki/ID_list).
 
 
 ### Replace Hull
