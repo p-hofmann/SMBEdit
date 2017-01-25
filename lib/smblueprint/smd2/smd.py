@@ -56,8 +56,16 @@ class Smd(DefaultLogging):
         """
         directory_data = os.path.join(directory_blueprint, "DATA")
         file_list = sorted(os.listdir(directory_data))
+        assert len(file_list) > 0, "No smd files found"
+        file_name = file_list[0]
+        file_path = os.path.join(directory_data, file_name)
+        if os.path.isdir(file_path) and file_name.startswith("ATTACHED_"):
+            directory_data = os.path.join(directory_data, file_name)
+            file_list = sorted(os.listdir(directory_data))
+            assert len(file_list) > 0, "No smd files found"
         for file_name in file_list:
             file_path = os.path.join(directory_data, file_name)
+            assert file_path.endswith(".smd2"), "Unexpected file extension: {}".format(file_path)
             self._file_name_prefix, x, y, z = os.path.splitext(file_name)[0].rsplit('.', 3)
             position = (int(x), int(y), int(z))
             self.position_to_region[position] = SmdRegion(

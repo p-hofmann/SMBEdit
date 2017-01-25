@@ -58,6 +58,12 @@ class Smd(DefaultLogging):
         file_list = sorted(os.listdir(directory_data))
         assert len(file_list) > 0, "No smd files found"
         file_name = file_list[0]
+        file_path = os.path.join(directory_data, file_name)
+        if os.path.isdir(file_path) and file_name.startswith("ATTACHED_"):
+            directory_data = os.path.join(directory_data, file_name)
+            file_list = sorted(os.listdir(directory_data))
+            assert len(file_list) > 0, "No smd files found"
+            file_name = file_list[0]
         if file_name.endswith(".smd3"):
             for file_name in file_list:
                 file_path = os.path.join(directory_data, file_name)
