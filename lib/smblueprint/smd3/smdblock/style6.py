@@ -94,5 +94,5 @@ class Style6(Style2Corner):
         @rtype: str
         """
         orientation = self.get_orientation_values()
-        tuple_str = self._orientation_to_tuple_str[orientation]
+        tuple_str = ", ".join(self._orientation_to_tuple_str[orientation])
         return "Faces: {}, pointing: {}".format(tuple_str[0], tuple_str[1])
