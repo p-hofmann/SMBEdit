@@ -637,7 +637,7 @@ class Smd(DefaultLogging):
 
             bit_19, bit_22, bit_23, rotations = AutoShape.peripheries[new_shape_id][periphery_index]
             block_hull_tier, color_id, shape_id = block_config[block_id].get_details()
-            new_block_id = block_config.get_hull_id_by_details(block_hull_tier, color_id, new_shape_id)
+            new_block_id = block_config.get_block_id_by_details(block_hull_tier, color_id, new_shape_id)
             block.update(block_id=new_block_id, bit_19=bit_19, bit_22=bit_22, bit_23=bit_23, rotations=rotations)
 
     def auto_hull_shape_dependent(self, block_shape_id):

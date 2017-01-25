@@ -288,7 +288,7 @@ class SmdSegment(DefaultLogging):
                 if hull_type is not None and hull_type != block_hull_type:  # not replaced
                     self._replace_cache_negative.add(block_id)
                     continue
-                new_block_id = block_config.get_hull_id_by_details(new_hull_type, color, shape_id)
+                new_block_id = block_config.get_block_id_by_details(new_hull_type, color, shape_id)
                 self._replace_cache_positive[block_id] = new_block_id
             new_block_id = self._replace_cache_positive[block_id]
             self.block_index_to_block[block_index].set_id(new_block_id)
