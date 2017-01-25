@@ -24,9 +24,8 @@ class Block(object):
     _bit_is_active_start = 19
     _bit_is_active_length = 1
 
-    def __init__(self, logfile=None, verbose=False, debug=False):
+    def __init__(self):
         self._int_24bit = 0
-        # super(Block, self).__init__(logfile=logfile, verbose=verbose, debug=debug)
         self._label = "SmdBlock"
 
     # Get
@@ -142,7 +141,7 @@ class Block(object):
         elif block_id == 0:
             self._int_24bit = 0
             return
-        else:
+        elif hit_points is None:
             hit_points = block_config[block_id].hit_points
 
         if hit_points is None:

@@ -322,12 +322,12 @@ class SmdRegion(DefaultLogging):
         for segment_position in self.position_to_segment:
             self.position_to_segment[segment_position].replace_hull(new_hull_type, hull_type)
 
-    def replace_blocks(self, block_id, replace_id, replace_hp, compatible=False):
+    def replace_blocks(self, block_id, replace_id, compatible=False):
         """
         Replace all blocks of a specific id
         """
         for segment_position in self.position_to_segment:
-            self.position_to_segment[segment_position].replace_blocks(block_id, replace_id, replace_hp, compatible)
+            self.position_to_segment[segment_position].replace_blocks(block_id, replace_id, compatible)
 
     def update(self, entity_type=0):
         """
@@ -344,8 +344,7 @@ class SmdRegion(DefaultLogging):
         """
         Search for and remove segments with no blocks
         """
-        list_of_positions = list(self.position_to_segment.keys())
-        for position_segment in list_of_positions:
+        for position_segment in list(self.position_to_segment.keys()):
             if self.position_to_segment[position_segment].get_number_of_blocks() == 0:
                 self._logger.debug("'remove' Removing empty segment {}.".format(position_segment))
                 self.position_to_segment.pop(position_segment)

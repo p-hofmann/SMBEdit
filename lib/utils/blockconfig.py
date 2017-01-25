@@ -205,6 +205,8 @@ class BlockConfig(MetaBlockConfig, ):
             self._id_to_block[block_id].id = block_id
             self._id_to_block[block_id].name = name
             self._id_to_block[block_id].hit_points = 1
+            if self._id_to_block[block_id].is_rail() or block_id == 663:
+                self._id_to_block[block_id].hit_points = 100
             self._id_to_block[block_id].can_activate = BlockConfigHardcoded.is_activatable_block(block_id)
             self._id_to_block[block_id].block_style = BlockConfigHardcoded.get_block_style(block_id)
             self._id_to_block[block_id].deprecated = BlockConfigHardcoded.is_deprecated(block_id)

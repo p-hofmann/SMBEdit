@@ -83,7 +83,7 @@ class Smd(DefaultLogging):
             offset = (8, 8, 8)
             for position, smd2block in smd2.items():
                 smd3_position = Vector.addition(position, offset)
-                smd3block = Block(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
+                smd3block = Block()
                 hit_points = block_config[smd2block.get_id()].hit_points
                 smd3block.set_int_24bit(smd2block.get_int_24bit())
                 smd3block.update(hit_points=hit_points)
@@ -323,12 +323,12 @@ class Smd(DefaultLogging):
         for region_position in self.position_to_region:
             self.position_to_region[region_position].replace_hull(new_hull_type, hull_type)
 
-    def replace_blocks(self, block_id, replace_id, replace_hp, compatible=False):
+    def replace_blocks(self, block_id, replace_id, compatible=False):
         """
         Replace all blocks of a specific id
         """
         for region_position in self.position_to_region:
-            self.position_to_region[region_position].replace_blocks(block_id, replace_id, replace_hp, compatible)
+            self.position_to_region[region_position].replace_blocks(block_id, replace_id, compatible)
 
     def update(self, entity_type=0):
         """
@@ -347,8 +347,7 @@ class Smd(DefaultLogging):
         """
         Search for and remove regions with no blocks
         """
-        list_of_position_region = list(self.position_to_region.keys())
-        for position_region in list_of_position_region:
+        for position_region in list(self.position_to_region.keys()):
             if self.position_to_region[position_region].get_number_of_blocks() == 0:
                 self._logger.debug("'remove' Removing empty region {}.".format(position_region))
                 self.position_to_region.pop(position_region)

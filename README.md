@@ -1,7 +1,7 @@
 StarMade Blueprint Editor
 ====
 
-Yet another editor since others have become outdated.  
+This editor allows changes to StarMade blueprints that are either difficult or too tedious to do with he official client.
 This is a command line tool, there is no user interface!  
 SMBEdit is compatible with both python2.7 and python3, and should work on all platforms.  
 Input and output are either a directory of raw blueprints as found in "/../StarMade/blueprints/" or a path to a '.sment' file.  
@@ -9,7 +9,7 @@ Input and output are either a directory of raw blueprints as found in "/../StarM
 # Installation
 ##Python
 Unix users have python by default.  
-Windows users have to install:
+Windows users have to install one of those:
 
 * python2.7 https://www.python.org/download/releases/2.7/
 * python3.6 https://www.python.org/downloads/release/python-360/
@@ -32,6 +32,16 @@ Several command line arguments are available and (most) can be used all at once.
 ```
 -h, --help
 ```
+
+### Read StarMade block config
+```
+-sm STARMADE_DIR, --starmade_dir STARMADE_DIR
+```
+
+Directory path to the StarMade folder, attempting to read block config there.  
+This is required to ensure correct hit point values are given to replace blocks 
+or if smd2 blocks are converted to smd3 blocks which have different hit point values.
+
 ### Print summary of blueprint
 ```
 -s, --summary  
@@ -118,11 +128,23 @@ With the python script:
 python smbedit.py directory/my_blueprint -m 679 -o directory/new_blueprint
 ```
 
-or with the executable (just replace `python smbedit.py` with `smbedit.exe`):
+or with the executable if available (just replace `python smbedit.py` with `smbedit.exe`):
 
 ```
 smbedit.exe directory/my_blueprint -m 679 -o directory/new_blueprint
 ```
+
+### Mirror entity at axis
+
+```
+  -ma {x,y,z,xr,yr,zr}, --mirror_axis {x,y,z,xr,yr,zr}
+```
+
+Mirror entity at core/center at a specific axis:
+x Left to Right  
+y Top to Bottom  
+z Front to Back  
+Add a 'r' to reverse mirror
 
 ### Remove blocks
 ```
@@ -232,13 +254,16 @@ The "Undeathinator" block  is replaced with a core.
 
 
 # Restrictions
-This editor works with StarMade v0.199.253 to v0.199.357.  
+This editor works with StarMade blueprints from v0.199.253 to v0.199.357.  
 Older blueprint versions, smd2 and some old smd3, are not guaranteed to work.  
-It is recommended to use the StarMade client to update a blueprint before using with SMBEdit!
+It is recommended to use the StarMade client to update a blueprint before using with SMBEdit.
+If you notice that the StarMade client fails to load some turret heads from some smd2 blueprints, 
+try loading it with SMBEdit and hope.
 
 ## Meta file / Docked entities
 Reading/manipulation of the 'meta.smbpm' file is very rudimentary at the moment and can lead to errors.  
 If a blueprint is deleted after loading a single player game, or it fails to upload, it probably is because of a faulty meta file.
+Send me a message, ideally with a link to the blueprint so I can try fixing it.
 
 ## Header file
 The statistical info of an entity, read from the 'header.smbph' file is not updated after blocks are modified.
