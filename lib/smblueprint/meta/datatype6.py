@@ -113,8 +113,8 @@ class DataType6(DefaultLogging):
         @param output_stream: Output stream
         @type output_stream: BinaryStream
         """
-        if len(self._data) == 0:
-            return
+        # if len(self._data) == 0:
+        #     return
         self._logger.debug("Writing")
         output_stream.write_byte(6)
         output_stream.write_byte(self._has_data)
