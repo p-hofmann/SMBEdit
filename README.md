@@ -155,16 +155,13 @@ It is possible to remove all blocks of a specific block id, or a list of comma s
 
 ### Replace blocks
 ```
--r {old_id},{new_id}:{hit_points}
+-r {old_id}:{new_id}
 ```
 
-Replace a block of a specific id with another one. Hit points are also required.
-Id and Hp can be looked for at [starmadepedia](https://starmadepedia.net/wiki/ID_list).
-
-Hit points - Hull type  
-75 - Basic Hull  
-100 - Standard Armor  
-250 - Advanced Armor  
+Replace a block of a specific id with another one.  
+In most cases, hit points can only be set correct if the '--starmade_dir' is used.
+If this is not done, blocks will be set to 1 hp.  
+Ids can be looked for at [starmadepedia](https://starmadepedia.net/wiki/ID_list).
 
 
 ### Replace Hull
@@ -257,8 +254,8 @@ The "Undeathinator" block  is replaced with a core.
 This editor works with StarMade blueprints from v0.199.253 to v0.199.357.  
 Older blueprint versions, smd2 and some old smd3, are not guaranteed to work.  
 It is recommended to use the StarMade client to update a blueprint before using with SMBEdit.
-If you notice that the StarMade client fails to load some turret heads from some smd2 blueprints, 
-try loading it with SMBEdit and hope.
+But if you notice that the StarMade client fails to load some turret heads from some smd2 blueprints, 
+try converting it with SMBEdit.
 
 ## Meta file / Docked entities
 Reading/manipulation of the 'meta.smbpm' file is very rudimentary at the moment and can lead to errors.  
