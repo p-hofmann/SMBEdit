@@ -626,19 +626,23 @@ class Smd(DefaultLogging):
                 continue
 
             periphery_index = self.get_position_periphery_index(position, 1)
-            if auto_wedge and periphery_index in AutoShape.peripheries[4]:
+            shape_id_wedge = block_config.get_shape_id("wedge")
+            shape_id_tetra = block_config.get_shape_id("tetra")
+            if auto_wedge and periphery_index in AutoShape.peripheries[shape_id_wedge]:
                 # "wedge"
-                new_shape_id = 4
-            elif auto_tetra and periphery_index in AutoShape.peripheries[6]:
+                new_shape_id = shape_id_wedge
+            elif auto_tetra and periphery_index in AutoShape.peripheries[shape_id_tetra]:
                 # tetra
-                new_shape_id = 6
+                new_shape_id = shape_id_tetra
             else:
                 continue
 
             bit_19, bit_22, bit_23, rotations = AutoShape.peripheries[new_shape_id][periphery_index]
             block_hull_tier, color_id, shape_id = block_config[block_id].get_details()
             new_block_id = block_config.get_block_id_by_details(block_hull_tier, color_id, new_shape_id)
+            assert new_block_id != 0, "Bad id: {}".format(new_block_id)
             block.update(block_id=new_block_id, bit_19=bit_19, bit_22=bit_22, bit_23=bit_23, rotations=rotations)
+            assert block.get_id() != 0
 
     def auto_hull_shape_dependent(self, block_shape_id):
         """
@@ -662,18 +666,11 @@ class Smd(DefaultLogging):
             block_hull_type, color, shape_id = block_config[block_id].get_details()
             new_block_id = block_config.get_block_id_by_details(block_hull_type, color, block_shape_id)
             block.update(block_id=new_block_id, bit_19=bit_19, bit_22=bit_22, bit_23=bit_23, rotations=rotations)
+            assert block.get_id() != 0
 
     def auto_hull_shape(self, auto_wedge, auto_tetra, auto_corner, auto_hepta=None):
         """
         Automatically set shapes to blocks on edges and corners.
-        "": 0,
-        "1/4": 1,
-        "1/2": 2,
-        "3/4": 3,
-        "Wedge": 4,
-        "Corner": 5,
-        "Tetra": 6,
-        "Hepta": 7,
 
         @type auto_wedge: bool
         @type auto_tetra: bool
@@ -681,10 +678,12 @@ class Smd(DefaultLogging):
         @type auto_hepta: bool
         """
         self.auto_hull_shape_independent(auto_wedge, auto_tetra)
+        shape_id_corner = block_config.get_shape_id("corner")
+        shape_id_hepta = block_config.get_shape_id("hepta")
         if auto_corner:
-            self.auto_hull_shape_dependent(5)
+            self.auto_hull_shape_dependent(shape_id_corner)
         if auto_hepta:
-            self.auto_hull_shape_dependent(7)
+            self.auto_hull_shape_dependent(shape_id_hepta)
 
     def auto_wedge_debug(self):
         """
