@@ -6,6 +6,26 @@ __author__ = 'Peter Hofmann'
 
 class Blueprint(object):
     """
+    python smbedit.py \
+    "test.sment" \
+    -sm "~/starmade-launcher/StarMade" \
+    -s -silent \
+    -u \
+    -d \
+    -aw \
+    -at \
+    -ah \
+    -ac \
+    -et 0 \
+    -ec 5 \
+    -m 1,-1,-1 \
+    -ma x \
+    -rm 940,444 \
+    -r 283:922 \
+    -rh a:s \
+    -o /tmp/tmp_blueprint.sment
+
+
     @type _blueprints: set[str]
     """
 
