@@ -1,5 +1,5 @@
 from unittest import TestCase
-from StringIO import StringIO
+from io import BytesIO
 from lib.smblueprint.meta.meta import Meta
 from lib.bits_and_bytes import BinaryStream
 from blueprints import Blueprint
@@ -34,11 +34,11 @@ class TestMeta(DefaultSetup):
             self.object.read(directory_blueprint)
 
     def test__write_dummy(self):
-        input_stream = BinaryStream(StringIO())
+        input_stream = BinaryStream(BytesIO())
         self.object._write_dummy(input_stream)
 
     def test__write_file(self):
-        input_stream = BinaryStream(StringIO())
+        input_stream = BinaryStream(BytesIO())
         self.object._write_file(input_stream, "./")
 
     def test_move_center_by_vector(self):
