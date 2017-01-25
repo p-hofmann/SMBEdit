@@ -45,7 +45,7 @@ class SMBEdit(ArgumentHandler):
 
     @staticmethod
     def get_label():
-        return SMBEdit._label
+        return "SMBEdit"
 
     @staticmethod
     def zip_directory(src_dir, dst):
