@@ -44,7 +44,7 @@ class DataType5(DefaultLogging):
         @type output_stream: BinaryStream
         """
         if not self.has_data():
-            return
+            self._tag_data.set_root_tag(AIConfig().to_tag())
         self._logger.debug("Writing")
         output_stream.write_byte(5)
         file_position_size = output_stream.tell()
@@ -78,8 +78,8 @@ class DataType5(DefaultLogging):
         if self._debug:
             output_stream.write("DataType5\n")
             if self._tag_data.has_data():
-                # self._tag_data.to_stream(output_stream)
-                ai_config = AIConfig()
-                ai_config.from_tag(self._tag_data.get_root_tag())
-                ai_config.to_stream()
+                self._tag_data.to_stream(output_stream)
+                # ai_config = AIConfig()
+                # ai_config.from_tag(self._tag_data.get_root_tag())
+                # ai_config.to_stream()
                 output_stream.write("\n")
