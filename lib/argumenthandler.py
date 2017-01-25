@@ -57,6 +57,12 @@ class ArgumentHandler(Validator):
         self._summary = options.summary
         temp_directory = options.tmp_dir
         self._directory_starmade = options.starmade_dir
+        if self._directory_starmade is not None:
+            self._directory_starmade = self.get_full_path(self._directory_starmade)
+        if self._path_input is not None:
+            self._path_input = self.get_full_path(self._path_input)
+        if self._path_output is not None:
+            self._path_output = self.get_full_path(self._path_output)
         self._is_archived = False
         if self._path_input.endswith(".sment"):
             self._is_archived = True
@@ -65,8 +71,6 @@ class ArgumentHandler(Validator):
         assert self._path_output is None or self.validate_dir(self._path_output, only_parent=True)
         assert self._directory_starmade is None or self.validate_dir(
             self._directory_starmade, file_names=["StarMade.jar"], key='-sm'), "Bad StarMade directory."
-        if self._directory_starmade is not None:
-            self._directory_starmade = self.get_full_path(self._directory_starmade)
 
         self._directory_output = None
         if self._is_archived:  # .sment file
