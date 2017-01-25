@@ -255,7 +255,7 @@ This editor works with StarMade blueprints from v0.199.253 to v0.199.357.
 Older blueprint versions, smd2 and some old smd3, are not guaranteed to work.  
 It is recommended to use the StarMade client to update a blueprint before using with SMBEdit.
 But if you notice that the StarMade client fails to load some turret heads from some smd2 blueprints, 
-try loading it with SMBEdit and hope.
+try converting it with SMBEdit.
 
 ## Meta file / Docked entities
 Reading/manipulation of the 'meta.smbpm' file is very rudimentary at the moment and can lead to errors.  
