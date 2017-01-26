@@ -24,11 +24,15 @@ class Block(object):
     _bit_is_active_start = 19
     _bit_is_active_length = 1
 
-    def __init__(self):
-        self._int_24bit = 0
+    def __init__(self, int_24bit=0):
+        self._int_24bit = int_24bit
         self._label = "SmdBlock"
 
-    # Get
+    def __repr__(self):
+        return "{}".format(block_config[self.get_id()].name)
+
+    def __eq__(self, other):
+        return self._int_24bit == other.get_int_24bit    # Get
 
     def get_id(self):
         """
