@@ -1,16 +1,91 @@
 __author__ = 'Peter Hofmann'
 
 import sys
+from collections import Iterable
+from weakref import WeakValueDictionary
 
 from lib.bits_and_bytes import BitAndBytes
 from lib.utils.blockconfig import block_config
-from lib.smblueprint.smd3.smdblock.style0 import Style0
-from lib.smblueprint.smd3.smdblock.style1wedge import Style1Wedge
-from lib.smblueprint.smd3.smdblock.style2corner import Style2Corner
-from lib.smblueprint.smd3.smdblock.style3 import Style3
-from lib.smblueprint.smd3.smdblock.style4tetra import Style4Tetra
-from lib.smblueprint.smd3.smdblock.style5hepta import Style5Hepta
-from lib.smblueprint.smd3.smdblock.style6 import Style6
+from lib.smblueprint.smdblock.style0 import Style0
+from lib.smblueprint.smdblock.style1wedge import Style1Wedge
+from lib.smblueprint.smdblock.style2corner import Style2Corner
+from lib.smblueprint.smdblock.style3 import Style3
+from lib.smblueprint.smdblock.style4tetra import Style4Tetra
+from lib.smblueprint.smdblock.style5hepta import Style5Hepta
+from lib.smblueprint.smdblock.style6 import Style6
+
+
+class BlockPool(object):
+    """
+    @type _state_to_instance: WeakValueDictionary[int, BlockSmd3]
+    """
+
+    _state_to_instance = WeakValueDictionary()
+
+    def __call__(self, state, smd2=False):
+        """
+        @param state:
+        @type state: int
+        @param smd2: if the state is from a smd2 file.
+        @type smd2: bool
+
+        @rtype: BlockSmd3
+        """
+        if smd2:
+            return BlockSmd2(state).to_smd3()
+        # check if this block state already exist
+        instance_pool = self._state_to_instance.get(state)
+        if not instance_pool:
+            instance_pool = BlockSmd3(state)
+            self._state_to_instance[state] = instance_pool
+        return instance_pool
+
+    # Methods, called on instance objects:
+    def __iter__(self):
+        """
+        @rtype: Iterable[BlockSmd3]
+        """
+        return iter(self._state_to_instance.values())
+
+    def __getitem__(self, state):
+        """
+        Get a block at a specific position
+
+        @param state:
+        @type state: int
+
+        @rtype: BlockSmd3
+        """
+        assert state in self._state_to_instance, "No block for state: {}".format(state)
+        return self._state_to_instance[state]
+
+    def __len__(self):
+        """
+        Get number of blocks of blueprint
+
+        @return: number of blocks in segment
+        @rtype: int
+        """
+        return len(self._state_to_instance)
+
+    @staticmethod
+    def items():
+        """
+        @rtype: Iterable[(int, BlockSmd3)]
+        """
+        return BlockPool._state_to_instance.items()
+
+    @staticmethod
+    def popitem():
+        """
+        @rtype: Iterable[(int, int, int), BlockSmd3]
+        """
+        state_pool = BlockPool._state_to_instance
+        BlockPool._state_to_instance = dict()
+        for state, block in state_pool.popitem():
+            yield state, block
+
+block_pool = BlockPool()
 
 
 class Block(object):
@@ -24,11 +99,15 @@ class Block(object):
     _bit_is_active_start = 19
     _bit_is_active_length = 1
 
-    def __init__(self):
-        self._int_24bit = 0
+    def __init__(self, int_24bit=0):
+        self._int_24bit = int_24bit
         self._label = "SmdBlock"
 
-    # Get
+    def __repr__(self):
+        return "{}".format(block_config[self.get_id()].name)
+
+    def __eq__(self, other):
+        return self._int_24bit == other.get_int_24bit    # Get
 
     def get_id(self):
         """
@@ -45,7 +124,7 @@ class Block(object):
         @rtype: int
         """
         assert self.get_id() != 0, "Block id 0 has no hit points."
-        return BitAndBytes.bits_parse(self._int_24bit, 11, 8)
+        return BitAndBytes.bits_parse(self._int_24bit, self._bit_hit_points_start, self._bit_hit_points_length)
 
     def get_style(self):
         """
@@ -74,7 +153,7 @@ class Block(object):
 
         @rtype: bool
         """
-        return BitAndBytes.bits_parse(self._int_24bit, 19, 1)
+        return BitAndBytes.bits_parse(self._int_24bit, self._bit_is_active_start, self._bit_is_active_length)
 
     def get_orientation(self, style=None):
         if style is None:
@@ -102,39 +181,32 @@ class Block(object):
         """
         return self._int_24bit
 
-    # Set
-
-    def set_int_24bit(self, int_24bit):
-        """
-        Set integer representing block
-
-        @param int_24bit:
-        @type int_24bit: int
-        """
-        self._int_24bit = int_24bit
-
-    def convert_to_type_6(self, block_id):
+    def get_converted_to_type_6(self, block_id):
         """
         Return a side to type 6 orientation conversion, focusing on forward and up
 
         @type block_id: int
+
+        @rtype: BlockSmd3
         """
         assert self.get_style() == 0
         assert block_config[block_id].block_style == 6
         orientation = Style0(self._int_24bit)
         bit_19, bit_23, bit_22, rotations = orientation.to_style6_bits()
         hit_points = block_config[block_id].hit_points
-        self.update(
-            block_id=block_id, bit_19=bit_19, bit_22=bit_22, bit_23=bit_23, rotations=rotations, active=False, hit_points=hit_points)
-        return
+        return self.get_modification(
+            block_id=block_id, hit_points=hit_points, active=False,
+            bit_19=bit_19, bit_22=bit_22, bit_23=bit_23, rotations=rotations)
 
-    def update(self, block_id=None, hit_points=None, active=None, block_side_id=None, bit_19=None, bit_22=None, bit_23=None, rotations=None):
+    def get_modification(self, block_id=None, hit_points=None, active=None, block_side_id=None, bit_19=None, bit_22=None, bit_23=None, rotations=None):
         """
         In the rare case a block value is changed, they are turned into a byte string.
 
         @type block_id: int | None
         @type hit_points: int | None
         @type active: bool | None
+
+        @rtype: BlockSmd3
         """
         if block_id is None:
             block_id = self.get_id()
@@ -161,41 +233,18 @@ class Block(object):
         if style == 0:  # For blocks with an activation status
             int_24bit = BitAndBytes.bits_combine(active, int_24bit, 19)
         orientation = self.get_orientation(style)
-        self._int_24bit = orientation.bit_combine(
+        int_24bit = orientation.bit_combine(
             int_24bit, style=style, bit_19=bit_19, bit_22=bit_22, bit_23=bit_23,
             rotations=rotations, block_side_id=block_side_id)
-        # '[1:]' since only the last three bytes of an integer are used for block information.
-        # self._byte_string = struct.pack('>i', int_24bit)[1:]
+        return block_pool(int_24bit)
 
-    def set_id(self, block_id):
+    def get_mirror(self, axis_index):
         """
-        Change block id of block
+        Mirror orientation
+        @type axis_index: int
 
-        @param block_id:
-        @type block_id: int
+        @rtype: BlockSmd3
         """
-        self.update(block_id=block_id)
-
-    def set_hit_points(self, hit_points):
-        """
-        Change hit points of block
-
-        @param hit_points:
-        @type hit_points: int
-        """
-        self.update(hit_points=hit_points)
-
-    def set_active(self, active):
-        """
-        Change 'active' status of of block
-
-        @param active:
-        @type active: bool
-        """
-        assert self.get_style() == 0, "Block id {} has no 'active' status".format(self.get_id())
-        self.update(active=active)
-
-    def mirror(self, axis_index):
         orientation = self.get_orientation()
         if axis_index == 0:
             orientation.mirror_x()
@@ -203,7 +252,8 @@ class Block(object):
             orientation.mirror_y()
         if axis_index == 2:
             orientation.mirror_z()
-        self._int_24bit = orientation.bit_combine(self._int_24bit)
+        int_24bit = orientation.bit_combine(self._int_24bit)
+        return block_pool(int_24bit)
 
     # #######################################
     # ###  Stream
@@ -222,3 +272,36 @@ class Block(object):
         orientation = self.get_orientation()
         output_stream.write("Or.: {}\t".format(orientation.to_string()))
         output_stream.write("{}\n".format(block_config[self.get_id()].name))
+
+
+class BlockSmd2(Block):
+
+    _bit_block_id_start = 0
+    _bit_block_id_length = 11
+
+    _bit_hit_points_start = 11
+    _bit_hit_points_length = 9
+
+    _bit_is_active_start = 20
+    _bit_is_active_length = 1
+
+    def to_smd3(self):
+        block_id = self.get_id()
+        active = self._get_active_value()
+        bit_19, bit_23, bit_22, rotations = self.get_orientation().get_orientation_values()
+        block_side_id = self.get_orientation().get_block_side_id()
+        return BlockSmd3(self._int_24bit).get_modification(
+            block_id=block_id, active=active,
+            block_side_id=block_side_id, bit_19=bit_19, bit_22=bit_22, bit_23=bit_23, rotations=rotations)
+
+
+class BlockSmd3(Block):
+
+    _bit_block_id_start = 0
+    _bit_block_id_length = 11
+
+    _bit_hit_points_start = 11
+    _bit_hit_points_length = 8
+
+    _bit_is_active_start = 19
+    _bit_is_active_length = 1

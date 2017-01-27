@@ -1,4 +1,4 @@
-from lib.smblueprint.smd3.smdblock.orientation import Orientation, BitAndBytes
+from lib.smblueprint.smdblock.orientation import Orientation, BitAndBytes
 
 
 __author__ = 'Peter Hofmann'

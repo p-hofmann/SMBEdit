@@ -5,8 +5,7 @@ import os
 
 from lib.bits_and_bytes import BinaryStream
 from lib.loggingwrapper import DefaultLogging
-from lib.utils.vector import Vector
-from lib.smblueprint.meta.tag.tagmanager import TagManager, TagList, TagPayload
+from lib.smblueprint.meta.tag.tagmanager import TagManager
 from lib.smblueprint.meta.tag.raildockentitylinks import RailDockedEntityLinks
 
 
@@ -36,66 +35,67 @@ class DataType4(DefaultLogging):
     # #######################################
 
     @staticmethod
-    def get_index(var0, var1, var2):
+    def get_index(position_x, position_y, position_z):
         """
 
-        @param var0:
-        @type var0: long
-        @param var1:
-        @type var1: long
-        @param var2:
-        @type var2: long
+        @param position_x:
+        @type position_x: int
+        @param position_y:
+        @type position_y: int
+        @param position_z:
+        @type position_z: int
 
         @return:
         @rtype: int
         """
-        # return int((var2 & str('ffff')) << 32) + int((var1 & str('ffff')) << 16) + int(var0 & str('ffff'))
-        return 0
+        return int(position_z << 32) + int(position_y << 16) + int(position_x)
 
     @staticmethod
-    def get_pos(var0, shift=0):
+    def get_pos(position_index, bit_shift=0):
         """
 
-        @param var0:
-        @type var0: long
+        @param position_index:
+        @type position_index: int
 
         @return:
         @rtype: int
         """
-        if shift == 0:
-            return int(var0 & 65535)
-        return int(var0 >> shift & 65535)
+        if bit_shift == 0:
+            return int(position_index & 65535)
+        return int(position_index >> bit_shift & 65535)
 
-    def shift_index(self, var0, var2, var3, var4):
+    def chunk16_to_chunk_32_shift_index(self, position_index, offset):
         """
 
-        @param var0:
-        @param var2:
-        @param var3:
-        @param var4:
+        @type position_index: int
+        @type offset: int
 
         @return:
-        @rtype: long
+        @rtype: int
         """
-        return self.get_index(self.get_pos(var0) + var2, self.get_pos(var0, 16) + var3, self.get_pos(var0, 32) + var4)
+        return self.get_index(
+            self.get_pos(position_index) + offset,
+            self.get_pos(position_index, 16) + offset,
+            self.get_pos(position_index, 32) + offset)
 
-    def _read_wireless_logic_stuff(self, input_stream, unknown_number):
+    def _read_wireless_logic_stuff(self, input_stream, offset):
         """
         Read unknown stuff from byte stream
 
         @param input_stream: input stream
         @type input_stream: BinaryStream
 
-        @rtype Tuple[str, int, int]
+        @rtype (str, int, int)
         """
         unknown_string = input_stream.read_string()  # utf
-        unknown_long0 = input_stream.read_int64()
-        unknown_long1 = input_stream.read_int64()
+        unknown_position_index_0 = input_stream.read_int64()
+        unknown_position_index_1 = input_stream.read_int64()
         self._logger.debug("wireless_logic stuff string: '{}'".format(unknown_string))
-        # if unknown_number != 0:
-        #     unknown_long0 = self.shift_index(unknown_long0, unknown_number, unknown_number, unknown_number)
-        #     unknown_long1 = self.shift_index(unknown_long1, unknown_number, unknown_number, unknown_number)
-        return unknown_string, unknown_long0, unknown_long1
+        if offset != 0:
+            # chunk16 to 32
+            unknown_position_index_0 = self.chunk16_to_chunk_32_shift_index(unknown_position_index_0, offset)
+            unknown_position_index_1 = self.chunk16_to_chunk_32_shift_index(unknown_position_index_1, offset)
+        return unknown_string, unknown_position_index_0, unknown_position_index_1
 
     def read(self, input_stream, version):
         """
@@ -123,7 +123,8 @@ class DataType4(DefaultLogging):
             _, dock_index = relative_path.rsplit('_', 1)
             tag_size = input_stream.read_int32_unassigned()
             if tag_size > 0:
-                self._docked_entities[int(dock_index)] = TagManager(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
+                self._docked_entities[int(dock_index)] = TagManager(
+                    logfile=self._logfile, verbose=self._verbose, debug=self._debug)
                 self._docked_entities[int(dock_index)].read(input_stream)
 
     # #######################################
@@ -131,17 +132,14 @@ class DataType4(DefaultLogging):
     # #######################################
 
     @staticmethod
-    def _write_unknown_d4_stuff(output_stream, stuff, unknown_number):
+    def _write_wireless_logic_stuff(output_stream, stuff):
         """
         Write some stuff to byte stream
 
         @param output_stream: output_stream
         @type output_stream: BinaryStream
         """
-        # if unknown_number != 0:
-        #     unknown_long0 = self.shift_index(unknown_long0, unknown_number, unknown_number, unknown_number)
-        #     unknown_long1 = self.shift_index(unknown_long1, unknown_number, unknown_number, unknown_number)
-        output_stream.write_string(stuff[0])  # utf
+        output_stream.write_string(stuff[0])
         output_stream.write_int64(stuff[1])
         output_stream.write_int64(stuff[2])
 
@@ -158,9 +156,6 @@ class DataType4(DefaultLogging):
         output_stream.write_vector_3_float(self._vector_float_0)
         output_stream.write_vector_3_float(self._vector_float_1)
 
-        unknown_number = 0
-        if version < (0, 0, 0, 4):
-            unknown_number = 8
         if version >= (0, 0, 0, 2):
             output_stream.write_string(self._entity_label)
             list_size_of_unknown_stuff = len(self._entity_wireless_logic_stuff)
@@ -168,7 +163,7 @@ class DataType4(DefaultLogging):
             if list_size_of_unknown_stuff > 0:
                 self._logger.warning("Writing unknown stuff.")
             for index in sorted(self._entity_wireless_logic_stuff.keys()):
-                self._write_unknown_d4_stuff(output_stream, self._entity_wireless_logic_stuff[index], unknown_number)
+                self._write_wireless_logic_stuff(output_stream, self._entity_wireless_logic_stuff[index])
 
         output_stream.write_int32_unassigned(len(self._docked_entities))
         for dock_index in sorted(self._docked_entities.keys()):
@@ -195,7 +190,8 @@ class DataType4(DefaultLogging):
         @type docked_entity_index: int
         @type rail_docker_links: RailDockedEntityLinks
         """
-        assert docked_entity_index not in self._docked_entities, "Docked entity already exists: {}".format(docked_entity_index)
+        assert docked_entity_index not in self._docked_entities, "Docked entity already exists: {}".format(
+            docked_entity_index)
         tag_manager = TagManager(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
         tag_manager.set_root_tag(rail_docker_links.to_tag())
         self._docked_entities[docked_entity_index] = tag_manager

@@ -95,7 +95,7 @@ class BlockInfo(object):
     def get_details(self):
         """
         Return detail ids
-        @rtype: tuple[int|None]
+        @rtype: (int|None,int|None,int|None)
         """
         return self.tier, self.color, self.shape
 
@@ -106,7 +106,7 @@ class BlockInfo(object):
         return values[list_index]
 
 
-class MetaBlockConfig(object):
+class SuperBlockConfig(object):
     """
     docstring for BlockConfig
 
@@ -149,7 +149,7 @@ class MetaBlockConfig(object):
             yield self._id_to_block[block_id]
 
 
-class BlockConfig(MetaBlockConfig, ):
+class BlockConfig(SuperBlockConfig, ):
     """
     docstring for BlockConfig
 

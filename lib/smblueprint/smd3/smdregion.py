@@ -5,7 +5,7 @@ import math
 
 from lib.loggingwrapper import DefaultLogging
 from lib.bits_and_bytes import BinaryStream
-from lib.smblueprint.smd3.smdblock.block import Block
+from lib.smblueprint.smdblock.block import BlockSmd3
 from lib.smblueprint.smd3.smdsegment import SmdSegment
 
 
@@ -94,38 +94,39 @@ class SmdRegion(DefaultLogging):
                 segment_id_to_size[identifier] = size
         return segment_id_to_size
 
-    def _read_file(self, input_stream):
+    def _read_file(self, block_list, input_stream):
         """
         Read region data from a byte stream
 
+        @type block_list: BlockList
         @param input_stream: input stream
         @type input_stream: BinaryStream
         """
         segment_id_to_size = self._read_region_header(input_stream)
-        segment_id = 0
+        segment_id = 0  # ids start with 1
+        segment = SmdSegment(
+            blocks_in_a_line=self._blocks_in_a_line_in_a_segment,
+            logfile=self._logfile, verbose=self._verbose, debug=self._debug)
         while not self._is_eof(input_stream):
             segment_id += 1
-            segment = SmdSegment(
-                blocks_in_a_line=self._blocks_in_a_line_in_a_segment,
-                logfile=self._logfile,
-                verbose=self._verbose,
-                debug=self._debug)
-            segment.read(input_stream)
-            if not segment.has_valid_data or segment_id not in segment_id_to_size or segment_id_to_size[segment_id] == 0:
+            if segment_id not in segment_id_to_size or segment_id_to_size[segment_id] == 0:
+                # skip ghost segment
+                input_stream.seek(49152, 1)
                 continue
-            self.position_to_segment[segment.position] = segment
+            segment.read(block_list, input_stream)
 
-    def read(self, file_path):
+    def read(self, file_path, block_list):
         """
         Read region data from a file
 
         @param file_path: region file path
         @type file_path: str
+        @type block_list: BlockList
         """
         # print file_path
         self._logger.info("Reading file '{}'".format(file_path))
         with open(file_path, 'rb') as input_stream:
-            self._read_file(BinaryStream(input_stream))
+            self._read_file(block_list, BinaryStream(input_stream))
 
     # #######################################
     # ###  Write
@@ -210,48 +211,6 @@ class SmdRegion(DefaultLogging):
     # ###  Get
     # #######################################
 
-    def get_block_at_position(self, position):
-        """
-        Get a block at a specific position
-
-        @param position:
-        @param position: tuple[int]
-
-        @return:
-        @rtype: Block
-        """
-        segment_position = self.get_segment_position_of_position(position)
-        assert segment_position in self.position_to_segment
-        return self.position_to_segment[segment_position].get_block_at_position(position)
-
-    def get_number_of_blocks(self):
-        """
-        Get number of blocks of this region
-
-        @return: number of blocks in segment
-        @rtype: int
-        """
-        number_of_blocks = 0
-        for position, segment in self.position_to_segment.items():
-            assert isinstance(segment, SmdSegment)
-            number_of_blocks += segment.get_number_of_blocks()
-        return number_of_blocks
-
-    def has_block_at_position(self, position):
-        """
-        Returns true if a block exists at a position
-
-        @param position: (x,y,z)
-        @type position: tuple[int]
-
-        @return:
-        @rtype: bool
-        """
-        segment_position = self.get_segment_position_of_position(position)
-        if segment_position not in self.position_to_segment:
-            return False
-        return self.position_to_segment[segment_position].has_block_at_position(position)
-
     # ###  Index and positions
 
     def get_segment_position_of_position(self, position):
@@ -306,71 +265,6 @@ class SmdRegion(DefaultLogging):
     # ###  Set
     # #######################################
 
-    # #######################################
-    # ###  Else
-    # #######################################
-
-    def replace_hull(self, new_hull_type, hull_type=None):
-        """
-        Replace all blocks of a specific hull type or all hull
-
-        @param new_hull_type:
-        @type new_hull_type: int
-        @param hull_type:
-        @type hull_type: int | None
-        """
-        for segment_position in self.position_to_segment:
-            self.position_to_segment[segment_position].replace_hull(new_hull_type, hull_type)
-
-    def replace_blocks(self, block_id, replace_id, compatible=False):
-        """
-        Replace all blocks of a specific id
-        """
-        for segment_position in self.position_to_segment:
-            self.position_to_segment[segment_position].replace_blocks(block_id, replace_id, compatible)
-
-    def update(self, entity_type=0):
-        """
-        Remove invalid/outdated blocks and exchange docking modules with rails
-
-        @param entity_type: ship=0/station=2/etc
-        @type entity_type: int
-        """
-        for position_segment in self.position_to_segment:
-            self.position_to_segment[position_segment].update(entity_type)
-        self._remove_empty_segments()
-
-    def _remove_empty_segments(self):
-        """
-        Search for and remove segments with no blocks
-        """
-        for position_segment in list(self.position_to_segment.keys()):
-            if self.position_to_segment[position_segment].get_number_of_blocks() == 0:
-                self._logger.debug("'remove' Removing empty segment {}.".format(position_segment))
-                self.position_to_segment.pop(position_segment)
-
-    def remove_blocks(self, block_ids):
-        """
-        Removing all blocks of a specific id
-
-        @param block_ids:
-        @type block_ids: set[int]
-        """
-        for position in list(self.position_to_segment.keys()):
-            self.position_to_segment[position].remove_blocks(block_ids)
-
-    def remove_block(self, block_position):
-        """
-        Remove Block at specific position.
-
-        @param block_position: x,z,y position of a block
-        @type block_position: tuple[int]
-        """
-        assert isinstance(block_position, tuple), block_position
-        position_segment = self.get_segment_position_of_position(block_position)
-        assert position_segment in self.position_to_segment, block_position
-        self.position_to_segment[position_segment].remove_block(block_position)
-
     def add(self, block_position, block, replace=True):
         """
         Add a block to the segment based on its global position
@@ -378,9 +272,9 @@ class SmdRegion(DefaultLogging):
         @param block_position: x,y,z position of block
         @type block_position: tuple[int]
         @param block: A block! :)
-        @type block: Block
+        @type block: BlockSmd3
         """
-        assert isinstance(block, Block)
+        assert isinstance(block, BlockSmd3)
         position_segment = self.get_segment_position_of_position(block_position)
         if position_segment not in self.position_to_segment:
             self.position_to_segment[position_segment] = SmdSegment(
@@ -390,50 +284,6 @@ class SmdRegion(DefaultLogging):
                 debug=self._debug)
             self.position_to_segment[position_segment].set_position(position_segment)
         self.position_to_segment[position_segment].add(block_position, block, replace)
-
-    def search(self, block_id):
-        """
-        Search and return the global position of the first occurrence of a block
-        If no block is found, return None
-
-        @param block_id: Block id as found in utils class
-        @type block_id: int
-
-        @return: None or (x,y,z)
-        @rtype: None | tuple[int]
-        """
-        for position, segment in self.position_to_segment.items():
-            block_position = segment.search(block_id)
-            if block_position is not None:
-                return block_position
-        return None
-
-    def search_all(self, block_id):
-        """
-        Search and return the global position of block positions
-
-        @param block_id: Block id as found in utils class
-        @type block_id: int
-
-        @return: None or (x,y,z)
-        @rtype: set[tuple[int]]
-        """
-        positions = set()
-        for position, segment in self.position_to_segment.items():
-            positions = positions.union(segment.search_all(block_id))
-        return positions
-
-    def items(self):
-        """
-        Iterate over each block and its global position, not the position within the segment
-
-        @return: (x,y,z), block
-        @rtype: tuple[int], SmdBlock
-        """
-        for position_segment, segment in self.position_to_segment.items():
-            assert isinstance(segment, SmdSegment)
-            for position_block, block in segment.items():
-                yield position_block, block
 
     def to_stream(self, output_stream=sys.stdout):
         """

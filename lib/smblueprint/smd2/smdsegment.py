@@ -6,9 +6,7 @@ import datetime
 
 from lib.loggingwrapper import DefaultLogging
 from lib.bits_and_bytes import BinaryStream
-from lib.utils.blockconfig import block_config
-from lib.utils.blueprintentity import BlueprintEntity
-from lib.smblueprint.smd2.smdblock import SmdBlock
+from lib.smblueprint.smdblock.block import block_pool, BlockSmd2, BlockSmd3
 
 
 class SmdSegment(DefaultLogging):
@@ -18,7 +16,7 @@ class SmdSegment(DefaultLogging):
     The Position coordinates are always a multiple of 32, like (32, 0, 128)
     Example: The core, or center of a blueprint is (16,16,16) and the position of its segment is (0,0,0)
 
-    @type block_index_to_block: dict[int, SmdBlock]
+    @type block_index_to_block: dict[int, BlockSmd3]
     @type _position: tuple[int]
     """
 
@@ -35,7 +33,7 @@ class SmdSegment(DefaultLogging):
         self._version = 0
         self._timestamp = 0
         self._position = None
-        self._has_valid_data = False
+        self.has_valid_data = False
         self._compressed_size = 0
         self.block_index_to_block = {}
         self._header_size = 26
@@ -59,14 +57,15 @@ class SmdSegment(DefaultLogging):
             self._version = input_stream.read_byte()  # 1 byte
         self._timestamp = input_stream.read_int64_unassigned()  # 8 byte
         self._position = input_stream.read_vector_3_int32()  # 12 byte
-        self._has_valid_data = input_stream.read_bool()  # 1 byte
+        self.has_valid_data = input_stream.read_bool()  # 1 byte
         self._compressed_size = input_stream.read_int32_unassigned()  # 4 byte
 
-    def _read_block_data(self, input_stream):
+    def _read_block_data(self, block_list, input_stream):
         """
         Read segment block data from a byte stream.
-        Size: 49126 byte
+        Size: 5120-header_size byte
 
+        @type block_list: BlockList
         @param input_stream: input byte stream
         @type input_stream: BinaryStream
         """
@@ -74,29 +73,29 @@ class SmdSegment(DefaultLogging):
         self.block_index_to_block = {}
         for block_index in range(0, int(len(decompressed_data) / 3)):
             position = block_index * 3
-            block = SmdBlock(debug=self._debug)
             int_24bit = BinaryStream.unpack_int24(decompressed_data[position:position+3])
-            block.set_int_24bit(int_24bit)
-            if block.get_id() > 0:
-                self.block_index_to_block[block_index] = block
+            if BlockSmd2(int_24bit).get_id() > 0:
+                block = block_pool(int_24bit, smd2=True)
+                block_list(self.get_block_position_by_block_index(block_index), block)
         input_stream.seek(self._data_size-self._compressed_size, 1)  # skip unused bytes
 
-    def read(self, input_stream):
+    def read(self, block_list, input_stream):
         """
         Read segment data from a byte stream.
-        Always total size 49152 byte
+        Always total size 5120 byte
 
+        @type block_list: BlockList
         @param input_stream: input byte stream
         @type input_stream: BinaryStream
         """
         assert isinstance(input_stream, BinaryStream)
         self._read_header(input_stream)
-        if not self._has_valid_data:
+        if not self.has_valid_data:
             input_stream.seek(self._data_size, 1)  # skip presumably empty bytes
         else:
-            self._read_block_data(input_stream)
-        if self._has_valid_data and len(self.block_index_to_block) == 0:
-            self._has_valid_data = False
+            self._read_block_data(block_list, input_stream)
+        if self.has_valid_data and len(self.block_index_to_block) == 0:
+            self.has_valid_data = False
 
     # #######################################
     # ###  Write
@@ -110,7 +109,7 @@ class SmdSegment(DefaultLogging):
         @param output_stream: input byte stream
         @type output_stream: BinaryStream
         """
-        if not self._has_valid_data:
+        if not self.has_valid_data:
             self._compressed_size = 0
             output_stream.write_int32_unassigned(self._compressed_size)   # 4 byte
         else:
@@ -143,7 +142,7 @@ class SmdSegment(DefaultLogging):
         output_stream.write_byte(self._version)  # 1 byte
         output_stream.write_int64_unassigned(self._timestamp)  # 8 byte
         output_stream.write_vector_3_int32(self._position)  # 12 byte
-        output_stream.write_bool(self._has_valid_data)  # 1 byte
+        output_stream.write_bool(self.has_valid_data)  # 1 byte
 
     def write(self, output_stream):
         """
@@ -196,46 +195,6 @@ class SmdSegment(DefaultLogging):
             (position[2] % self._blocks_in_a_line) * self._blocks_in_an_area
 
     # #######################################
-    # ###  Get
-    # #######################################
-
-    def get_block_at_position(self, position):
-        """
-        Get a block at a specific position
-
-        @param position:
-        @param position: tuple[int]
-
-        @return:
-        @rtype: SmdBlock
-        """
-        block_index = self.get_block_index_by_block_position(position)
-        assert block_index in self.block_index_to_block
-        return self.block_index_to_block[block_index]
-
-    def get_number_of_blocks(self):
-        """
-        Get number of blocks of this segment
-
-        @return: number of blocks in segment
-        @rtype: int
-        """
-        return len(self.block_index_to_block)
-
-    def has_block_at_position(self, position):
-        """
-        Returns true if a block exists at a position
-
-        @param position: (x,y,z)
-        @type position: tuple[int]
-
-        @return:
-        @rtype: bool
-        """
-        block_index = self.get_block_index_by_block_position(position)
-        return block_index in self.block_index_to_block
-
-    # #######################################
     # ###  Set
     # #######################################
 
@@ -248,97 +207,6 @@ class SmdSegment(DefaultLogging):
         """
         self._position = segment_position
 
-    # #######################################
-    # ###  Get
-    # #######################################
-
-    def replace_blocks(self, block_id, replace_id, replace_hp, compatible=False):
-        """
-        Replace all blocks of a specific id
-        """
-        for block_index in self.block_index_to_block:
-            if self.block_index_to_block[block_index].get_id() == block_id:
-                if compatible:
-                    self.block_index_to_block[block_index].set_id(replace_id)
-                    self.block_index_to_block[block_index].set_hit_points(replace_hp)
-                else:
-                    new_block = SmdBlock(debug=self._debug)
-                    new_block.set_id(block_id)
-                    new_block.set_hit_points(replace_hp)
-                    self.block_index_to_block[block_index] = new_block
-
-    _replace_cache_positive = {}
-    _replace_cache_negative = set()
-
-    def replace_hull(self, new_hull_type, hull_type=None):
-        """
-        Replace all blocks of a specific hull type or all hull
-
-        @param new_hull_type:
-        @type new_hull_type: int
-        @param hull_type:
-        @type hull_type: int | None
-        """
-        for block_index in self.block_index_to_block:
-            block_id = self.block_index_to_block[block_index].get_id()
-            if not block_config[block_id].is_hull() or block_id in self._replace_cache_negative:
-                continue
-            if block_id not in self._replace_cache_positive:
-                block_hull_type, color, shape_id = block_config[block_id].get_details()
-                if hull_type is not None and hull_type != block_hull_type:  # not replaced
-                    self._replace_cache_negative.add(block_id)
-                    continue
-                new_block_id = block_config.get_block_id_by_details(new_hull_type, color, shape_id)
-                self._replace_cache_positive[block_id] = new_block_id
-            new_block_id = self._replace_cache_positive[block_id]
-            self.block_index_to_block[block_index].set_id(new_block_id)
-            self.block_index_to_block[block_index].set_hit_points(block_config[new_block_id].hit_points)
-
-    def update(self, entity_type=0):
-        """
-        Remove invalid/outdated blocks
-
-        @param entity_type: ship=0/station=2/etc
-        @type entity_type: int
-        """
-        assert entity_type in BlueprintEntity.entity_types
-        for block_index in list(self.block_index_to_block.keys()):
-            block = self.block_index_to_block[block_index]
-            if not block_config[block.get_id()].is_valid(entity_type):
-                self.remove_block(self.get_block_position_by_block_index(block_index))
-
-    def remove_blocks(self, block_id):
-        """
-        Removing all blocks of a specific id
-
-        @param block_id:
-        @type block_id: int
-        """
-        for block_index in self.block_index_to_block:
-            if self.block_index_to_block[block_index].get_id() != block_id:
-                continue
-            self.block_index_to_block.pop(block_index)
-        if self.get_number_of_blocks() == 0:
-            self._logger.debug("Segment {} has no more blocks.".format(self._position))
-            self._has_valid_data = False
-
-    def remove_block(self, block_position):
-        """
-        Remove Block at specific position.
-
-        @param block_position: x,z,y position of a block
-        @type block_position: tuple[int]
-        """
-        assert isinstance(block_position, tuple)
-        block_index = self.get_block_index_by_block_position(block_position)
-        assert block_index in self.block_index_to_block, (
-            block_index, block_position, self.get_block_position_by_block_index(block_index))
-        # print "deleting", self.get_block_name_by_id(self.block_index_to_block[block_index].get_id())
-        self.block_index_to_block.pop(block_index)
-        if self.get_number_of_blocks() == 0:
-            self._logger.debug("Segment {} has no more blocks.".format(self._position))
-            self._has_valid_data = False
-
     def add(self, block_position, block, replace=True):
         """
         Add a block to the segment based on its global position
@@ -348,55 +216,13 @@ class SmdSegment(DefaultLogging):
         @param block: A block! :)
         @type block: SmdBlock
         """
-        assert isinstance(block, SmdBlock)
+        assert isinstance(block, BlockSmd2)
         block_index = self.get_block_index_by_block_position(block_position)
         if not replace and block_index in self.block_index_to_block:
             self._logger.debug("Prevented block replacement")
             return
         self.block_index_to_block[block_index] = block
-        self._has_valid_data = True
-
-    def search(self, block_id):
-        """
-        Search and return the global position of the first occurance of a block
-        If no block is found, return None
-
-        @param block_id: Block id as found in utils class
-        @type block_id: int
-
-        @return: None or (x,y,z)
-        @rtype: None | tuple[int]
-        """
-        for block_index, block in self.block_index_to_block.items():
-            if block.get_id() == block_id:
-                return self.get_block_position_by_block_index(block_index)
-        return None
-
-    def search_all(self, block_id):
-        """
-        Search and return the global position of block positions
-
-        @param block_id: Block id as found in utils class
-        @type block_id: int
-
-        @return: None or (x,y,z)
-        @rtype: set[tuple[int]]
-        """
-        positions = set()
-        for block_index, block in self.block_index_to_block.items():
-            if block.get_id() == block_id:
-                positions.add(self.get_block_position_by_block_index(block_index))
-        return positions
-
-    def items(self):
-        """
-        Iterate over each block and its global position, not the position within the segment
-
-        @return: (x,y,z), block
-        @rtype: tuple[int], SmdBlock
-        """
-        for block_index, block in self.block_index_to_block.items():
-            yield self.get_block_position_by_block_index(block_index), block
+        self.has_valid_data = True
 
     def to_stream(self, output_stream=sys.stdout):
         """
