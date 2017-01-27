@@ -36,18 +36,12 @@ class BlockPool(object):
             self._state_to_instance[state] = instance_pool
         return instance_pool
 
-    # Methods, called on class objects:
+    # Methods, called on instance objects:
     def __iter__(self):
         """
         @rtype: Iterable[Block]
         """
         return iter(self._state_to_instance.values())
-
-    def items(self):
-        """
-        @rtype: Iterable[(int, Block)]
-        """
-        return self._state_to_instance.items()
 
     def __getitem__(self, state):
         """
@@ -70,28 +64,42 @@ class BlockPool(object):
         """
         return len(self._state_to_instance)
 
-    def popitem(self):
+    @staticmethod
+    def items():
+        """
+        @rtype: Iterable[(int, Block)]
+        """
+        return BlockPool._state_to_instance.items()
+
+    @staticmethod
+    def popitem():
         """
         @rtype: Iterable[(int, int, int), Block]
         """
-        state_pool = self._state_to_instance
-        self._state_to_instance = dict()
+        state_pool = BlockPool._state_to_instance
+        BlockPool._state_to_instance = dict()
         for state, block in state_pool.popitem():
             yield state, block
 
+block_pool = BlockPool()
 
-class Block(BlockPool):
 
-    _bit_block_id_start = 0
-    _bit_block_id_length = 11
+class Block(object):
 
-    _bit_hit_points_start = 11
-    _bit_hit_points_length = 8
+    def __init__(
+            self, int_24bit=0,
+            block_id_start=0, block_id_length=11,
+            hit_points_start=11, hit_points_length=8,
+            active_start=19, active_length=1):
+        self._bit_block_id_start = block_id_start
+        self._bit_block_id_length = block_id_length
 
-    _bit_is_active_start = 19
-    _bit_is_active_length = 1
+        self._bit_hit_points_start = hit_points_start
+        self._bit_hit_points_length = hit_points_length
 
-    def __init__(self, int_24bit=0):
+        self._bit_is_active_start = active_start
+        self._bit_is_active_length = active_length
+
         self._int_24bit = int_24bit
         self._label = "SmdBlock"
 
@@ -228,7 +236,7 @@ class Block(BlockPool):
         int_24bit = orientation.bit_combine(
             int_24bit, style=style, bit_19=bit_19, bit_22=bit_22, bit_23=bit_23,
             rotations=rotations, block_side_id=block_side_id)
-        return self(int_24bit)
+        return block_pool(int_24bit)
 
     def get_mirror(self, axis_index):
         """
@@ -245,7 +253,7 @@ class Block(BlockPool):
         if axis_index == 2:
             orientation.mirror_z()
         int_24bit = orientation.bit_combine(self._int_24bit)
-        return self(int_24bit)
+        return block_pool(int_24bit)
 
     # #######################################
     # ###  Stream

@@ -5,6 +5,7 @@ import sys
 
 from lib.loggingwrapper import DefaultLogging
 from lib.utils.blockconfig import block_config
+from lib.utils.autoshape import AutoShape
 from lib.utils.vector import Vector
 from lib.smblueprint.header import Header
 from lib.smblueprint.logic import Logic
@@ -84,9 +85,8 @@ class Blueprint(DefaultLogging):
         rail_docker_id = 663
         if is_docked_entity and self.smd3.search(rail_docker_id) is None:
             self._logger.info("Adding 'Rail docker' to docked entity.")
-            block = Block()
-            block.update(
-                rail_docker_id, active=False, bit_19=0, bit_22=0, bit_23=1, rotations=2)
+            block = Block().get_modification(
+                block_id=rail_docker_id, active=False, bit_19=0, bit_22=0, bit_23=1, rotations=2)
             position_below_core = (16, 15, 16)
             self.smd3.add(position_below_core, block)
             self.header.update(self.smd3)
@@ -95,7 +95,7 @@ class Blueprint(DefaultLogging):
             return
         self._logger.info("Replacing outdated docker modules")
         self.meta.update_docked_entities(self.smd3, entity_name, rail_docked_label_prefix)
-        self.smd3.update(self.header.type)
+        self.smd3.update()
         self.header.update(self.smd3)
 
     _ct_to_station_class = {
@@ -172,8 +172,7 @@ class Blueprint(DefaultLogging):
         """
         Remove invalid/outdated blocks and exchange docking modules with rails
         """
-        entity_type = self.header.type
-        self.smd3.update(entity_type)
+        self.smd3.update()
         self.logic.update(self.smd3)
         self.header.update(self.smd3)
 
@@ -182,7 +181,8 @@ class Blueprint(DefaultLogging):
         #     self.smd3.auto_hepta_debug()
         #     # self.smd3.auto_wedge_debug()
         #     return
-        self.smd3.auto_hull_shape(
+        auto_shape = AutoShape(self.smd3.get_pool())
+        auto_shape.auto_hull_shape(
             auto_wedge=auto_wedge, auto_tetra=auto_tetra, auto_corner=auto_corner, auto_hepta=auto_hepta)
         self.header.update(self.smd3)
 
@@ -210,7 +210,8 @@ class Blueprint(DefaultLogging):
         @type direction_vector: tuple[int]
         """
         assert isinstance(direction_vector, tuple)
-        min_vector, max_vector = self.smd3.move_center(direction_vector, self.header.type)
+        self.smd3.move_center(direction_vector)
+        min_vector, max_vector = self.smd3.get_min_max_vector()
         self.logic.move_center(direction_vector, self.header.type)
         self.header.set_box(min_vector, max_vector)
         self.header.update(self.smd3)

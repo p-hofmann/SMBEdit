@@ -1,5 +1,5 @@
 import sys
-from lib.utils.blockpool import BlockPool, Block
+from lib.utils.blocklist import BlockList, Block
 from lib.utils.blockconfig import block_config
 
 
@@ -10,13 +10,13 @@ class AutoShape(object):
     """
     Collection of auto shape stuff
 
-    @type _block_pool: BlockPool
+    @type _block_pool: BlockList
     """
 
     def __init__(self, block_pool):
         """
 
-        @type block_pool: BlockPool
+        @type block_pool: BlockList
         """
         self._block_pool = block_pool
 
@@ -133,8 +133,8 @@ class AutoShape(object):
             bit_19, bit_22, bit_23, rotations = AutoShape.peripheries[new_shape_id][periphery_index]
             block_hull_tier, color_id, shape_id = block_config[block_id].get_details()
             new_block_id = block_config.get_block_id_by_details(block_hull_tier, color_id, new_shape_id)
-            new_block = Block(block.get_int_24bit())
-            new_block.update(block_id=new_block_id, bit_19=bit_19, bit_22=bit_22, bit_23=bit_23, rotations=rotations)
+            new_block = Block(block.get_int_24bit()).get_modification(
+                block_id=new_block_id, bit_19=bit_19, bit_22=bit_22, bit_23=bit_23, rotations=rotations)
             self._block_pool(position, new_block.get_int_24bit())
 
     def auto_hull_shape_dependent(self, block_shape_id):
@@ -158,8 +158,8 @@ class AutoShape(object):
             bit_19, bit_22, bit_23, rotations = AutoShape.peripheries[block_shape_id][periphery_index][periphery_shape]
             block_hull_type, color, shape_id = block_config[block_id].get_details()
             new_block_id = block_config.get_block_id_by_details(block_hull_type, color, block_shape_id)
-            new_block = Block(block.get_int_24bit())
-            new_block.update(block_id=new_block_id, bit_19=bit_19, bit_22=bit_22, bit_23=bit_23, rotations=rotations)
+            new_block = Block(block.get_int_24bit()).get_modification(
+                block_id=new_block_id, bit_19=bit_19, bit_22=bit_22, bit_23=bit_23, rotations=rotations)
             self._block_pool(position, new_block.get_int_24bit())
 
     def auto_hull_shape(self, auto_wedge, auto_tetra, auto_corner, auto_hepta=None):
