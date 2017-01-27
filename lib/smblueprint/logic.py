@@ -332,7 +332,7 @@ class Logic(DefaultLogging):
         # todo: check if block at position is activatable if it exists
         positions = list(self._controller_position_to_block_id_to_block_positions[controller_position][block_id])
         for position in positions:
-            if not smd.has_block_at_position(position):
+            if not smd.has_block_at(position):
                 self._controller_position_to_block_id_to_block_positions[controller_position][block_id].remove(position)
         if len(self._controller_position_to_block_id_to_block_positions[controller_position][block_id]) == 0:
             self._controller_position_to_block_id_to_block_positions[controller_position].pop(block_id)
