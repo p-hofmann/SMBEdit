@@ -6,7 +6,7 @@ import datetime
 
 from lib.loggingwrapper import DefaultLogging
 from lib.bits_and_bytes import BinaryStream
-from lib.smblueprint.smd3.smdblock.block import block_pool, Block
+from lib.smblueprint.smdblock.block import block_pool, BlockSmd3
 
 
 class SmdSegment(DefaultLogging):
@@ -16,7 +16,7 @@ class SmdSegment(DefaultLogging):
     The Position coordinates are always a multiple of 32, like (32, 0, 128)
     Example: The core, or center of a blueprint is (16,16,16) and the position of its segment is (0,0,0)
 
-    @type block_index_to_block: dict[int, Block]
+    @type block_index_to_block: dict[int, BlockSmd3]
     @type position: tuple[int]
     """
 
@@ -211,10 +211,10 @@ class SmdSegment(DefaultLogging):
         @param block_position: x,y,z position of block
         @type block_position: int,int,int
         @param block: A block! :)
-        @type block: Block
+        @type block: BlockSmd3
         @type replace: bool
         """
-        assert isinstance(block, Block)
+        assert isinstance(block, BlockSmd3)
         block_index = self.get_block_index_by_block_position(block_position)
         if not replace and block_index in self.block_index_to_block:
             self._logger.debug("Prevented block replacement")

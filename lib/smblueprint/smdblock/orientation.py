@@ -64,7 +64,7 @@ class Orientation(object):
 
     def get_orientation_values(self):
         """
-        @rtype: tuple[int]
+        @rtype: (int, int, int, int)
         """
         return self._get_bit_19(), self._get_bit_23(), self._get_bit_22(), self._get_rotations()
 

@@ -11,7 +11,7 @@ from lib.utils.vector import Vector
 from lib.utils.blueprintentity import BlueprintEntity
 from lib.smblueprint.smd3.smdregion import SmdRegion
 from lib.smblueprint.smd2.smd import Smd as Smd2
-from lib.smblueprint.smd3.smdblock.block import Block
+from lib.smblueprint.smdblock.block import BlockSmd3
 
 
 class Smd(DefaultLogging):
@@ -68,15 +68,11 @@ class Smd(DefaultLogging):
             assert len(file_list) > 0, "No smd files found"
             file_name = file_list[0]
         if file_name.endswith(".smd3"):
+            smd_region = SmdRegion(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
             for file_name in file_list:
                 file_path = os.path.join(directory_data, file_name)
                 self._file_name_prefix, x, y, z = os.path.splitext(file_name)[0].rsplit('.', 3)
-                position = (int(x), int(y), int(z))
-                self.position_to_region[position] = SmdRegion(
-                    logfile=self._logfile,
-                    verbose=self._verbose,
-                    debug=self._debug)
-                self.position_to_region[position].read(file_path, self._block_list)
+                smd_region.read(file_path, self._block_list)
         elif file_name.endswith(".smd2"):
             self._logger.warning("'smd2' file format found.")
             msg = "'smd2'->'smd3' conversion can results in blocks with low hit points if '-sm' argument is not used."
@@ -84,11 +80,8 @@ class Smd(DefaultLogging):
             smd2 = Smd2(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
             smd2.read(directory_blueprint)
             offset = (8, 8, 8)
-            for position, smd2block in smd2.items():
-                smd3_position = Vector.addition(position, offset)
-                hit_points = block_config[smd2block.get_id()].hit_points
-                smd3block = Block(smd2block.get_int_24bit()).get_modification(hit_points=hit_points)
-                self.add(smd3_position, smd3block, replace=False)
+            self._block_list = smd2.get_block_list()
+            self._block_list.move_positions(offset)
         else:
             raise RuntimeError("Unknown smd format: '{}'".format(directory_data))
 
@@ -122,7 +115,7 @@ class Smd(DefaultLogging):
     # ###  Get
     # #######################################
 
-    def get_pool(self):
+    def get_block_list(self):
         """
         @rtype BlockPool:
         """
@@ -136,7 +129,7 @@ class Smd(DefaultLogging):
         @param position: (int, int, int)
 
         @return:
-        @rtype: Block
+        @rtype: BlockSmd3
         """
 
         return self._block_list[position]
@@ -290,7 +283,7 @@ class Smd(DefaultLogging):
                 new_block_id = block_config.get_block_id_by_details(new_hull_type, color_id, shape_id)
                 self._replace_cache_positive[block_id] = new_block_id
             new_block_id = self._replace_cache_positive[block_id]
-            new_block = Block().get_modification(
+            new_block = BlockSmd3().get_modification(
                 block_id=new_block_id, active=False, hit_points=block_config[new_block_id].hit_points)
             self._block_list(position, new_block)
 
@@ -304,7 +297,7 @@ class Smd(DefaultLogging):
             if compatible:
                 new_block = block.get_modification(block_id=replace_id)
             else:
-                new_block = Block().get_modification(block_id=replace_id, active=False)
+                new_block = BlockSmd3().get_modification(block_id=replace_id, active=False)
             self._block_list(position, new_block)
 
     def update(self):
@@ -337,7 +330,7 @@ class Smd(DefaultLogging):
         @param block_position: x,y,z position of block
         @type block_position: int,int,int
         @param block: A block! :)
-        @type block: Block
+        @type block: BlockSmd2
         """
         assert isinstance(block_position, tuple)
         position_region = self.get_region_position_of_position(block_position)
@@ -412,7 +405,7 @@ class Smd(DefaultLogging):
         assert entity_type in BlueprintEntity.entity_types
 
         if entity_type == 0:  # Ship
-            core_block = Block().get_modification(block_id=1, active=False)
+            core_block = BlockSmd3().get_modification(block_id=1, active=False)
             self._block_list(self._position_core, core_block)
         else:  # not a ship
             if self._block_list.has_core(self._position_core):

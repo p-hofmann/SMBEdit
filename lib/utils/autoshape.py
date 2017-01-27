@@ -1,5 +1,5 @@
 import sys
-from lib.utils.blocklist import BlockList, Block
+from lib.utils.blocklist import BlockList, BlockSmd3
 from lib.utils.blockconfig import block_config
 
 
@@ -133,7 +133,7 @@ class AutoShape(object):
             bit_19, bit_22, bit_23, rotations = AutoShape.peripheries[new_shape_id][periphery_index]
             block_hull_tier, color_id, shape_id = block_config[block_id].get_details()
             new_block_id = block_config.get_block_id_by_details(block_hull_tier, color_id, new_shape_id)
-            new_block = Block(block.get_int_24bit()).get_modification(
+            new_block = BlockSmd3(block.get_int_24bit()).get_modification(
                 block_id=new_block_id, bit_19=bit_19, bit_22=bit_22, bit_23=bit_23, rotations=rotations)
             self._block_pool(position, new_block.get_int_24bit())
 
@@ -158,7 +158,7 @@ class AutoShape(object):
             bit_19, bit_22, bit_23, rotations = AutoShape.peripheries[block_shape_id][periphery_index][periphery_shape]
             block_hull_type, color, shape_id = block_config[block_id].get_details()
             new_block_id = block_config.get_block_id_by_details(block_hull_type, color, block_shape_id)
-            new_block = Block(block.get_int_24bit()).get_modification(
+            new_block = BlockSmd3(block.get_int_24bit()).get_modification(
                 block_id=new_block_id, bit_19=bit_19, bit_22=bit_22, bit_23=bit_23, rotations=rotations)
             self._block_pool(position, new_block.get_int_24bit())
 

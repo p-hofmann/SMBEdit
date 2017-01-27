@@ -1,10 +1,11 @@
 from collections import Iterable
-from lib.smblueprint.smd3.smdblock.block import Block
+
+from lib.smblueprint.smdblock.block import BlockSmd3
 
 
 class BlockList(object):
     """
-    @type _position_index_to_instance: dict[int, Block]
+    @type _position_index_to_instance: dict[int, BlockSmd3]
     """
 
     def __init__(self):
@@ -15,9 +16,9 @@ class BlockList(object):
         @param position:
         @type position: (int, int, int)
         @param block:
-        @type block: Block
+        @type block: BlockSmd3
 
-        @rtype: Block
+        @rtype: BlockSmd3
         """
         position_index = self.get_index(position)
 
@@ -36,7 +37,7 @@ class BlockList(object):
 
     def items(self):
         """
-        @rtype: Iterable[((int, int, int), Block)]
+        @rtype: Iterable[((int, int, int), BlockSmd3)]
         """
         for position_index in self._position_index_to_instance:
             yield self._get_position(position_index), self._position_index_to_instance[position_index]
@@ -48,7 +49,7 @@ class BlockList(object):
         @param position:
         @type position: (int, int, int)
 
-        @rtype: Block
+        @rtype: BlockSmd3
         """
         position_index = self.get_index(position)
         assert position_index in self._position_index_to_instance, "No block at position: {}".format(position)
@@ -65,7 +66,7 @@ class BlockList(object):
 
     def popitem(self):
         """
-        @rtype: Iterable[(int, int, int), Block]
+        @rtype: Iterable[(int, int, int), BlockSmd3]
         """
         blocks = self._position_index_to_instance
         self._position_index_to_instance = dict()
@@ -80,7 +81,7 @@ class BlockList(object):
         @param position: x,z,y position of a block
         @type position: (int, int, int)
 
-        @rtype: Block
+        @rtype: BlockSmd3
         """
         assert isinstance(position, tuple)
         assert self.has_block_at(position), "No block at position: {}".format(position)

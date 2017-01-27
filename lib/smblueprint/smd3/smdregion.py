@@ -5,7 +5,7 @@ import math
 
 from lib.loggingwrapper import DefaultLogging
 from lib.bits_and_bytes import BinaryStream
-from lib.smblueprint.smd3.smdblock.block import Block
+from lib.smblueprint.smdblock.block import BlockSmd3
 from lib.smblueprint.smd3.smdsegment import SmdSegment
 
 
@@ -103,22 +103,17 @@ class SmdRegion(DefaultLogging):
         @type input_stream: BinaryStream
         """
         segment_id_to_size = self._read_region_header(input_stream)
-        segment_id = 0
+        segment_id = 0  # ids start with 1
+        segment = SmdSegment(
+            blocks_in_a_line=self._blocks_in_a_line_in_a_segment,
+            logfile=self._logfile, verbose=self._verbose, debug=self._debug)
         while not self._is_eof(input_stream):
             segment_id += 1
             if segment_id not in segment_id_to_size or segment_id_to_size[segment_id] == 0:
                 # skip ghost segment
                 input_stream.seek(49152, 1)
                 continue
-            segment = SmdSegment(
-                blocks_in_a_line=self._blocks_in_a_line_in_a_segment,
-                logfile=self._logfile,
-                verbose=self._verbose,
-                debug=self._debug)
             segment.read(block_list, input_stream)
-            if not segment.has_valid_data:
-                continue
-            self.position_to_segment[segment.position] = segment
 
     def read(self, file_path, block_list):
         """
@@ -277,9 +272,9 @@ class SmdRegion(DefaultLogging):
         @param block_position: x,y,z position of block
         @type block_position: tuple[int]
         @param block: A block! :)
-        @type block: Block
+        @type block: BlockSmd3
         """
-        assert isinstance(block, Block)
+        assert isinstance(block, BlockSmd3)
         position_segment = self.get_segment_position_of_position(block_position)
         if position_segment not in self.position_to_segment:
             self.position_to_segment[position_segment] = SmdSegment(
