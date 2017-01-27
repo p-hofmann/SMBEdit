@@ -1,6 +1,6 @@
 import csv
 import os
-from lxml import etree
+from xml.etree import ElementTree
 from lib.validator import Validator
 from lib.utils.blockconfighardcoded import BlockConfigHardcoded
 from lib.utils.blueprintentity import BlueprintEntity, SHIP
@@ -265,7 +265,7 @@ class BlockConfig(SuperBlockConfig, ):
                 # dict(label=row[0], block_id=row[1])
                 self._label_to_block[block_type] = self._id_to_block[block_id]
 
-        tree = etree.parse(file_path_block_config)
+        tree = ElementTree.parse(file_path_block_config)
         # fill the flags dict with id values
         for blockConfigNode in tree.findall(".//*/Block"):
             label = blockConfigNode.attrib["type"]
