@@ -1,6 +1,8 @@
 __author__ = 'Peter Hofmann'
 
 import sys
+from collections import Iterable
+from weakref import WeakValueDictionary
 
 from lib.bits_and_bytes import BitAndBytes
 from lib.utils.blockconfig import block_config
@@ -13,7 +15,72 @@ from lib.smblueprint.smd3.smdblock.style5hepta import Style5Hepta
 from lib.smblueprint.smd3.smdblock.style6 import Style6
 
 
-class Block(object):
+class BlockPool(object):
+    """
+    @type _state_to_instance: WeakValueDictionary[int, Block]
+    """
+
+    _state_to_instance = WeakValueDictionary()
+
+    def __call__(self, state):
+        """
+        @param state:
+        @type state: int
+
+        @rtype: Block
+        """
+        # check if this block state already exist
+        instance_pool = self._state_to_instance.get(state)
+        if not instance_pool:
+            instance_pool = Block(state)
+            self._state_to_instance[state] = instance_pool
+        return instance_pool
+
+    # Methods, called on class objects:
+    def __iter__(self):
+        """
+        @rtype: Iterable[Block]
+        """
+        return iter(self._state_to_instance.values())
+
+    def items(self):
+        """
+        @rtype: Iterable[(int, Block)]
+        """
+        return self._state_to_instance.items()
+
+    def __getitem__(self, state):
+        """
+        Get a block at a specific position
+
+        @param state:
+        @type state: int
+
+        @rtype: Block
+        """
+        assert state in self._state_to_instance, "No block for state: {}".format(state)
+        return self._state_to_instance[state]
+
+    def __len__(self):
+        """
+        Get number of blocks of blueprint
+
+        @return: number of blocks in segment
+        @rtype: int
+        """
+        return len(self._state_to_instance)
+
+    def popitem(self):
+        """
+        @rtype: Iterable[(int, int, int), Block]
+        """
+        state_pool = self._state_to_instance
+        self._state_to_instance = dict()
+        for state, block in state_pool.popitem():
+            yield state, block
+
+
+class Block(BlockPool):
 
     _bit_block_id_start = 0
     _bit_block_id_length = 11
@@ -106,39 +173,32 @@ class Block(object):
         """
         return self._int_24bit
 
-    # Set
-
-    def set_int_24bit(self, int_24bit):
-        """
-        Set integer representing block
-
-        @param int_24bit:
-        @type int_24bit: int
-        """
-        self._int_24bit = int_24bit
-
-    def convert_to_type_6(self, block_id):
+    def get_converted_to_type_6(self, block_id):
         """
         Return a side to type 6 orientation conversion, focusing on forward and up
 
         @type block_id: int
+
+        @rtype: Block
         """
         assert self.get_style() == 0
         assert block_config[block_id].block_style == 6
         orientation = Style0(self._int_24bit)
         bit_19, bit_23, bit_22, rotations = orientation.to_style6_bits()
         hit_points = block_config[block_id].hit_points
-        self.update(
-            block_id=block_id, bit_19=bit_19, bit_22=bit_22, bit_23=bit_23, rotations=rotations, active=False, hit_points=hit_points)
-        return
+        return self.get_modification(
+            block_id=block_id, hit_points=hit_points, active=False,
+            bit_19=bit_19, bit_22=bit_22, bit_23=bit_23, rotations=rotations)
 
-    def update(self, block_id=None, hit_points=None, active=None, block_side_id=None, bit_19=None, bit_22=None, bit_23=None, rotations=None):
+    def get_modification(self, block_id=None, hit_points=None, active=None, block_side_id=None, bit_19=None, bit_22=None, bit_23=None, rotations=None):
         """
         In the rare case a block value is changed, they are turned into a byte string.
 
         @type block_id: int | None
         @type hit_points: int | None
         @type active: bool | None
+
+        @rtype: Block
         """
         if block_id is None:
             block_id = self.get_id()
@@ -165,41 +225,18 @@ class Block(object):
         if style == 0:  # For blocks with an activation status
             int_24bit = BitAndBytes.bits_combine(active, int_24bit, 19)
         orientation = self.get_orientation(style)
-        self._int_24bit = orientation.bit_combine(
+        int_24bit = orientation.bit_combine(
             int_24bit, style=style, bit_19=bit_19, bit_22=bit_22, bit_23=bit_23,
             rotations=rotations, block_side_id=block_side_id)
-        # '[1:]' since only the last three bytes of an integer are used for block information.
-        # self._byte_string = struct.pack('>i', int_24bit)[1:]
+        return self(int_24bit)
 
-    def set_id(self, block_id):
+    def get_mirror(self, axis_index):
         """
-        Change block id of block
+        Mirror orientation
+        @type axis_index: int
 
-        @param block_id:
-        @type block_id: int
+        @rtype: Block
         """
-        self.update(block_id=block_id)
-
-    def set_hit_points(self, hit_points):
-        """
-        Change hit points of block
-
-        @param hit_points:
-        @type hit_points: int
-        """
-        self.update(hit_points=hit_points)
-
-    def set_active(self, active):
-        """
-        Change 'active' status of of block
-
-        @param active:
-        @type active: bool
-        """
-        assert self.get_style() == 0, "Block id {} has no 'active' status".format(self.get_id())
-        self.update(active=active)
-
-    def mirror(self, axis_index):
         orientation = self.get_orientation()
         if axis_index == 0:
             orientation.mirror_x()
@@ -207,7 +244,8 @@ class Block(object):
             orientation.mirror_y()
         if axis_index == 2:
             orientation.mirror_z()
-        self._int_24bit = orientation.bit_combine(self._int_24bit)
+        int_24bit = orientation.bit_combine(self._int_24bit)
+        return self(int_24bit)
 
     # #######################################
     # ###  Stream

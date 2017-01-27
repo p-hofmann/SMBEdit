@@ -1,35 +1,38 @@
 from collections import Iterable
-from weakref import WeakValueDictionary
 from lib.smblueprint.smd3.smdblock.block import Block
 
 
-class BlockPool(object):
+class BlockList(object):
     """
-    @type _state_to_instance: WeakValueDictionary[int, Block]
     @type _position_index_to_instance: dict[int, Block]
     """
 
     def __init__(self):
-        self._state_to_instance = WeakValueDictionary()
         self._position_index_to_instance = dict()
 
-    def __call__(self, position, state):
+    def __call__(self, position, block):
         """
         @param position:
         @type position: (int, int, int)
-        @param state:
-        @type state: int
+        @param block:
+        @type block: Block
 
         @rtype: Block
         """
-        return self._get_block_instance(self.get_index(position), state)
+        position_index = self.get_index(position)
+
+        # check if this position contain already a block state and if it's the same
+        instance_position = self._position_index_to_instance.get(position_index)
+        if instance_position is not block:
+            self._position_index_to_instance[position_index] = block
 
     # Methods, called on class objects:
     def __iter__(self):
         """
-        @rtype: Iterable[Block]
+        @rtype: Iterable[(int, int, int)]
         """
-        return iter(self._state_to_instance.values())
+        for position_index in self._position_index_to_instance:
+            yield self._get_position(position_index)
 
     def items(self):
         """
@@ -59,6 +62,36 @@ class BlockPool(object):
         @rtype: int
         """
         return len(self._position_index_to_instance)
+
+    def popitem(self):
+        """
+        @rtype: Iterable[(int, int, int), Block]
+        """
+        blocks = self._position_index_to_instance
+        self._position_index_to_instance = dict()
+        while len(blocks) > 0:
+            position_index, block = blocks.popitem()
+            yield self._get_position(position_index), block
+
+    def pop(self, position):
+        """
+        Remove Block at specific position.
+
+        @param position: x,z,y position of a block
+        @type position: (int, int, int)
+
+        @rtype: Block
+        """
+        assert isinstance(position, tuple)
+        assert self.has_block_at(position), "No block at position: {}".format(position)
+        return self._position_index_to_instance.pop(self.get_index(position))
+
+    def keys(self):
+        """
+        @rtype: Iterable[int]
+        """
+        for position_index in self._position_index_to_instance:
+            yield position_index
 
     # #######################################
     # ###  Position - Index
@@ -119,29 +152,6 @@ class BlockPool(object):
     # ###  Get
     # #######################################
 
-    def _get_block_instance(self, position_index, state):
-        """
-        @param position_index:
-        @type position_index: int
-        @param state:
-        @type state: int
-
-        @rtype: Block
-        """
-        instance_pool = self._state_to_instance.get(state)
-
-        # check if this block state already exist
-        if not instance_pool:
-            instance_pool = Block(state)
-            self._state_to_instance[state] = instance_pool
-
-        # check if this position contain already a block state and if it's the same
-        instance_position = self._position_index_to_instance.get(position_index)
-        if instance_position is not instance_pool:
-            self._position_index_to_instance[position_index] = instance_pool
-
-        return instance_pool
-
     def has_block_at(self, position):
         """
         Returns true if a block exists at a position
@@ -154,16 +164,10 @@ class BlockPool(object):
         """
         return self.get_index(position) in self._position_index_to_instance
 
-    def remove_block(self, position):
-        """
-        Remove Block at specific position.
-
-        @param position: x,z,y position of a block
-        @type position: (int, int, int)
-        """
-        assert isinstance(position, tuple)
-        assert self.has_block_at(position), "No block at position: {}".format(position)
-        self._position_index_to_instance.pop(self.get_index(position))
+    def has_core(self, position_core=(16, 16, 16)):
+        if self.has_block_at(position_core) and self[position_core].get_id() == 1:
+            return True
+        return False
 
     def remove_blocks(self, block_ids):
         """
@@ -183,7 +187,7 @@ class BlockPool(object):
         @param block_ids: Block id as found in utils class
         @type block_ids: set[int]
 
-        @return: None or (x,y,z)
+        @return: set of (x,y,z)
         @rtype: set[int]
         """
         position_indexes = set()
@@ -192,3 +196,49 @@ class BlockPool(object):
                 continue
             position_indexes.add(position_index)
         return position_indexes
+
+    def search_positions(self, block_ids):
+        """
+        Search and return the global position of block positions
+
+        @param block_ids: Block id as found in utils class
+        @type block_ids: set[int]
+
+        @return: set of (x,y,z)
+        @rtype: set[int]
+        """
+        position_indexes = set()
+        for position_index in self._position_index_to_instance:
+            if self._position_index_to_instance[position_index].get_id() not in block_ids:
+                continue
+            position_indexes.add(position_index)
+        return position_indexes
+
+    def search(self, block_id):
+        """
+        Search and return the global position of the first occurance of a block
+        If no block is found, return None
+
+        @param block_id: Block id as found in utils class
+        @type block_id: int
+
+        @return: None or (x,y,z)
+        @rtype: None | tuple[int]
+        """
+        for position_index in self._position_index_to_instance:
+            if self._position_index_to_instance[position_index].get_id() == block_id:
+                return self._get_position(position_index)
+        return None
+
+    def move_positions(self, vector_direction):
+        """
+        Move all positions in a direction
+
+        @type vector_direction: (int, int, int)
+        """
+        new_position_index_to_instance = dict()
+        for position_index in self._position_index_to_instance:
+            block = self._position_index_to_instance.pop(position_index)
+            new_position_index = self._shift_index(
+                position_index, vector_direction[0], vector_direction[1], vector_direction[2])
+            new_position_index_to_instance[new_position_index] = block
