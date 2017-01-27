@@ -1,11 +1,11 @@
 from collections import Iterable
-
-from lib.smblueprint.smdblock.block import BlockSmd3
+import struct
+from lib.smblueprint.smdblock.block import Block, BlockSmd3
 
 
 class BlockList(object):
     """
-    @type _position_index_to_instance: dict[int, BlockSmd3]
+    @type _position_index_to_instance: dict[bytes | str, BlockSmd3]
     """
 
     def __init__(self):
@@ -20,6 +20,7 @@ class BlockList(object):
 
         @rtype: BlockSmd3
         """
+        assert isinstance(block, Block), block
         position_index = self.get_index(position)
 
         # check if this position contain already a block state and if it's the same
@@ -52,7 +53,7 @@ class BlockList(object):
         @rtype: BlockSmd3
         """
         position_index = self.get_index(position)
-        assert position_index in self._position_index_to_instance, "No block at position: {}".format(position)
+        assert position_index in self._position_index_to_instance, "{} No block at position: {}".format(len(self), position)
         return self._position_index_to_instance[position_index]
 
     def __len__(self):
@@ -64,7 +65,7 @@ class BlockList(object):
         """
         return len(self._position_index_to_instance)
 
-    def popitem(self):
+    def pop_positions(self):
         """
         @rtype: Iterable[(int, int, int), BlockSmd3]
         """
@@ -73,6 +74,16 @@ class BlockList(object):
         while len(blocks) > 0:
             position_index, block = blocks.popitem()
             yield self._get_position(position_index), block
+
+    def pop_position_indexes(self):
+        """
+        @rtype: Iterable[bytes | str, BlockSmd3]
+        """
+        blocks = self._position_index_to_instance
+        self._position_index_to_instance = dict()
+        while len(blocks) > 0:
+            position_index, block = blocks.popitem()
+            yield position_index, block
 
     def pop(self, position):
         """
@@ -105,49 +116,35 @@ class BlockList(object):
         @param position:
         @type position: (int, int, int)
 
-        @rtype: int
+        @rtype: bytes | str
         """
-        return int(position[2] << 32) + int(position[1] << 16) + int(position[0])
-
-    def _get_position(self, position_index):
-        """
-
-        @param position_index:
-        @type position_index: int, int, int
-
-        @rtype: int
-        """
-        return self._get_pos(position_index), self._get_pos(position_index, 16), self._get_pos(position_index, 32)
+        return struct.pack("hhh", position[0], position[1], position[2])
 
     @staticmethod
-    def _get_pos(position_index, shift=0):
+    def _get_position(position_index):
         """
 
         @param position_index:
-        @type position_index: int
+        @type position_index: bytes | str
 
-        @return:
-        @rtype: int
+        @rtype: (int, int, int)
         """
-        if shift == 0:
-            return int(position_index & 65535)
-        return int(position_index >> shift & 65535)
+        return struct.unpack("hhh", position_index)
 
     def _shift_index(self, position_index, offset_x, offset_y, offset_z):
         """
 
-        @type position_index: int
+        @type position_index: bytes | str
         @type offset_x: int
         @type offset_y: int
         @type offset_z: int
 
         @return:
-        @rtype: int
+        @rtype: bytes | str
         """
-        return self.get_index((
-            self._get_pos(position_index) + offset_x,
-            self._get_pos(position_index, 16) + offset_y,
-            self._get_pos(position_index, 32) + offset_z))
+        position = self._get_position(position_index)
+        new_position = [position[0]+offset_x, position[1]+offset_y, position[2]+offset_z]
+        return self.get_index(tuple(new_position))
 
     # #######################################
     # ###  Get
@@ -189,7 +186,7 @@ class BlockList(object):
         @type block_ids: set[int]
 
         @return: set of (x,y,z)
-        @rtype: set[int]
+        @rtype: set[bytes | str]
         """
         position_indexes = set()
         for position_index in self._position_index_to_instance:
@@ -217,7 +214,7 @@ class BlockList(object):
 
     def search(self, block_id):
         """
-        Search and return the global position of the first occurance of a block
+        Search and return the global position of the first occurrence of a block
         If no block is found, return None
 
         @param block_id: Block id as found in utils class
@@ -237,9 +234,7 @@ class BlockList(object):
 
         @type vector_direction: (int, int, int)
         """
-        new_position_index_to_instance = dict()
-        for position_index in self._position_index_to_instance:
-            block = self._position_index_to_instance.pop(position_index)
+        for position_index, block in self.pop_position_indexes():
             new_position_index = self._shift_index(
                 position_index, vector_direction[0], vector_direction[1], vector_direction[2])
-            new_position_index_to_instance[new_position_index] = block
+            self._position_index_to_instance[new_position_index] = block

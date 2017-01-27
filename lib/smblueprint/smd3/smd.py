@@ -99,7 +99,7 @@ class Smd(DefaultLogging):
         @type blueprint_name: str
         """
         # move blocks from pool into smd data structure
-        for position_block, block in self._block_list.popitem():
+        for position_block, block in self._block_list.pop_positions():
             self.add(position_block, block)
         directory_data = os.path.join(directory_blueprint, "DATA")
         if not os.path.exists(directory_data):
@@ -202,7 +202,7 @@ class Smd(DefaultLogging):
         """
         vector_factor = [1] * 3
         vector_factor[axis_index] = -1
-        for position_block, block in self._block_list.popitem():
+        for position_block, block in self._block_list.pop_positions():
             if position_block[axis_index] == self._position_core[axis_index]:
                 self._block_list(position_block, block)
                 continue
@@ -230,7 +230,7 @@ class Smd(DefaultLogging):
         @param tilt_index: integer representing a specific turn
         @type tilt_index: int
         """
-        for position_block, block in self._block_list.popitem():
+        for position_block, block in self._block_list.pop_positions():
             new_block_position = position_block
             if block.get_id() != 1:  # core
                 new_block_position = Vector.tilt_turn_position(position_block, tilt_index)
@@ -270,15 +270,18 @@ class Smd(DefaultLogging):
         @param hull_type:
         @type hull_type: int | None
         """
-        for position, block in self._block_list.items():
+        for position, block in self._block_list.pop_positions():
             block_id = block.get_id()
             if not block_config[block_id].is_hull():
+                self._block_list(position, block)
                 continue
             if block_id not in self._replace_cache_positive:
                 hull_tier, color_id, shape_id = block_config[block_id].get_details()
                 if hull_tier is None:
+                    self._block_list(position, block)
                     continue
                 if hull_type is not None and hull_type != hull_tier:  # not replaced
+                    self._block_list(position, block)
                     continue
                 new_block_id = block_config.get_block_id_by_details(new_hull_type, color_id, shape_id)
                 self._replace_cache_positive[block_id] = new_block_id

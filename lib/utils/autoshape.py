@@ -135,7 +135,7 @@ class AutoShape(object):
             new_block_id = block_config.get_block_id_by_details(block_hull_tier, color_id, new_shape_id)
             new_block = BlockSmd3(block.get_int_24bit()).get_modification(
                 block_id=new_block_id, bit_19=bit_19, bit_22=bit_22, bit_23=bit_23, rotations=rotations)
-            self._block_pool(position, new_block.get_int_24bit())
+            self._block_pool(position, new_block)
 
     def auto_hull_shape_dependent(self, block_shape_id):
         """
@@ -160,7 +160,7 @@ class AutoShape(object):
             new_block_id = block_config.get_block_id_by_details(block_hull_type, color, block_shape_id)
             new_block = BlockSmd3(block.get_int_24bit()).get_modification(
                 block_id=new_block_id, bit_19=bit_19, bit_22=bit_22, bit_23=bit_23, rotations=rotations)
-            self._block_pool(position, new_block.get_int_24bit())
+            self._block_pool(position, new_block)
 
     def auto_hull_shape(self, auto_wedge, auto_tetra, auto_corner, auto_hepta=None):
         """
