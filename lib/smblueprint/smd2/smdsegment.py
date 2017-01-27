@@ -74,8 +74,8 @@ class SmdSegment(DefaultLogging):
         for block_index in range(0, int(len(decompressed_data) / 3)):
             position = block_index * 3
             int_24bit = BinaryStream.unpack_int24(decompressed_data[position:position+3])
-            block = block_pool(int_24bit, smd2=True)
-            if block.get_id() > 0:
+            if BlockSmd2(int_24bit).get_id() > 0:
+                block = block_pool(int_24bit, smd2=True)
                 block_list(self.get_block_position_by_block_index(block_index), block)
         input_stream.seek(self._data_size-self._compressed_size, 1)  # skip unused bytes
 

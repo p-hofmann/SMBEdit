@@ -65,12 +65,11 @@ class SmdSegment(DefaultLogging):
         """
         decompressed_data = zlib.decompress(input_stream.read(self.compressed_size))
         self.block_index_to_block = {}
-        number_of_blocks = int(len(decompressed_data) / 3)
-        for block_index in range(number_of_blocks):
+        for block_index in range(int(len(decompressed_data) / 3)):
             position = block_index * 3
             int_24bit = BinaryStream.unpack_int24(decompressed_data[position:position+3])
-            block = block_pool(int_24bit)
-            if block.get_id() > 0:
+            if BlockSmd3(int_24bit).get_id() > 0:
+                block = block_pool(int_24bit)
                 block_list(self.get_block_position_by_block_index(block_index), block)
         input_stream.seek(49126-self.compressed_size, 1)  # skip unused bytes
 
