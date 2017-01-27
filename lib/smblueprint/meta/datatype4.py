@@ -91,10 +91,10 @@ class DataType4(DefaultLogging):
         unknown_position_index_0 = input_stream.read_int64()
         unknown_position_index_1 = input_stream.read_int64()
         self._logger.debug("wireless_logic stuff string: '{}'".format(unknown_string))
-        if offset != 0:
-            # chunk16 to 32
-            unknown_position_index_0 = self.chunk16_to_chunk_32_shift_index(unknown_position_index_0, offset)
-            unknown_position_index_1 = self.chunk16_to_chunk_32_shift_index(unknown_position_index_1, offset)
+        # if offset != 0:
+        #     # chunk16 to 32
+        #     unknown_position_index_0 = self.chunk16_to_chunk_32_shift_index(unknown_position_index_0, offset)
+        #     unknown_position_index_1 = self.chunk16_to_chunk_32_shift_index(unknown_position_index_1, offset)
         return unknown_string, unknown_position_index_0, unknown_position_index_1
 
     def read(self, input_stream, version):
@@ -196,7 +196,7 @@ class DataType4(DefaultLogging):
         tag_manager.set_root_tag(rail_docker_links.to_tag())
         self._docked_entities[docked_entity_index] = tag_manager
 
-    def move_position(self, vector_direction):
+    def move_position(self, vector_direction, main_only=False):
         """
         Move positions of rail docked entities
 
@@ -205,7 +205,7 @@ class DataType4(DefaultLogging):
         for docker_key in self._docked_entities.keys():
             rail_docker_links = RailDockedEntityLinks()
             rail_docker_links.from_tag(self._docked_entities[docker_key].get_root_tag())
-            rail_docker_links.move_position(vector_direction)
+            rail_docker_links.move_position(vector_direction, main_only)
             self._docked_entities[docker_key].set_root_tag(rail_docker_links.to_tag())
 
     def to_stream(self, output_stream=sys.stdout):
