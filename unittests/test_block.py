@@ -5,7 +5,8 @@ from lib.utils.blockconfig import block_config
 __author__ = 'Peter Hofmann'
 
 
-class DefaultSetup(TestCase):
+# class DefaultSetup(TestCase):
+class DefaultSetup(object):
     """
     @type object: Block
     """
