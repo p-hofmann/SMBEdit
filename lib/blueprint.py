@@ -12,7 +12,7 @@ from lib.smblueprint.header import Header
 from lib.smblueprint.logic import Logic
 from lib.smblueprint.meta.meta import Meta
 from lib.smblueprint.smd3.smd import Smd
-from lib.smblueprint.smdblock.block import BlockSmd3
+from lib.smblueprint.smdblock.block import BlockV3
 
 
 class Blueprint(DefaultLogging):
@@ -86,7 +86,7 @@ class Blueprint(DefaultLogging):
         rail_docker_id = 663
         if is_docked_entity and self.smd3.search(rail_docker_id) is None:
             self._logger.info("Adding 'Rail docker' to docked entity.")
-            block = BlockSmd3().get_modification(
+            block = BlockV3().get_modification(
                 block_id=rail_docker_id, active=False, bit_19=0, bit_22=0, bit_23=1, rotations=2)
             position_below_core = (16, 15, 16)
             self.smd3.add(position_below_core, block)

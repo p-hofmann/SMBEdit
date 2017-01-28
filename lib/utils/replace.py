@@ -1,5 +1,6 @@
-from lib.utils.blocklist import BlockList, BlockSmd3
+from lib.utils.blocklist import BlockList
 from lib.utils.blockconfig import block_config
+from lib.smblueprint.smdblock.block import BlockV3
 
 
 __author__ = 'Peter Hofmann'
@@ -46,7 +47,7 @@ class Replace(object):
                 new_block_id = block_config.get_block_id_by_details(new_hull_type, color_id, shape_id)
                 self._replace_cache_positive[block_id] = new_block_id
             new_block_id = self._replace_cache_positive[block_id]
-            new_block = BlockSmd3().get_modification(
+            new_block = BlockV3().get_modification(
                 block_id=new_block_id, active=False, hit_points=block_config[new_block_id].hit_points)
             self._block_list(position, new_block)
 
@@ -60,5 +61,5 @@ class Replace(object):
             if compatible:
                 new_block = block.get_modification(block_id=replace_id)
             else:
-                new_block = BlockSmd3().get_modification(block_id=replace_id, active=False)
+                new_block = BlockV3().get_modification(block_id=replace_id, active=False)
             self._block_list(position, new_block)

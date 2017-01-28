@@ -5,7 +5,7 @@ import math
 
 from lib.loggingwrapper import DefaultLogging
 from lib.bits_and_bytes import BinaryStream
-from lib.smblueprint.smdblock.block import BlockSmd2
+from lib.smblueprint.smdblock.block import BlockV1
 from lib.smblueprint.smd2.smdsegment import SmdSegment
 
 
@@ -289,7 +289,7 @@ class SmdRegion(DefaultLogging):
         @param block: A block! :)
         @type block: SmdBlock
         """
-        assert isinstance(block, BlockSmd2)
+        assert isinstance(block, BlockV1)
         position_segment = self.get_segment_position_of_position(block_position)
         if position_segment not in self._position_to_segment:
             self._position_to_segment[position_segment] = SmdSegment(

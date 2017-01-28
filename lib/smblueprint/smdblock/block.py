@@ -17,7 +17,7 @@ from lib.smblueprint.smdblock.style6 import Style6
 
 class BlockPool(object):
     """
-    @type _state_to_instance: WeakValueDictionary[int, BlockV2]
+    @type _state_to_instance: WeakValueDictionary[int, Block]
     """
 
     _state_to_instance = WeakValueDictionary()
@@ -29,7 +29,7 @@ class BlockPool(object):
         @param segment_version: version of smd segment
         @type segment_version: int
 
-        @rtype: BlockV2
+        @rtype: Block
         """
         if segment_version < 2:
             return BlockV1(state).to_v3()
@@ -45,7 +45,7 @@ class BlockPool(object):
     # Methods, called on instance objects:
     def __iter__(self):
         """
-        @rtype: Iterable[BlockV2]
+        @rtype: Iterable[Block]
         """
         return iter(self._state_to_instance.values())
 
@@ -56,7 +56,7 @@ class BlockPool(object):
         @param state:
         @type state: int
 
-        @rtype: BlockV2
+        @rtype: Block
         """
         assert state in self._state_to_instance, "No block for state: {}".format(state)
         return self._state_to_instance[state]
@@ -73,14 +73,14 @@ class BlockPool(object):
     @staticmethod
     def items():
         """
-        @rtype: Iterable[(int, BlockV2)]
+        @rtype: Iterable[(int, Block)]
         """
         return BlockPool._state_to_instance.items()
 
     @staticmethod
     def popitem():
         """
-        @rtype: Iterable[(int, int, int), BlockV2]
+        @rtype: Iterable[(int, int, int), Block]
         """
         state_pool = BlockPool._state_to_instance
         BlockPool._state_to_instance = dict()
@@ -187,7 +187,7 @@ class Block(object):
 
         @type block_id: int
 
-        @rtype: BlockV2
+        @rtype: Block
         """
         assert self.get_style() == 0
         assert block_config[block_id].block_style == 6
@@ -206,7 +206,7 @@ class Block(object):
         @type hit_points: int | None
         @type active: bool | None
 
-        @rtype: BlockV2
+        @rtype: Block
         """
         if block_id is None:
             block_id = self.get_id()
@@ -243,7 +243,7 @@ class Block(object):
         Mirror orientation
         @type axis_index: int
 
-        @rtype: BlockV2
+        @rtype: Block
         """
         orientation = self.get_orientation()
         if axis_index == 0:

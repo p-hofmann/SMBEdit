@@ -118,7 +118,10 @@ class SmdSegment(DefaultLogging):
             for block_index in range(0, self._blocks_in_a_cube):
                 if block_index in set_of_valid_block_index:
                     block_int_24 = self.block_index_to_block[block_index].get_int_24bit()
-                    byte_string += BinaryStream.pack_int24(block_int_24)
+                    if self._version < 3:
+                        byte_string += BinaryStream.pack_int24(block_int_24)
+                    else:
+                        byte_string += BinaryStream.pack_int24b(block_int_24)
                     continue
                 byte_string += b"\0" * 3
             compressed_data = zlib.compress(byte_string)
@@ -153,6 +156,7 @@ class SmdSegment(DefaultLogging):
         @type output_stream: BinaryStream
         """
         assert isinstance(output_stream, BinaryStream)
+        self._version = max(self._valid_versions)
         self._write_header(output_stream)
         self._write_block_data(output_stream)
 
@@ -218,7 +222,7 @@ class SmdSegment(DefaultLogging):
         @param block_position: x,y,z position of block
         @type block_position: int,int,int
         @param block: A block! :)
-        @type block: BlockV2
+        @type block: BlockV3
         @type replace: bool
         """
         assert isinstance(block, BlockV3)
