@@ -88,7 +88,7 @@ class BinaryStream(object):
             BitAndBytes.bits_parse(int_24bit, 8, 8),
             BitAndBytes.bits_parse(int_24bit, 16, 8),
         )
-        return struct.pack('>BBB', int_24bit, data[0], data[1], data[2])
+        return struct.pack('>BBB', data[0], data[1], data[2])
 
     @staticmethod
     def unpack_int24(byte_string):
