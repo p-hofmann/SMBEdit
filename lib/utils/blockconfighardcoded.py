@@ -929,6 +929,15 @@ class BlockConfigHardcoded(object):
             return False
         return True
 
+    activatable_ids = {
+        2, 7, 8, 14, 16, 24, 30, 32, 40, 48, 55, 56, 62, 588, 589, 590, 591, 592, 94, 113, 114, 120, 121, 122,
+        654, 659, 660, 661, 666, 667, 668, 670, 673, 674, 675, 677, 685, 687, 211, 213, 215, 217, 222, 255, 256,
+        257, 258, 259, 260, 261, 262, 282, 283, 284, 285, 289, 291, 842, 843, 844, 845, 846, 333, 335, 847, 848,
+        849, 340, 850, 854, 855, 856, 345, 857, 858, 859, 860, 861, 862, 888, 889, 405, 406, 407, 408, 409, 410,
+        922, 923, 415, 417, 942, 943, 944, 945, 946, 947, 948, 949, 950, 951, 952, 953, 954, 955, 956, 957, 958,
+        959, 960, 961, 962, 963, 964, 965, 966, 967, 968, 969, 970, 971, 972, 973, 974, 977, 979, 479, 1007, 496,
+        497, 498, 499, 500, 501, 502, 503, 504, 505, 506}
+
     @staticmethod
     def is_activatable_block(block_id):
         """
@@ -941,26 +950,6 @@ class BlockConfigHardcoded(object):
         @rtype: bool
         """
         assert isinstance(block_id, int)
-        if block_id in BlockConfigHardcoded._block_ids["logic"]:
-            block_name = BlockConfigHardcoded.get_block_name_by_id(block_id).lower()
-            if "sensor" in block_name:
-                return False
-            if "trigger" in block_name:
-                return False
-            if "gate module" in block_name:
-                return False
-            return True
-        if block_id in BlockConfigHardcoded._block_ids["doors"]:
-            return True
-        if block_id in BlockConfigHardcoded._block_ids["lighting"]:
-            return True
-        if block_id in BlockConfigHardcoded._block_ids["station"]:
-            block_name = BlockConfigHardcoded.get_block_name_by_id(block_id).lower()
-            if " gate " in block_name:
-                return False
-            if block_id == 678:  # Shipyard Module
-                return False
-            if block_id == 679:  # Shipyard Core Anchor
-                return False
+        if block_id in BlockConfigHardcoded.activatable_ids:
             return True
         return False
