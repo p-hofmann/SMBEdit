@@ -78,12 +78,34 @@ class BinaryStream(object):
         return struct.pack('>i', int_24bit)[1:]
 
     @staticmethod
+    def pack_int24b(int_24bit):
+        """
+        @type int_24bit: int
+        @rtype: str | bytes
+        """
+        data = (
+            BitAndBytes.bits_parse(int_24bit, 0, 8),
+            BitAndBytes.bits_parse(int_24bit, 8, 8),
+            BitAndBytes.bits_parse(int_24bit, 16, 8),
+        )
+        return struct.pack('>BBB', int_24bit, data[0], data[1], data[2])
+
+    @staticmethod
     def unpack_int24(byte_string):
         """
         @type byte_string: str | bytes
         @rtype: int
         """
         return struct.unpack(">i", b'\x00' + byte_string)[0]
+
+    @staticmethod
+    def unpack_int24b(byte_string):
+        """
+        @type byte_string: str | bytes
+        @rtype: int
+        """
+        data = struct.unpack(">BBB", byte_string)
+        return data[0] | data[1] << 8 | data[2] << 16
 
     def pack(self, value, data_type):
         """

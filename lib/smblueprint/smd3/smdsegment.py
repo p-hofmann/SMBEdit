@@ -6,7 +6,7 @@ import datetime
 
 from lib.loggingwrapper import DefaultLogging
 from lib.bits_and_bytes import BinaryStream
-from lib.smblueprint.smdblock.block import block_pool, BlockSmd3
+from lib.smblueprint.smdblock.block import block_pool, Block, BlockV3
 
 
 class SmdSegment(DefaultLogging):
@@ -16,9 +16,11 @@ class SmdSegment(DefaultLogging):
     The Position coordinates are always a multiple of 32, like (32, 0, 128)
     Example: The core, or center of a blueprint is (16,16,16) and the position of its segment is (0,0,0)
 
-    @type block_index_to_block: dict[int, BlockSmd3]
+    @type block_index_to_block: dict[int, Block]
     @type position: tuple[int]
     """
+
+    _valid_versions = {2, 3}
 
     def __init__(self, blocks_in_a_line=32, logfile=None, verbose=False, debug=False):
         self._label = "SmdSegment {}".format(datetime.time)
@@ -29,7 +31,7 @@ class SmdSegment(DefaultLogging):
         self._blocks_in_a_line = blocks_in_a_line
         self._blocks_in_an_area = self._blocks_in_a_line * self._blocks_in_a_line
         self._blocks_in_a_cube = self._blocks_in_an_area * self._blocks_in_a_line
-        self.version = 2
+        self._version = 2
         self.timestamp = 0
         self.position = None
         self.has_valid_data = False
@@ -48,7 +50,8 @@ class SmdSegment(DefaultLogging):
         @param input_stream: input byte stream
         @type input_stream: BinaryStream
         """
-        self.version = input_stream.read_byte()  # 1 byte
+        self._version = input_stream.read_byte()  # 1 byte
+        assert self._version in self._valid_versions, "Unsupported SmdSegment version: {}".format(self._version)
         self.timestamp = input_stream.read_int64_unassigned()
         self.position = input_stream.read_vector_3_int32()  # 12 byte
         self.has_valid_data = input_stream.read_bool()  # 1 byte
@@ -65,11 +68,16 @@ class SmdSegment(DefaultLogging):
         """
         decompressed_data = zlib.decompress(input_stream.read(self.compressed_size))
         self.block_index_to_block = {}
-        for block_index in range(int(len(decompressed_data) / 3)):
+        number_of_blocks = len(decompressed_data) / 3
+        for block_index in range(int(number_of_blocks)):
             position = block_index * 3
-            int_24bit = BinaryStream.unpack_int24(decompressed_data[position:position+3])
-            if BlockSmd3(int_24bit).get_id() > 0:
-                block = block_pool(int_24bit)
+            if self._version < 3:
+                int_24bit = BinaryStream.unpack_int24(decompressed_data[position:position+3])
+            else:
+                int_24bit = BinaryStream.unpack_int24b(decompressed_data[position:position+3])
+            if BlockV3(int_24bit).get_id() != 0:
+                # BlockV2 and BlockV3 have same bit length for block id
+                block = block_pool(int_24bit, segment_version=self._version)
                 block_list(self.get_block_position_by_block_index(block_index), block)
         input_stream.seek(49126-self.compressed_size, 1)  # skip unused bytes
 
@@ -131,7 +139,7 @@ class SmdSegment(DefaultLogging):
         @param output_stream: input byte stream
         @type output_stream: BinaryStream
         """
-        output_stream.write_byte(self.version)  # 1 byte
+        output_stream.write_byte(self._version)  # 1 byte
         output_stream.write_int64_unassigned(self.timestamp)  # 8 byte
         output_stream.write_vector_3_int32(self.position)  # 12 byte
         output_stream.write_bool(self.has_valid_data)  # 1 byte
@@ -210,10 +218,10 @@ class SmdSegment(DefaultLogging):
         @param block_position: x,y,z position of block
         @type block_position: int,int,int
         @param block: A block! :)
-        @type block: BlockSmd3
+        @type block: BlockV2
         @type replace: bool
         """
-        assert isinstance(block, BlockSmd3)
+        assert isinstance(block, BlockV3)
         block_index = self.get_block_index_by_block_position(block_position)
         if not replace and block_index in self.block_index_to_block:
             self._logger.debug("Prevented block replacement")
@@ -231,7 +239,7 @@ class SmdSegment(DefaultLogging):
         output_stream.write("Segment: {} '{}' ({})\n".format(
             self.position,
             datetime.datetime.fromtimestamp(self.timestamp/1000.0).strftime('%Y-%m-%d %H:%M:%S'),
-            self.version,
+            self._version,
             ))
         output_stream.flush()
         if self._debug:

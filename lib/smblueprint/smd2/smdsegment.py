@@ -6,7 +6,7 @@ import datetime
 
 from lib.loggingwrapper import DefaultLogging
 from lib.bits_and_bytes import BinaryStream
-from lib.smblueprint.smdblock.block import block_pool, BlockSmd2, BlockSmd3
+from lib.smblueprint.smdblock.block import block_pool, Block, BlockV1
 
 
 class SmdSegment(DefaultLogging):
@@ -16,7 +16,7 @@ class SmdSegment(DefaultLogging):
     The Position coordinates are always a multiple of 32, like (32, 0, 128)
     Example: The core, or center of a blueprint is (16,16,16) and the position of its segment is (0,0,0)
 
-    @type block_index_to_block: dict[int, BlockSmd3]
+    @type block_index_to_block: dict[int, Block]
     @type _position: tuple[int]
     """
 
@@ -74,8 +74,8 @@ class SmdSegment(DefaultLogging):
         for block_index in range(0, int(len(decompressed_data) / 3)):
             position = block_index * 3
             int_24bit = BinaryStream.unpack_int24(decompressed_data[position:position+3])
-            if BlockSmd2(int_24bit).get_id() > 0:
-                block = block_pool(int_24bit, smd2=True)
+            if BlockV1(int_24bit).get_id() > 0:
+                block = block_pool(int_24bit, segment_version=self._version)
                 block_list(self.get_block_position_by_block_index(block_index), block)
         input_stream.seek(self._data_size-self._compressed_size, 1)  # skip unused bytes
 
@@ -216,7 +216,7 @@ class SmdSegment(DefaultLogging):
         @param block: A block! :)
         @type block: SmdBlock
         """
-        assert isinstance(block, BlockSmd2)
+        assert isinstance(block, BlockV1)
         block_index = self.get_block_index_by_block_position(block_position)
         if not replace and block_index in self.block_index_to_block:
             self._logger.debug("Prevented block replacement")
