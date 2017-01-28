@@ -69,9 +69,11 @@ class TestBlockConfig(DefaultSetup):
         block_config = BlockConfig()
         block_config.read(self._starmade_dir)
 
-        unknown_id = set()
+        activatable_id = set()
         ids_with_bad_attribute = set()
         for block in block_config:
+            if block.can_activate:
+                activatable_id.add(block.id)
             if block.deprecated:
                 continue
             try:
@@ -79,7 +81,8 @@ class TestBlockConfig(DefaultSetup):
                 if block.can_activate != block_hard_code.can_activate:
                     ids_with_bad_attribute.add(block.id)
             except:
-                unknown_id.add(block.id)
+                pass
+        print(", ".join(map(str, activatable_id)))
         for block_id in ids_with_bad_attribute:
             print("{}\t{}:{}\t{}".format(block_id, block_config[block_id].can_activate, self.object[block_id].can_activate, block_config[block_id].name))
         self.assertSetEqual(ids_with_bad_attribute, set())
