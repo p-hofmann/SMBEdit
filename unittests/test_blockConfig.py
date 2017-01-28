@@ -63,3 +63,23 @@ class TestBlockConfig(DefaultSetup):
         for block_id in unknown_bad_block_style:
             print("{} {}:{} {}".format(block_id, block_config[block_id].block_style, self.object[block_id].block_style, block_config[block_id].name))
         self.assertSetEqual(unknown_bad_block_style, set())
+
+    def test_activatable_hard_vs_dynamic(self):
+        self.object.from_hard_coded()
+        block_config = BlockConfig()
+        block_config.read(self._starmade_dir)
+
+        unknown_id = set()
+        ids_with_bad_attribute = set()
+        for block in block_config:
+            if block.deprecated:
+                continue
+            try:
+                block_hard_code = self.object[block.id]
+                if block.can_activate != block_hard_code.can_activate:
+                    ids_with_bad_attribute.add(block.id)
+            except:
+                unknown_id.add(block.id)
+        for block_id in ids_with_bad_attribute:
+            print("{} {}:{} {}".format(block_id, block_config[block_id].can_activate, self.object[block_id].can_activate, block_config[block_id].name))
+        self.assertSetEqual(ids_with_bad_attribute, set())
