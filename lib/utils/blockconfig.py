@@ -257,8 +257,9 @@ class BlockConfig(SuperBlockConfig, ):
             next(csvreader, None)
             next(csvreader, None)
             # and read
-            for row in csvreader:
-                block_type, block_id = row
+            for block_type, block_id in csvreader:
+                block_type = block_type.strip()
+                block_id = block_id.strip()
                 block_id = int(block_id)
                 self._id_to_block[block_id] = BlockInfo()
                 self._id_to_block[block_id].id = block_id
@@ -269,6 +270,9 @@ class BlockConfig(SuperBlockConfig, ):
         # fill the flags dict with id values
         for blockConfigNode in tree.findall(".//*/Block"):
             label = blockConfigNode.attrib["type"]
+            if label not in self._label_to_block:
+                print("Unknown label: {}".format(label))
+                continue
             self._label_to_block[label].name = blockConfigNode.attrib["name"]
             self._label_to_block[label].icon = blockConfigNode.attrib["icon"]
             self._label_to_block[label].texture_id = blockConfigNode.attrib["textureId"]
