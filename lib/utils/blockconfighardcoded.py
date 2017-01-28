@@ -35,6 +35,8 @@ class BlockConfigHardcoded(object):
         15: "RadarJammer",
         47: "Camera",
         121: "BOBBY AI Module",
+        671: "Rail Mass Enhancer",
+        672: "Rail Speed Controller",
         }
 
     _block_ids["hull"] = {
@@ -194,8 +196,6 @@ class BlockConfigHardcoded(object):
         664: "Rail Rotator Clock Wise",
         665: "Rail Turret Axis",
         669: "Rail Rotator Counter Clock Wise",
-        671: "Rail Mass Enhancer",
-        672: "Rail Speed Controller",
         937: "Pickup Point",
         938: "Pickup Rail",
         939: "Shootout Rail",
@@ -249,7 +249,9 @@ class BlockConfigHardcoded(object):
         }
 
     _block_ids["crafting"] = {
+        999: "Blueprint Empty",
         # Crafting Materials
+        341: "Bronze Bar", 342: "Silver Bar", 343: "Gold Bar",
         144: "Larimar Capsule", 238: "Orange Paint", 440: "Alloyed Metal Mesh",
         152: "Chabaz Capsule", 239: "Red Paint", 220: "Crystal Composite",
         156: "Lukrah Capsule", 240: "Purple Paint", 546: "Scrap Alloy",
@@ -328,8 +330,6 @@ class BlockConfigHardcoded(object):
         658: "Conduit (Blue)",
         680: "Decorative Fan",
         941: "Girder",
-        975: "Decorative Console (Blue)",
-        976: "Pipe",
         145: "Carved Larimar",
         153: "Carved Chabaz",
         157: "Carved Lukrah",
@@ -346,11 +346,20 @@ class BlockConfigHardcoded(object):
         443: "Metal Grill Wedge",
         444: "Ice Crystal Wedge",
         940: "Ice Wedge",
+        975: "Decorative Console (Blue)",
+        976: "Pipe",
+        1000: "Pipe Tee",
+        1001: "Pipe Elbow",
+        1006: "Pipe Cross",
+        1003: "Grate",
+        1004: "Grate Corner",
+        1005: "Grate Wedge",
         }
 
     _block_ids["lighting"] = {
         # Lighting
         977: "White Light Bar",
+        1007: "White Light Corner",
         62: "Beacon", 503: "Beacon Rod",
         55: "White Light", 499: "White Rod Light",
         498: "Black Light", 500: "Black Rod Light",
@@ -493,7 +502,6 @@ class BlockConfigHardcoded(object):
         101: "Glow Trap",
         102: "Small Berry Bush",
         103: "Arched Cactus",
-        104: "Mushroom",
         105: "Purple Weeds",
         106: "Yellow Flowers",
         107: "Stone Fragment",
@@ -503,6 +511,9 @@ class BlockConfigHardcoded(object):
         279: "Ice Crag",
         280: "Ice Coral",
         281: "Snowbuds",
+        104: "Mushroom",
+        1000: "Pipe Tee",
+        1001: "Pipe Elbow",
         }
 
     _block_ids["minerals"] = {
@@ -518,6 +529,7 @@ class BlockConfigHardcoded(object):
         }
 
     _block_ids["outdated"] = {
+        1002: "Extended Texture Test",
         # Out Of Use
         65: "Death Star Core",
         210: "Burnt Black Dirt",
@@ -574,9 +586,6 @@ class BlockConfigHardcoded(object):
         261: "SCHEMADYNE 3000",
         262: "MINERAL SEPERATOR",
         292: "Faction Hub",
-        341: "Bronze Bar",
-        342: "Silver Bar",
-        343: "Gold Bar",
     }
 
     _hp_by_hull_type = {
@@ -695,17 +704,22 @@ class BlockConfigHardcoded(object):
         """
         if block_id in BlockConfigHardcoded._block_ids["rails"]:
             return True
-        if block_id == 977:  # White Light Bar
-            return True
-        if block_id == 976:  # Pipe
-            return True
-        if block_id == 975:  # Decorative Console (Blue)
-            return True
-        if block_id == 678:  # Shipyard Module
-            return True
-        if block_id == 679:  # Shipyard Core Anchor
-            return True
-        if block_id == 104:  # Mushroom
+        type_6_set = {
+            977,   # White Light Bar
+            976,   # Pipe
+            1000,  # Pipe Tee
+            1001,  # Pipe Elbow
+            1006,  # Pipe Cross
+            975,   # Decorative Console (Blue)
+            678,   # Shipyard Module
+            679,   # Shipyard Core Anchor
+            104,   # Mushroom
+            1003,  # Grate
+            1004,  # Grate Corner
+            1005,  # Grate Wedge
+            1007,  # White Light Corner
+        }
+        if block_id in type_6_set:
             return True
         return False
 
@@ -720,9 +734,11 @@ class BlockConfigHardcoded(object):
         @return:
         @rtype: bool
         """
-        style_3_categories = ["ores", "shards", "crafting", "minerals"]
+        style_3_categories = ["ores", "shards", "crafting"]
         for category in style_3_categories:
             if block_id in BlockConfigHardcoded._block_ids[category]:
+                if block_id in {440, 220}:
+                    return False
                 return True
         if block_id in BlockConfigHardcoded._block_ids["plants"] and block_id != 104:  # and not Mushroom
             return True
@@ -748,7 +764,7 @@ class BlockConfigHardcoded(object):
         @return:
         @rtype: bool
         """
-        style_0_categories = ["hull", "circuits", "motherboards", "ingots", "crystals", "decorative"]
+        style_0_categories = ["hull", "circuits", "motherboards", "ingots", "crystals", "decorative", "minerals"]
         if BlockConfigHardcoded._is_slab(block_id):
             return True
         if BlockConfigHardcoded.is_activatable_block(block_id):
@@ -762,6 +778,8 @@ class BlockConfigHardcoded(object):
             return False
         if block_id == 975:  # Decorative Console (Blue)
             return False
+        if block_id in {440, 220}:
+            return True
 
         for category in style_0_categories:
             if block_id in BlockConfigHardcoded._block_ids[category]:
@@ -794,7 +812,9 @@ class BlockConfigHardcoded(object):
         """
         assert BlockConfigHardcoded.is_known_id(block_id), "Unknown block id: {}".format(block_id)
         if BlockConfigHardcoded.is_deprecated(block_id):
-            return -1
+            return 0
+        if BlockConfigHardcoded._is_block_style_6(block_id):
+            return 6
         block_name = BlockConfigHardcoded.get_block_name_by_id(block_id).lower()
         if "wedge" in block_name:
             return 1
@@ -804,8 +824,6 @@ class BlockConfigHardcoded(object):
             return 4
         if "hepta" in block_name:
             return 5
-        if BlockConfigHardcoded._is_block_style_6(block_id):
-            return 6
         if BlockConfigHardcoded._is_block_style_3(block_id):
             return 3
         if BlockConfigHardcoded._is_block_style_0(block_id):
