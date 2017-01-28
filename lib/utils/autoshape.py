@@ -121,16 +121,16 @@ class AutoShape(object):
             periphery_index = self.get_position_periphery_index(position, 1)
             shape_id_wedge = block_config.get_shape_id("wedge")
             shape_id_tetra = block_config.get_shape_id("tetra")
-            if auto_wedge and periphery_index in AutoShape.peripheries[shape_id_wedge]:
+            if auto_wedge and periphery_index in PeripherySimple.peripheries[shape_id_wedge]:
                 # "wedge"
                 new_shape_id = shape_id_wedge
-            elif auto_tetra and periphery_index in AutoShape.peripheries[shape_id_tetra]:
+            elif auto_tetra and periphery_index in PeripherySimple.peripheries[shape_id_tetra]:
                 # tetra
                 new_shape_id = shape_id_tetra
             else:
                 continue
 
-            bit_19, bit_22, bit_23, rotations = AutoShape.peripheries[new_shape_id][periphery_index]
+            bit_19, bit_22, bit_23, rotations = PeripherySimple.peripheries[new_shape_id][periphery_index]
             block_hull_tier, color_id, shape_id = block_config[block_id].get_details()
             new_block_id = block_config.get_block_id_by_details(block_hull_tier, color_id, new_shape_id)
             new_block = BlockSmd3(block.get_int_24bit()).get_modification(
@@ -150,12 +150,12 @@ class AutoShape(object):
                 continue
 
             periphery_index = self.get_position_periphery_index(position, 1)
-            if periphery_index not in AutoShape.peripheries[block_shape_id]:
+            if periphery_index not in PeripherySimple.peripheries[block_shape_id]:
                 continue
             periphery_shape = self.get_position_shape_periphery(position, 1)
-            if periphery_shape not in AutoShape.peripheries[block_shape_id][periphery_index]:
+            if periphery_shape not in PeripherySimple.peripheries[block_shape_id][periphery_index]:
                 continue
-            bit_19, bit_22, bit_23, rotations = AutoShape.peripheries[block_shape_id][periphery_index][periphery_shape]
+            bit_19, bit_22, bit_23, rotations = PeripherySimple.peripheries[block_shape_id][periphery_index][periphery_shape]
             block_hull_type, color, shape_id = block_config[block_id].get_details()
             new_block_id = block_config.get_block_id_by_details(block_hull_type, color, block_shape_id)
             new_block = BlockSmd3(block.get_int_24bit()).get_modification(
@@ -250,6 +250,7 @@ class AutoShape(object):
                 print("\t\t\t{}: {},".format(periphery_shape, peripheries[periphery_index][periphery_shape]))
             print("\t\t},")
 
+class PeripherySimple(object):
     peripheries = dict()
     # shapes = ["cube", "wedge", "corner", "tetra", "hepta"]
     # "cube": 0,
