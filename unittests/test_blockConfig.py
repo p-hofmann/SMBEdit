@@ -81,5 +81,5 @@ class TestBlockConfig(DefaultSetup):
             except:
                 unknown_id.add(block.id)
         for block_id in ids_with_bad_attribute:
-            print("{} {}:{} {}".format(block_id, block_config[block_id].can_activate, self.object[block_id].can_activate, block_config[block_id].name))
+            print("{}\t{}:{}\t{}".format(block_id, block_config[block_id].can_activate, self.object[block_id].can_activate, block_config[block_id].name))
         self.assertSetEqual(ids_with_bad_attribute, set())
