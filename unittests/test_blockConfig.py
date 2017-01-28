@@ -82,7 +82,7 @@ class TestBlockConfig(DefaultSetup):
                     ids_with_bad_attribute.add(block.id)
             except:
                 pass
-        print(", ".join(map(str, activatable_id)))
+        # print(", ".join(map(str, activatable_id)))
         for block_id in ids_with_bad_attribute:
             print("{}\t{}:{}\t{}".format(block_id, block_config[block_id].can_activate, self.object[block_id].can_activate, block_config[block_id].name))
         self.assertSetEqual(ids_with_bad_attribute, set())

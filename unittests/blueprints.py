@@ -32,7 +32,7 @@ class Blueprint(object):
     def __init__(self, sment=False):
         self._blueprints = set()
         self._file_name = "meta.smbpm"
-        directory_blueprints = "/home/hofmann/Downloads/starmade-launcher-linux-x64/StarMade/blueprints/old"
+        directory_blueprints = "./"
         if sment:
             self._find_blueprint_sment(directory_blueprints)
         else:
