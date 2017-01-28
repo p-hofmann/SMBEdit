@@ -6,6 +6,7 @@ import sys
 from lib.loggingwrapper import DefaultLogging
 from lib.utils.blockconfig import block_config
 from lib.utils.autoshape import AutoShape
+from lib.utils.replace import Replace
 from lib.utils.vector import Vector
 from lib.smblueprint.header import Header
 from lib.smblueprint.logic import Logic
@@ -154,7 +155,8 @@ class Blueprint(DefaultLogging):
         @param hull_type:
         @type hull_type: int | None
         """
-        self.smd3.replace_hull(new_hull_type, hull_type)
+        replace = Replace(self.smd3.get_block_list())
+        replace.replace_hull(new_hull_type, hull_type)
         self.header.update(self.smd3)
 
     def replace_blocks(self, block_id, replace_id):
@@ -165,7 +167,8 @@ class Blueprint(DefaultLogging):
         @type replace_id: int
         """
         compatible = block_config[block_id].block_style == block_config[replace_id].block_style
-        self.smd3.replace_blocks(block_id, replace_id, compatible)
+        replace = Replace(self.smd3.get_block_list())
+        replace.replace_blocks(block_id, replace_id, compatible)
         self.header.update(self.smd3)
 
     def update(self):
