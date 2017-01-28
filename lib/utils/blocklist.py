@@ -1,11 +1,11 @@
 from collections import Iterable
 import struct
-from lib.smblueprint.smdblock.block import Block, BlockSmd3
+from lib.smblueprint.smdblock.block import Block
 
 
 class BlockList(object):
     """
-    @type _position_index_to_instance: dict[bytes | str, BlockSmd3]
+    @type _position_index_to_instance: dict[bytes | str, Block]
     """
 
     def __init__(self):
@@ -16,9 +16,9 @@ class BlockList(object):
         @param position:
         @type position: (int, int, int)
         @param block:
-        @type block: BlockSmd3
+        @type block: Block
 
-        @rtype: BlockSmd3
+        @rtype: Block
         """
         assert isinstance(block, Block), block
         position_index = self.get_index(position)
@@ -38,7 +38,7 @@ class BlockList(object):
 
     def items(self):
         """
-        @rtype: Iterable[((int, int, int), BlockSmd3)]
+        @rtype: Iterable[((int, int, int), Block)]
         """
         for position_index in self._position_index_to_instance:
             yield self._get_position(position_index), self._position_index_to_instance[position_index]
@@ -50,7 +50,7 @@ class BlockList(object):
         @param position:
         @type position: (int, int, int)
 
-        @rtype: BlockSmd3
+        @rtype: Block
         """
         position_index = self.get_index(position)
         assert position_index in self._position_index_to_instance, "{} No block at position: {}".format(len(self), position)
@@ -67,7 +67,7 @@ class BlockList(object):
 
     def pop_positions(self):
         """
-        @rtype: Iterable[(int, int, int), BlockSmd3]
+        @rtype: Iterable[(int, int, int), Block]
         """
         blocks = self._position_index_to_instance
         self._position_index_to_instance = dict()
@@ -77,7 +77,7 @@ class BlockList(object):
 
     def pop_position_indexes(self):
         """
-        @rtype: Iterable[bytes | str, BlockSmd3]
+        @rtype: Iterable[bytes | str, Block]
         """
         blocks = self._position_index_to_instance
         self._position_index_to_instance = dict()
@@ -92,7 +92,7 @@ class BlockList(object):
         @param position: x,z,y position of a block
         @type position: (int, int, int)
 
-        @rtype: BlockSmd3
+        @rtype: Block
         """
         assert isinstance(position, tuple)
         assert self.has_block_at(position), "No block at position: {}".format(position)

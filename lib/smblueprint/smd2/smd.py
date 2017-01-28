@@ -6,7 +6,7 @@ import math
 from lib.loggingwrapper import DefaultLogging
 from lib.utils.blocklist import BlockList
 from lib.smblueprint.smd2.smdregion import SmdRegion
-from lib.smblueprint.smdblock.block import BlockSmd2
+from lib.smblueprint.smdblock.block import BlockV1
 
 
 class Smd(DefaultLogging):
@@ -123,7 +123,7 @@ class Smd(DefaultLogging):
         @param block_position: x,y,z position of block
         @type block_position: int,int,int
         @param block: A block! :)
-        @type block: BlockSmd2
+        @type block: BlockV1
         """
         assert isinstance(block_position, tuple)
         position_region = self.get_region_position_of_position(block_position)

@@ -5,7 +5,7 @@ import math
 
 from lib.loggingwrapper import DefaultLogging
 from lib.bits_and_bytes import BinaryStream
-from lib.smblueprint.smdblock.block import BlockSmd3
+from lib.smblueprint.smdblock.block import BlockV3
 from lib.smblueprint.smd3.smdsegment import SmdSegment
 
 
@@ -17,6 +17,11 @@ class SmdRegion(DefaultLogging):
 
     @type position_to_segment: dict[tuple[int], SmdSegment]
     """
+
+    _valid_versions = {
+        (2, 0, 0, 0),
+        (3, 0, 0, 0),
+        }
 
     def __init__(self, segments_in_a_line=16, blocks_in_a_line=32, logfile=None, verbose=False, debug=False):
         """
@@ -33,7 +38,7 @@ class SmdRegion(DefaultLogging):
         self._segments_in_a_line = segments_in_a_line  # 16
         self._segments_in_an_area = self._segments_in_a_line * self._segments_in_a_line  # 256
         self._segments_in_a_cube = self._segments_in_an_area * self._segments_in_a_line  # 4096
-        self.version = (2, 0, 0, 0)
+        self.version = (3, 0, 0, 0)
         self.position_to_segment = {}
         # self.tail_data = ""
 
@@ -86,7 +91,7 @@ class SmdRegion(DefaultLogging):
         @rtype: dict[int, int]
         """
         self.version = input_stream.read_vector_4_byte()
-        assert self.version == (2, 0, 0, 0), "Unsupported smd version: {}".format(self.version)
+        assert self.version in self._valid_versions, "Unsupported smd version: {}".format(self.version)
         segment_id_to_size = {}
         for index in range(0, self._segments_in_a_cube):
             identifier, size = self._read_segment_index(input_stream)
@@ -204,6 +209,7 @@ class SmdRegion(DefaultLogging):
         @type file_path: str
         """
         # print file_path
+        self.version = max(self._valid_versions)
         with open(file_path, 'wb') as output_stream:
             self._write_file(BinaryStream(output_stream))
 
@@ -272,9 +278,9 @@ class SmdRegion(DefaultLogging):
         @param block_position: x,y,z position of block
         @type block_position: tuple[int]
         @param block: A block! :)
-        @type block: BlockSmd3
+        @type block: BlockV3
         """
-        assert isinstance(block, BlockSmd3)
+        assert isinstance(block, BlockV3)
         position_segment = self.get_segment_position_of_position(block_position)
         if position_segment not in self.position_to_segment:
             self.position_to_segment[position_segment] = SmdSegment(

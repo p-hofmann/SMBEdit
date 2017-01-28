@@ -11,7 +11,7 @@ from lib.utils.vector import Vector
 from lib.utils.blueprintentity import BlueprintEntity
 from lib.smblueprint.smd3.smdregion import SmdRegion
 from lib.smblueprint.smd2.smd import Smd as Smd2
-from lib.smblueprint.smdblock.block import BlockSmd3
+from lib.smblueprint.smdblock.block import BlockV3
 
 
 class Smd(DefaultLogging):
@@ -129,7 +129,7 @@ class Smd(DefaultLogging):
         @param position: (int, int, int)
 
         @return:
-        @rtype: BlockSmd3
+        @rtype: Block
         """
 
         return self._block_list[position]
@@ -364,7 +364,7 @@ class Smd(DefaultLogging):
         assert entity_type in BlueprintEntity.entity_types
 
         if entity_type == 0:  # Ship
-            core_block = BlockSmd3().get_modification(block_id=1, active=False)
+            core_block = BlockV3().get_modification(block_id=1, active=False)
             self._block_list(self._position_core, core_block)
         else:  # not a ship
             if self._block_list.has_core(self._position_core):
@@ -397,7 +397,8 @@ class Smd(DefaultLogging):
         """
         output_stream.write("####\nSMD\n####\n\n")
         output_stream.write("Total blocks: {}\n\n".format(self.get_number_of_blocks()))
-        for position in sorted(list(self.position_to_region.keys()), key=lambda tup: (tup[2], tup[1], tup[0])):
-            output_stream.write("SmdRegion: {}\n".format(list(position)))
-            self.position_to_region[position].to_stream(output_stream)
+        if self._debug:
+            for position_block, block in sorted(self._block_list.items()):
+                output_stream.write("{}\t{}\t".format(position_block, block.get_int_24bit()))
+                block.to_stream(output_stream)
             output_stream.write("\n")
