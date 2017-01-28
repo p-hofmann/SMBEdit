@@ -10,15 +10,15 @@ class AutoShape(object):
     """
     Collection of auto shape stuff
 
-    @type _block_pool: BlockList
+    @type _block_list: BlockList
     """
 
-    def __init__(self, block_pool):
+    def __init__(self, block_list):
         """
 
-        @type block_pool: BlockList
+        @type block_list: BlockList
         """
-        self._block_pool = block_pool
+        self._block_list = block_list
 
     def get_position_periphery_index_9x9(self, position):
         """
@@ -35,7 +35,7 @@ class AutoShape(object):
                     position_tmp = (x, y, z)
                     if position_tmp == position:
                         continue
-                    if self._block_pool.has_block_at(position_tmp):
+                    if self._block_list.has_block_at(position_tmp):
                         periphery_index |= power
                     power <<= 1
         # print power
@@ -60,7 +60,7 @@ class AutoShape(object):
                     position_tmp = (position[0] + x, position[1] + y, position[2] + z)
                     if position_tmp == position:
                         continue
-                    if self._block_pool.has_block_at(position_tmp):
+                    if self._block_list.has_block_at(position_tmp):
                         periphery_index |= power
                     power <<= 1
         return periphery_index
@@ -96,8 +96,8 @@ class AutoShape(object):
                     position_tmp = (position[0] + x, position[1] + y, position[2] + z)
                     if position_tmp == position:
                         continue
-                    if self._block_pool.has_block_at(position_tmp):
-                        block_tmp = self._block_pool[position_tmp]
+                    if self._block_list.has_block_at(position_tmp):
+                        block_tmp = self._block_list[position_tmp]
                         block_id = block_tmp.get_id()
                         is_angled_shape = False
                         if block_config[block_id].shape in angle_shapes:
@@ -113,7 +113,7 @@ class AutoShape(object):
         @type auto_wedge: bool
         @type auto_tetra: bool
         """
-        for position, block in self._block_pool.items():
+        for position, block in self._block_list.items():
             block_id = block.get_id()
             if not block_config[block_id].is_hull():
                 continue
@@ -135,7 +135,7 @@ class AutoShape(object):
             new_block_id = block_config.get_block_id_by_details(block_hull_tier, color_id, new_shape_id)
             new_block = BlockSmd3(block.get_int_24bit()).get_modification(
                 block_id=new_block_id, bit_19=bit_19, bit_22=bit_22, bit_23=bit_23, rotations=rotations)
-            self._block_pool(position, new_block)
+            self._block_list(position, new_block)
 
     def auto_hull_shape_dependent(self, block_shape_id):
         """
@@ -144,7 +144,7 @@ class AutoShape(object):
 
         @type block_shape_id: int
         """
-        for position, block in self._block_pool.items():
+        for position, block in self._block_list.items():
             block_id = block.get_id()
             if not block_config[block_id].is_hull():
                 continue
@@ -160,7 +160,7 @@ class AutoShape(object):
             new_block_id = block_config.get_block_id_by_details(block_hull_type, color, block_shape_id)
             new_block = BlockSmd3(block.get_int_24bit()).get_modification(
                 block_id=new_block_id, bit_19=bit_19, bit_22=bit_22, bit_23=bit_23, rotations=rotations)
-            self._block_pool(position, new_block)
+            self._block_list(position, new_block)
 
     def auto_hull_shape(self, auto_wedge, auto_tetra, auto_corner, auto_hepta=None):
         """
@@ -184,7 +184,7 @@ class AutoShape(object):
         Replace hull blocks on edges with wedges.
         """
         peripheries = {}
-        for position, block in self._block_pool.items():
+        for position, block in self._block_list.items():
             if not block_config[block.get_id()].is_hull():
                 continue
             # wedge 599
@@ -219,7 +219,7 @@ class AutoShape(object):
         """
         peripheries = {}
         bad_orientations = 0
-        for position, block in self._block_pool.items():
+        for position, block in self._block_list.items():
             if not block_config[block.get_id()].is_hull():
                 continue
             # wedge 599
