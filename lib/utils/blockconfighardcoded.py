@@ -10,35 +10,6 @@ class BlockConfigHardcoded(object):
 
     _block_ids = dict()
 
-    _block_ids["systems"] = {
-        # Systems
-        1: "Ship Core",
-        2: "Power Reactor Module",
-        331: "Power Capacitor",
-        978: "Power Auxiliary",
-        3: "Shield Capacitor",
-        478: "Shield-Recharger",
-        8: "Thruster Module",
-        544: "Jump Drive Computer",
-        545: "Jump Drive Module",
-        681: "Jump Inhibitor Computer",
-        682: "Jump Inhibitor Module",
-        687: "Transporter Controller",
-        688: "Transporter Module",
-        654: "Scanner Computer",
-        655: "Scanner Antenna",
-        56: "Gravity Unit",
-        120: "Storage",
-        689: "Cargo Space",
-        123: "Build Block",
-        22: "Cloaker",
-        15: "RadarJammer",
-        47: "Camera",
-        121: "BOBBY AI Module",
-        671: "Rail Mass Enhancer",
-        672: "Rail Speed Controller",
-        }
-
     _block_ids["hull"] = {
         # Basic Hull
         598: "Grey Hull", 599: "Grey Hull Wedge", 600: "Grey Hull Corner", 602: "Grey Hull Tetra", 601: "Grey Hull Hepta",
@@ -155,6 +126,36 @@ class BlockConfigHardcoded(object):
         927: "Pink Standard Armor 1/4", 928: "Pink Standard Armor 1/2", 929: "Pink Standard Armor 3/4",
         930: "Pink Advanced Armor 1/4", 931: "Pink Advanced Armor 1/2", 932: "Pink Advanced Armor 3/4",
         933: "Pink Hull 1/4", 934: "Pink Hull 1/2", 935: "Pink Hull 3/4",
+        }
+
+    _block_ids["systems"] = {
+        # Systems
+        1: "Ship Core",
+        2: "Power Reactor Module",
+        331: "Power Capacitor",
+        978: "Power Auxiliary",
+        3: "Shield Capacitor",
+        478: "Shield-Recharger",
+        8: "Thruster Module",
+        544: "Jump Drive Computer",
+        545: "Jump Drive Module",
+        681: "Jump Inhibitor Computer",
+        682: "Jump Inhibitor Module",
+        687: "Transporter Controller",
+        688: "Transporter Module",
+        654: "Scanner Computer",
+        655: "Scanner Antenna",
+        56: "Gravity Unit",
+        120: "Storage",
+        689: "Cargo Space",
+        123: "Build Block",
+        22: "Cloaker",
+        15: "RadarJammer",
+        47: "Camera",
+        121: "BOBBY AI Module",
+        671: "Rail Mass Enhancer",
+        672: "Rail Speed Controller",
+        291: "Faction Module",
         }
 
     _block_ids["doors"] = {
@@ -287,9 +288,8 @@ class BlockConfigHardcoded(object):
         495: "Macet Ore Raw", 202: "Macet Capsule",
         }
 
-    _block_ids["factions"] = {
-        # Factions
-        291: "Faction Module",
+    _block_ids["permissions"] = {
+        # permissions
         346: "Public Permission Module",
         936: "Faction Permission Module",
         }
@@ -753,7 +753,7 @@ class BlockConfigHardcoded(object):
     def _is_block_style_0(block_id):
         """
         # 0: slabs
-        #    activatable: doors/weapons/station/logic/medical/factions/systems/effects/tools/lighting*:
+        #    activatable: doors/weapons/station/logic/medical/permissions/systems/effects/tools/lighting*:
         #        lights blocks and slabs but not light rods or 'White Light Bar'
         #    nature blocks, except plants
         #    standard armor/hull
@@ -764,12 +764,19 @@ class BlockConfigHardcoded(object):
         @return:
         @rtype: bool
         """
-        style_0_categories = ["hull", "circuits", "motherboards", "ingots", "crystals", "decorative", "minerals"]
+        # if block_id in BlockConfigHardcoded._block_ids["effects"]:
+        #     return True
+        # if block_id in BlockConfigHardcoded._block_ids["systems"]:
+        #     return True
+        # if block_id in BlockConfigHardcoded._block_ids["tools"]:
+        #     return True
+        # if block_id in BlockConfigHardcoded._block_ids["medical"]:
+        #     return True
+
+        style_0_categories = ["hull", "circuits", "motherboards", "ingots", "crystals", "decorative",
+                              "minerals", "weapons", "effects", "systems", "tools", "medical", "logic",
+                              "doors", "lighting", "permissions", "weapons", "station", "docking"]
         if BlockConfigHardcoded._is_slab(block_id):
-            return True
-        if BlockConfigHardcoded.is_activatable_block(block_id):
-            return True
-        if block_id in BlockConfigHardcoded._block_ids["docking"]:  # no wedges
             return True
         if block_id in BlockConfigHardcoded._block_ids["nature"] and block_id not in BlockConfigHardcoded._block_ids["plants"]:
             return True
@@ -796,7 +803,7 @@ class BlockConfigHardcoded(object):
         """
         Return style of block
 
-        # 0: slabs/doors/weapons/station/logic/lighting/medical/factions/systems/effects/tools:
+        # 0: slabs/doors/weapons/station/logic/lighting/medical/permissions/systems/effects/tools:
         # 1: Wedge
         # 2: Corner
         # 3: Rod/Paint/Capsules/Hardener/Plants/Shards
@@ -935,29 +942,22 @@ class BlockConfigHardcoded(object):
         """
         assert isinstance(block_id, int)
         if block_id in BlockConfigHardcoded._block_ids["logic"]:
+            block_name = BlockConfigHardcoded.get_block_name_by_id(block_id).lower()
+            if "sensor" in block_name:
+                return False
+            if "trigger" in block_name:
+                return False
+            if "gate module" in block_name:
+                return False
             return True
         if block_id in BlockConfigHardcoded._block_ids["doors"]:
             return True
         if block_id in BlockConfigHardcoded._block_ids["lighting"]:
-            block_name = BlockConfigHardcoded.get_block_name_by_id(block_id).lower()
-            if "Rod".lower() in block_name:
-                return False
-            if block_id == 977:  # White Light Bar
-                return False
-            return True
-        if block_id in BlockConfigHardcoded._block_ids["medical"]:
-            return True
-        if block_id in BlockConfigHardcoded._block_ids["factions"]:
-            return True
-        if block_id in BlockConfigHardcoded._block_ids["systems"]:
-            return True
-        if block_id in BlockConfigHardcoded._block_ids["effects"]:
-            return True
-        if block_id in BlockConfigHardcoded._block_ids["tools"]:
-            return True
-        if block_id in BlockConfigHardcoded._block_ids["weapons"]:
             return True
         if block_id in BlockConfigHardcoded._block_ids["station"]:
+            block_name = BlockConfigHardcoded.get_block_name_by_id(block_id).lower()
+            if " gate " in block_name:
+                return False
             if block_id == 678:  # Shipyard Module
                 return False
             if block_id == 679:  # Shipyard Core Anchor
