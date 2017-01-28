@@ -190,7 +190,7 @@ class RailDockedEntityLink(object):
         self._unknown_byte_2 = 0
         return
 
-    def move_position(self, vector_direction):
+    def move_position(self, vector_direction, main_only=False):
         """
         Move positions of rail docked entities
 
@@ -198,6 +198,8 @@ class RailDockedEntityLink(object):
         """
         self._docked_entity_location = Vector.addition(self._docked_entity_location, vector_direction)
         self._entity_main.move_position(vector_direction)
+        if not main_only:
+            self._entity_docked.move_position(vector_direction)
 
     def set(self, docked_entity_location, entity_main, entity_docked):
         """
@@ -293,14 +295,14 @@ class RailDockedEntityLinks(object):
         self._list_links = []
         return
 
-    def move_position(self, vector_direction):
+    def move_position(self, vector_direction, main_only=False):
         """
         Move positions of rail docked entities
 
         @type vector_direction: tuple[int]
         """
         for docker_link in self._list_links:
-            docker_link.move_position(vector_direction)
+            docker_link.move_position(vector_direction, main_only=main_only)
 
     def set(self, links):
         """

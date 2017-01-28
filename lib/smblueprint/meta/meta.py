@@ -192,10 +192,10 @@ class Meta(DefaultLogging):
         offset = (8, 8, 8)
         self.move_positions(offset)
 
-    def move_positions(self, vector_direction):
+    def move_positions(self, vector_direction, main_only=False):
         self._data_type_2.move_position(vector_direction)
         self._data_type_3.move_position(vector_direction)
-        self._data_type_4.move_position(vector_direction)
+        self._data_type_4.move_position(vector_direction, main_only)
         self._data_type_5.move_position(vector_direction)
         self._data_type_6.move_position(vector_direction)
 
@@ -283,7 +283,7 @@ class Meta(DefaultLogging):
         @type direction_vector: tuple[int]
         """
         direction_vector = Vector.subtraction((0, 0, 0), direction_vector)
-        self.move_positions(direction_vector)
+        self.move_positions(direction_vector, main_only=True)
 
     def to_stream(self, output_stream=sys.stdout):
         """
