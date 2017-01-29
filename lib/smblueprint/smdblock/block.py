@@ -104,6 +104,16 @@ class Block(object):
         self._bit_is_active_start = 0
         self._bit_is_active_length = 0
 
+        self._bit_rotation_start = 0
+        self._bit_rotation_length = 0
+
+        self._bit_block_side_start = 0
+        self._bit_block_side_length = 0
+
+        self._bit_19_start = 0
+        self._bit_22_start = 0
+        self._bit_23_start = 0
+
     def __repr__(self):
         return "{}".format(block_config[self.get_id()].name)
 
@@ -159,19 +169,47 @@ class Block(object):
         if style is None:
             style = self.get_style()
         if style == 0:
-            return Style0(self._int_24bit)
+            return Style0(
+                self._int_24bit,
+                bit_block_side_start=self._bit_block_side_start, bit_block_side_length=self._bit_block_side_length,
+                bit_rotation_start=self._bit_rotation_start, bit_rotation_length=self._bit_rotation_length,
+                bit_19_start=self._bit_19_start, bit_22_start=self._bit_22_start, bit_23_start=self._bit_23_start)
         if style == 1:
-            return Style1Wedge(self._int_24bit)
+            return Style1Wedge(
+                self._int_24bit,
+                bit_block_side_start=self._bit_block_side_start, bit_block_side_length=self._bit_block_side_length,
+                bit_rotation_start=self._bit_rotation_start, bit_rotation_length=self._bit_rotation_length,
+                bit_19_start=self._bit_19_start, bit_22_start=self._bit_22_start, bit_23_start=self._bit_23_start)
         if style == 2:
-            return Style2Corner(self._int_24bit)
+            return Style2Corner(
+                self._int_24bit,
+                bit_block_side_start=self._bit_block_side_start, bit_block_side_length=self._bit_block_side_length,
+                bit_rotation_start=self._bit_rotation_start, bit_rotation_length=self._bit_rotation_length,
+                bit_19_start=self._bit_19_start, bit_22_start=self._bit_22_start, bit_23_start=self._bit_23_start)
         if style == 3:
-            return Style3(self._int_24bit)
+            return Style3(
+                self._int_24bit,
+                bit_block_side_start=self._bit_block_side_start, bit_block_side_length=self._bit_block_side_length,
+                bit_rotation_start=self._bit_rotation_start, bit_rotation_length=self._bit_rotation_length,
+                bit_19_start=self._bit_19_start, bit_22_start=self._bit_22_start, bit_23_start=self._bit_23_start)
         if style == 4:
-            return Style4Tetra(self._int_24bit)
+            return Style4Tetra(
+                self._int_24bit,
+                bit_block_side_start=self._bit_block_side_start, bit_block_side_length=self._bit_block_side_length,
+                bit_rotation_start=self._bit_rotation_start, bit_rotation_length=self._bit_rotation_length,
+                bit_19_start=self._bit_19_start, bit_22_start=self._bit_22_start, bit_23_start=self._bit_23_start)
         if style == 5:
-            return Style5Hepta(self._int_24bit)
+            return Style5Hepta(
+                self._int_24bit,
+                bit_block_side_start=self._bit_block_side_start, bit_block_side_length=self._bit_block_side_length,
+                bit_rotation_start=self._bit_rotation_start, bit_rotation_length=self._bit_rotation_length,
+                bit_19_start=self._bit_19_start, bit_22_start=self._bit_22_start, bit_23_start=self._bit_23_start)
         if style == 6:
-            return Style6(self._int_24bit)
+            return Style6(
+                self._int_24bit,
+                bit_block_side_start=self._bit_block_side_start, bit_block_side_length=self._bit_block_side_length,
+                bit_rotation_start=self._bit_rotation_start, bit_rotation_length=self._bit_rotation_length,
+                bit_19_start=self._bit_19_start, bit_22_start=self._bit_22_start, bit_23_start=self._bit_23_start)
 
     def get_int_24bit(self):
         """
@@ -303,6 +341,16 @@ class BlockV1(Block):
     _bit_is_active_start = 20
     _bit_is_active_length = 1
 
+    _bit_block_side_start = 20
+    _bit_block_side_length = 3
+
+    _bit_rotation_start = 20
+    _bit_rotation_length = 2
+
+    _bit_22_start = 22
+    _bit_23_start = 23
+    _bit_19_start = 29
+
     def __init__(self, int_24bit=0):
         super(BlockV1, self).__init__(int_24bit)
 
@@ -317,6 +365,15 @@ class BlockV1(Block):
         self._bit_is_active_start = 20
         self._bit_is_active_length = 1
 
+        self._bit_rotation_start = 20
+        self._bit_rotation_length = 2
+
+        self._bit_block_side_start = 20
+        self._bit_block_side_length = 3
+
+        self._bit_19_start = 19
+        self._bit_22_start = 22
+        self._bit_23_start = 23
 
 class BlockV2(Block):
 
@@ -328,6 +385,16 @@ class BlockV2(Block):
 
     _bit_is_active_start = 19
     _bit_is_active_length = 1
+
+    _bit_block_side_start = 20
+    _bit_block_side_length = 3
+
+    _bit_rotation_start = 20
+    _bit_rotation_length = 2
+
+    _bit_22_start = 22
+    _bit_23_start = 23
+    _bit_19_start = 29
 
     def __init__(self, int_24bit=0):
         super(BlockV2, self).__init__(int_24bit)
@@ -343,6 +410,15 @@ class BlockV2(Block):
         self._bit_is_active_start = 19
         self._bit_is_active_length = 1
 
+        self._bit_rotation_start = 20
+        self._bit_rotation_length = 2
+
+        self._bit_block_side_start = 20
+        self._bit_block_side_length = 3
+
+        self._bit_19_start = 19
+        self._bit_22_start = 22
+        self._bit_23_start = 23
 
 class BlockV3(Block):
 
@@ -354,6 +430,16 @@ class BlockV3(Block):
 
     _bit_is_active_start = 18
     _bit_is_active_length = 1
+
+    _bit_block_side_start = 19
+    _bit_block_side_length = 3
+
+    _bit_rotation_start = 19
+    _bit_rotation_length = 2
+
+    _bit_22_start = 21
+    _bit_23_start = 22
+    _bit_19_start = 23
 
     def __init__(self, int_24bit=0):
         super(BlockV3, self).__init__(int_24bit)
@@ -368,3 +454,13 @@ class BlockV3(Block):
 
         self._bit_is_active_start = 18
         self._bit_is_active_length = 1
+
+        self._bit_block_side_start = 19
+        self._bit_block_side_length = 3
+
+        self._bit_rotation_start = 19
+        self._bit_rotation_length = 2
+
+        self._bit_22_start = 21
+        self._bit_23_start = 22
+        self._bit_19_start = 23

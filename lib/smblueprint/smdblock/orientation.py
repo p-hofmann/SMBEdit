@@ -33,13 +33,10 @@ class Orientation(object):
                 21      20              An amount rotation around the axis of rotation, in 90-degree steps
     """
 
-    _bit_rotation_start = 20
-    _bit_rotation_length = 2
-
-    _bit_block_side_start = 20
-    _bit_block_side_length = 3
-
-    def __init__(self, int_24bit):
+    def __init__(self, int_24bit,
+                 bit_rotation_start=20, bit_rotation_length=2,
+                 bit_block_side_start=20, bit_block_side_length=3,
+                 bit_19_start=19, bit_22_start=22, bit_23_start=23):
         """
         Constructor
 
@@ -58,6 +55,16 @@ class Orientation(object):
         # super(BlockOrientation, self).__init__(logfile=logfile, verbose=verbose, debug=debug)
         self._int_24bit = int_24bit
 
+        self._bit_rotation_start = bit_rotation_start
+        self._bit_rotation_length = bit_rotation_length
+
+        self._bit_block_side_start = bit_block_side_start
+        self._bit_block_side_length = bit_block_side_length
+
+        self._bit_19_start = bit_19_start
+        self._bit_22_start = bit_22_start
+        self._bit_23_start = bit_23_start
+
     # #######################################
     # get
     # #######################################
@@ -69,19 +76,19 @@ class Orientation(object):
         return self._get_bit_19(), self._get_bit_23(), self._get_bit_22(), self._get_rotations()
 
     def _get_bit_19(self):
-        return BitAndBytes.bits_parse(self._int_24bit, 19, 1)
+        return BitAndBytes.bits_parse(self._int_24bit, self._bit_19_start, 1)
 
     def _get_bit_22(self):
-        return BitAndBytes.bits_parse(self._int_24bit, 22, 1)
+        return BitAndBytes.bits_parse(self._int_24bit, self._bit_22_start, 1)
 
     def _get_bit_23(self):
-        return BitAndBytes.bits_parse(self._int_24bit, 23, 1)
+        return BitAndBytes.bits_parse(self._int_24bit, self._bit_23_start, 1)
 
     def _get_rotations(self):
-        return BitAndBytes.bits_parse(self._int_24bit, Orientation._bit_rotation_start, Orientation._bit_rotation_length)
+        return BitAndBytes.bits_parse(self._int_24bit, self._bit_rotation_start, self._bit_rotation_length)
 
     def get_block_side_id(self):
-        return BitAndBytes.bits_parse(self._int_24bit, Orientation._bit_block_side_start, Orientation._bit_block_side_length)
+        return BitAndBytes.bits_parse(self._int_24bit, self._bit_block_side_start, self._bit_block_side_length)
 
     # #######################################
     # ###  Turning - Experimental
