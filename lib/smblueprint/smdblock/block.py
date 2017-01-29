@@ -268,7 +268,7 @@ class Block(object):
         int_24bit = 0
         int_24bit = BitAndBytes.bits_combine(block_id, int_24bit, 0)
         int_24bit = BitAndBytes.bits_combine(hit_points, int_24bit, self._bit_hit_points_start)
-        if block_config[self.get_id()].can_activate:  # For blocks with an activation status
+        if block_config[block_id].can_activate:  # For blocks with an activation status
             int_24bit = BitAndBytes.bits_combine(active, int_24bit, self._bit_is_active_start)
         orientation = self.get_orientation(style)
         int_24bit = orientation.bit_combine(
