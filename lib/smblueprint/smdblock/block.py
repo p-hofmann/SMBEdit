@@ -17,33 +17,35 @@ from lib.smblueprint.smdblock.style6 import Style6
 
 class BlockPool(object):
     """
-    @type _state_to_instance: WeakValueDictionary[int, BlockSmd3]
+    @type _state_to_instance: WeakValueDictionary[int, Block]
     """
 
     _state_to_instance = WeakValueDictionary()
 
-    def __call__(self, state, smd2=False):
+    def __call__(self, state, segment_version=3):
         """
         @param state:
         @type state: int
-        @param smd2: if the state is from a smd2 file.
-        @type smd2: bool
+        @param segment_version: version of smd segment
+        @type segment_version: int
 
-        @rtype: BlockSmd3
+        @rtype: Block
         """
-        if smd2:
-            return BlockSmd2(state).to_smd3()
+        if segment_version < 2:
+            return BlockV1(state).to_v3()
+        if segment_version == 2:
+            return BlockV2(state).to_v3()
         # check if this block state already exist
         instance_pool = self._state_to_instance.get(state)
         if not instance_pool:
-            instance_pool = BlockSmd3(state)
+            instance_pool = BlockV3(state)
             self._state_to_instance[state] = instance_pool
         return instance_pool
 
     # Methods, called on instance objects:
     def __iter__(self):
         """
-        @rtype: Iterable[BlockSmd3]
+        @rtype: Iterable[Block]
         """
         return iter(self._state_to_instance.values())
 
@@ -54,7 +56,7 @@ class BlockPool(object):
         @param state:
         @type state: int
 
-        @rtype: BlockSmd3
+        @rtype: Block
         """
         assert state in self._state_to_instance, "No block for state: {}".format(state)
         return self._state_to_instance[state]
@@ -71,14 +73,14 @@ class BlockPool(object):
     @staticmethod
     def items():
         """
-        @rtype: Iterable[(int, BlockSmd3)]
+        @rtype: Iterable[(int, Block)]
         """
         return BlockPool._state_to_instance.items()
 
     @staticmethod
     def popitem():
         """
-        @rtype: Iterable[(int, int, int), BlockSmd3]
+        @rtype: Iterable[(int, int, int), Block]
         """
         state_pool = BlockPool._state_to_instance
         BlockPool._state_to_instance = dict()
@@ -90,18 +92,27 @@ block_pool = BlockPool()
 
 class Block(object):
 
-    _bit_block_id_start = 0
-    _bit_block_id_length = 11
-
-    _bit_hit_points_start = 11
-    _bit_hit_points_length = 8
-
-    _bit_is_active_start = 19
-    _bit_is_active_length = 1
-
     def __init__(self, int_24bit=0):
         self._int_24bit = int_24bit
-        self._label = "SmdBlock"
+
+        self._bit_block_id_start = 0
+        self._bit_block_id_length = 0
+
+        self._bit_hit_points_start = 0
+        self._bit_hit_points_length = 0
+
+        self._bit_is_active_start = 0
+        self._bit_is_active_length = 0
+
+        self._bit_rotation_start = 0
+        self._bit_rotation_length = 0
+
+        self._bit_block_side_start = 0
+        self._bit_block_side_length = 0
+
+        self._bit_19_start = 0
+        self._bit_22_start = 0
+        self._bit_23_start = 0
 
     def __repr__(self):
         return "{}".format(block_config[self.get_id()].name)
@@ -142,8 +153,7 @@ class Block(object):
 
         @rtype: bool
         """
-        style = self.get_style
-        if style != 0 or style is None:
+        if not block_config[self.get_id()].can_activate:
             return False
         return self._get_active_value() == 0
 
@@ -159,19 +169,47 @@ class Block(object):
         if style is None:
             style = self.get_style()
         if style == 0:
-            return Style0(self._int_24bit)
+            return Style0(
+                self._int_24bit,
+                bit_block_side_start=self._bit_block_side_start, bit_block_side_length=self._bit_block_side_length,
+                bit_rotation_start=self._bit_rotation_start, bit_rotation_length=self._bit_rotation_length,
+                bit_19_start=self._bit_19_start, bit_22_start=self._bit_22_start, bit_23_start=self._bit_23_start)
         if style == 1:
-            return Style1Wedge(self._int_24bit)
+            return Style1Wedge(
+                self._int_24bit,
+                bit_block_side_start=self._bit_block_side_start, bit_block_side_length=self._bit_block_side_length,
+                bit_rotation_start=self._bit_rotation_start, bit_rotation_length=self._bit_rotation_length,
+                bit_19_start=self._bit_19_start, bit_22_start=self._bit_22_start, bit_23_start=self._bit_23_start)
         if style == 2:
-            return Style2Corner(self._int_24bit)
+            return Style2Corner(
+                self._int_24bit,
+                bit_block_side_start=self._bit_block_side_start, bit_block_side_length=self._bit_block_side_length,
+                bit_rotation_start=self._bit_rotation_start, bit_rotation_length=self._bit_rotation_length,
+                bit_19_start=self._bit_19_start, bit_22_start=self._bit_22_start, bit_23_start=self._bit_23_start)
         if style == 3:
-            return Style3(self._int_24bit)
+            return Style3(
+                self._int_24bit,
+                bit_block_side_start=self._bit_block_side_start, bit_block_side_length=self._bit_block_side_length,
+                bit_rotation_start=self._bit_rotation_start, bit_rotation_length=self._bit_rotation_length,
+                bit_19_start=self._bit_19_start, bit_22_start=self._bit_22_start, bit_23_start=self._bit_23_start)
         if style == 4:
-            return Style4Tetra(self._int_24bit)
+            return Style4Tetra(
+                self._int_24bit,
+                bit_block_side_start=self._bit_block_side_start, bit_block_side_length=self._bit_block_side_length,
+                bit_rotation_start=self._bit_rotation_start, bit_rotation_length=self._bit_rotation_length,
+                bit_19_start=self._bit_19_start, bit_22_start=self._bit_22_start, bit_23_start=self._bit_23_start)
         if style == 5:
-            return Style5Hepta(self._int_24bit)
+            return Style5Hepta(
+                self._int_24bit,
+                bit_block_side_start=self._bit_block_side_start, bit_block_side_length=self._bit_block_side_length,
+                bit_rotation_start=self._bit_rotation_start, bit_rotation_length=self._bit_rotation_length,
+                bit_19_start=self._bit_19_start, bit_22_start=self._bit_22_start, bit_23_start=self._bit_23_start)
         if style == 6:
-            return Style6(self._int_24bit)
+            return Style6(
+                self._int_24bit,
+                bit_block_side_start=self._bit_block_side_start, bit_block_side_length=self._bit_block_side_length,
+                bit_rotation_start=self._bit_rotation_start, bit_rotation_length=self._bit_rotation_length,
+                bit_19_start=self._bit_19_start, bit_22_start=self._bit_22_start, bit_23_start=self._bit_23_start)
 
     def get_int_24bit(self):
         """
@@ -187,7 +225,7 @@ class Block(object):
 
         @type block_id: int
 
-        @rtype: BlockSmd3
+        @rtype: Block
         """
         assert self.get_style() == 0
         assert block_config[block_id].block_style == 6
@@ -206,7 +244,7 @@ class Block(object):
         @type hit_points: int | None
         @type active: bool | None
 
-        @rtype: BlockSmd3
+        @rtype: Block
         """
         if block_id is None:
             block_id = self.get_id()
@@ -229,9 +267,9 @@ class Block(object):
         style = block_config[block_id].block_style
         int_24bit = 0
         int_24bit = BitAndBytes.bits_combine(block_id, int_24bit, 0)
-        int_24bit = BitAndBytes.bits_combine(hit_points, int_24bit, 11)
-        if style == 0:  # For blocks with an activation status
-            int_24bit = BitAndBytes.bits_combine(active, int_24bit, 19)
+        int_24bit = BitAndBytes.bits_combine(hit_points, int_24bit, self._bit_hit_points_start)
+        if block_config[block_id].can_activate:  # For blocks with an activation status
+            int_24bit = BitAndBytes.bits_combine(active, int_24bit, self._bit_is_active_start)
         orientation = self.get_orientation(style)
         int_24bit = orientation.bit_combine(
             int_24bit, style=style, bit_19=bit_19, bit_22=bit_22, bit_23=bit_23,
@@ -243,7 +281,7 @@ class Block(object):
         Mirror orientation
         @type axis_index: int
 
-        @rtype: BlockSmd3
+        @rtype: Block
         """
         orientation = self.get_orientation()
         if axis_index == 0:
@@ -273,8 +311,26 @@ class Block(object):
         output_stream.write("Or.: {}\t".format(orientation.to_string()))
         output_stream.write("{}\n".format(block_config[self.get_id()].name))
 
+    def to_v2(self):
+        block_id = self.get_id()
+        active = self._get_active_value()
+        bit_19, bit_23, bit_22, rotations = self.get_orientation().get_orientation_values()
+        block_side_id = self.get_orientation().get_block_side_id()
+        return BlockV2(self._int_24bit).get_modification(
+            block_id=block_id, active=active,
+            block_side_id=block_side_id, bit_19=bit_19, bit_22=bit_22, bit_23=bit_23, rotations=rotations)
 
-class BlockSmd2(Block):
+    def to_v3(self):
+        block_id = self.get_id()
+        active = self._get_active_value()
+        bit_19, bit_23, bit_22, rotations = self.get_orientation().get_orientation_values()
+        block_side_id = self.get_orientation().get_block_side_id()
+        return BlockV3(self._int_24bit).get_modification(
+            block_id=block_id, active=active,
+            block_side_id=block_side_id, bit_19=bit_19, bit_22=bit_22, bit_23=bit_23, rotations=rotations)
+
+
+class BlockV1(Block):
 
     _bit_block_id_start = 0
     _bit_block_id_length = 11
@@ -285,17 +341,41 @@ class BlockSmd2(Block):
     _bit_is_active_start = 20
     _bit_is_active_length = 1
 
-    def to_smd3(self):
-        block_id = self.get_id()
-        active = self._get_active_value()
-        bit_19, bit_23, bit_22, rotations = self.get_orientation().get_orientation_values()
-        block_side_id = self.get_orientation().get_block_side_id()
-        return BlockSmd3(self._int_24bit).get_modification(
-            block_id=block_id, active=active,
-            block_side_id=block_side_id, bit_19=bit_19, bit_22=bit_22, bit_23=bit_23, rotations=rotations)
+    _bit_block_side_start = 20
+    _bit_block_side_length = 3
 
+    _bit_rotation_start = 20
+    _bit_rotation_length = 2
 
-class BlockSmd3(Block):
+    _bit_22_start = 22
+    _bit_23_start = 23
+    _bit_19_start = 29
+
+    def __init__(self, int_24bit=0):
+        super(BlockV1, self).__init__(int_24bit)
+
+        self._int_24bit = int_24bit
+
+        self._bit_block_id_start = 0
+        self._bit_block_id_length = 11
+
+        self._bit_hit_points_start = 11
+        self._bit_hit_points_length = 9
+
+        self._bit_is_active_start = 20
+        self._bit_is_active_length = 1
+
+        self._bit_rotation_start = 20
+        self._bit_rotation_length = 2
+
+        self._bit_block_side_start = 20
+        self._bit_block_side_length = 3
+
+        self._bit_19_start = 19
+        self._bit_22_start = 22
+        self._bit_23_start = 23
+
+class BlockV2(Block):
 
     _bit_block_id_start = 0
     _bit_block_id_length = 11
@@ -305,3 +385,82 @@ class BlockSmd3(Block):
 
     _bit_is_active_start = 19
     _bit_is_active_length = 1
+
+    _bit_block_side_start = 20
+    _bit_block_side_length = 3
+
+    _bit_rotation_start = 20
+    _bit_rotation_length = 2
+
+    _bit_22_start = 22
+    _bit_23_start = 23
+    _bit_19_start = 29
+
+    def __init__(self, int_24bit=0):
+        super(BlockV2, self).__init__(int_24bit)
+
+        self._int_24bit = int_24bit
+
+        self._bit_block_id_start = 0
+        self._bit_block_id_length = 11
+
+        self._bit_hit_points_start = 11
+        self._bit_hit_points_length = 8
+
+        self._bit_is_active_start = 19
+        self._bit_is_active_length = 1
+
+        self._bit_rotation_start = 20
+        self._bit_rotation_length = 2
+
+        self._bit_block_side_start = 20
+        self._bit_block_side_length = 3
+
+        self._bit_19_start = 19
+        self._bit_22_start = 22
+        self._bit_23_start = 23
+
+class BlockV3(Block):
+
+    _bit_block_id_start = 0
+    _bit_block_id_length = 11
+
+    _bit_hit_points_start = 11
+    _bit_hit_points_length = 7
+
+    _bit_is_active_start = 18
+    _bit_is_active_length = 1
+
+    _bit_block_side_start = 19
+    _bit_block_side_length = 3
+
+    _bit_rotation_start = 19
+    _bit_rotation_length = 2
+
+    _bit_22_start = 21
+    _bit_23_start = 22
+    _bit_19_start = 23
+
+    def __init__(self, int_24bit=0):
+        super(BlockV3, self).__init__(int_24bit)
+
+        self._int_24bit = int_24bit
+
+        self._bit_block_id_start = 0
+        self._bit_block_id_length = 11
+
+        self._bit_hit_points_start = 11
+        self._bit_hit_points_length = 7
+
+        self._bit_is_active_start = 18
+        self._bit_is_active_length = 1
+
+        self._bit_block_side_start = 19
+        self._bit_block_side_length = 3
+
+        self._bit_rotation_start = 19
+        self._bit_rotation_length = 2
+
+        self._bit_22_start = 21
+        self._bit_23_start = 22
+        self._bit_19_start = 23

@@ -1,5 +1,5 @@
 __author__ = 'Peter Hofmann'
-__version__ = '0.1.3'
+__version__ = '0.1.5'
 
 import os
 import sys
@@ -17,7 +17,7 @@ class SMBEdit(ArgumentHandler):
     # ###  StarMade Blueprint Editor
     # #######################################
 
-    Works with blueprints made by StarMade v0.199.257
+    Works with blueprints made by StarMade v0.199.431
     """
 
     def __init__(self, options, logfile=None, verbose=False, debug=False):
