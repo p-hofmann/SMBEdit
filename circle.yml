@@ -22,6 +22,6 @@ machine:
 
 ## Customize test commands
 test:
-  pre:
+  override:
     - python2.7 ./test.py
     - python3.4 ./test.py
