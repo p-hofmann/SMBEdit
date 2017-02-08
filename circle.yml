@@ -1,11 +1,11 @@
 ## Customize the test machine
 machine:
 
-  python:
-    version: 2.7.9
+#  python:
+#    version: 2.7.9
 
   post:
-    - pyenv global 2.7.9 3.4.2  # Version of ruby to use
+    - pyenv global 2.7.10 3.4.2  # Version of ruby to use
 
 ## Customize checkout
 # checkout:
@@ -23,4 +23,5 @@ machine:
 ## Customize test commands
 test:
   pre:
-    - ./test.py
+    - python2.7 ./test.py
+    - python3.4 ./test.py
