@@ -6,11 +6,12 @@ import math
 
 from lib.loggingwrapper import DefaultLogging
 from lib.utils.blockconfig import block_config
-from lib.utils.autoshape import AutoShape
+from lib.utils.blocklist import BlockList
 from lib.utils.vector import Vector
+from lib.utils.blueprintentity import BlueprintEntity
 from lib.smblueprint.smd3.smdregion import SmdRegion
 from lib.smblueprint.smd2.smd import Smd as Smd2
-from lib.smblueprint.smd3.smdblock.block import Block
+from lib.smblueprint.smdblock.block import BlockV3
 
 
 class Smd(DefaultLogging):
@@ -20,10 +21,10 @@ class Smd(DefaultLogging):
     # #######################################
 
     @type position_to_region: dict[tuple[int], SmdRegion]
+    @type _block_list: BlockList
     """
 
-    def __init__(
-        self, segments_in_a_line_of_a_region=16, blocks_in_a_line_of_a_segment=32, logfile=None, verbose=False, debug=False):
+    def __init__(self, segments_in_a_line_of_a_region=16, blocks_in_a_line_of_a_segment=32, logfile=None, verbose=False, debug=False):
         """
         Constructor
 
@@ -37,10 +38,12 @@ class Smd(DefaultLogging):
             logfile=logfile,
             verbose=verbose,
             debug=debug)
+        self._position_core = (16, 16, 16)
         self._blocks_in_a_line_in_a_segment = blocks_in_a_line_of_a_segment
         self._segments_in_a_line_of_a_region = segments_in_a_line_of_a_region
         self._file_name_prefix = ""
         self.position_to_region = {}
+        self._block_list = BlockList()
         return
 
     # #######################################
@@ -65,15 +68,11 @@ class Smd(DefaultLogging):
             assert len(file_list) > 0, "No smd files found"
             file_name = file_list[0]
         if file_name.endswith(".smd3"):
+            smd_region = SmdRegion(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
             for file_name in file_list:
                 file_path = os.path.join(directory_data, file_name)
                 self._file_name_prefix, x, y, z = os.path.splitext(file_name)[0].rsplit('.', 3)
-                position = (int(x), int(y), int(z))
-                self.position_to_region[position] = SmdRegion(
-                    logfile=self._logfile,
-                    verbose=self._verbose,
-                    debug=self._debug)
-                self.position_to_region[position].read(file_path)
+                smd_region.read(file_path, self._block_list)
         elif file_name.endswith(".smd2"):
             self._logger.warning("'smd2' file format found.")
             msg = "'smd2'->'smd3' conversion can results in blocks with low hit points if '-sm' argument is not used."
@@ -81,13 +80,8 @@ class Smd(DefaultLogging):
             smd2 = Smd2(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
             smd2.read(directory_blueprint)
             offset = (8, 8, 8)
-            for position, smd2block in smd2.items():
-                smd3_position = Vector.addition(position, offset)
-                smd3block = Block()
-                hit_points = block_config[smd2block.get_id()].hit_points
-                smd3block.set_int_24bit(smd2block.get_int_24bit())
-                smd3block.update(hit_points=hit_points)
-                self.add(smd3_position, smd3block, replace=False)
+            self._block_list = smd2.get_block_list()
+            self._block_list.move_positions(offset)
         else:
             raise RuntimeError("Unknown smd format: '{}'".format(directory_data))
 
@@ -104,6 +98,9 @@ class Smd(DefaultLogging):
         @param blueprint_name: name of blueprint
         @type blueprint_name: str
         """
+        # move blocks from pool into smd data structure
+        for position_block, block in self._block_list.pop_positions():
+            self.add(position_block, block)
         directory_data = os.path.join(directory_blueprint, "DATA")
         if not os.path.exists(directory_data):
             os.mkdir(directory_data)
@@ -118,19 +115,24 @@ class Smd(DefaultLogging):
     # ###  Get
     # #######################################
 
+    def get_block_list(self):
+        """
+        @rtype BlockPool:
+        """
+        return self._block_list
+
     def get_block_at_position(self, position):
         """
         Get a block at a specific position
 
         @param position:
-        @param position: tuple[int]
+        @param position: (int, int, int)
 
         @return:
         @rtype: Block
         """
-        region_position = self.get_region_position_of_position(position)
-        assert region_position in self.position_to_region, "No block at position: {}".format(position)
-        return self.position_to_region[region_position].get_block_at_position(position)
+
+        return self._block_list[position]
 
     # ###  Index and positions
 
@@ -166,41 +168,27 @@ class Smd(DefaultLogging):
     # ###  moving blocks
     # #######################################
 
-    def move_center(self, direction_vector, entity_type):
+    def move_center(self, direction_vector):
         """
         Move center (core) in a specific direction
 
+        @attention: The core/center never moves, but all other blocks do.
+
         @param direction_vector: (x,y,z)
-        @type direction_vector: int,int,int
-
-        @return: new minimum and maximum coordinates of the blueprint
-        @rtype: tuple[tuple[int]]
+        @type direction_vector: (int,int,int)
+        @rtype: None
         """
-        new_smd = Smd(
-            segments_in_a_line_of_a_region=self._segments_in_a_line_of_a_region,
-            blocks_in_a_line_of_a_segment=self._blocks_in_a_line_in_a_segment,
-            logfile=self._logfile,
-            verbose=self._verbose,
-            debug=self._debug)
-        min_vector = [16, 16, 16]
-        max_vector = [16, 16, 16]
-        for position_block, block in self.items():
-            assert isinstance(block, Block)
-            new_block_position = Vector.subtraction(position_block, direction_vector)
-            if entity_type == 0 and new_block_position == (16, 16, 16):
-                continue
-            if block.get_id() == 1:  # core
-                new_block_position = position_block
-            new_smd.add(new_block_position, block)
+        # test if core exists
+        block_core = None
+        if self._block_list.has_core():
+            block_core = self._block_list.pop(self._position_core)
 
-            for index, value in enumerate(new_block_position):
-                if value < min_vector[index]:
-                    min_vector[index] = value
-                if value > max_vector[index]:
-                    max_vector[index] = value
-        del self.position_to_region
-        self.position_to_region = new_smd.position_to_region
-        return tuple(min_vector), tuple(max_vector)
+        new_direction_vector = Vector.multiplication((-1, -1, -1), direction_vector)
+        self._block_list.move_positions(new_direction_vector)
+
+        # return core if it existed
+        if block_core is not None:
+            self._block_list(self._position_core, block_core)
 
     def mirror(self, axis_index, reverse=False):
         """
@@ -211,49 +199,25 @@ class Smd(DefaultLogging):
                             2: z front to back
         @type axis_index: int
         @type reverse: bool
-
-        @return: new minimum and maximum coordinates of the blueprint
-        @rtype: tuple[tuple[int]]
         """
-        new_smd = Smd(
-            segments_in_a_line_of_a_region=self._segments_in_a_line_of_a_region,
-            blocks_in_a_line_of_a_segment=self._blocks_in_a_line_in_a_segment,
-            logfile=self._logfile,
-            verbose=self._verbose,
-            debug=self._debug)
-        min_vector = [16, 16, 16]
-        max_vector = [16, 16, 16]
         vector_factor = [1] * 3
         vector_factor[axis_index] = -1
-        position_core = (16, 16, 16)
-        for position_block, block in self.items():
-            assert isinstance(block, Block)
-            if position_block[axis_index] == position_core[axis_index]:
-                new_smd.add(position_block, block)
+        for position_block, block in self._block_list.pop_positions():
+            if position_block[axis_index] == self._position_core[axis_index]:
+                self._block_list(position_block, block)
                 continue
             if reverse:
-                mirror = position_block[axis_index] < position_core[axis_index]
+                mirror = position_block[axis_index] < self._position_core[axis_index]
             else:
-                mirror = position_block[axis_index] > position_core[axis_index]
+                mirror = position_block[axis_index] > self._position_core[axis_index]
             if not mirror:
                 continue
-            new_smd.add(position_block, block)
-            position_tmp = Vector.subtraction(position_block, position_core)
+            position_tmp = Vector.subtraction(position_block, self._position_core)
             position_tmp = Vector.multiplication(position_tmp, vector_factor)
-            new_block_position = Vector.addition(position_tmp, position_core)
-            new_block = Block()
-            new_block.set_int_24bit(block.get_int_24bit())
-            new_block.mirror(axis_index)
-            new_smd.add(new_block_position, new_block)
-
-            for index, value in enumerate(new_block_position):
-                if value < min_vector[index]:
-                    min_vector[index] = value
-                if value > max_vector[index]:
-                    max_vector[index] = value
-        del self.position_to_region
-        self.position_to_region = new_smd.position_to_region
-        return tuple(min_vector), tuple(max_vector)
+            new_block_position = Vector.addition(position_tmp, self._position_core)
+            new_block = block.get_mirror(axis_index)
+            self._block_list(position_block, block)
+            self._block_list(new_block_position, new_block)
 
     # #######################################
     # ###  Turning
@@ -265,92 +229,17 @@ class Smd(DefaultLogging):
 
         @param tilt_index: integer representing a specific turn
         @type tilt_index: int
-
-        @return: new minimum and maximum coordinates of the blueprint
-        @rtype: tuple[int,int,int], tuple[int,int,int]
         """
-        new_smd = Smd(
-            segments_in_a_line_of_a_region=self._segments_in_a_line_of_a_region,
-            blocks_in_a_line_of_a_segment=self._blocks_in_a_line_in_a_segment,
-            logfile=self._logfile,
-            verbose=self._verbose,
-            debug=self._debug)
-        min_vector = [16, 16, 16]
-        max_vector = [16, 16, 16]
-        for position_block, block in self.items():
-            assert isinstance(block, Block)
+        for position_block, block in self._block_list.pop_positions():
             new_block_position = position_block
             if block.get_id() != 1:  # core
                 new_block_position = Vector.tilt_turn_position(position_block, tilt_index)
                 # block.tilt_turn(tilt_index)  # todo: needs fixing
-            new_smd.add(new_block_position, block)
-
-            for index, value in enumerate(new_block_position):
-                if value < min_vector[index]:
-                    min_vector[index] = value
-                if value > max_vector[index]:
-                    max_vector[index] = value
-        del self.position_to_region
-        self.position_to_region = new_smd.position_to_region
-        return tuple(min_vector), tuple(max_vector)
+            self._block_list(new_block_position, block)
 
     # #######################################
     # ###  Else
     # #######################################
-
-    def get_number_of_blocks(self):
-        """
-        Get number of blocks of this region
-
-        @return: number of blocks in segment
-        @rtype: int
-        """
-        number_of_blocks = 0
-        for position, region in self.position_to_region.items():
-            assert isinstance(region, SmdRegion)
-            number_of_blocks += region.get_number_of_blocks()
-        return number_of_blocks
-
-    def replace_hull(self, new_hull_type, hull_type=None):
-        """
-        Replace all blocks of a specific hull type or all hull
-
-        @param new_hull_type:
-        @type new_hull_type: int
-        @param hull_type:
-        @type hull_type: int | None
-        """
-        for region_position in self.position_to_region:
-            self.position_to_region[region_position].replace_hull(new_hull_type, hull_type)
-
-    def replace_blocks(self, block_id, replace_id, compatible=False):
-        """
-        Replace all blocks of a specific id
-        """
-        for region_position in self.position_to_region:
-            self.position_to_region[region_position].replace_blocks(block_id, replace_id, compatible)
-
-    def update(self, entity_type=0):
-        """
-        Remove invalid/outdated blocks and exchange docking modules with rails
-
-        @param entity_type: ship=0/station=2/etc
-        @type entity_type: int
-        """
-        for position_region in self.position_to_region:
-            region = self.position_to_region[position_region]
-            assert isinstance(region, SmdRegion)
-            region.update(entity_type)
-        self._remove_empty_regions()
-
-    def _remove_empty_regions(self):
-        """
-        Search for and remove regions with no blocks
-        """
-        for position_region in list(self.position_to_region.keys()):
-            if self.position_to_region[position_region].get_number_of_blocks() == 0:
-                self._logger.debug("'remove' Removing empty region {}.".format(position_region))
-                self.position_to_region.pop(position_region)
 
     def remove_blocks(self, block_ids):
         """
@@ -359,20 +248,39 @@ class Smd(DefaultLogging):
         @param block_ids:
         @type block_ids: set[int]
         """
-        for position in list(self.position_to_region.keys()):
-            self.position_to_region[position].remove_blocks(block_ids)
+        self._block_list.remove_blocks(block_ids)
 
-    def remove_block(self, block_position):
+    def get_number_of_blocks(self):
         """
-        Remove Block at specific position.
+        Get total number of blocks
 
-        @param block_position: x,z,y position of a block
-        @type block_position: int,int,int
+        @return: number of blocks in segment
+        @rtype: int
         """
-        assert isinstance(block_position, tuple), block_position
-        position_region = self.get_region_position_of_position(block_position)
-        assert position_region in self.position_to_region, block_position
-        self.position_to_region[position_region].remove_block(block_position)
+        return len(self._block_list)
+
+    def update(self):
+        """
+        Remove invalid/outdated blocks and exchange docking modules with rails
+        """
+        entity_type = 2
+        if self._block_list.has_core():
+            entity_type = 0
+
+        invalid_ids = set()
+        for position, block in self._block_list.items():
+            if not block_config[block.get_id()].is_valid(entity_type):
+                invalid_ids.add(block.get_id())
+                continue
+            if not block_config[block.get_id()].is_docking():
+                continue
+            updated_block_id = block_config[block.get_id()].get_rail_equivalent()
+            if updated_block_id is None:
+                invalid_ids.add(block.get_id())
+                continue
+            new_block = block.get_converted_to_type_6(block_id=updated_block_id)
+            self._block_list(position, new_block)
+        self._block_list.remove_blocks(invalid_ids)
 
     def add(self, block_position, block, replace=True):
         """
@@ -381,7 +289,7 @@ class Smd(DefaultLogging):
         @param block_position: x,y,z position of block
         @type block_position: int,int,int
         @param block: A block! :)
-        @type block: Block
+        @type block: BlockSmd2
         """
         assert isinstance(block_position, tuple)
         position_region = self.get_region_position_of_position(block_position)
@@ -403,11 +311,7 @@ class Smd(DefaultLogging):
         @return: None or (x,y,z)
         @rtype: None | int,int,int
         """
-        for position, region in self.position_to_region.items():
-            block_position = region.search(block_id)
-            if block_position is not None:
-                return block_position
-        return None
+        return self._block_list.search(block_id)
 
     def search_all(self, block_id):
         """
@@ -417,14 +321,11 @@ class Smd(DefaultLogging):
         @type block_id: int
 
         @return: None or (x,y,z)
-        @rtype: set[tuple[int]]
+        @rtype: set[(int, int, int)]
         """
-        positions = set()
-        for position, region in self.position_to_region.items():
-            positions = positions.union(region.search_all(block_id))
-        return positions
+        return self._block_list.search_positions(set(block_id))
 
-    def has_block_at_position(self, position):
+    def has_block_at(self, position):
         """
         Returns true if a block exists at a position
 
@@ -434,10 +335,7 @@ class Smd(DefaultLogging):
         @return:
         @rtype: bool
         """
-        region_position = self.get_region_position_of_position(position)
-        if region_position not in self.position_to_region:
-            return False
-        return self.position_to_region[region_position].has_block_at_position(position)
+        return self._block_list.has_block_at(position)
 
     def get_block_id_to_quantity(self):
         """
@@ -447,42 +345,11 @@ class Smd(DefaultLogging):
         @rtype: dict[int, int]
         """
         block_id_to_quantity = {}
-        for position, block in self.items():
+        for position, block in self._block_list.items():
             if block.get_id() not in block_id_to_quantity:
                 block_id_to_quantity[block.get_id()] = 0
             block_id_to_quantity[block.get_id()] += 1
         return block_id_to_quantity
-
-    def items(self):
-        """
-        Iterate over each block and its global position, not the position within the segment
-
-        @return: (x,y,z), block
-        @rtype: tuple[int,int,int], SmdBlock
-        """
-        for position_region, region in self.position_to_region.items():
-            assert isinstance(region, SmdRegion), type(region)
-            for position_block, block in region.items():
-                assert isinstance(block, Block), type(block)
-                yield position_block, block
-
-    def get_min_max_vector(self):
-        """
-        Get the minimum and maximum coordinates of the blueprint
-
-        @return: Minimum(x,y,z), Maximum(x,y,z)
-        @rtype: tuple[int,int,int], tuple[int,int,int]
-        """
-        min_vector = [16, 16, 16]
-        max_vector = [16, 16, 16]
-        for position_block, block in self.items():
-            assert isinstance(block, Block)
-            for index, value in enumerate(position_block):
-                if value < min_vector[index]:
-                    min_vector[index] = value
-                if value > max_vector[index]:
-                    max_vector[index] = value
-        return tuple(min_vector), tuple(max_vector)
 
     def set_type(self, entity_type):
         """
@@ -494,22 +361,32 @@ class Smd(DefaultLogging):
         @type entity_type: int
         """
         assert isinstance(entity_type, int)
-        assert 0 <= entity_type <= 4
+        assert entity_type in BlueprintEntity.entity_types
 
-        position_core = (16, 16, 16)
         if entity_type == 0:  # Ship
-            core_block = Block()
-            core_block.update(block_id=1, hit_points=250, active=False)
-            self.add(position_core, core_block)
+            core_block = BlockV3().get_modification(block_id=1, active=False)
+            self._block_list(self._position_core, core_block)
         else:  # not a ship
-            try:
-                self.remove_block(position_core)
-            except AssertionError as exception_object:
-                message = ""
-                if len(exception_object.args) > 0:
-                    message = exception_object.args[0]
-                self._logger.debug("'set_type' exception: {}".format(message))
-        self.update(entity_type)  # remove blocks invalid for ships and other cleanup
+            if self._block_list.has_core(self._position_core):
+                self._block_list.pop(self._position_core)
+        self.update()  # remove blocks invalid for ships and other cleanup
+
+    def get_min_max_vector(self):
+        """
+        Get the minimum and maximum coordinates of the blueprint
+
+        @return: Minimum(x,y,z), Maximum(x,y,z)
+        @rtype: tuple[int,int,int], tuple[int,int,int]
+        """
+        min_vector = [16, 16, 16]
+        max_vector = [16, 16, 16]
+        for position_block, block in self._block_list.items():
+            for index, value in enumerate(position_block):
+                if value < min_vector[index]:
+                    min_vector[index] = value
+                if value > max_vector[index]:
+                    max_vector[index] = value
+        return tuple(min_vector), tuple(max_vector)
 
     def to_stream(self, output_stream=sys.stdout):
         """
@@ -520,244 +397,8 @@ class Smd(DefaultLogging):
         """
         output_stream.write("####\nSMD\n####\n\n")
         output_stream.write("Total blocks: {}\n\n".format(self.get_number_of_blocks()))
-        for position in sorted(list(self.position_to_region.keys()), key=lambda tup: (tup[2], tup[1], tup[0])):
-            output_stream.write("SmdRegion: {}\n".format(list(position)))
-            self.position_to_region[position].to_stream(output_stream)
+        if self._debug:
+            for position_block, block in sorted(self._block_list.items()):
+                output_stream.write("{}\t{}\t".format(position_block, block.get_int_24bit()))
+                block.to_stream(output_stream)
             output_stream.write("\n")
-
-    # auto wedge
-
-    def get_position_periphery_index_9x9(self, position):
-        """
-        Every position in a 3x3x3 periphery is represented by a bit.
-
-        @type position: tuple[int]
-        @rtype: int
-        """
-        periphery_index = 0
-        power = 1
-        for x in range(position[0]-1, position[0]+2):
-            for y in range(position[1]-1, position[1]+2):
-                for z in range(position[2]-1, position[2]+2):
-                    position_tmp = (x, y, z)
-                    if position_tmp == position:
-                        continue
-                    if self.has_block_at_position(position_tmp):
-                        periphery_index |= power
-                    power <<= 1
-        # print power
-        return periphery_index
-
-    def get_position_periphery_index(self, position, periphery_range):
-        """
-        Some positions in a 3x3x3 periphery, represented by a bit each.
-
-        @type position: tuple[int]
-        @rtype: int
-        """
-        assert 1 <= periphery_range <= 3
-        periphery_index = 0
-        power = 1
-        range_p = [-1, 0, 1]
-        for x in range_p:
-            for y in range_p:
-                for z in range_p:
-                    if abs(x) + abs(y) + abs(z) > periphery_range:
-                        continue
-                    position_tmp = (position[0] + x, position[1] + y, position[2] + z)
-                    if position_tmp == position:
-                        continue
-                    if self.has_block_at_position(position_tmp):
-                        periphery_index |= power
-                    power <<= 1
-        return periphery_index
-
-    def get_position_shape_periphery(self, position, periphery_range):
-        """
-        Return a 3x3x3 periphery description
-
-        Shapes:
-            "": 0,
-            "1/4": 1,
-            "1/2": 2,
-            "3/4": 3,
-            "Wedge": 4,
-            "Corner": 5,
-            "Tetra": 6,
-            "Hepta": 7,
-
-        @type position: tuple[int]
-        @type periphery_range: int
-
-        @rtype: tple[int]
-        """
-        assert 1 <= periphery_range <= 3
-        angle_shapes = {block_config.get_shape_id("wedge"), block_config.get_shape_id("tetra")}  # 5, 7,
-        shape_periphery = []
-        range_p = [-1, 0, 1]
-        for x in range_p:
-            for y in range_p:
-                for z in range_p:
-                    if abs(x) + abs(y) + abs(z) > periphery_range:
-                        continue
-                    position_tmp = (position[0] + x, position[1] + y, position[2] + z)
-                    if position_tmp == position:
-                        continue
-                    if self.has_block_at_position(position_tmp):
-                        block_tmp = self.get_block_at_position(position_tmp)
-                        block_id = block_tmp.get_id()
-                        is_angled_shape = False
-                        if block_config[block_id].shape in angle_shapes:
-                            is_angled_shape = True
-                        shape_periphery.append(is_angled_shape)
-        return tuple(shape_periphery)
-
-    def auto_hull_shape_independent(self, auto_wedge, auto_tetra):
-        """
-        Replace hull blocks with shaped hull blocks with shapes,
-        that can be determined without knowing the shapes of blocks around it
-
-        @type auto_wedge: bool
-        @type auto_tetra: bool
-        """
-        for position, block in self.items():
-            block_id = block.get_id()
-            if not block_config[block_id].is_hull():
-                continue
-
-            periphery_index = self.get_position_periphery_index(position, 1)
-            shape_id_wedge = block_config.get_shape_id("wedge")
-            shape_id_tetra = block_config.get_shape_id("tetra")
-            if auto_wedge and periphery_index in AutoShape.peripheries[shape_id_wedge]:
-                # "wedge"
-                new_shape_id = shape_id_wedge
-            elif auto_tetra and periphery_index in AutoShape.peripheries[shape_id_tetra]:
-                # tetra
-                new_shape_id = shape_id_tetra
-            else:
-                continue
-
-            bit_19, bit_22, bit_23, rotations = AutoShape.peripheries[new_shape_id][periphery_index]
-            block_hull_tier, color_id, shape_id = block_config[block_id].get_details()
-            new_block_id = block_config.get_block_id_by_details(block_hull_tier, color_id, new_shape_id)
-            assert new_block_id != 0, "Bad id: {}".format(new_block_id)
-            block.update(block_id=new_block_id, bit_19=bit_19, bit_22=bit_22, bit_23=bit_23, rotations=rotations)
-            assert block.get_id() != 0
-
-    def auto_hull_shape_dependent(self, block_shape_id):
-        """
-        Replace hull blocks with shaped hull blocks with shapes,
-        that can only be determined by the shapes of blocks around it
-
-        @type block_shape_id: int
-        """
-        for position, block in self.items():
-            block_id = block.get_id()
-            if not block_config[block_id].is_hull():
-                continue
-
-            periphery_index = self.get_position_periphery_index(position, 1)
-            if periphery_index not in AutoShape.peripheries[block_shape_id]:
-                continue
-            periphery_shape = self.get_position_shape_periphery(position, 1)
-            if periphery_shape not in AutoShape.peripheries[block_shape_id][periphery_index]:
-                continue
-            bit_19, bit_22, bit_23, rotations = AutoShape.peripheries[block_shape_id][periphery_index][periphery_shape]
-            block_hull_type, color, shape_id = block_config[block_id].get_details()
-            new_block_id = block_config.get_block_id_by_details(block_hull_type, color, block_shape_id)
-            block.update(block_id=new_block_id, bit_19=bit_19, bit_22=bit_22, bit_23=bit_23, rotations=rotations)
-            assert block.get_id() != 0
-
-    def auto_hull_shape(self, auto_wedge, auto_tetra, auto_corner, auto_hepta=None):
-        """
-        Automatically set shapes to blocks on edges and corners.
-
-        @type auto_wedge: bool
-        @type auto_tetra: bool
-        @type auto_corner: bool
-        @type auto_hepta: bool
-        """
-        self.auto_hull_shape_independent(auto_wedge, auto_tetra)
-        shape_id_corner = block_config.get_shape_id("corner")
-        shape_id_hepta = block_config.get_shape_id("hepta")
-        if auto_corner:
-            self.auto_hull_shape_dependent(shape_id_corner)
-        if auto_hepta:
-            self.auto_hull_shape_dependent(shape_id_hepta)
-
-    def auto_wedge_debug(self):
-        """
-        Replace hull blocks on edges with wedges.
-        """
-        peripheries = {}
-        for position, block in self.items():
-            if not block_config[block.get_id()].is_hull():
-                continue
-            # wedge 599
-            # corner 600
-            # hepta 601
-            # tetra 602
-            if block.get_id() != 602:
-                continue
-            periphery_index = self.get_position_periphery_index(position, 1)
-            if periphery_index == 0:
-                continue
-            # hull_type, color, shape_id = BlueprintUtils._get_hull_details(block.get_id())
-            bit_19 = block._get_bit_19()
-            bit_22 = block._get_bit_22()
-            bit_23 = block._get_bit_23()
-            rotations = block._get_rotations()
-            if periphery_index in peripheries:
-                tmp = (bit_19, bit_22, bit_23, rotations)
-                if peripheries[periphery_index] != tmp:
-                    sys.stderr.write("{}: {}\n".format(
-                        periphery_index, tmp))
-                continue
-            sys.stdout.write("\t\t{}: [{}, {}, {}, {}],\n".format(
-                periphery_index, bit_19, bit_22, bit_23, rotations))
-            # sys.stdout.write("\t\t{}: [{}, {}],  # {}\n".format(periphery_index, shape_id, block.get_int_24bit(), position))
-
-            # int_24 = block.get_int_24bit()
-            # block.update(block_id=599, bit_19=bit_19, bit_22=bit_22, bit_23=bit_23, rotations=rotations)
-            # assert int_24 == block.get_int_24bit()
-            peripheries[periphery_index] = (bit_19, bit_22, bit_23, rotations)
-
-    def auto_hepta_debug(self):
-        """
-        Replace hull blocks on edges with wedges.
-        """
-        peripheries = {}
-        bad_orientations = 0
-        for position, block in self.items():
-            if not block_config[block.get_id()].is_hull():
-                continue
-            # wedge 599
-            # corner 600
-            # hepta 601
-            # tetra 602
-            if block.get_id() != 601:
-                continue
-            periphery_index = self.get_position_periphery_index(position, 1)
-            periphery_shape = self.get_position_shape_periphery(position, 1)
-            if periphery_index not in peripheries:
-                peripheries[periphery_index] = {}
-
-            bit_19 = block._get_bit_19()
-            bit_22 = block._get_bit_22()
-            bit_23 = block._get_bit_23()
-            rotations = block._get_rotations()
-            orientation = (bit_19, bit_22, bit_23, rotations)
-
-            if all(periphery_shape):
-                continue
-            if periphery_shape in peripheries[periphery_index] and peripheries[periphery_index][periphery_shape] != orientation:
-                bad_orientations += 1
-                continue
-            peripheries[periphery_index][periphery_shape] = orientation
-
-        print("bad_orientations", bad_orientations)
-        for periphery_index in peripheries:
-            print("\t\t{}:".format(periphery_index), '{')
-            for periphery_shape in peripheries[periphery_index]:
-                print("\t\t\t{}: {},".format(periphery_shape, peripheries[periphery_index][periphery_shape]))
-            print("\t\t},")

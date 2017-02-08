@@ -1,4 +1,4 @@
-from lib.smblueprint.smd3.smdblock.orientation import Orientation, BitAndBytes
+from lib.smblueprint.smdblock.orientation import Orientation, BitAndBytes
 
 
 __author__ = 'Peter Hofmann'
@@ -70,8 +70,8 @@ class Style4Tetra(Orientation):
         if bit_22 is None:
             bit_22 = self._get_bit_22()
         new_int_24bit &= 0b000001111111111111111111
-        new_int_24bit = BitAndBytes.bits_combine(rotations, new_int_24bit, Orientation._bit_rotation_start)
-        new_int_24bit = BitAndBytes.bits_combine(bit_22, new_int_24bit, 22)
+        new_int_24bit = BitAndBytes.bits_combine(rotations, new_int_24bit, self._bit_rotation_start)
+        new_int_24bit = BitAndBytes.bits_combine(bit_22, new_int_24bit, self._bit_22_start)
         return new_int_24bit
 
     # #######################################

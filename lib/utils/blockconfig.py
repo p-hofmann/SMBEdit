@@ -1,6 +1,6 @@
 import csv
 import os
-from lxml import etree
+from xml.etree import ElementTree
 from lib.validator import Validator
 from lib.utils.blockconfighardcoded import BlockConfigHardcoded
 from lib.utils.blueprintentity import BlueprintEntity, SHIP
@@ -95,7 +95,7 @@ class BlockInfo(object):
     def get_details(self):
         """
         Return detail ids
-        @rtype: tuple[int|None]
+        @rtype: (int|None,int|None,int|None)
         """
         return self.tier, self.color, self.shape
 
@@ -106,7 +106,7 @@ class BlockInfo(object):
         return values[list_index]
 
 
-class MetaBlockConfig(object):
+class SuperBlockConfig(object):
     """
     docstring for BlockConfig
 
@@ -149,7 +149,7 @@ class MetaBlockConfig(object):
             yield self._id_to_block[block_id]
 
 
-class BlockConfig(MetaBlockConfig, ):
+class BlockConfig(SuperBlockConfig, ):
     """
     docstring for BlockConfig
 
@@ -257,18 +257,22 @@ class BlockConfig(MetaBlockConfig, ):
             next(csvreader, None)
             next(csvreader, None)
             # and read
-            for row in csvreader:
-                block_type, block_id = row
+            for block_type, block_id in csvreader:
+                block_type = block_type.strip()
+                block_id = block_id.strip()
                 block_id = int(block_id)
                 self._id_to_block[block_id] = BlockInfo()
                 self._id_to_block[block_id].id = block_id
                 # dict(label=row[0], block_id=row[1])
                 self._label_to_block[block_type] = self._id_to_block[block_id]
 
-        tree = etree.parse(file_path_block_config)
+        tree = ElementTree.parse(file_path_block_config)
         # fill the flags dict with id values
         for blockConfigNode in tree.findall(".//*/Block"):
             label = blockConfigNode.attrib["type"]
+            if label not in self._label_to_block:
+                print("Unknown label: {}".format(label))
+                continue
             self._label_to_block[label].name = blockConfigNode.attrib["name"]
             self._label_to_block[label].icon = blockConfigNode.attrib["icon"]
             self._label_to_block[label].texture_id = blockConfigNode.attrib["textureId"]
