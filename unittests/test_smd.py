@@ -2,7 +2,7 @@ from unittest import TestCase
 from io import BytesIO
 from lib.bits_and_bytes import BinaryStream
 from lib.smblueprint.smd3.smd import Smd
-from blueprints import Blueprint
+from unittests.blueprints import Blueprint
 
 __author__ = 'Peter Hofmann'
 

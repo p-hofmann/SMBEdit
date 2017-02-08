@@ -2,7 +2,7 @@ from unittest import TestCase
 from io import BytesIO
 from lib.bits_and_bytes import BinaryStream
 from lib.smblueprint.header import Header
-from blueprints import Blueprint
+from unittests.blueprints import Blueprint
 from lib.utils.blockconfig import block_config
 
 __author__ = 'Peter Hofmann'
