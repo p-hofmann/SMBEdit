@@ -1,13 +1,14 @@
 __author__ = 'Peter Hofmann'
 
 
-from unittest import TestLoader, TestSuite, TextTestRunner
+from unittest import TestLoader, TestSuite, TextTestRunner, TextTestResult
 from unittests.test_block import TestBlock
 from unittests.test_header import TestHeader
 from unittests.test_logic import TestLogic
 from unittests.test_meta import TestMeta
 from unittests.test_smd import TestSmd
 from unittests.test_statistics import TestStatistics
+import sys
 
 
 if __name__ == '__main__':
@@ -20,4 +21,6 @@ if __name__ == '__main__':
 	tests.append(TestLoader().loadTestsFromTestCase(TestStatistics))
 	test_suite = TestSuite(tests)
 	# TextTestRunner(verbosity=2, buffer=True).run(test_suite)
-	TextTestRunner(verbosity=2).run(test_suite)
+	test_runner = TextTestRunner(verbosity=2, resultclass=TextTestResult).run(test_suite)
+	assert isinstance(test_runner, TextTestResult)
+	sys.exit(not test_runner.wasSuccessful())
