@@ -86,6 +86,25 @@ class BlockBits(object):
     # ###  Edit integer Bits
     # #######################################
 
+    def _get_active_bit(self, active=None, block_id=None):
+        """
+        In the rare case a block value is changed, they are turned into a byte string.
+
+        @type active: bool | None
+
+        @rtype: Block
+        """
+        if block_id is None:
+            block_id = self.get_id()
+        if active:
+            return 0
+        elif not active:
+            return 1
+        else:
+            if block_config[block_id].can_activate and not self.is_active():
+                return 1
+        return 0
+
     def modify_block(self, block_id=None, hit_points=None, active=None, **kwargs):
         """
         In the rare case a block value is changed, they are turned into a byte string.
@@ -107,14 +126,7 @@ class BlockBits(object):
         if hit_points is None:
             hit_points = self.get_hit_points()
 
-        active_bit = 0
-        if active:
-            active_bit = 0
-        elif not active:
-            active_bit = 1
-        else:
-            if block_config[block_id].can_activate and not self.is_active():
-                active_bit = 1
+        active_bit = self._get_active_bit(active=active, block_id=block_id)
 
         int_24bit = 0
         int_24bit = BitAndBytes.bits_combine(block_id, int_24bit, 0)
