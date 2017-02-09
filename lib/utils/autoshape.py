@@ -1,7 +1,7 @@
 import sys
 from lib.utils.blocklist import BlockList
 from lib.utils.blockconfig import block_config
-from lib.smblueprint.smdblock.block import BlockV3
+from lib.smblueprint.smdblock.blockhandler import block_handler
 
 
 __author__ = 'Peter Hofmann'
@@ -131,12 +131,12 @@ class AutoShape(object):
             else:
                 continue
 
-            bit_19, bit_22, bit_23, rotations = PeripherySimple.peripheries[new_shape_id][periphery_index]
+            axis_rotation, rotations = PeripherySimple.peripheries[new_shape_id][periphery_index]
             block_hull_tier, color_id, shape_id = block_config[block_id].get_details()
             new_block_id = block_config.get_block_id_by_details(block_hull_tier, color_id, new_shape_id)
-            new_block = BlockV3(block.get_int_24bit()).get_modification(
-                block_id=new_block_id, bit_19=bit_19, bit_22=bit_22, bit_23=bit_23, rotations=rotations)
-            self._block_list(position, new_block)
+            new_block_int = block_handler(new_block_id).get_modified_int_24bit(
+                block_id=new_block_id, axis_rotation=axis_rotation, rotations=rotations)
+            self._block_list(position, new_block_int)
 
     def auto_hull_shape_dependent(self, block_shape_id):
         """
@@ -156,12 +156,12 @@ class AutoShape(object):
             periphery_shape = self.get_position_shape_periphery(position, 1)
             if periphery_shape not in PeripherySimple.peripheries[block_shape_id][periphery_index]:
                 continue
-            bit_19, bit_22, bit_23, rotations = PeripherySimple.peripheries[block_shape_id][periphery_index][periphery_shape]
+            axis_rotation, rotations = PeripherySimple.peripheries[block_shape_id][periphery_index][periphery_shape]
             block_hull_type, color, shape_id = block_config[block_id].get_details()
             new_block_id = block_config.get_block_id_by_details(block_hull_type, color, block_shape_id)
-            new_block = BlockV3(block.get_int_24bit()).get_modification(
-                block_id=new_block_id, bit_19=bit_19, bit_22=bit_22, bit_23=bit_23, rotations=rotations)
-            self._block_list(position, new_block)
+            new_int_24 = block_handler(new_block_id).get_modified_int_24bit(
+                block_id=new_block_id, axis_rotation=axis_rotation, rotations=rotations)
+            self._block_list(position, new_int_24)
 
     def auto_hull_shape(self, auto_wedge, auto_tetra, auto_corner, auto_hepta=None):
         """
@@ -198,21 +198,22 @@ class AutoShape(object):
             if periphery_index == 0:
                 continue
             # hull_type, color, shape_id = BlueprintUtils._get_hull_details(block.get_id())
-            bit_19, bit_23, bit_22, rotations = block.get_orientation().get_orientation_values()
+            axis_rotation = block.get_axis_rotation()
+            rotations = block.get_rotations()
             if periphery_index in peripheries:
-                tmp = (bit_19, bit_22, bit_23, rotations)
-                if peripheries[periphery_index] != tmp:
+                orientation = (axis_rotation, rotations)
+                if peripheries[periphery_index] != orientation:
                     sys.stderr.write("{}: {}\n".format(
-                        periphery_index, tmp))
+                        periphery_index, orientation))
                 continue
-            sys.stdout.write("\t\t{}: [{}, {}, {}, {}],\n".format(
-                periphery_index, bit_19, bit_22, bit_23, rotations))
+            sys.stdout.write("\t\t{}: [{}, {}],\n".format(
+                periphery_index, axis_rotation, rotations))
             # sys.stdout.write("\t\t{}: [{}, {}],  # {}\n".format(periphery_index, shape_id, block.get_int_24bit(), position))
 
             # int_24 = block.get_int_24bit()
             # block.update(block_id=599, bit_19=bit_19, bit_22=bit_22, bit_23=bit_23, rotations=rotations)
             # assert int_24 == block.get_int_24bit()
-            peripheries[periphery_index] = (bit_19, bit_22, bit_23, rotations)
+            peripheries[periphery_index] = (axis_rotation, rotations)
 
     def auto_hepta_debug(self):
         """
@@ -234,8 +235,9 @@ class AutoShape(object):
             if periphery_index not in peripheries:
                 peripheries[periphery_index] = {}
 
-            bit_19, bit_23, bit_22, rotations = block.get_orientation().get_orientation_values()
-            orientation = (bit_19, bit_22, bit_23, rotations)
+            axis_rotation = block.get_axis_rotation()
+            rotations = block.get_rotations()
+            orientation = (axis_rotation, rotations)
 
             if all(periphery_shape):
                 continue
@@ -250,6 +252,7 @@ class AutoShape(object):
             for periphery_shape in peripheries[periphery_index]:
                 print("\t\t\t{}: {},".format(periphery_shape, peripheries[periphery_index][periphery_shape]))
             print("\t\t},")
+
 
 class PeripherySimple(object):
     peripheries = dict()

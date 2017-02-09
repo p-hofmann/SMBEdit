@@ -6,7 +6,6 @@ import math
 from lib.loggingwrapper import DefaultLogging
 from lib.utils.blocklist import BlockList
 from lib.smblueprint.smd2.smdregion import SmdRegion
-from lib.smblueprint.smdblock.block import BlockV1
 
 
 class Smd(DefaultLogging):
@@ -16,7 +15,7 @@ class Smd(DefaultLogging):
     # #######################################
 
     @type position_to_region: dict[tuple[int], SmdRegion]
-    @type _block_list: BlockList
+    @type : BlockList
     """
 
     _core_position = 8
@@ -116,14 +115,14 @@ class Smd(DefaultLogging):
         """
         return len(self._block_list)
 
-    def add(self, block_position, block, replace=True):
+    def add(self, block_position, block_int_24, replace=True):
         """
         Add a block to the segment based on its global position
 
         @param block_position: x,y,z position of block
         @type block_position: int,int,int
-        @param block: A block! :)
-        @type block: BlockV1
+        @param block_int_24:
+        @type block_int_24: int
         """
         assert isinstance(block_position, tuple)
         position_region = self.get_region_position_of_position(block_position)
@@ -132,7 +131,7 @@ class Smd(DefaultLogging):
                 logfile=self._logfile,
                 verbose=self._verbose,
                 debug=self._debug)
-        self.position_to_region[position_region].add(block_position, block, replace)
+        self.position_to_region[position_region].add(block_position, block_int_24, replace)
 
     def to_stream(self, output_stream=sys.stdout):
         """

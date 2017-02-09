@@ -157,4 +157,3 @@ class Vector(object):
         position_tmp = Vector.subtraction(position_block, position_mirror)
         position_tmp = Vector.multiplication(position_tmp, vector_factor)
         return Vector.addition(position_tmp, position_mirror)
-
