@@ -80,9 +80,16 @@ class StyleBasic(BlockBits):
     # #######################################
 
     def to_style6(self, block_id):
+        """
+        Return a side to type 6 orientation conversion, focusing on forward and up
+
+        @type block_id: int
+
+        @rtype: int
+        """
         pass
 
-    def _convert(self, version):
+    def convert(self, version):
         """
         @type version: int
         @rtype: StyleBasic
@@ -100,10 +107,10 @@ class StyleBasic(BlockBits):
         """
         @rtype: StyleBasic
         """
-        return self._convert(2)
+        return self.convert(2)
 
     def to_v3(self):
         """
         @rtype: StyleBasic
         """
-        return self._convert(3)
+        return self.convert(3)

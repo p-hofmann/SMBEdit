@@ -57,7 +57,7 @@ class Style0(StyleBasic):
 
         @type block_id: int
 
-        @rtype: StyleBasic
+        @rtype: int
         """
         assert block_config[block_id].block_style == 6
         side_id = self.get_block_side_id()

@@ -25,6 +25,14 @@ class BlockBits(object):
         self._int_24bit = int_24bit
         self._version = version
 
+    def get_int_24(self):
+        """
+        Returns the block integer
+
+        @rtype: int
+        """
+        return self._int_24bit
+
     def get_id(self):
         """
         Returns the block id
@@ -105,7 +113,7 @@ class BlockBits(object):
                 return 1
         return 0
 
-    def modify_block(self, block_id=None, hit_points=None, active=None, **kwargs):
+    def modify_block(self, block_id=None, hit_points=None, active=None):
         """
         In the rare case a block value is changed, they are turned into a byte string.
 
@@ -166,14 +174,16 @@ class BlockBits(object):
             new_int_24bit = BitAndBytes.bits_combine(axis_rotation, new_int_24bit, 21)
         return new_int_24bit
 
-    def get_modified_int_24bit(self, **kwargs):
+    def get_modified_int_24bit(self, block_id=None, hit_points=None, active=None,
+                               block_side_id=None, rotations=None, axis_rotation=None):
         """
         In the rare case a block value is changed, they are turned into a byte string.
 
         @rtype: int
         """
-        int_24bit = self.modify_block(**kwargs)
-        self.modify_orientation(int_24bit, **kwargs)
+        int_24bit = self.modify_block(block_id=block_id, hit_points=hit_points, active=active)
+        return self.modify_orientation(
+            int_24bit, block_side_id=block_side_id, rotations=rotations, axis_rotation=axis_rotation)
 
     # #######################################
     # ###  Turning - Experimental
