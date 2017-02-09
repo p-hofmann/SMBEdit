@@ -1,10 +1,13 @@
-from lib.smblueprint.smdblock.orientation import Orientation, BitAndBytes
+from lib.bits_and_bytes import BitAndBytes
+from lib.smblueprint.smdblock.style.stylebasic import StyleBasic
+from lib.utils.blockconfig import block_config
+from lib.smblueprint.smdblock.style.style6 import Style6
 
 
 __author__ = 'Peter Hofmann'
 
 
-class Style0(Orientation):
+class Style0(StyleBasic):
     """
     Type        Bits                Description
     Type0       23     22     21    The block facing
@@ -32,7 +35,7 @@ class Style0(Orientation):
         side_id = self.get_block_side_id()
         return "Facing: {}".format(self._orientation_to_str[side_id])
 
-    def bit_combine(self, new_int_24bit, block_side_id=None, **kwargs):
+    def modify_orientation(self, new_int_24bit, block_side_id=None, **kwargs):
         """
         Set orientation bits of an integer
 
@@ -44,23 +47,31 @@ class Style0(Orientation):
         if block_side_id is None:
             block_side_id = self.get_block_side_id()
         new_int_24bit &= 0b000001111111111111111111
-        return BitAndBytes.bits_combine(block_side_id, new_int_24bit, self._bit_block_side_start)
+        if self._version < 3:
+            return BitAndBytes.bits_combine(block_side_id, new_int_24bit, 20)
+        return BitAndBytes.bits_combine(block_side_id, new_int_24bit, 19)
 
-    def to_style6_bits(self):
+    def to_style6(self, block_id):
         """
-        Return style 6 bits representing side id
+        Return a side to type 6 orientation conversion, focusing on forward and up
 
-        @rtype: tuple[int]
+        @type block_id: int
+
+        @rtype: StyleBasic
         """
+        assert block_config[block_id].block_style == 6
         side_id = self.get_block_side_id()
         assert side_id in self._block_side_id_to_type_6, "Bad side id: {}".format(side_id)
-        return self._block_side_id_to_type_6[side_id]
+        axis_rotation, rotations = self._block_side_id_to_type_6[side_id]
+        return Style6(block_id, self._version).get_modified_int_24bit(
+            block_id=block_id, active=False,
+            axis_rotation=axis_rotation, rotations=rotations)
 
     # #######################################
     # ###  Mirror
     # #######################################
 
-    def mirror_x(self):
+    def _mirror_x(self):
         """
         Mirror left - right
         """
@@ -70,9 +81,9 @@ class Style0(Orientation):
         side_id = Style0._turn_y_90(side_id)
         side_id = Style0._turn_y_90(side_id)
         int_24 = self._int_24bit
-        self._int_24bit = self.bit_combine(int_24, block_side_id=side_id)
+        self._int_24bit = self.modify_orientation(int_24, block_side_id=side_id)
 
-    def mirror_y(self):
+    def _mirror_y(self):
         """
         Mirror top - down
         """
@@ -82,10 +93,10 @@ class Style0(Orientation):
         side_id = Style0._turn_z_90(side_id)
         side_id = Style0._turn_z_90(side_id)
         int_24 = self._int_24bit
-        self._int_24bit = self.bit_combine(int_24, block_side_id=side_id)
+        self._int_24bit = self.modify_orientation(int_24, block_side_id=side_id)
 
     # front - back
-    def mirror_z(self):
+    def _mirror_z(self):
         """
         Mirror front - back
         """
@@ -95,7 +106,7 @@ class Style0(Orientation):
         side_id = Style0._turn_x_90(side_id)
         side_id = Style0._turn_x_90(side_id)
         int_24 = self._int_24bit
-        self._int_24bit = self.bit_combine(int_24, block_side_id=side_id)
+        self._int_24bit = self.modify_orientation(int_24, block_side_id=side_id)
 
     # #######################################
     # ###  Turning type 0

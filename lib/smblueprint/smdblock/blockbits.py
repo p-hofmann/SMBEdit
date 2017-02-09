@@ -60,7 +60,7 @@ class BlockBits(object):
         # version 3
         return BitAndBytes.bits_parse(self._int_24bit, 18, 1) == 0
 
-    def get_axis_rotations(self):
+    def get_axis_rotation(self):
         if self._version < 3:
             block_id = self.get_id()
             bit_22_23 = BitAndBytes.bits_parse(self._int_24bit, 22, 2)
@@ -139,8 +139,32 @@ class BlockBits(object):
                 int_24bit = BitAndBytes.bits_combine(active_bit, int_24bit, 18)
         return int_24bit
 
-    def modify_orientation(self, new_int_24bit, **kwargs):
-        pass
+    def modify_orientation(self, new_int_24bit, rotations=None, axis_rotation=None, **kwargs):
+        """
+        Set orientation bits of an integer
+
+        @type new_int_24bit: int
+        @type axis_rotation: int
+        @type rotations: int
+
+        @rtype: int
+        """
+        if axis_rotation is None:
+            axis_rotation = self.get_axis_rotation()
+        if rotations is None:
+            rotations = self.get_rotations()
+        if self._version < 3:
+            new_int_24bit &= 0b000000111111111111111111
+            if axis_rotation > 3:
+                axis_rotation -= 4
+                new_int_24bit = BitAndBytes.bits_combine(1, new_int_24bit, 19)
+            new_int_24bit = BitAndBytes.bits_combine(rotations, new_int_24bit, 20)
+            new_int_24bit = BitAndBytes.bits_combine(axis_rotation, new_int_24bit, 22)
+        else:
+            new_int_24bit &= 0b000001111111111111111111
+            new_int_24bit = BitAndBytes.bits_combine(rotations, new_int_24bit, 19)
+            new_int_24bit = BitAndBytes.bits_combine(axis_rotation, new_int_24bit, 21)
+        return new_int_24bit
 
     def get_modified_int_24bit(self, **kwargs):
         """

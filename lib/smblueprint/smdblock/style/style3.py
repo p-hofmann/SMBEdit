@@ -1,4 +1,4 @@
-from lib.smblueprint.smdblock.style0 import Style0
+from lib.smblueprint.smdblock.style.style0 import Style0
 
 
 __author__ = 'Peter Hofmann'

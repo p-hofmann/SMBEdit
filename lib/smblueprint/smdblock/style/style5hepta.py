@@ -1,4 +1,4 @@
-from lib.smblueprint.smdblock.style4tetra import Style4Tetra
+from lib.smblueprint.smdblock.style.style4tetra import Style4Tetra
 
 
 __author__ = 'Peter Hofmann'
@@ -20,7 +20,8 @@ class Style5Hepta(Style4Tetra):
         """
         @rtype: str
         """
-        _, _, bit22, rotations = self.get_orientation_values()
-        tuple_str = ", ".join(self._orientation_to_tuple_str[(bit22, rotations)])
+        axis_rotation = self.get_axis_rotation()
+        rotations = self.get_rotations()
+        tuple_str = ", ".join(self._orientation_to_tuple_str[(axis_rotation, rotations)])
         squares = ", ".join(tuple_str)
         return "Square sides: {}".format(squares)
