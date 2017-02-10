@@ -250,7 +250,7 @@ class Meta(DefaultLogging):
             block = smd.get_block_at_position(docker_entity.position)
             main_entity = RailDockedEntity()
             rail_dock_entity = RailDockedEntity()
-            block_side_id = block.get_orientation().get_block_side_id()
+            block_side_id = block.get_block_side_id()
             main_entity.set_by_block_side(
                 label=main_entity_label,
                 location=docker_entity.position,
