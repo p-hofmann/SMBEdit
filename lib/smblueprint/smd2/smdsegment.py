@@ -54,7 +54,7 @@ class SmdSegment(DefaultLogging):
         @type input_stream: BinaryStream
         """
         if self._region_version != 0:
-            self._version = input_stream.read_byte()  # 1 byte
+            self._version = abs(input_stream.read_byte())  # 1 byte
         self._timestamp = input_stream.read_int64_unassigned()  # 8 byte
         self._position = input_stream.read_vector_3_int32()  # 12 byte
         self.has_valid_data = input_stream.read_bool()  # 1 byte
