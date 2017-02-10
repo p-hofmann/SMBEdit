@@ -23,4 +23,4 @@ machine:
 ## Customize test commands
 test:
   override:
-    nosetests --with-xunit -w ./unittests --py3where=./unittests
+    - nosetests --with-xunit -w ./unittests --py3where=./unittests
