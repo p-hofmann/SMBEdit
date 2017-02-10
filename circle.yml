@@ -25,3 +25,5 @@ test:
   override:
     - python2.7 ./test.py
     - python3.6 ./test.py
+    - nosetests --with-xunit -w ./unittests
+    - nosetests --with-xunit -py3where ./unittests
