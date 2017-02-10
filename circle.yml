@@ -1,27 +1,4 @@
-## Customize the test machine
-machine:
-
-  python:
-    version: 3.6.0
-
-#  post:
-#    - pyenv global 2.7.10 3.6.0  # Version of python to use
-
-## Customize checkout
-# checkout:
-#   post:
-#     - git submodule sync
-#     - git submodule update --init # use submodules
-
-
-#  # we automatically cache and restore many dependencies between
-#  # builds. If you need to, you can add custom paths to cache:
-#  cache_directories:
-#    - "custom_1"   # relative to the build directory
-#    - "~/custom_2" # relative to the user's home directory
-
-## Customize test commands
-test:
+dependencies:
   override:
-    - mkdir -p $CIRCLE_TEST_REPORTS/nosetests
-    - nosetests -w ./unittests --py3where=./unittests --with-xunit --xunit-file=$CIRCLE_TEST_REPORTS/nosetests/nosetests.xml
+    - pip install tox tox-pyenv
+    - pyenv local 2.6.8 2.7.10 3.3.3 3.4.3 3.5.0 3.6.0
