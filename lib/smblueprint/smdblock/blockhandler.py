@@ -25,6 +25,7 @@ class BlockHandler(object):
 
         @rtype: StyleBasic
         """
+        assert isinstance(int_24bit, int)
         if version is None:
             version = max(self._valid_versions)
         return self._get_style(int_24bit, version)

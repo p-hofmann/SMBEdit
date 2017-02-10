@@ -234,4 +234,4 @@ class BlockList(object):
         for position_index, block in self.pop_position_indexes():
             new_position_index = self._shift_index(
                 position_index, vector_direction[0], vector_direction[1], vector_direction[2])
-            self._position_index_to_instance[new_position_index] = block
+            self._position_index_to_instance[new_position_index] = block.get_int_24()

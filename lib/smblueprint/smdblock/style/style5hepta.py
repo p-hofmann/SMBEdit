@@ -22,6 +22,5 @@ class Style5Hepta(Style4Tetra):
         """
         axis_rotation = self.get_axis_rotation()
         rotations = self.get_rotations()
-        tuple_str = ", ".join(self._orientation_to_tuple_str[(axis_rotation, rotations)])
-        squares = ", ".join(tuple_str)
+        squares = ", ".join(self._orientation_to_tuple_str[(axis_rotation, rotations)])
         return "Square sides: {}".format(squares)

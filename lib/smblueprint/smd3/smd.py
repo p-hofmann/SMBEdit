@@ -399,6 +399,6 @@ class Smd(DefaultLogging):
         output_stream.write("Total blocks: {}\n\n".format(self.get_number_of_blocks()))
         if self._debug:
             for position_block, block in sorted(self._block_list.items()):
-                output_stream.write("{}\t{}\t".format(position_block, block.get_int_24bit()))
+                output_stream.write("{}\t{}\t".format(position_block, block.get_int_24()))
                 block.to_stream(output_stream)
             output_stream.write("\n")

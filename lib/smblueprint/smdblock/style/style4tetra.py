@@ -50,8 +50,7 @@ class Style4Tetra(StyleBasic):
         """
         axis_rotation = self.get_axis_rotation()
         rotations = self.get_rotations()
-        tuple_str = ", ".join(self._orientation_to_tuple_str[(axis_rotation, rotations)])
-        slopes = ", ".join(tuple_str)
+        slopes = ", ".join(self._orientation_to_tuple_str[(axis_rotation, rotations)])
         return "Sloped sides: {}".format(slopes)
 
     # #######################################
