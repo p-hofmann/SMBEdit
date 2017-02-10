@@ -5,6 +5,6 @@ dependencies:
 
 test:
   pre:
-    - mkdir -P ${CIRCLE_TEST_REPORTS}/nosetests/
+    - mkdir -p ${CIRCLE_TEST_REPORTS}/nosetests/
   override:
     - tox
