@@ -23,7 +23,5 @@ machine:
 ## Customize test commands
 test:
   override:
-    - python2.7 ./test.py
-    - python3.6 ./test.py
-    - nosetests --with-xunit -w ./unittests
-    - nosetests --with-xunit -py3where ./unittests
+    - python2.7 $(which nosetests) --with-xunit -w ./unittests
+    - python3.6 $(which nosetests) --with-xunit --py3where=./unittests
