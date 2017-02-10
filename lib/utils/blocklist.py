@@ -28,14 +28,14 @@ class BlockList(object):
         @rtype: Iterable[(int, int, int)]
         """
         for position_index in self._position_index_to_instance:
-            yield self._get_position(position_index)
+            yield self.get_position(position_index)
 
     def items(self):
         """
         @rtype: Iterable[((int, int, int), StyleBasic)]
         """
         for position_index in self._position_index_to_instance:
-            yield self._get_position(position_index), self[position_index]
+            yield self.get_position(position_index), self[position_index]
     
     def __getitem__(self, position):
         """
@@ -70,7 +70,7 @@ class BlockList(object):
         self._position_index_to_instance = dict()
         while len(blocks) > 0:
             position_index, int_24 = blocks.popitem()
-            yield self._get_position(position_index), block_handler(int_24)
+            yield self.get_position(position_index), block_handler(int_24)
 
     def pop_position_indexes(self):
         """
@@ -118,7 +118,7 @@ class BlockList(object):
         return struct.pack("hhh", position[0], position[1], position[2])
 
     @staticmethod
-    def _get_position(position_index):
+    def get_position(position_index):
         """
 
         @param position_index:
@@ -139,7 +139,7 @@ class BlockList(object):
         @return:
         @rtype: bytes | str
         """
-        position = self._get_position(position_index)
+        position = self.get_position(position_index)
         new_position = [position[0]+offset_x, position[1]+offset_y, position[2]+offset_z]
         return self.get_index(tuple(new_position))
 
@@ -222,7 +222,7 @@ class BlockList(object):
         """
         for position_index in self._position_index_to_instance:
             if self[position_index].get_id() == block_id:
-                return self._get_position(position_index)
+                return self.get_position(position_index)
         return None
 
     def move_positions(self, vector_direction):
