@@ -1,6 +1,6 @@
 dependencies:
   override:
-    - pip install tox tox-pyenv
+    - pip install nose tox tox-pyenv
     - pyenv local 2.7.10 3.6.0
 
 test:
