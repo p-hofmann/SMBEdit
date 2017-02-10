@@ -23,6 +23,5 @@ machine:
 ## Customize test commands
 test:
   override:
-    - nosetests --with-xunit -w ./unittests --py3where=./unittests
-  post:
-    - cp ./unittests/nosetests.xml ./nosetests.xml
+    - mkdir -p $CIRCLE_TEST_REPORTS/nosetests
+    - nosetests -w ./unittests --py3where=./unittests --with-xunit --xunit-file=$CIRCLE_TEST_REPORTS/nosetests/nosetests.xml
