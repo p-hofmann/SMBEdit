@@ -106,7 +106,7 @@ class BlockBits(object):
             block_id = self.get_id()
         if active:
             return 0
-        elif not active:
+        elif active is False:
             return 1
         else:
             if block_config[block_id].can_activate and not self.is_active():

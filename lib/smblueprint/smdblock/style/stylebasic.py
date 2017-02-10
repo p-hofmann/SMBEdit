@@ -28,6 +28,7 @@ class StyleBasic(BlockBits):
             return self._mirror_y()
         if axis_index == 2:
             return self._mirror_z()
+        raise RuntimeError("Unknown Axis index: {}".format(axis_index))
 
     def _mirror_x(self):
         """

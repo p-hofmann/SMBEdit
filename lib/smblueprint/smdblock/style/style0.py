@@ -77,11 +77,11 @@ class Style0(StyleBasic):
         """
         side_id = self.get_block_side_id()
         if side_id not in [4, 5]:
-            return
+            return self._int_24bit
         side_id = Style0._turn_y_90(side_id)
         side_id = Style0._turn_y_90(side_id)
         int_24 = self._int_24bit
-        self._int_24bit = self.modify_orientation(int_24, block_side_id=side_id)
+        return self.modify_orientation(int_24, block_side_id=side_id)
 
     def _mirror_y(self):
         """
@@ -89,11 +89,11 @@ class Style0(StyleBasic):
         """
         side_id = self.get_block_side_id()
         if side_id not in [2, 3]:
-            return
+            return self._int_24bit
         side_id = Style0._turn_z_90(side_id)
         side_id = Style0._turn_z_90(side_id)
         int_24 = self._int_24bit
-        self._int_24bit = self.modify_orientation(int_24, block_side_id=side_id)
+        return self.modify_orientation(int_24, block_side_id=side_id)
 
     # front - back
     def _mirror_z(self):
@@ -102,11 +102,11 @@ class Style0(StyleBasic):
         """
         side_id = self.get_block_side_id()
         if side_id not in [0, 1]:
-            return
+            return self._int_24bit
         side_id = Style0._turn_x_90(side_id)
         side_id = Style0._turn_x_90(side_id)
         int_24 = self._int_24bit
-        self._int_24bit = self.modify_orientation(int_24, block_side_id=side_id)
+        return self.modify_orientation(int_24, block_side_id=side_id)
 
     # #######################################
     # ###  Turning type 0

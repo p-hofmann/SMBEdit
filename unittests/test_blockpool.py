@@ -3,7 +3,6 @@ __author__ = 'Peter Hofmann'
 import sys
 import struct
 from lib.utils.blockconfig import block_config
-from lib.utils.blocklist import BlockList, Block
 # from simplemetablock import Block
 
 # block_config.from_hard_coded()
