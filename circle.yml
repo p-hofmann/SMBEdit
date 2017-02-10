@@ -1,0 +1,27 @@
+## Customize the test machine
+machine:
+
+#  python:
+#    version: 2.7.9
+
+  post:
+    - pyenv global 2.7.10 3.6.0  # Version of ruby to use
+
+## Customize checkout
+# checkout:
+#   post:
+#     - git submodule sync
+#     - git submodule update --init # use submodules
+
+
+#  # we automatically cache and restore many dependencies between
+#  # builds. If you need to, you can add custom paths to cache:
+#  cache_directories:
+#    - "custom_1"   # relative to the build directory
+#    - "~/custom_2" # relative to the user's home directory
+
+## Customize test commands
+test:
+  override:
+    - python2.7 ./test.py
+    - python3.6 ./test.py

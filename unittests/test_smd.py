@@ -1,7 +1,8 @@
 from unittest import TestCase
+from io import BytesIO
+from lib.bits_and_bytes import BinaryStream
 from lib.smblueprint.smd3.smd import Smd
 from unittests.blueprints import Blueprint
-from lib.utils.blockconfig import block_config
 
 __author__ = 'Peter Hofmann'
 
@@ -17,11 +18,12 @@ class DefaultSetup(TestCase):
         self._blueprints = Blueprint()
 
     def setUp(self):
-        block_config.from_hard_coded()
         self.object = Smd()
 
     def tearDown(self):
         self.object = None
+        # if os.path.exists(self.directory_output):
+        #     os.rmdir(self.directory_output)
 
 
 class TestSmd(DefaultSetup):
