@@ -1,10 +1,12 @@
+machine:
+  pre:
+    - mkdir -p ${CIRCLE_TEST_REPORTS}/nosetests/
+
 dependencies:
   override:
     - pip install tox tox-pyenv
     - pyenv local 2.7.10 3.6.0
 
 test:
-  pre:
-    - mkdir -p ${CIRCLE_TEST_REPORTS}/nosetests/
   override:
     - tox
