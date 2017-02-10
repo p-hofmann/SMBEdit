@@ -1,11 +1,11 @@
 ## Customize the test machine
 machine:
 
-#  python:
-#    version: 2.7.9
+  python:
+    version: 3.6.0
 
-  post:
-    - pyenv global 2.7.10 3.6.0  # Version of ruby to use
+#  post:
+#    - pyenv global 2.7.10 3.6.0  # Version of python to use
 
 ## Customize checkout
 # checkout:
@@ -23,5 +23,4 @@ machine:
 ## Customize test commands
 test:
   override:
-    - python2.7 $(which nosetests) --with-xunit -w ./unittests
-    - python3.6 $(which nosetests) --with-xunit --py3where=./unittests
+    nosetests --with-xunit -w ./unittests --py3where=./unittests
