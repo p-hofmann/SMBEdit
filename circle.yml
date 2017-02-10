@@ -24,3 +24,5 @@ machine:
 test:
   override:
     - nosetests --with-xunit -w ./unittests --py3where=./unittests
+  post:
+    - cp ./unittests/nosetests.xml ./nosetests.xml
