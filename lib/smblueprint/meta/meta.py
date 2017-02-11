@@ -49,7 +49,7 @@ class Meta(DefaultLogging):
         self._version = (0, 0, 0, 5)
         self._data_type_2 = DataType2(logfile=logfile, verbose=verbose, debug=debug)
         self._data_type_3 = DataType3(logfile=logfile, verbose=verbose, debug=debug)
-        self._data_type_4 = DataType4(logfile=logfile, verbose=verbose, debug=debug)
+        self._data_type_4 = DataType4(max(self._valid_versions)[3], logfile=logfile, verbose=verbose, debug=debug)
         self._data_type_5 = DataType5(logfile=logfile, verbose=verbose, debug=debug)
         self._data_type_6 = DataType6(logfile=logfile, verbose=verbose, debug=debug)
         self._data_type_7 = DataType7(logfile=logfile, verbose=verbose, debug=debug)
@@ -71,6 +71,14 @@ class Meta(DefaultLogging):
         self._version = input_stream.read_vector_4_byte()
         assert self._version in self._valid_versions, "Unsupported version '{}' of '{}'.".format(
             self._version, self._file_name)
+
+        self._data_type_2 = DataType2(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
+        self._data_type_3 = DataType3(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
+        self._data_type_4 = DataType4(self._version[3], logfile=self._logfile, verbose=self._verbose, debug=self._debug)
+        self._data_type_5 = DataType5(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
+        self._data_type_6 = DataType6(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
+        self._data_type_7 = DataType7(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
+
         # assert self._version < (0, 0, 0, 5)
         while True:
             data_type = input_stream.read_byte()
@@ -111,12 +119,6 @@ class Meta(DefaultLogging):
         @param directory_blueprint: input directory
         @type directory_blueprint: str
         """
-        self._data_type_2 = DataType2(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
-        self._data_type_3 = DataType3(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
-        self._data_type_4 = DataType4(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
-        self._data_type_5 = DataType5(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
-        self._data_type_6 = DataType6(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
-        self._data_type_7 = DataType7(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
         file_path = os.path.join(directory_blueprint, self._file_name)
         with open(file_path, 'rb') as input_stream:
             self._read_file(BinaryStream(input_stream))
@@ -248,8 +250,8 @@ class Meta(DefaultLogging):
             docked_entity_index, docker_entity = self._data_type_3.popitem()
             assert isinstance(docker_entity, DockedEntity)
             block = smd.get_block_at_position(docker_entity.position)
-            main_entity = RailDockedEntity()
-            rail_dock_entity = RailDockedEntity()
+            main_entity = RailDockedEntity(max(self._valid_versions)[3])
+            rail_dock_entity = RailDockedEntity(max(self._valid_versions)[3])
             block_side_id = block.get_block_side_id()
             main_entity.set_by_block_side(
                 label=main_entity_label,
@@ -265,13 +267,13 @@ class Meta(DefaultLogging):
                 byte_orientation_2=1  # Bottom pointing forward
             )
 
-            link = RailDockedEntityLink()
+            link = RailDockedEntityLink(max(self._valid_versions)[3])
             link.set(
                 docked_entity_location=self.get_docked_entity_location(docker_entity.position, block_side_id),
                 entity_main=main_entity,
                 entity_docked=rail_dock_entity
                 )
-            links = RailDockedEntityLinks()
+            links = RailDockedEntityLinks(max(self._valid_versions)[3])
             links.set([link])
             self._data_type_4.add(docked_entity_index, links)
 

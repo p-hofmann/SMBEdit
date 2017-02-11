@@ -11,6 +11,7 @@ class RailDockedEntity(object):
     """
     Handling rail docked entity tag structure
 
+    @type _meta_version: int
     @type _location: tuple[int]
     """
 
@@ -21,6 +22,15 @@ class RailDockedEntity(object):
         3: (8, 1),  # "Bottom_backwards"
         4: (0, 0),  # "Right_forward",
         5: (4, 0),  # "Left_forward",
+    }
+
+    _side_to_orientation_v5 = {
+        0: (2, 1),  # "Front_up",
+        1: (4, 1),  # "Back_down",
+        2: (14, 1),  # "Top_forward"
+        3: (8, 1),  # "Bottom_backwards"
+        4: (16, 0),  # "Right_forward",
+        5: (20, 0),  # "Left_forward",
     }
 
     # 0: "FRONT ",
@@ -55,9 +65,25 @@ class RailDockedEntity(object):
         (13, 1): "Top_left",
         (14, 1): "Top_forward",
         (15, 1): "Top_right",
+        # meta version 5:
+        (16, 0): "Right_forward",
+        (17, 0): "Right_up",
+        (18, 0): "Right_backwards",
+        (19, 0): "Right_down",
+        (20, 0): "Left_forward",
+        (21, 0): "Left_up",
+        (22, 0): "Left_backwards",
+        (23, 0): "Left_down",
     }
 
-    def __init__(self):
+    def __init__(self, meta_version):
+        """
+
+        @type meta_version: int
+        @return:
+        """
+        self._meta_version = meta_version
+        self._unknown_byte_0 = 0
         self._label = ""
         self._location = (0, 0, 0)
         self._block_id = 0
@@ -87,6 +113,9 @@ class RailDockedEntity(object):
         @type side: int
         """
         byte_orientation_1, byte_orientation_2 = self._side_to_orientation[side]
+        if self._meta_version > 4:
+            byte_orientation_1, byte_orientation_2 = self._side_to_orientation_v5[side]
+
         self.set(label, location, block_id, byte_orientation_1, byte_orientation_2)
 
     def set(self, label, location, block_id, byte_orientation_1, byte_orientation_2):
@@ -125,15 +154,20 @@ class RailDockedEntity(object):
         tag_list = tag_payload.payload
         assert isinstance(tag_list, TagList)
         list_of_tags = tag_list.get_list()
-        self._label = list_of_tags[0].payload
-        self._location = list_of_tags[1].payload
-        self._block_id = list_of_tags[2].payload
-        self._byte_orientation_1 = list_of_tags[3].payload
-        self._byte_orientation_2 = list_of_tags[4].payload
-        self._unknown_byte_1 = list_of_tags[5].payload
+        offset = 0
+        if self._meta_version > 4:
+            offset = 1
+            self._unknown_byte_0 = list_of_tags[0].payload
+        self._label = list_of_tags[0+offset].payload
+        self._location = list_of_tags[1+offset].payload
+        self._block_id = list_of_tags[2+offset].payload
+        self._byte_orientation_1 = list_of_tags[3+offset].payload
+        self._byte_orientation_2 = list_of_tags[4+offset].payload
+        self._unknown_byte_1 = list_of_tags[5+offset].payload
 
     def to_tag(self):
         """
+        -1: 0,  # meta version 5
         -8: ENTITY_SHIP_Skallagrim_1483048232229,
         -10: (16, 15, 16),
         -2: 662,
@@ -144,6 +178,8 @@ class RailDockedEntity(object):
         @rtype: TagPayload
         """
         tag_list = TagList()
+        if self._meta_version > 4:
+            tag_list.add(TagPayload(-1, None, self._unknown_byte_0))
         tag_list.add(TagPayload(-8, None, self._label))
         tag_list.add(TagPayload(-10, None, self._location))
         tag_list.add(TagPayload(-2, None, self._block_id))
@@ -162,7 +198,11 @@ class RailDockedEntity(object):
         """
         output_stream.write("{}\t".format(self._location))
         output_stream.write("{}\t".format(self._block_id))
-        output_stream.write("{}\t".format(self._rail_orientation_map[(self._byte_orientation_1, self._byte_orientation_2)]))
+        orientation = (self._byte_orientation_1, self._byte_orientation_2)
+        if orientation in self._rail_orientation_map:
+            output_stream.write("{}\t".format(self._rail_orientation_map[orientation]))
+        else:
+            output_stream.write("{}\t".format(orientation))
         output_stream.write("{}\n".format(self._label))
 
 
@@ -178,7 +218,13 @@ class RailDockedEntityLink(object):
     @type _unknown_matrix_2: list[list[int]]
     """
 
-    def __init__(self):
+    def __init__(self, meta_version):
+        """
+
+        @type meta_version: int
+        @return:
+        """
+        self._meta_version = meta_version
         self._entity_main = None
         self._entity_docked = None
         self._docked_entity_location = (0, 0, 0)
@@ -226,9 +272,9 @@ class RailDockedEntityLink(object):
         tag_list = tag_payload.payload
         assert isinstance(tag_list, TagList)
         list_of_tags = tag_list.get_list()
-        self._entity_main = RailDockedEntity()
+        self._entity_main = RailDockedEntity(self._meta_version)
         self._entity_main.from_tag(list_of_tags[0])
-        self._entity_docked = RailDockedEntity()
+        self._entity_docked = RailDockedEntity(self._meta_version)
         self._entity_docked.from_tag(list_of_tags[1])
         self._unknown_matrix_0 = list_of_tags[2].payload
         self._unknown_matrix_1 = list_of_tags[3].payload
@@ -291,7 +337,13 @@ class RailDockedEntityLinks(object):
     @type _list_links: list[RailDockedEntityLink]
     """
 
-    def __init__(self):
+    def __init__(self, meta_version):
+        """
+
+        @type meta_version: int
+        @return:
+        """
+        self._meta_version = meta_version
         self._list_links = []
         return
 
@@ -333,7 +385,7 @@ class RailDockedEntityLinks(object):
         for tag_index in range(number_of_links):
             # tag_list_link = tag_list[tag_index+1].payload
             # assert isinstance(tag_list_link, TagList)
-            link = RailDockedEntityLink()
+            link = RailDockedEntityLink(self._meta_version)
             link.from_tag(list_of_tags[tag_index])
             self._list_links.append(link)
 
@@ -368,3 +420,62 @@ class RailDockedEntityLinks(object):
         for link in self._list_links:
             link.to_stream(output_stream)
             # output_stream.write("\n")
+
+"""
+-13:
+{
+    -1: 1,
+    -13:
+    {
+        -13:
+        {
+            -13:
+            {
+                -1: 0,
+                -8: 'ENTITY_SHIP_0_199_435_ship',
+                -10: (15, 16, 16),
+                -2: 665,
+                -1: 17,
+                -1: 0,
+                -1: 100,
+            }
+            -13:
+            {
+                -1: 0,
+                -8: 'ENTITY_SHIP_turret',
+                -10: (16, 16, 17),
+                -2: 663,
+                -1: 2,
+                -1: 0,
+                -1: 100,
+            }
+            -16: [[1.0, 0.0, 0.0, 0.0], [0.0, 1.0, 0.0, 0.0], [0.0, 0.0, 1.0, 0.0], [0.0, 0.0, 0.0, 1.0]], -16: [[1.0, 0.0, 0.0, 0.0], [0.0, 1.0, 0.0, 0.0], [0.0, 0.0, 1.0, 0.0], [0.0, 0.0, 0.0, 1.0]], -10: (14, 16, 16), -16: [[1.0, 0.0, 0.0, 0.0], [0.0, 1.0, 0.0, 0.0], [0.0, 0.0, 1.0, 0.0], [0.0, 0.0, 0.0, 1.0]],
+            - 1: 0, -1: 0, -1: 0,
+        }
+    }
+    -13: {}
+}
+
+-13:
+{
+    -1: 1,
+    -13:
+    {
+        -13:
+        {
+            -13:
+            {
+                -1: 0,
+                -8: 'ENTITY_SHIP_0_199_435_ship',
+                -10: (17, 16, 16), -2: 662,
+                -1: 21,
+                -1: 0,
+                -1: 100,
+            }
+            -13: {-1: 0, -8: 'ENTITY_SHIP_docker', -10: (16, 16, 17), -2: 663, -1: 2, -1: 0, -1: 100, }
+            -16: [[1.0, 0.0, 0.0, 0.0], [0.0, 1.0, 0.0, 0.0], [0.0, 0.0, 1.0, 0.0], [0.0, 0.0, 0.0, 1.0]], -16: [[1.0, 0.0, 0.0, 0.0], [0.0, 1.0, 0.0, 0.0], [0.0, 0.0, 1.0, 0.0], [0.0, 0.0, 0.0, 1.0]], -10: (18, 16, 16), -16: [[1.0, 0.0, 0.0, 0.0], [0.0, 1.0, 0.0, 0.0], [0.0, 0.0, 1.0, 0.0], [0.0, 0.0, 0.0, 1.0]],
+            - 1: 0, -1: 0, -1: 0, }
+        }
+    -13: {}
+}
+"""

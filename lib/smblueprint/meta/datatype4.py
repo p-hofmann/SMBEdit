@@ -20,7 +20,13 @@ class DataType4(DefaultLogging):
     @type _docked_entities: dict[int,TagManager]
     """
 
-    def __init__(self, logfile=None, verbose=False, debug=False):
+    def __init__(self, meta_version, logfile=None, verbose=False, debug=False):
+        """
+
+        @type meta_version: int
+        @return:
+        """
+        self._meta_version = meta_version
         self._label = "DataType4"
         super(DataType4, self).__init__(logfile, verbose, debug)
         self._vector_float_0 = (0, 0, 0)
@@ -203,7 +209,7 @@ class DataType4(DefaultLogging):
         @type vector_direction: tuple[int]
         """
         for docker_key in self._docked_entities.keys():
-            rail_docker_links = RailDockedEntityLinks()
+            rail_docker_links = RailDockedEntityLinks(self._meta_version)
             rail_docker_links.from_tag(self._docked_entities[docker_key].get_root_tag())
             rail_docker_links.move_position(vector_direction, main_only)
             self._docked_entities[docker_key].set_root_tag(rail_docker_links.to_tag())
@@ -229,7 +235,7 @@ class DataType4(DefaultLogging):
             for dock_index in sorted(self._docked_entities.keys()):
                 output_stream.write("\nDocked entity {}:\n".format(dock_index))
                 # self._docked_entities[dock_index].to_stream(output_stream)
-                links = RailDockedEntityLinks()
+                links = RailDockedEntityLinks(self._meta_version)
                 links.from_tag(self._docked_entities[dock_index].get_root_tag())
                 links.to_stream(output_stream)
         output_stream.write("\n")
