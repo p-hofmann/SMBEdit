@@ -57,13 +57,13 @@ class Style0(StyleBasic):
 
         @type block_id: int
 
-        @rtype: int
+        @rtype: Style6
         """
         assert block_config[block_id].block_style == 6
         side_id = self.get_block_side_id()
         assert side_id in self._block_side_id_to_type_6, "Bad side id: {}".format(side_id)
         axis_rotation, rotations = self._block_side_id_to_type_6[side_id]
-        return Style6(block_id, self._version).get_modified_int_24bit(
+        return Style6(block_id, self._version).get_modified_block(
             block_id=block_id, active=False,
             axis_rotation=axis_rotation, rotations=rotations)
 
@@ -77,10 +77,10 @@ class Style0(StyleBasic):
         """
         side_id = self.get_block_side_id()
         if side_id not in [4, 5]:
-            return self._int_24bit
+            return self._int_24
         side_id = Style0._turn_y_90(side_id)
         side_id = Style0._turn_y_90(side_id)
-        int_24 = self._int_24bit
+        int_24 = self._int_24
         return self.modify_orientation(int_24, block_side_id=side_id)
 
     def _mirror_y(self):
@@ -89,10 +89,10 @@ class Style0(StyleBasic):
         """
         side_id = self.get_block_side_id()
         if side_id not in [2, 3]:
-            return self._int_24bit
+            return self._int_24
         side_id = Style0._turn_z_90(side_id)
         side_id = Style0._turn_z_90(side_id)
-        int_24 = self._int_24bit
+        int_24 = self._int_24
         return self.modify_orientation(int_24, block_side_id=side_id)
 
     # front - back
@@ -102,10 +102,10 @@ class Style0(StyleBasic):
         """
         side_id = self.get_block_side_id()
         if side_id not in [0, 1]:
-            return self._int_24bit
+            return self._int_24
         side_id = Style0._turn_x_90(side_id)
         side_id = Style0._turn_x_90(side_id)
-        int_24 = self._int_24bit
+        int_24 = self._int_24
         return self.modify_orientation(int_24, block_side_id=side_id)
 
     # #######################################

@@ -4,18 +4,19 @@ import sys
 
 from lib.utils.blockconfig import block_config
 from lib.smblueprint.smdblock.blockbits import BlockBits
+# from lib.smblueprint.smdblock.blockhandler import block_pool
 
 
 class StyleBasic(BlockBits):
 
-    def __call__(self, int_24bit, version=None):
+    def __call__(self, int_24, version=None):
         """
-        @type int_24bit: int
+        @type int_24: int
         @type version: int
 
         @rtype: StyleBasic
         """
-        self._int_24bit = int_24bit
+        self._int_24 = int_24
         self._version = version
 
     def __repr__(self):
@@ -30,14 +31,15 @@ class StyleBasic(BlockBits):
         Mirror orientation
         @type axis_index: int
 
-        @rtype: int
+        @rtype: StyleBasic
         """
+        from lib.smblueprint.smdblock.blockpool import block_pool
         if axis_index == 0:
-            return self._mirror_x()
+            return block_pool(self._mirror_x())
         if axis_index == 1:
-            return self._mirror_y()
+            return block_pool(self._mirror_y())
         if axis_index == 2:
-            return self._mirror_z()
+            return block_pool(self._mirror_z())
         raise RuntimeError("Unknown Axis index: {}".format(axis_index))
 
     def _mirror_x(self):
@@ -96,32 +98,21 @@ class StyleBasic(BlockBits):
 
         @type block_id: int
 
-        @rtype: int
+        @rtype: StyleBasic
         """
         pass
 
     def convert(self, version):
         """
         @type version: int
-        @rtype: StyleBasic
+        @rtype: None
         """
         block_id = self.get_id()
         active = self._get_active_bit()
         rotations = self.get_rotations()
         axis_rotation = self.get_axis_rotation()
         block_side_id = self.get_block_side_id()
-        return StyleBasic(self._int_24bit, version=version).get_modified_int_24bit(
+        self._version = version
+        self._int_24 = self.get_modified_int_24bit(
             block_id=block_id, active=active,
             block_side_id=block_side_id, axis_rotation=axis_rotation, rotations=rotations)
-
-    def to_v2(self):
-        """
-        @rtype: StyleBasic
-        """
-        return self.convert(2)
-
-    def to_v3(self):
-        """
-        @rtype: StyleBasic
-        """
-        return self.convert(3)

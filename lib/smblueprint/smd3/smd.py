@@ -7,7 +7,7 @@ import math
 from lib.loggingwrapper import DefaultLogging
 from lib.utils.blockconfig import block_config
 from lib.utils.blocklist import BlockList
-from lib.smblueprint.smdblock.blockhandler import block_handler
+from lib.smblueprint.smdblock.blockpool import block_pool, StyleBasic
 from lib.utils.vector import Vector
 from lib.utils.blueprintentity import BlueprintEntity
 from lib.smblueprint.smd3.smdregion import SmdRegion
@@ -100,7 +100,7 @@ class Smd(DefaultLogging):
         """
         # move blocks from pool into smd data structure
         for position_block, block in self._block_list.pop_positions():
-            self.add(position_block, block.get_int_24())
+            self.add(position_block, block)
         directory_data = os.path.join(directory_blueprint, "DATA")
         if not os.path.exists(directory_data):
             os.mkdir(directory_data)
@@ -188,7 +188,7 @@ class Smd(DefaultLogging):
 
         # return core if it existed
         if block_core is not None:
-            self._block_list(self._position_core, block_core.get_int_24())
+            self._block_list(self._position_core, block_core)
 
     def mirror(self, axis_index, reverse=False):
         """
@@ -204,7 +204,7 @@ class Smd(DefaultLogging):
         vector_factor[axis_index] = -1
         for position_block, block in self._block_list.pop_positions():
             if position_block[axis_index] == self._position_core[axis_index]:
-                self._block_list(position_block, block.get_int_24())
+                self._block_list(position_block, block)
                 continue
             if reverse:
                 mirror = position_block[axis_index] < self._position_core[axis_index]
@@ -216,7 +216,7 @@ class Smd(DefaultLogging):
             position_tmp = Vector.multiplication(position_tmp, vector_factor)
             new_block_position = Vector.addition(position_tmp, self._position_core)
             new_block_int = block.get_mirror(axis_index)
-            self._block_list.__call__(position_block, block.get_int_24())
+            self._block_list(position_block, block)
             self._block_list(new_block_position, new_block_int)
 
     # #######################################
@@ -282,23 +282,24 @@ class Smd(DefaultLogging):
             self._block_list(position, new_block_int)
         self._block_list.remove_blocks(invalid_ids)
 
-    def add(self, block_position, block_int_24, replace=True):
+    def add(self, block_position, block, replace=True):
         """
         Add a block to the segment based on its global position
 
         @param block_position: x,y,z position of block
         @type block_position: int,int,int
-        @param block_int_24:
-        @type block_int_24: int
+        @param block:
+        @type block: StyleBasic
         """
         assert isinstance(block_position, tuple)
+        assert isinstance(block, StyleBasic), block
         position_region = self.get_region_position_of_position(block_position)
         if position_region not in self.position_to_region:
             self.position_to_region[position_region] = SmdRegion(
                 logfile=self._logfile,
                 verbose=self._verbose,
                 debug=self._debug)
-        self.position_to_region[position_region].add(block_position, block_int_24, replace)
+        self.position_to_region[position_region].add(block_position, block, replace)
 
     def search(self, block_id):
         """
@@ -364,8 +365,8 @@ class Smd(DefaultLogging):
         assert entity_type in BlueprintEntity.entity_types
 
         if entity_type == 0:  # Ship
-            core_block_int = block_handler(1).get_modified_int_24bit(block_id=1, active=False)
-            self._block_list(self._position_core, core_block_int)
+            core_block_int = block_pool(1).get_modified_int_24bit(block_id=1, active=False)
+            self._block_list(self._position_core, block_pool(core_block_int))
         else:  # not a ship
             if self._block_list.has_core(self._position_core):
                 self._block_list.pop(self._position_core)

@@ -6,7 +6,7 @@ import datetime
 
 from lib.loggingwrapper import DefaultLogging
 from lib.bits_and_bytes import BinaryStream
-from lib.smblueprint.smdblock.blockhandler import block_handler
+from lib.smblueprint.smdblock.blockpool import block_pool, StyleBasic
 
 
 class SmdSegment(DefaultLogging):
@@ -16,7 +16,7 @@ class SmdSegment(DefaultLogging):
     The Position coordinates are always a multiple of 32, like (32, 0, 128)
     Example: The core, or center of a blueprint is (16,16,16) and the position of its segment is (0,0,0)
 
-    @type block_index_to_block: dict[int, int]
+    @type block_index_to_block: dict[int, StyleBasic]
     @type _position: tuple[int]
     """
 
@@ -69,18 +69,15 @@ class SmdSegment(DefaultLogging):
         @param input_stream: input byte stream
         @type input_stream: BinaryStream
         """
-        max_version = block_handler.get_max_version()
-        convert_blocks = self._version < max_version
         decompressed_data = zlib.decompress(input_stream.read(self._compressed_size))
         self.block_index_to_block = {}
         for block_index in range(0, int(len(decompressed_data) / 3)):
             position = block_index * 3
             int_24bit = BinaryStream.unpack_int24(decompressed_data[position:position+3])
-            block = block_handler(int_24bit, version=self._version)
-            if block.get_id() != 0:
-                if convert_blocks:
-                    int_24bit = block.convert(max_version)
-                block_list(self.get_block_position_by_block_index(block_index), int_24bit)
+            block = block_pool(int_24bit, version=self._version)
+            if block is None:
+                continue
+            block_list(self.get_block_position_by_block_index(block_index), block)
         input_stream.seek(self._data_size-self._compressed_size, 1)  # skip unused bytes
 
     def read(self, block_list, input_stream):
@@ -121,7 +118,7 @@ class SmdSegment(DefaultLogging):
             set_of_valid_block_index = set(self.block_index_to_block.keys())
             for block_index in range(0, self._blocks_in_a_cube):
                 if block_index in set_of_valid_block_index:
-                    block_int_24 = self.block_index_to_block[block_index]
+                    block_int_24 = self.block_index_to_block[block_index].get_int_24()
                     byte_string += BinaryStream.pack_int24(block_int_24)
                     continue
                 byte_string += b"\0" * 3
@@ -211,20 +208,20 @@ class SmdSegment(DefaultLogging):
         """
         self._position = segment_position
 
-    def add(self, block_position, block_int_24, replace=True):
+    def add(self, block_position, block, replace=True):
         """
         Add a block to the segment based on its global position
 
         @param block_position: x,y,z position of block
         @type block_position: int,int,int
-        @param block_int_24:
-        @type block_int_24: int
+        @param block:
+        @type block: StyleBasic
         """
         block_index = self.get_block_index_by_block_position(block_position)
         if not replace and block_index in self.block_index_to_block:
             self._logger.debug("Prevented block replacement")
             return
-        self.block_index_to_block[block_index] = block_int_24
+        self.block_index_to_block[block_index] = block
         self.has_valid_data = True
 
     def to_stream(self, output_stream=sys.stdout):
@@ -244,5 +241,5 @@ class SmdSegment(DefaultLogging):
             for block_index in sorted(self.block_index_to_block.keys()):
                 output_stream.write("{}\t".format(self.get_block_position_by_block_index(block_index)))
                 # output_stream.write("{}\t".format(block_index))
-                block_handler(self.block_index_to_block[block_index]).to_stream(output_stream)
+                self.block_index_to_block[block_index].to_stream(output_stream)
         output_stream.flush()

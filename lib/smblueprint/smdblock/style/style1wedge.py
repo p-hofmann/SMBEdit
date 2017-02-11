@@ -55,9 +55,9 @@ class Style1Wedge(StyleBasic):
         rotations = self.get_rotations()
         if axis_rotation < 2 and rotations % 2 == 0:
             # no change
-            return self._int_24bit
+            return self._int_24
         rotations = (rotations + 2) % 4
-        return self.modify_orientation(self._int_24bit, rotations=rotations)
+        return self.modify_orientation(self._int_24, rotations=rotations)
 
     def _mirror_y(self):
         """
@@ -67,11 +67,11 @@ class Style1Wedge(StyleBasic):
         rotations = self.get_rotations()
         if axis_rotation == 2:
             # no change
-            return self._int_24bit
+            return self._int_24
         axis_rotation = (axis_rotation + 1) % 2
         if rotations % 2 == 1:
             rotations = (rotations + 2) % 4
-        return self.modify_orientation(self._int_24bit, axis_rotation=axis_rotation, rotations=rotations)
+        return self.modify_orientation(self._int_24, axis_rotation=axis_rotation, rotations=rotations)
 
     # front - back
     def _mirror_z(self):
@@ -83,11 +83,11 @@ class Style1Wedge(StyleBasic):
         if axis_rotation < 2:
             if rotations % 2 == 1:
                 # no change
-                return self._int_24bit
+                return self._int_24
             rotations = (rotations + 2) % 4
         else:
             if rotations % 2 == 0:
                 rotations += 1
             else:
                 rotations -= 1
-        return self.modify_orientation(self._int_24bit, rotations=rotations)
+        return self.modify_orientation(self._int_24, rotations=rotations)

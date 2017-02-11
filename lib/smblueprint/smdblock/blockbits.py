@@ -3,6 +3,7 @@ __author__ = 'Peter Hofmann'
 
 from lib.bits_and_bytes import BitAndBytes
 from lib.utils.blockconfig import block_config
+# from lib.smblueprint.smdblock.blockpool import block_pool
 
 
 class BlockBits(object):
@@ -21,8 +22,8 @@ class BlockBits(object):
                 21      20              An amount rotation around the axis of rotation, in 90-degree steps
     """
 
-    def __init__(self, int_24bit, version):
-        self._int_24bit = int_24bit
+    def __init__(self, int_24, version):
+        self._int_24 = int_24
         self._version = version
 
     def get_int_24(self):
@@ -31,7 +32,7 @@ class BlockBits(object):
 
         @rtype: int
         """
-        return self._int_24bit
+        return self._int_24
 
     def get_id(self):
         """
@@ -39,7 +40,7 @@ class BlockBits(object):
 
         @rtype: int
         """
-        return BitAndBytes.bits_parse(self._int_24bit, 0, 11)
+        return BitAndBytes.bits_parse(self._int_24, 0, 11)
 
     def get_hit_points(self):
         """
@@ -48,11 +49,11 @@ class BlockBits(object):
         @rtype: int
         """
         if self._version < 2:
-            return BitAndBytes.bits_parse(self._int_24bit, 11, 9)
+            return BitAndBytes.bits_parse(self._int_24, 11, 9)
         if self._version < 3:
-            return BitAndBytes.bits_parse(self._int_24bit, 11, 8)
+            return BitAndBytes.bits_parse(self._int_24, 11, 8)
         # version 3
-        return BitAndBytes.bits_parse(self._int_24bit, 11, 7)
+        return BitAndBytes.bits_parse(self._int_24, 11, 7)
 
     def is_active(self):
         """
@@ -64,31 +65,31 @@ class BlockBits(object):
         if not block_config[block_id].can_activate:
             return False
         if self._version < 3:
-            return BitAndBytes.bits_parse(self._int_24bit, 19, 1) == 0
+            return BitAndBytes.bits_parse(self._int_24, 19, 1) == 0
         # version 3
-        return BitAndBytes.bits_parse(self._int_24bit, 18, 1) == 0
+        return BitAndBytes.bits_parse(self._int_24, 18, 1) == 0
 
     def get_axis_rotation(self):
         if self._version < 3:
             block_id = self.get_id()
-            bit_22_23 = BitAndBytes.bits_parse(self._int_24bit, 22, 2)
+            bit_22_23 = BitAndBytes.bits_parse(self._int_24, 22, 2)
             if block_config[block_id].block_style in {2, 6}:
-                return bit_22_23 | (BitAndBytes.bits_parse(self._int_24bit, 19, 1) << 2)
+                return bit_22_23 | (BitAndBytes.bits_parse(self._int_24, 19, 1) << 2)
             return bit_22_23
         # version 3
-        return BitAndBytes.bits_parse(self._int_24bit, 21, 3)
+        return BitAndBytes.bits_parse(self._int_24, 21, 3)
 
     def get_rotations(self):
         if self._version < 3:
-            return BitAndBytes.bits_parse(self._int_24bit, 20, 2)
+            return BitAndBytes.bits_parse(self._int_24, 20, 2)
         # version 3
-        return BitAndBytes.bits_parse(self._int_24bit, 19, 2)
+        return BitAndBytes.bits_parse(self._int_24, 19, 2)
 
     def get_block_side_id(self):
         if self._version < 3:
-            return BitAndBytes.bits_parse(self._int_24bit, 20, 3)
+            return BitAndBytes.bits_parse(self._int_24, 20, 3)
         # version 3
-        return BitAndBytes.bits_parse(self._int_24bit, 19, 3)
+        return BitAndBytes.bits_parse(self._int_24, 19, 3)
 
     # #######################################
     # ###  Edit integer Bits
@@ -126,7 +127,7 @@ class BlockBits(object):
         if block_id is None:
             block_id = self.get_id()
         elif block_id == 0:
-            self._int_24bit = 0
+            self._int_24 = 0
             return
         elif hit_points is None:
             hit_points = block_config[block_id].hit_points
@@ -184,6 +185,18 @@ class BlockBits(object):
         int_24bit = self.modify_block(block_id=block_id, hit_points=hit_points, active=active)
         return self.modify_orientation(
             int_24bit, block_side_id=block_side_id, rotations=rotations, axis_rotation=axis_rotation)
+
+    def get_modified_block(self, block_id=None, hit_points=None, active=None,
+                               block_side_id=None, rotations=None, axis_rotation=None):
+        """
+        In the rare case a block value is changed, they are turned into a byte string.
+
+        @rtype: lib.smblueprint.smdblock.style.stylebasic.StyleBasic
+        """
+        from lib.smblueprint.smdblock.blockpool import block_pool
+        return block_pool(self.get_modified_int_24bit(
+            block_id=block_id, hit_points=hit_points, active=active,
+            block_side_id=block_side_id, rotations=rotations, axis_rotation=axis_rotation))
 
     # #######################################
     # ###  Turning - Experimental

@@ -68,7 +68,7 @@ class Style4Tetra(StyleBasic):
         tuple_str = self._replace_string(tuple_str, replacements)
         axis_rotation, rotations = self._tuple_str_to_orientation[tuple_str]
         return self.modify_orientation(
-            self._int_24bit, axis_rotation=axis_rotation, rotations=rotations)
+            self._int_24, axis_rotation=axis_rotation, rotations=rotations)
 
     def _mirror_y(self):
         """
@@ -78,7 +78,7 @@ class Style4Tetra(StyleBasic):
         axis_rotation = self.get_axis_rotation()
         axis_rotation = (axis_rotation + 1) % 2
         return self.modify_orientation(
-            self._int_24bit, axis_rotation=axis_rotation, rotations=rotations)
+            self._int_24, axis_rotation=axis_rotation, rotations=rotations)
 
     # front - back
     def _mirror_z(self):
@@ -92,4 +92,4 @@ class Style4Tetra(StyleBasic):
         tuple_str = self._replace_string(tuple_str, replacements)
         bit_22, rotations = self._tuple_str_to_orientation[tuple_str]
         return self.modify_orientation(
-            self._int_24bit, axis_rotation=axis_rotation, rotations=rotations)
+            self._int_24, axis_rotation=axis_rotation, rotations=rotations)

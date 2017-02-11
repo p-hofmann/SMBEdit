@@ -1,26 +1,26 @@
 from collections import Iterable
 import struct
-from lib.smblueprint.smdblock.blockhandler import block_handler, StyleBasic
+from lib.smblueprint.smdblock.blockpool import StyleBasic
 
 
 class BlockList(object):
     """
-    @type _position_index_to_instance: dict[bytes | str, int]
+    @type _position_index_to_instance: dict[bytes | str, StyleBasic]
     """
 
     def __init__(self):
         self._position_index_to_instance = dict()
 
-    def __call__(self, position, int_24):
+    def __call__(self, position, block):
         """
         @param position:
         @type position: (int, int, int)
-        @param int_24:
-        @type int_24: int
+        @param block:
+        @type block: StyleBasic
         """
-        assert isinstance(int_24, int), int_24
+        assert isinstance(block, StyleBasic), block
         position_index = self.get_index(position)
-        self._position_index_to_instance[position_index] = int_24
+        self._position_index_to_instance[position_index] = block
 
     # Methods, called on class objects:
     def __iter__(self):
@@ -35,7 +35,7 @@ class BlockList(object):
         @rtype: Iterable[((int, int, int), StyleBasic)]
         """
         for position_index in self._position_index_to_instance:
-            yield self.get_position(position_index), self[position_index]
+            yield self.get_position(position_index), self._position_index_to_instance[position_index]
     
     def __getitem__(self, position):
         """
@@ -51,7 +51,7 @@ class BlockList(object):
         else:
             position_index = self.get_index(position)
         assert position_index in self._position_index_to_instance, "{} No block at position: {}".format(len(self), position)
-        return block_handler(self._position_index_to_instance[position_index])
+        return self._position_index_to_instance[position_index]
 
     def __len__(self):
         """
@@ -69,8 +69,8 @@ class BlockList(object):
         blocks = self._position_index_to_instance
         self._position_index_to_instance = dict()
         while len(blocks) > 0:
-            position_index, int_24 = blocks.popitem()
-            yield self.get_position(position_index), block_handler(int_24)
+            position_index, block = blocks.popitem()
+            yield self.get_position(position_index), block
 
     def pop_position_indexes(self):
         """
@@ -79,8 +79,8 @@ class BlockList(object):
         blocks = self._position_index_to_instance
         self._position_index_to_instance = dict()
         while len(blocks) > 0:
-            position_index, int_24 = blocks.popitem()
-            yield position_index, block_handler(int_24)
+            position_index, block = blocks.popitem()
+            yield position_index, block
 
     def pop(self, position):
         """
@@ -93,7 +93,7 @@ class BlockList(object):
         """
         assert isinstance(position, tuple)
         assert self.has_block_at(position), "No block at position: {}".format(position)
-        return block_handler(self._position_index_to_instance.pop(self.get_index(position)))
+        return self._position_index_to_instance.pop(self.get_index(position))
 
     def keys(self):
         """
@@ -234,4 +234,4 @@ class BlockList(object):
         for position_index, block in self.pop_position_indexes():
             new_position_index = self._shift_index(
                 position_index, vector_direction[0], vector_direction[1], vector_direction[2])
-            self._position_index_to_instance[new_position_index] = block.get_int_24()
+            self._position_index_to_instance[new_position_index] = block

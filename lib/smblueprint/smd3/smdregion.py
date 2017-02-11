@@ -5,7 +5,7 @@ import math
 
 from lib.loggingwrapper import DefaultLogging
 from lib.bits_and_bytes import BinaryStream
-from lib.smblueprint.smd3.smdsegment import SmdSegment
+from lib.smblueprint.smd3.smdsegment import SmdSegment, StyleBasic
 
 
 class SmdRegion(DefaultLogging):
@@ -270,14 +270,14 @@ class SmdRegion(DefaultLogging):
     # ###  Set
     # #######################################
 
-    def add(self, block_position, block_int_24, replace=True):
+    def add(self, block_position, block, replace=True):
         """
         Add a block to the segment based on its global position
 
         @param block_position: x,y,z position of block
         @type block_position: tuple[int]
-        @param block_int_24:
-        @type block_int_24: int
+        @param block:
+        @type block: StyleBasic
         """
         position_segment = self.get_segment_position_of_position(block_position)
         if position_segment not in self.position_to_segment:
@@ -287,7 +287,7 @@ class SmdRegion(DefaultLogging):
                 verbose=self._verbose,
                 debug=self._debug)
             self.position_to_segment[position_segment].set_position(position_segment)
-        self.position_to_segment[position_segment].add(block_position, block_int_24, replace)
+        self.position_to_segment[position_segment].add(block_position, block, replace)
 
     def to_stream(self, output_stream=sys.stdout):
         """

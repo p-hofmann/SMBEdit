@@ -114,7 +114,7 @@ class Style2Corner(StyleBasic):
         tuple_str = self._replace_string(tuple_str, replacements)
         axis_rotation, rotations = self._tuple_str_to_orientation[tuple_str]
         return self.modify_orientation(
-            self._int_24bit, rotations=rotations, axis_rotation=axis_rotation)
+            self._int_24, rotations=rotations, axis_rotation=axis_rotation)
 
     def _mirror_y(self):
         """
@@ -127,7 +127,7 @@ class Style2Corner(StyleBasic):
         tuple_str = self._replace_string(tuple_str, replacements)
         axis_rotation, rotations = self._tuple_str_to_orientation[tuple_str]
         return self.modify_orientation(
-            self._int_24bit, rotations=rotations, axis_rotation=axis_rotation)
+            self._int_24, rotations=rotations, axis_rotation=axis_rotation)
 
     # front - back
     def _mirror_z(self):
@@ -141,4 +141,4 @@ class Style2Corner(StyleBasic):
         tuple_str = self._replace_string(tuple_str, replacements)
         axis_rotation, rotations = self._tuple_str_to_orientation[tuple_str]
         return self.modify_orientation(
-            self._int_24bit, rotations=rotations, axis_rotation=axis_rotation)
+            self._int_24, rotations=rotations, axis_rotation=axis_rotation)

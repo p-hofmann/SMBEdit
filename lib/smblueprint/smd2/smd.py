@@ -5,7 +5,7 @@ import os
 import math
 from lib.loggingwrapper import DefaultLogging
 from lib.utils.blocklist import BlockList
-from lib.smblueprint.smd2.smdregion import SmdRegion
+from lib.smblueprint.smd2.smdregion import SmdRegion, StyleBasic
 
 
 class Smd(DefaultLogging):
@@ -115,23 +115,24 @@ class Smd(DefaultLogging):
         """
         return len(self._block_list)
 
-    def add(self, block_position, block_int_24, replace=True):
+    def add(self, block_position, block, replace=True):
         """
         Add a block to the segment based on its global position
 
         @param block_position: x,y,z position of block
         @type block_position: int,int,int
-        @param block_int_24:
-        @type block_int_24: int
+        @param block:
+        @type block: StyleBasic
         """
         assert isinstance(block_position, tuple)
+        assert isinstance(block, StyleBasic)
         position_region = self.get_region_position_of_position(block_position)
         if position_region not in self.position_to_region:
             self.position_to_region[position_region] = SmdRegion(
                 logfile=self._logfile,
                 verbose=self._verbose,
                 debug=self._debug)
-        self.position_to_region[position_region].add(block_position, block_int_24, replace)
+        self.position_to_region[position_region].add(block_position, block, replace)
 
     def to_stream(self, output_stream=sys.stdout):
         """

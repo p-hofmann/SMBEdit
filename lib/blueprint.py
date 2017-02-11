@@ -12,7 +12,7 @@ from lib.smblueprint.header import Header
 from lib.smblueprint.logic import Logic
 from lib.smblueprint.meta.meta import Meta
 from lib.smblueprint.smd3.smd import Smd
-from lib.smblueprint.smdblock.blockhandler import block_handler
+from lib.smblueprint.smdblock.blockpool import block_pool
 
 
 class Blueprint(DefaultLogging):
@@ -86,10 +86,10 @@ class Blueprint(DefaultLogging):
         rail_docker_id = 663
         if is_docked_entity and self.smd3.search(rail_docker_id) is None:
             self._logger.info("Adding 'Rail docker' to docked entity.")
-            block_int_24 = block_handler(rail_docker_id).get_modified_int_24bit(
+            block = block_pool(rail_docker_id).get_modified_block(
                 block_id=rail_docker_id, axis_rotation=2, rotations=2)
             position_below_core = (16, 15, 16)
-            self.smd3.add(position_below_core, block_int_24)
+            self.smd3.add(position_below_core, block)
             self.header.update(self.smd3)
 
         if not self.meta.has_old_docked_entities():

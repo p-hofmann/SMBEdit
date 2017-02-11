@@ -1,7 +1,7 @@
 import sys
 from lib.utils.blocklist import BlockList
 from lib.utils.blockconfig import block_config
-from lib.smblueprint.smdblock.blockhandler import block_handler
+from lib.smblueprint.smdblock.blockpool import block_pool
 
 
 __author__ = 'Peter Hofmann'
@@ -134,9 +134,9 @@ class AutoShape(object):
             axis_rotation, rotations = PeripherySimple.peripheries[new_shape_id][periphery_index]
             block_hull_tier, color_id, shape_id = block_config[block_id].get_details()
             new_block_id = block_config.get_block_id_by_details(block_hull_tier, color_id, new_shape_id)
-            new_block_int = block_handler(new_block_id).get_modified_int_24bit(
+            new_block = block_pool(new_block_id).get_modified_block(
                 block_id=new_block_id, axis_rotation=axis_rotation, rotations=rotations)
-            self._block_list(position, new_block_int)
+            self._block_list(position, new_block)
 
     def auto_hull_shape_dependent(self, block_shape_id):
         """
@@ -159,9 +159,9 @@ class AutoShape(object):
             axis_rotation, rotations = PeripherySimple.peripheries[block_shape_id][periphery_index][periphery_shape]
             block_hull_type, color, shape_id = block_config[block_id].get_details()
             new_block_id = block_config.get_block_id_by_details(block_hull_type, color, block_shape_id)
-            new_int_24 = block_handler(new_block_id).get_modified_int_24bit(
+            new_block = block_pool(new_block_id).get_modified_block(
                 block_id=new_block_id, axis_rotation=axis_rotation, rotations=rotations)
-            self._block_list(position, new_int_24)
+            self._block_list(position, new_block)
 
     def auto_hull_shape(self, auto_wedge, auto_tetra, auto_corner, auto_hepta=None):
         """
@@ -208,7 +208,8 @@ class AutoShape(object):
                 continue
             sys.stdout.write("\t\t{}: [{}, {}],\n".format(
                 periphery_index, axis_rotation, rotations))
-            # sys.stdout.write("\t\t{}: [{}, {}],  # {}\n".format(periphery_index, shape_id, block.get_int_24bit(), position))
+            # sys.stdout.write("\t\t{}: [{}, {}],  # {}\n".format(
+            #   periphery_index, shape_id, block.get_int_24bit(), position))
 
             # int_24 = block.get_int_24bit()
             # block.update(block_id=599, bit_19=bit_19, bit_22=bit_22, bit_23=bit_23, rotations=rotations)
@@ -323,7 +324,7 @@ class PeripherySimple(object):
             (True, True, False): (1, 0),
             (True, False, True): (3, 1),
         },
-}
+    }
 
     # tetra
     peripheries[3] = {
