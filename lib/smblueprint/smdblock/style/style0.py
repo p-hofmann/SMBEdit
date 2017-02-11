@@ -112,6 +112,25 @@ class Style0(StyleBasic):
     # ###  Turning type 0
     # #######################################
 
+    _block_side_id_to_type_6 = {
+        # (axis_rotation, rotations) (19, 23, 22, rotations)
+        0: (0, 2),  # (0, 0, 0, 2),  # FRONT up
+        1: (1, 0),  # (0, 0, 1, 0),  # BACK down/up?
+        2: (3, 2),  # (0, 1, 1, 2),  # TOP forward
+        3: (2, 2),  # (0, 1, 0, 2),  # BOTTOM forward
+        4: (4, 0),  # (1, 0, 0, 0),  # RIGHT forward
+        5: (5, 0),  # (1, 0, 1, 0),  # LEFT forward
+    }
+
+    @staticmethod
+    def side_id_to_axis_rotation(side_id):
+        """
+        Return style 6 bits representing side id
+
+        @rtype: tuple[int]
+        """
+        return Style0._block_side_id_to_type_6[side_id]
+
     @staticmethod
     def _turn_x_90(side_id):
         """

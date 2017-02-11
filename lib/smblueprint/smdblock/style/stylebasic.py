@@ -116,3 +116,16 @@ class StyleBasic(BlockBits):
         self._int_24 = self.get_modified_int_24bit(
             block_id=block_id, active=active,
             block_side_id=block_side_id, axis_rotation=axis_rotation, rotations=rotations)
+
+    @staticmethod
+    def _replace_string(tuple_str, replacements):
+        """
+        @type tuple_str: tuple[str]
+        @type replacements: dict[str, str]
+        """
+        tmp_list = list(tuple_str)
+        for index, word in enumerate(tuple_str):
+            if word in replacements:
+                tmp_list[index] = replacements[word]
+                return tuple(tmp_list)
+        return tuple(tmp_list)
