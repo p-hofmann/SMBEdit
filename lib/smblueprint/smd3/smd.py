@@ -46,6 +46,11 @@ class Smd(DefaultLogging):
         self._block_list = BlockList()
         return
 
+    def __del__(self):
+        list = self._block_list
+        self._block_list = None
+        del list
+
     # #######################################
     # ###  Read
     # #######################################
