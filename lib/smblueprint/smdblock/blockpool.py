@@ -43,8 +43,9 @@ class BlockPool(object):
             return None
         if version < max_version:
             block.convert(max_version)
+            state = block.get_int_24()
         # check if this block state already exist
-        instance_pool = self._state_to_instance.get(block.get_int_24())
+        instance_pool = self._state_to_instance.get(state)
         if not instance_pool:
             instance_pool = block
             self._state_to_instance[state] = instance_pool
