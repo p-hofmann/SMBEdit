@@ -18,6 +18,17 @@ class BlockHandler(object):
 
     _valid_versions = {0, 1, 2, 3}
 
+    def __init__(self):
+        self._basic = StyleBasic(0, 0)
+        self._styles = [
+            Style0(0, 0),
+            Style1Wedge(0, 0),
+            Style2Corner(0, 0),
+            Style3(0, 0),
+            Style4Tetra(0, 0),
+            Style5Hepta(0, 0),
+            Style6(0, 0)]
+
     def __call__(self, int_24bit, version=None):
         """
         @type int_24bit: int
@@ -34,31 +45,18 @@ class BlockHandler(object):
     def get_max_version():
         return max(BlockHandler._valid_versions)
 
-    @staticmethod
-    def _get_style(int_24bit, version=3):
+    def _get_style(self, int_24bit, version=3):
         """
 
         @type int_24bit: int
 
         @rtype: StyleBasic
         """
-        block = StyleBasic(int_24bit, version)
-        if block.get_id() == 0:
-            return block
-        block_style = block_config[block.get_id()].block_style
-        if block_style == 0:
-            return Style0(int_24bit, version)
-        if block_style == 1:
-            return Style1Wedge(int_24bit, version)
-        if block_style == 2:
-            return Style2Corner(int_24bit, version)
-        if block_style == 3:
-            return Style3(int_24bit, version)
-        if block_style == 4:
-            return Style4Tetra(int_24bit, version)
-        if block_style == 5:
-            return Style5Hepta(int_24bit, version)
-        if block_style == 6:
-            return Style6(int_24bit, version)
+        self._basic(int_24bit, version)
+        if self._basic.get_id() == 0:
+            return self._basic
+        block_style = block_config[self._basic.get_id()].block_style
+        self._styles[block_style](int_24bit, version)
+        return self._styles[block_style]
 
 block_handler = BlockHandler()

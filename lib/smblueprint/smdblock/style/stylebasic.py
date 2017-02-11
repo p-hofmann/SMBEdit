@@ -8,6 +8,16 @@ from lib.smblueprint.smdblock.blockbits import BlockBits
 
 class StyleBasic(BlockBits):
 
+    def __call__(self, int_24bit, version=None):
+        """
+        @type int_24bit: int
+        @type version: int
+
+        @rtype: StyleBasic
+        """
+        self._int_24bit = int_24bit
+        self._version = version
+
     def __repr__(self):
         return "{}".format(block_config[self.get_id()].name)
 
