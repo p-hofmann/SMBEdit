@@ -77,7 +77,7 @@ class SmdSegment(DefaultLogging):
             block = block_pool(int_24bit, version=self._version)
             if block is None:
                 continue
-            block_list(self.get_block_position_by_block_index(block_index), block)
+            block_list[self.get_block_position_by_block_index(block_index)] = block
         input_stream.seek(self._data_size-self._compressed_size, 1)  # skip unused bytes
 
     def read(self, block_list, input_stream):

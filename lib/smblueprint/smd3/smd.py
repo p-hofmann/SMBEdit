@@ -193,7 +193,7 @@ class Smd(DefaultLogging):
 
         # return core if it existed
         if block_core is not None:
-            self._block_list(self._position_core, block_core)
+            self._block_list[self._position_core] = block_core
 
     def mirror(self, axis_index, reverse=False):
         """
@@ -209,7 +209,7 @@ class Smd(DefaultLogging):
         vector_factor[axis_index] = -1
         for position_block, block in self._block_list.pop_positions():
             if position_block[axis_index] == self._position_core[axis_index]:
-                self._block_list(position_block, block)
+                self._block_list[position_block] = block
                 continue
             if reverse:
                 mirror = position_block[axis_index] < self._position_core[axis_index]
@@ -220,9 +220,9 @@ class Smd(DefaultLogging):
             position_tmp = Vector.subtraction(position_block, self._position_core)
             position_tmp = Vector.multiplication(position_tmp, vector_factor)
             new_block_position = Vector.addition(position_tmp, self._position_core)
-            new_block_int = block.get_mirror(axis_index)
-            self._block_list(position_block, block)
-            self._block_list(new_block_position, new_block_int)
+            new_block = block.get_mirror(axis_index)
+            self._block_list[position_block] = block
+            self._block_list[new_block_position] = new_block
 
     # #######################################
     # ###  Turning
@@ -240,7 +240,7 @@ class Smd(DefaultLogging):
             if block.get_id() != 1:  # core
                 new_block_position = Vector.tilt_turn_position(position_block, tilt_index)
                 # block.tilt_turn(tilt_index)  # todo: needs fixing
-            self._block_list(new_block_position, block.get_int_24())
+            self._block_list[new_block_position] = block
 
     # #######################################
     # ###  Else
@@ -283,8 +283,8 @@ class Smd(DefaultLogging):
             if updated_block_id is None:
                 invalid_ids.add(block.get_id())
                 continue
-            new_block_int = block.to_style6(block_id=updated_block_id)
-            self._block_list(position, new_block_int)
+            new_block = block.to_style6(block_id=updated_block_id)
+            self._block_list[position] = new_block
         self._block_list.remove_blocks(invalid_ids)
 
     def add(self, block_position, block, replace=True):
@@ -370,8 +370,8 @@ class Smd(DefaultLogging):
         assert entity_type in BlueprintEntity.entity_types
 
         if entity_type == 0:  # Ship
-            core_block_int = block_pool(1).get_modified_int_24bit(block_id=1, active=False)
-            self._block_list(self._position_core, block_pool(core_block_int))
+            core_block = block_pool(1).get_modified_block(block_id=1, active=False)
+            self._block_list[self._position_core] = core_block
         else:  # not a ship
             if self._block_list.has_core(self._position_core):
                 self._block_list.pop(self._position_core)

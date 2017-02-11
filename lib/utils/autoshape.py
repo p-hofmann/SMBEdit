@@ -136,7 +136,7 @@ class AutoShape(object):
             new_block_id = block_config.get_block_id_by_details(block_hull_tier, color_id, new_shape_id)
             new_block = block_pool(new_block_id).get_modified_block(
                 block_id=new_block_id, axis_rotation=axis_rotation, rotations=rotations)
-            self._block_list(position, new_block)
+            self._block_list[position] = new_block
 
     def auto_hull_shape_dependent(self, block_shape_id):
         """
@@ -161,7 +161,7 @@ class AutoShape(object):
             new_block_id = block_config.get_block_id_by_details(block_hull_type, color, block_shape_id)
             new_block = block_pool(new_block_id).get_modified_block(
                 block_id=new_block_id, axis_rotation=axis_rotation, rotations=rotations)
-            self._block_list(position, new_block)
+            self._block_list[position] = new_block
 
     def auto_hull_shape(self, auto_wedge, auto_tetra, auto_corner, auto_hepta=None):
         """

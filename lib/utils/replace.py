@@ -34,22 +34,22 @@ class Replace(object):
         for position, block in self._block_list.pop_positions():
             block_id = block.get_id()
             if not block_config[block_id].is_hull():
-                self._block_list(position, block)
+                self._block_list[position] = block
                 continue
             if block_id not in self._replace_cache_positive:
                 hull_tier, color_id, shape_id = block_config[block_id].get_details()
                 if hull_tier is None:
-                    self._block_list(position, block.get_int_24())
+                    self._block_list[position] = block
                     continue
                 if hull_type is not None and hull_type != hull_tier:  # not replaced
-                    self._block_list(position, block.get_int_24())
+                    self._block_list[position] = block
                     continue
                 new_block_id = block_config.get_block_id_by_details(new_hull_type, color_id, shape_id)
                 self._replace_cache_positive[block_id] = new_block_id
             new_block_id = self._replace_cache_positive[block_id]
             new_block = block_pool(new_block_id).get_modified_block(
                 block_id=new_block_id, active=False, hit_points=block_config[new_block_id].hit_points)
-            self._block_list(position, new_block)
+            self._block_list[position] = new_block
 
     def replace_blocks(self, block_id, replace_id, compatible=False):
         """
@@ -62,4 +62,4 @@ class Replace(object):
                 new_block = block.get_modified_block(block_id=replace_id)
             else:
                 new_block = block_pool(replace_id).get_modified_block(block_id=replace_id, active=False)
-            self._block_list(position, new_block)
+            self._block_list[position] = new_block

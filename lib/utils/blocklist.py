@@ -11,17 +11,6 @@ class BlockList(object):
     def __init__(self):
         self._position_index_to_instance = dict()
 
-    def __call__(self, position, block):
-        """
-        @param position:
-        @type position: (int, int, int)
-        @param block:
-        @type block: StyleBasic
-        """
-        assert isinstance(block, StyleBasic), block
-        position_index = self.get_index(position)
-        self._position_index_to_instance[position_index] = block
-
     # Methods, called on class objects:
     def __iter__(self):
         """
@@ -36,7 +25,18 @@ class BlockList(object):
         """
         for position_index in self._position_index_to_instance:
             yield self.get_position(position_index), self._position_index_to_instance[position_index]
-    
+
+    def __setitem__(self, position, block):
+        """
+        @param position:
+        @type position: (int, int, int)
+        @param block:
+        @type block: StyleBasic
+        """
+        assert isinstance(block, StyleBasic), block
+        position_index = self.get_index(position)
+        self._position_index_to_instance[position_index] = block
+
     def __getitem__(self, position):
         """
         Get a block at a specific position
