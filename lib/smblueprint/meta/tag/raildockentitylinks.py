@@ -181,8 +181,8 @@ class RailDockedEntity(object):
         byte_orientation_2 = self._byte_orientation_2
         if version > 4:
             tag_list.add(TagPayload(-1, None, self._unknown_byte_0))
-            if byte_orientation_2 == 0 and byte_orientation_1 < 8:
-                byte_orientation_1 += 16
+        #     if byte_orientation_2 == 0 and byte_orientation_1 < 8:
+        #         byte_orientation_1 += 16
         tag_list.add(TagPayload(-8, None, self._label))
         tag_list.add(TagPayload(-10, None, self._location))
         tag_list.add(TagPayload(-2, None, self._block_id))
