@@ -6,6 +6,8 @@ import sys
 from lib.loggingwrapper import DefaultLogging
 from lib.utils.blockconfig import block_config
 from lib.utils.autoshape import AutoShape
+from lib.utils.periphery import Periphery
+from lib.utils.annotate import Annotate
 from lib.utils.replace import Replace
 from lib.utils.vector import Vector
 from lib.smblueprint.header import Header
@@ -184,7 +186,14 @@ class Blueprint(DefaultLogging):
         #     self.smd3.auto_hepta_debug()
         #     # self.smd3.auto_wedge_debug()
         #     return
-        auto_shape = AutoShape(self.smd3.get_block_list())
+        periphery = Periphery(self.smd3.get_block_list())
+        annotate = Annotate(self.smd3.get_block_list(), periphery)
+        min_position, max_position = self.smd3.get_min_max_vector()
+        start_position = Vector.subtraction(min_position, (1, 1, 1))
+        # marked, border = annotate.flood(start_position, min_position, max_position)
+        marked, border = annotate.get_boundaries(min_position, max_position)
+        periphery.set_annotation(marked=marked, border=border)
+        auto_shape = AutoShape(self.smd3.get_block_list(), periphery)
         auto_shape.auto_hull_shape(
             auto_wedge=auto_wedge, auto_tetra=auto_tetra, auto_corner=auto_corner, auto_hepta=auto_hepta)
         self.header.update(self.smd3)

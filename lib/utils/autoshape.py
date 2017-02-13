@@ -80,7 +80,7 @@ class AutoShape(object):
         self.auto_hull_shape_independent(auto_wedge, auto_tetra)
         shape_id_corner = block_config.get_shape_id("corner")
         shape_id_hepta = block_config.get_shape_id("hepta")
-        if auto_corner:
-            self.auto_hull_shape_dependent(shape_id_corner)
         if auto_hepta:
             self.auto_hull_shape_dependent(shape_id_hepta)
+        if auto_corner:
+            self.auto_hull_shape_dependent(shape_id_corner)

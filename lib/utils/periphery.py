@@ -17,6 +17,11 @@ class PeripheryBase(object):
         """
         self._block_list = block_list
 
+    def __del__(self):
+        list = self._block_list
+        self._block_list = None
+        del list
+
     _shape_id_wedge = block_config.get_shape_id("wedge")
     _shape_id_tetra = block_config.get_shape_id("tetra")
     _shape_id_corner = block_config.get_shape_id("corner")
@@ -43,6 +48,30 @@ class PeripheryBase(object):
         @rtype: (int, int) | None
         """
         pass
+
+    def get_position_block_periphery_index(self, position, periphery_range=1):
+        """
+        Some positions in a 3x3x3 periphery, represented by a bit each.
+
+        @type position: tuple[int]
+        @rtype: int
+        """
+        assert 1 <= periphery_range <= 3
+        periphery_index = 0
+        power = 1
+        range_p = [-1, 0, 1]
+        for x in range_p:
+            for y in range_p:
+                for z in range_p:
+                    if abs(x) + abs(y) + abs(z) > periphery_range:
+                        continue
+                    position_tmp = (position[0] + x, position[1] + y, position[2] + z)
+                    if position_tmp == position:
+                        continue
+                    if self._block_list.has_block_at(position_tmp):
+                        periphery_index |= power
+                    power <<= 1
+        return periphery_index
 
 
 class PeripherySimple(PeripheryBase):
@@ -205,30 +234,6 @@ class PeripherySimple(PeripheryBase):
     #     # print power
     #     return periphery_index
 
-    def get_position_periphery_index(self, position, periphery_range):
-        """
-        Some positions in a 3x3x3 periphery, represented by a bit each.
-
-        @type position: tuple[int]
-        @rtype: int
-        """
-        assert 1 <= periphery_range <= 3
-        periphery_index = 0
-        power = 1
-        range_p = [-1, 0, 1]
-        for x in range_p:
-            for y in range_p:
-                for z in range_p:
-                    if abs(x) + abs(y) + abs(z) > periphery_range:
-                        continue
-                    position_tmp = (position[0] + x, position[1] + y, position[2] + z)
-                    if position_tmp == position:
-                        continue
-                    if self._block_list.has_block_at(position_tmp):
-                        periphery_index |= power
-                    power <<= 1
-        return periphery_index
-
     def get_position_shape_periphery(self, position, periphery_range):
         """
         Return a 3x3x3 periphery description
@@ -279,7 +284,7 @@ class PeripherySimple(PeripheryBase):
         @return: (shape id, (axis rotation, rotations)) | None
         @rtype: (int (int, int)) | None
         """
-        periphery_index = self.get_position_periphery_index(position, 1)
+        periphery_index = self.get_position_block_periphery_index(position, 1)
         if shape_wedge and periphery_index in self.peripheries[self._shape_id_wedge]:
             # "wedge"
             new_shape_id = self._shape_id_wedge
@@ -298,7 +303,7 @@ class PeripherySimple(PeripheryBase):
         @return: (axis rotation, rotations) | None
         @rtype: (int, int) | None
         """
-        periphery_index = self.get_position_periphery_index(position, 1)
+        periphery_index = self.get_position_block_periphery_index(position, 1)
         if periphery_index not in self.peripheries[shape_id]:
             return None
         periphery_shape = self.get_position_shape_periphery(position, 1)
@@ -320,14 +325,21 @@ class Periphery(PeripheryBase):
     @type _border: set[str]
     """
 
-    def __init__(self, block_list, marked, border):
+    def __init__(self, block_list):
         """
 
         @type block_list: BlockList
+        """
+        super(Periphery, self).__init__(block_list)
+        self._marked = set()
+        self._border = set()
+
+    def set_annotation(self, marked, border):
+        """
+
         @type marked: set[str]
         @type border: set[str]
         """
-        super(Periphery, self).__init__(block_list)
         self._marked = marked
         self._border = border
 
@@ -359,187 +371,435 @@ class Periphery(PeripheryBase):
     # corner
     peripheries[2] = {
         52: {
-            (1, 1, 0): {
-                ((0, 0), (2, 0), None):  [3, 0],
+            (1, 0, 0, 2, 0, 0): {
+                ((0, 0), None, None, (0, 1), None, None): [0, 0],
             },
-            (0, 1, 1): {
-                (None, (2, 0), (0, 3)):  [4, 3],
+            (2, 2, 0, 2, 0, 0): {
+                ((5, 3), (4, 2), None, (4, 0), None, None): [4, 3],
+                ((3, 3), (3, 1), None, (2, 3), None, None): [3, 0],
+                ((0, 3), (1, 0), None, (0, 1), None, None): [0, 0],
             },
-            (0, 0, 0): {
-                (None, None, None):  [4, 3],
+            (2, 0, 0, 1, 0, 0): {
+                ((0, 3), None, None, (0, 3), None, None): [0, 0],
             },
-            (1, 0, 0): {
-                ((0, 0), None, None):  [3, 0],
+            (2, 0, 0, 2, 0, 0): {
+                ((0, 3), None, None, (0, 1), None, None): [0, 0],
             },
-            (0, 1, 0): {
-                (None, (2, 0), None):  [4, 3],
+            (2, 2, 0, 1, 0, 0): {
+                ((0, 3), (1, 0), None, (0, 3), None, None): [0, 0],
+                ((5, 3), (4, 2), None, (0, 3), None, None): [4, 3],
             },
-            (0, 0, 1): {
-                (None, None, (0, 3)):  [0, 0],
+            (1, 1, 0, 0, 0, 0): {
+                ((0, 0), (2, 0), None, None, None, None): [3, 0],
             },
-            (1, 0, 1): {
-                ((0, 0), None, (0, 3)):  [0, 0],
+            (1, 2, 0, 0, 0, 0): {
+                ((0, 0), (3, 1), None, None, None, None): [3, 0],
+            },
+            (0, 2, 0, 1, 0, 0): {
+                (None, (4, 2), None, (0, 3), None, None): [4, 3],
+            },
+            (0, 2, 0, 2, 0, 0): {
+                (None, (4, 2), None, (4, 0), None, None): [4, 3],
+            },
+            (2, 1, 0, 2, 0, 0): {
+                ((5, 3), (2, 0), None, (4, 0), None, None): [4, 3],
+                ((3, 3), (2, 0), None, (2, 3), None, None): [3, 0],
+            },
+            (1, 0, 0, 1, 0, 0): {
+                ((0, 0), None, None, (0, 3), None, None): [0, 0],
+            },
+            (2, 2, 0, 0, 0, 0): {
+                ((3, 3), (3, 1), None, None, None, None): [3, 0],
+            },
+            (1, 2, 0, 2, 0, 0): {
+                ((0, 0), (3, 1), None, (2, 3), None, None): [3, 0],
+            },
+            (0, 1, 0, 1, 0, 0): {
+                (None, (2, 0), None, (0, 3), None, None): [4, 3],
+            },
+            (0, 1, 0, 2, 0, 0): {
+                (None, (2, 0), None, (4, 0), None, None): [4, 3],
+            },
+            (2, 1, 0, 0, 0, 0): {
+                ((3, 3), (2, 0), None, None, None, None): [3, 0],
             },
         },
         21: {
-            (0, 1, 1): {
-                (None, (0, 1), (0, 0)):  [0, 3],
+            (0, 2, 0, 1, 0, 2): {
+                (None, (5, 2), None, (0, 1), None, (4, 3)): [5, 3],
+                (None, (1, 3), None, (0, 1), None, (0, 0)): [0, 3],
             },
-            (0, 0, 0): {
-                (None, None, None):  [0, 3],
+            (0, 1, 0, 0, 0, 2): {
+                (None, (2, 2), None, None, None, (3, 0)): [3, 3],
             },
-            (1, 1, 0): {
-                ((2, 2), (0, 1), None):  [5, 3],
+            (0, 1, 0, 1, 0, 0): {
+                (None, (2, 2), None, (0, 1), None, None): [5, 3],
             },
-            (1, 0, 0): {
-                ((2, 2), None, None):  [5, 3],
+            (0, 2, 0, 2, 0, 2): {
+                (None, (5, 2), None, (5, 0), None, (4, 3)): [5, 3],
+                (None, (3, 2), None, (2, 2), None, (3, 0)): [3, 3],
+                (None, (1, 3), None, (0, 2), None, (0, 0)): [0, 3],
             },
-            (0, 1, 0): {
-                (None, (0, 1), None):  [5, 3],
+            (0, 0, 0, 2, 0, 1): {
+                (None, None, None, (0, 2), None, (0, 0)): [0, 3],
             },
-            (0, 0, 1): {
-                (None, None, (0, 0)):  [0, 3],
+            (0, 1, 0, 2, 0, 2): {
+                (None, (2, 2), None, (5, 0), None, (4, 3)): [5, 3],
+                (None, (2, 2), None, (2, 2), None, (3, 0)): [3, 3],
             },
-            (1, 0, 1): {
-                ((2, 2), None, (0, 0)):  [3, 3],
+            (0, 0, 0, 1, 0, 2): {
+                (None, None, None, (0, 1), None, (0, 0)): [0, 3],
+            },
+            (0, 2, 0, 0, 0, 2): {
+                (None, (3, 2), None, None, None, (3, 0)): [3, 3],
+            },
+            (0, 2, 0, 2, 0, 1): {
+                (None, (3, 2), None, (2, 2), None, (0, 0)): [3, 3],
+            },
+            (0, 2, 0, 1, 0, 0): {
+                (None, (5, 2), None, (0, 1), None, None): [5, 3],
+            },
+            (0, 2, 0, 2, 0, 0): {
+                (None, (5, 2), None, (5, 0), None, None): [5, 3],
+            },
+            (0, 2, 0, 0, 0, 1): {
+                (None, (3, 2), None, None, None, (0, 0)): [3, 3],
+            },
+            (0, 1, 0, 0, 0, 1): {
+                (None, (2, 2), None, None, None, (0, 0)): [3, 3],
+            },
+            (0, 1, 0, 2, 0, 0): {
+                (None, (2, 2), None, (5, 0), None, None): [5, 3],
+            },
+            (0, 0, 0, 2, 0, 2): {
+                (None, None, None, (0, 2), None, (0, 0)): [0, 3],
+            },
+            (0, 0, 0, 1, 0, 1): {
+                (None, None, None, (0, 1), None, (0, 0)): [0, 3],
             },
         },
         38: {
-            (0, 1, 1): {
-                (None, (1, 1), (2, 0)):  [4, 2],
+            (1, 0, 0, 2, 0, 0): {
+                ((1, 0), None, None, (1, 1), None, None): [1, 0],
             },
-            (0, 0, 0): {
-                (None, None, None):  [3, 1],
+            (1, 0, 0, 0, 1, 0): {
+                ((1, 0), None, None, None, (2, 0), None): [3, 1],
             },
-            (1, 1, 0): {
-                ((1, 0), (1, 1), None):  [1, 0],
+            (2, 0, 0, 1, 0, 0): {
+                ((1, 3), None, None, (1, 1), None, None): [1, 0],
             },
-            (1, 0, 0): {
-                ((1, 0), None, None):  [3, 1],
+            (2, 0, 0, 2, 0, 0): {
+                ((1, 3), None, None, (1, 1), None, None): [1, 0],
             },
-            (0, 1, 0): {
-                (None, (1, 1), None):  [1, 0],
+            (1, 0, 0, 0, 2, 0): {
+                ((1, 0), None, None, None, (3, 0), None): [3, 1],
             },
-            (0, 0, 1): {
-                (None, None, (2, 0)):  [3, 1],
+            (0, 0, 0, 1, 2, 0): {
+                (None, None, None, (1, 1), (4, 3), None): [4, 2],
             },
-            (1, 0, 1): {
-                ((1, 0), None, (2, 0)):  [3, 1],
+            (2, 0, 0, 2, 1, 0): {
+                ((5, 2), None, None, (4, 1), (2, 0), None): [4, 2],
+                ((3, 2), None, None, (2, 0), (2, 0), None): [3, 1],
+            },
+            (1, 0, 0, 1, 0, 0): {
+                ((1, 0), None, None, (1, 1), None, None): [1, 0],
+            },
+            (0, 0, 0, 1, 1, 0): {
+                (None, None, None, (1, 1), (2, 0), None): [4, 2],
+            },
+            (1, 0, 0, 2, 2, 0): {
+                ((1, 0), None, None, (2, 0), (3, 0), None): [3, 1],
+            },
+            (2, 0, 0, 0, 2, 0): {
+                ((3, 2), None, None, None, (3, 0), None): [3, 1],
+            },
+            (2, 0, 0, 1, 2, 0): {
+                ((5, 2), None, None, (1, 1), (4, 3), None): [4, 2],
+                ((1, 3), None, None, (1, 1), (0, 0), None): [1, 0],
+            },
+            (2, 0, 0, 2, 2, 0): {
+                ((5, 2), None, None, (4, 1), (4, 3), None): [4, 2],
+                ((3, 2), None, None, (2, 0), (3, 0), None): [3, 1],
+                ((1, 3), None, None, (1, 1), (0, 0), None): [1, 0],
+            },
+            (2, 0, 0, 0, 1, 0): {
+                ((3, 2), None, None, None, (2, 0), None): [3, 1],
+            },
+            (0, 0, 0, 2, 1, 0): {
+                (None, None, None, (4, 1), (2, 0), None): [4, 2],
+            },
+            (0, 0, 0, 2, 2, 0): {
+                (None, None, None, (4, 1), (4, 3), None): [4, 2],
             },
         },
         7: {
-            (1, 1, 0): {
-                ((1, 3), (2, 2), None):  [5, 2],
+            (0, 0, 0, 2, 1, 2): {
+                (None, None, None, (5, 1), (2, 2), (4, 2)): [5, 2],
+                (None, None, None, (2, 1), (2, 2), (3, 1)): [3, 2],
             },
-            (0, 0, 0): {
-                (None, None, None):  [1, 3],
+            (0, 0, 0, 2, 0, 1): {
+                (None, None, None, (1, 2), None, (1, 0)): [1, 3],
             },
-            (0, 1, 1): {
-                (None, (2, 2), (1, 0)):  [3, 2],
+            (0, 0, 0, 2, 2, 2): {
+                (None, None, None, (5, 1), (5, 3), (4, 2)): [5, 2],
+                (None, None, None, (2, 1), (3, 3), (3, 1)): [3, 2],
+                (None, None, None, (1, 2), (0, 3), (1, 0)): [1, 3],
             },
-            (1, 0, 0): {
-                ((1, 3), None, None):  [1, 3],
+            (0, 0, 0, 2, 2, 0): {
+                (None, None, None, (5, 1), (5, 3), None): [5, 2],
             },
-            (0, 1, 0): {
-                (None, (2, 2), None):  [3, 2],
+            (0, 0, 0, 1, 0, 2): {
+                (None, None, None, (1, 3), None, (1, 0)): [1, 3],
             },
-            (0, 0, 1): {
-                (None, None, (1, 0)):  [3, 2],
+            (0, 0, 0, 1, 0, 1): {
+                (None, None, None, (1, 3), None, (1, 0)): [1, 3],
             },
-            (1, 0, 1): {
-                ((1, 3), None, (1, 0)):  [1, 3],
+            (0, 0, 0, 1, 1, 0): {
+                (None, None, None, (1, 3), (2, 2), None): [5, 2],
+            },
+            (0, 0, 0, 0, 1, 1): {
+                (None, None, None, None, (2, 2), (1, 0)): [3, 2],
+            },
+            (0, 0, 0, 0, 1, 2): {
+                (None, None, None, None, (2, 2), (3, 1)): [3, 2],
+            },
+            (0, 0, 0, 2, 1, 0): {
+                (None, None, None, (5, 1), (2, 2), None): [5, 2],
+            },
+            (0, 0, 0, 2, 2, 1): {
+                (None, None, None, (2, 1), (3, 3), (1, 0)): [3, 2],
+            },
+            (0, 0, 0, 1, 2, 2): {
+                (None, None, None, (1, 3), (0, 3), (1, 0)): [1, 3],
+                (None, None, None, (1, 3), (5, 3), (4, 2)): [5, 2],
+            },
+            (0, 0, 0, 2, 0, 2): {
+                (None, None, None, (1, 2), None, (1, 0)): [1, 3],
+            },
+            (0, 0, 0, 0, 2, 1): {
+                (None, None, None, None, (3, 3), (1, 0)): [3, 2],
+            },
+            (0, 0, 0, 1, 2, 0): {
+                (None, None, None, (1, 3), (5, 3), None): [5, 2],
+            },
+            (0, 0, 0, 0, 2, 2): {
+                (None, None, None, None, (3, 3), (3, 1)): [3, 2],
             },
         },
         56: {
-            (0, 1, 1): {
-                (None, (2, 1), (0, 3)):  [4, 0],
+            (2, 2, 1, 0, 0, 0): {
+                ((0, 2), (1, 1), (0, 3), None, None, None): [0, 1],
+                ((5, 0), (4, 1), (0, 3), None, None, None): [4, 0],
             },
-            (0, 0, 0): {
-                (None, None, None):  [2, 3],
+            (1, 0, 1, 0, 0, 0): {
+                ((0, 2), None, (0, 3), None, None, None): [0, 1],
             },
-            (1, 1, 0): {
-                ((0, 2), (2, 1), None):  [2, 3],
+            (1, 2, 2, 0, 0, 0): {
+                ((0, 2), (2, 0), (3, 0), None, None, None): [2, 3],
             },
-            (1, 0, 0): {
-                ((0, 2), None, None):  [2, 3],
+            (0, 2, 1, 0, 0, 0): {
+                (None, (4, 1), (0, 3), None, None, None): [4, 0],
             },
-            (0, 1, 0): {
-                (None, (2, 1), None):  [4, 0],
+            (0, 1, 1, 0, 0, 0): {
+                (None, (2, 1), (0, 3), None, None, None): [4, 0],
             },
-            (0, 0, 1): {
-                (None, None, (0, 3)):  [0, 1],
+            (2, 2, 2, 0, 0, 0): {
+                ((5, 0), (4, 1), (4, 3), None, None, None): [4, 0],
+                ((2, 2), (2, 0), (3, 0), None, None, None): [2, 3],
+                ((0, 2), (1, 1), (0, 0), None, None, None): [0, 1],
             },
-            (1, 0, 1): {
-                ((0, 2), None, (0, 3)):  [0, 1],
+            (0, 2, 2, 0, 0, 0): {
+                (None, (4, 1), (4, 3), None, None, None): [4, 0],
+            },
+            (2, 1, 2, 0, 0, 0): {
+                ((2, 2), (2, 1), (3, 0), None, None, None): [2, 3],
+                ((5, 0), (2, 1), (4, 3), None, None, None): [4, 0],
+            },
+            (0, 1, 2, 0, 0, 0): {
+                (None, (2, 1), (4, 3), None, None, None): [4, 0],
+            },
+            (1, 2, 0, 0, 0, 0): {
+                ((0, 2), (2, 0), None, None, None, None): [2, 3],
+            },
+            (2, 2, 0, 0, 0, 0): {
+                ((2, 2), (2, 0), None, None, None, None): [2, 3],
+            },
+            (1, 0, 2, 0, 0, 0): {
+                ((0, 2), None, (0, 0), None, None, None): [0, 1],
+            },
+            (2, 0, 1, 0, 0, 0): {
+                ((0, 2), None, (0, 3), None, None, None): [0, 1],
+            },
+            (1, 1, 0, 0, 0, 0): {
+                ((0, 2), (2, 1), None, None, None, None): [2, 3],
+            },
+            (2, 1, 0, 0, 0, 0): {
+                ((2, 2), (2, 1), None, None, None, None): [2, 3],
+            },
+            (2, 0, 2, 0, 0, 0): {
+                ((0, 2), None, (0, 0), None, None, None): [0, 1],
             },
         },
         25: {
-            (0, 1, 1): {
-                (None, (0, 1), (0, 2)):  [0, 2],
+            (0, 1, 2, 0, 0, 0): {
+                (None, (2, 3), (5, 3), None, None, None): [5, 0],
             },
-            (0, 0, 0): {
-                (None, None, None):  [5, 0],
+            (0, 2, 2, 0, 0, 0): {
+                (None, (5, 1), (5, 3), None, None, None): [5, 0],
             },
-            (1, 1, 0): {
-                ((2, 3), (0, 1), None):  [5, 0],
+            (0, 2, 2, 0, 0, 1): {
+                (None, (2, 1), (3, 3), None, None, (0, 2)): [2, 2],
             },
-            (1, 0, 0): {
-                ((2, 3), None, None):  [2, 2],
+            (0, 2, 1, 0, 0, 0): {
+                (None, (5, 1), (0, 1), None, None, None): [5, 0],
             },
-            (0, 1, 0): {
-                (None, (0, 1), None):  [5, 0],
+            (0, 1, 1, 0, 0, 0): {
+                (None, (2, 3), (0, 1), None, None, None): [5, 0],
             },
-            (0, 0, 1): {
-                (None, None, (0, 2)):  [2, 2],
+            (0, 2, 0, 0, 0, 2): {
+                (None, (2, 1), None, None, None, (2, 3)): [2, 2],
             },
-            (1, 0, 1): {
-                ((2, 3), None, (0, 2)):  [2, 2],
+            (0, 1, 0, 0, 0, 2): {
+                (None, (2, 3), None, None, None, (2, 3)): [2, 2],
+            },
+            (0, 0, 2, 0, 0, 1): {
+                (None, None, (0, 3), None, None, (0, 2)): [0, 2],
+            },
+            (0, 1, 2, 0, 0, 2): {
+                (None, (2, 3), (5, 3), None, None, (4, 0)): [5, 0],
+                (None, (2, 3), (3, 3), None, None, (2, 3)): [2, 2],
+            },
+            (0, 0, 1, 0, 0, 1): {
+                (None, None, (0, 1), None, None, (0, 2)): [0, 2],
+            },
+            (0, 2, 1, 0, 0, 2): {
+                (None, (1, 2), (0, 1), None, None, (0, 1)): [0, 2],
+                (None, (5, 1), (0, 1), None, None, (4, 0)): [5, 0],
+            },
+            (0, 2, 0, 0, 0, 1): {
+                (None, (2, 1), None, None, None, (0, 2)): [2, 2],
+            },
+            (0, 1, 0, 0, 0, 1): {
+                (None, (2, 3), None, None, None, (0, 2)): [2, 2],
+            },
+            (0, 2, 2, 0, 0, 2): {
+                (None, (5, 1), (5, 3), None, None, (4, 0)): [5, 0],
+                (None, (1, 2), (0, 3), None, None, (0, 1)): [0, 2],
+                (None, (2, 1), (3, 3), None, None, (2, 3)): [2, 2],
+            },
+            (0, 0, 1, 0, 0, 2): {
+                (None, None, (0, 1), None, None, (0, 1)): [0, 2],
+            },
+            (0, 0, 2, 0, 0, 2): {
+                (None, None, (0, 3), None, None, (0, 1)): [0, 2],
             },
         },
         42: {
-            (0, 1, 1): {
-                (None, (1, 1), (2, 1)):  [4, 1],
+            (1, 0, 1, 0, 0, 0): {
+                ((1, 2), None, (1, 1), None, None, None): [1, 1],
             },
-            (0, 0, 0): {
-                (None, None, None):  [4, 1],
+            (2, 0, 0, 0, 1, 0): {
+                ((2, 1), None, None, None, (2, 1), None): [2, 0],
             },
-            (1, 1, 0): {
-                ((1, 2), (1, 1), None):  [1, 1],
+            (2, 0, 0, 0, 2, 0): {
+                ((2, 1), None, None, None, (2, 3), None): [2, 0],
             },
-            (1, 0, 0): {
-                ((1, 2), None, None):  [2, 0],
+            (0, 0, 1, 0, 1, 0): {
+                (None, None, (1, 1), None, (2, 1), None): [4, 1],
             },
-            (0, 1, 0): {
-                (None, (1, 1), None):  [4, 1],
+            (2, 0, 2, 0, 1, 0): {
+                ((2, 1), None, (3, 1), None, (2, 1), None): [2, 0],
+                ((5, 1), None, (4, 2), None, (2, 1), None): [4, 1],
             },
-            (0, 0, 1): {
-                (None, None, (2, 1)):  [2, 0],
+            (0, 0, 2, 0, 2, 0): {
+                (None, None, (4, 2), None, (4, 0), None): [4, 1],
             },
-            (1, 0, 1): {
-                ((1, 2), None, (2, 1)):  [2, 0],
+            (2, 0, 1, 0, 2, 0): {
+                ((5, 1), None, (1, 1), None, (4, 0), None): [4, 1],
+                ((1, 2), None, (1, 1), None, (0, 1), None): [1, 1],
+            },
+            (1, 0, 2, 0, 2, 0): {
+                ((1, 2), None, (3, 1), None, (2, 3), None): [2, 0],
+            },
+            (2, 0, 2, 0, 2, 0): {
+                ((2, 1), None, (3, 1), None, (2, 3), None): [2, 0],
+                ((1, 2), None, (1, 0), None, (0, 1), None): [1, 1],
+                ((5, 1), None, (4, 2), None, (4, 0), None): [4, 1],
+            },
+            (1, 0, 2, 0, 0, 0): {
+                ((1, 2), None, (1, 0), None, None, None): [1, 1],
+            },
+            (1, 0, 0, 0, 1, 0): {
+                ((1, 2), None, None, None, (2, 1), None): [2, 0],
+            },
+            (1, 0, 0, 0, 2, 0): {
+                ((1, 2), None, None, None, (2, 3), None): [2, 0],
+            },
+            (2, 0, 1, 0, 0, 0): {
+                ((1, 2), None, (1, 1), None, None, None): [1, 1],
+            },
+            (0, 0, 2, 0, 1, 0): {
+                (None, None, (4, 2), None, (2, 1), None): [4, 1],
+            },
+            (0, 0, 1, 0, 2, 0): {
+                (None, None, (1, 1), None, (4, 0), None): [4, 1],
+            },
+            (2, 0, 2, 0, 0, 0): {
+                ((1, 2), None, (1, 0), None, None, None): [1, 1],
             },
         },
         11: {
-            (0, 1, 1): {
-                (None, (2, 3), (1, 2)):  [2, 1],
+            (0, 0, 2, 0, 2, 1): {
+                (None, None, (3, 2), None, (2, 2), (1, 2)): [2, 1],
             },
-            (0, 0, 0): {
-                (None, None, None):  [2, 1],
+            (0, 0, 2, 0, 0, 2): {
+                (None, None, (1, 3), None, None, (1, 1)): [1, 2],
             },
-            (1, 1, 0): {
-                ((1, 3), (2, 3), None):  [5, 1],
+            (0, 0, 1, 0, 1, 0): {
+                (None, None, (1, 3), None, (2, 3), None): [5, 1],
             },
-            (1, 0, 0): {
-                ((1, 3), None, None):  [5, 1],
+            (0, 0, 2, 0, 2, 0): {
+                (None, None, (5, 2), None, (5, 0), None): [5, 1],
             },
-            (0, 1, 0): {
-                (None, (2, 3), None):  [5, 1],
+            (0, 0, 1, 0, 2, 0): {
+                (None, None, (1, 3), None, (5, 0), None): [5, 1],
             },
-            (0, 0, 1): {
-                (None, None, (1, 2)):  [2, 1],
+            (0, 0, 0, 0, 2, 1): {
+                (None, None, None, None, (2, 2), (1, 2)): [2, 1],
             },
-            (1, 0, 1): {
-                ((1, 3), None, (1, 2)):  [1, 2],
+            (0, 0, 1, 0, 2, 2): {
+                (None, None, (1, 3), None, (5, 0), (4, 1)): [5, 1],
+                (None, None, (1, 3), None, (0, 2), (1, 1)): [1, 2],
+            },
+            (0, 0, 2, 0, 0, 1): {
+                (None, None, (1, 3), None, None, (1, 2)): [1, 2],
+            },
+            (0, 0, 0, 0, 1, 1): {
+                (None, None, None, None, (2, 3), (1, 2)): [2, 1],
+            },
+            (0, 0, 1, 0, 0, 1): {
+                (None, None, (1, 3), None, None, (1, 2)): [1, 2],
+            },
+            (0, 0, 2, 0, 1, 2): {
+                (None, None, (3, 2), None, (2, 3), (2, 0)): [2, 1],
+                (None, None, (5, 2), None, (2, 3), (4, 1)): [5, 1],
+            },
+            (0, 0, 0, 0, 1, 2): {
+                (None, None, None, None, (2, 3), (2, 0)): [2, 1],
+            },
+            (0, 0, 2, 0, 2, 2): {
+                (None, None, (1, 3), None, (0, 2), (1, 1)): [1, 2],
+                (None, None, (5, 2), None, (5, 0), (4, 1)): [5, 1],
+                (None, None, (3, 2), None, (2, 2), (2, 0)): [2, 1],
+            },
+            (0, 0, 2, 0, 1, 0): {
+                (None, None, (5, 2), None, (2, 3), None): [5, 1],
+            },
+            (0, 0, 1, 0, 0, 2): {
+                (None, None, (1, 3), None, None, (1, 1)): [1, 2],
+            },
+            (0, 0, 0, 0, 2, 2): {
+                (None, None, None, None, (2, 2), (2, 0)): [2, 1],
             },
         },
     }
@@ -558,93 +818,257 @@ class Periphery(PeripheryBase):
 
     # hepta
     peripheries[4] = {
-        32: {
-            (0, 3, 0, 3, 0): {
-                (None, (1, 1), None, (1, 1), None): [1, 1],
+        0: {
+            (0, 0, 0, 3, 3, 3): {
+                (None, None, None, (0, 1), (0, 1), (0, 1)): [0, 1],
             },
-            (0, 0, 3, 0, 3): {
-                (None, None, (0, 0), None, (0, 0)): [0, 0],
+            (3, 3, 0, 3, 0, 0): {
+                ((1, 2), (1, 2), None, (1, 2), None, None): [1, 2],
             },
-            (0, 3, 3, 0, 0): {
-                (None, (1, 0), (1, 0), None, None): [1, 0],
+            (3, 0, 0, 3, 3, 0): {
+                ((0, 2), None, None, (0, 2), (0, 2), None): [0, 2],
             },
-            (0, 0, 0, 3, 3): {
-                (None, None, None, (0, 1), (0, 1)): [0, 1],
+            (0, 3, 0, 3, 0, 3): {
+                (None, (1, 1), None, (1, 1), None, (1, 1)): [1, 1],
+            },
+            (0, 0, 3, 0, 3, 3): {
+                (None, None, (0, 0), None, (0, 0), (0, 0)): [0, 0],
+            },
+            (3, 0, 3, 0, 3, 0): {
+                ((0, 3), None, (0, 3), None, (0, 3), None): [0, 3],
+            },
+            (3, 3, 3, 0, 0, 0): {
+                ((1, 3), (1, 3), (1, 3), None, None, None): [1, 3],
+            },
+            (0, 3, 3, 0, 0, 3): {
+                (None, (1, 0), (1, 0), None, None, (1, 0)): [1, 0],
+            },
+            (3, 3, 0, 3, 0, 0): {
+                ((1, 2), (1, 2), None, (1, 2), None, None): [1, 2],
+            },
+            (0, 0, 0, 3, 3, 3): {
+                (None, None, None, (0, 1), (0, 1), (0, 1)): [0, 1],
+            },
+            (3, 0, 0, 3, 3, 0): {
+                ((0, 2), None, None, (0, 2), (0, 2), None): [0, 2],
+            },
+            (0, 3, 0, 3, 0, 3): {
+                (None, (1, 1), None, (1, 1), None, (1, 1)): [1, 1],
+            },
+            (3, 3, 3, 0, 0, 0): {
+                ((1, 3), (1, 3), (1, 3), None, None, None): [1, 3],
+            },
+            (0, 3, 3, 0, 0, 3): {
+                (None, (1, 0), (1, 0), None, None, (1, 0)): [1, 0],
+            },
+            (0, 0, 3, 0, 3, 3): {
+                (None, None, (0, 0), None, (0, 0), (0, 0)): [0, 0],
+            },
+            (3, 0, 3, 0, 3, 0): {
+                ((0, 3), None, (0, 3), None, (0, 3), None): [0, 3],
             },
         },
         1: {
-            (3, 0, 3, 0, 0): {
-                ((1, 2), None, (1, 2), None, None): [1, 2],
+            (0, 0, 0, 3, 3, 0): {
+                (None, None, None, (0, 2), (0, 2), None): [0, 2],
             },
-            (0, 3, 0, 3, 0): {
-                (None, (0, 3), None, (0, 3), None): [0, 3],
+            (0, 3, 0, 3, 0, 0): {
+                (None, (1, 2), None, (1, 2), None, None): [1, 2],
             },
-            (0, 0, 3, 3, 0): {
-                (None, None, (0, 2), (0, 2), None): [0, 2],
+            (0, 0, 3, 0, 3, 0): {
+                (None, None, (0, 3), None, (0, 3), None): [0, 3],
             },
-            (3, 3, 0, 0, 0): {
-                ((1, 3), (1, 3), None, None, None): [1, 3],
+            (0, 3, 3, 0, 0, 0): {
+                (None, (1, 3), (1, 3), None, None, None): [1, 3],
+            },
+            (0, 0, 0, 3, 3, 3): {
+                (None, None, None, (0, 1), (0, 1), (0, 1)): [0, 1],
+            },
+            (0, 3, 3, 0, 0, 3): {
+                (None, (1, 0), (1, 0), None, None, (1, 0)): [1, 0],
+            },
+            (0, 0, 3, 0, 3, 3): {
+                (None, None, (0, 0), None, (0, 0), (0, 0)): [0, 0],
+            },
+            (0, 3, 0, 3, 0, 3): {
+                (None, (1, 1), None, (1, 1), None, (1, 1)): [1, 1],
             },
         },
         2: {
-            (0, 0, 3, 0, 3): {
-                (None, None, (1, 1), None, (1, 1)): [1, 1],
+            (3, 0, 3, 0, 0, 0): {
+                ((1, 3), None, (1, 3), None, None, None): [1, 3],
             },
-            (3, 0, 3, 0, 0): {
-                ((1, 2), None, (1, 2), None, None): [1, 2],
+            (0, 0, 3, 0, 0, 3): {
+                (None, None, (1, 0), None, None, (1, 0)): [1, 0],
             },
-            (3, 3, 0, 0, 0): {
-                ((1, 3), (1, 3), None, None, None): [1, 3],
+            (3, 0, 0, 3, 0, 0): {
+                ((1, 2), None, None, (1, 2), None, None): [1, 2],
             },
-            (0, 3, 0, 0, 3): {
-                (None, (1, 0), None, None, (1, 0)): [1, 0],
+            (0, 0, 0, 3, 0, 3): {
+                (None, None, None, (1, 1), None, (1, 1)): [1, 1],
+            },
+            (0, 0, 0, 3, 3, 3): {
+                (None, None, None, (0, 1), (0, 1), (0, 1)): [0, 1],
+            },
+            (3, 0, 3, 0, 3, 0): {
+                ((0, 3), None, (0, 3), None, (0, 3), None): [0, 3],
+            },
+            (0, 0, 3, 0, 3, 3): {
+                (None, None, (0, 0), None, (0, 0), (0, 0)): [0, 0],
+            },
+            (3, 0, 0, 3, 3, 0): {
+                ((0, 2), None, None, (0, 2), (0, 2), None): [0, 2],
+            },
+        },
+        3: {
+            (0, 0, 0, 3, 3, 3): {
+                (None, None, None, (0, 1), (0, 1), (0, 1)): [0, 1],
             },
         },
         4: {
-            (3, 3, 0, 0, 0): {
-                ((1, 3), (1, 3), None, None, None): [1, 3],
+            (0, 0, 0, 0, 3, 3): {
+                (None, None, None, None, (0, 0), (0, 0)): [0, 0],
             },
-            (3, 0, 0, 3, 0): {
-                ((0, 3), None, None, (0, 3), None): [0, 3],
+            (3, 0, 0, 0, 3, 0): {
+                ((0, 3), None, None, None, (0, 3), None): [0, 3],
             },
-            (0, 3, 0, 0, 3): {
-                (None, (1, 0), None, None, (1, 0)): [1, 0],
+            (3, 3, 0, 0, 0, 0): {
+                ((1, 3), (1, 3), None, None, None, None): [1, 3],
             },
-            (0, 0, 0, 3, 3): {
-                (None, None, None, (0, 0), (0, 0)): [0, 0],
+            (0, 3, 0, 0, 0, 3): {
+                (None, (1, 0), None, None, None, (1, 0)): [1, 0],
+            },
+            (3, 3, 0, 3, 0, 0): {
+                ((1, 2), (1, 2), None, (1, 2), None, None): [1, 2],
+            },
+            (0, 0, 0, 3, 3, 3): {
+                (None, None, None, (0, 1), (0, 1), (0, 1)): [0, 1],
+            },
+            (3, 0, 0, 3, 3, 0): {
+                ((0, 2), None, None, (0, 2), (0, 2), None): [0, 2],
+            },
+            (0, 3, 0, 3, 0, 3): {
+                (None, (1, 1), None, (1, 1), None, (1, 1)): [1, 1],
             },
         },
-        16: {
-            (3, 0, 0, 3, 0): {
-                ((0, 2), None, None, (0, 2), None): [0, 2],
+        5: {
+            (0, 0, 0, 3, 3, 3): {
+                (None, None, None, (0, 1), (0, 1), (0, 1)): [0, 1],
             },
-            (0, 0, 0, 3, 3): {
-                (None, None, None, (0, 1), (0, 1)): [0, 1],
-            },
-            (3, 0, 3, 0, 0): {
-                ((0, 3), None, (0, 3), None, None): [0, 3],
-            },
-            (0, 0, 3, 0, 3): {
-                (None, None, (0, 0), None, (0, 0)): [0, 0],
+            (0, 3, 0, 3, 0, 3): {
+                (None, (1, 1), None, (1, 1), None, (1, 1)): [1, 1],
             },
         },
         8: {
-            (0, 3, 0, 0, 3): {
-                (None, (1, 1), None, None, (1, 1)): [1, 1],
+            (0, 0, 0, 0, 3, 3): {
+                (None, None, None, None, (0, 1), (0, 1)): [0, 1],
             },
-            (3, 0, 0, 3, 0): {
-                ((0, 2), None, None, (0, 2), None): [0, 2],
+            (3, 0, 0, 0, 3, 0): {
+                ((0, 2), None, None, None, (0, 2), None): [0, 2],
             },
-            (3, 3, 0, 0, 0): {
-                ((1, 2), (1, 2), None, None, None): [1, 2],
+            (3, 3, 0, 0, 0, 0): {
+                ((1, 2), (1, 2), None, None, None, None): [1, 2],
             },
-            (0, 0, 0, 3, 3): {
-                (None, None, None, (0, 1), (0, 1)): [0, 1],
+            (0, 3, 0, 0, 0, 3): {
+                (None, (1, 1), None, None, None, (1, 1)): [1, 1],
+            },
+            (3, 3, 3, 0, 0, 0): {
+                ((1, 3), (1, 3), (1, 3), None, None, None): [1, 3],
+            },
+            (3, 0, 3, 0, 3, 0): {
+                ((0, 3), None, (0, 3), None, (0, 3), None): [0, 3],
+            },
+            (0, 0, 3, 0, 3, 3): {
+                (None, None, (0, 0), None, (0, 0), (0, 0)): [0, 0],
+            },
+            (0, 3, 3, 0, 0, 3): {
+                (None, (1, 0), (1, 0), None, None, (1, 0)): [1, 0],
+            },
+        },
+        9: {
+            (0, 3, 3, 0, 0, 3): {
+                (None, (1, 0), (1, 0), None, None, (1, 0)): [1, 0],
+            },
+            (0, 0, 3, 0, 3, 3): {
+                (None, None, (0, 0), None, (0, 0), (0, 0)): [0, 0],
+            },
+        },
+        16: {
+            (3, 0, 3, 0, 0, 0): {
+                ((0, 3), None, (0, 3), None, None, None): [0, 3],
+            },
+            (0, 0, 3, 0, 0, 3): {
+                (None, None, (0, 0), None, None, (0, 0)): [0, 0],
+            },
+            (3, 0, 0, 3, 0, 0): {
+                ((0, 2), None, None, (0, 2), None, None): [0, 2],
+            },
+            (0, 0, 0, 3, 0, 3): {
+                (None, None, None, (0, 1), None, (0, 1)): [0, 1],
+            },
+            (3, 3, 0, 3, 0, 0): {
+                ((1, 2), (1, 2), None, (1, 2), None, None): [1, 2],
+            },
+            (0, 3, 3, 0, 0, 3): {
+                (None, (1, 0), (1, 0), None, None, (1, 0)): [1, 0],
+            },
+            (3, 3, 3, 0, 0, 0): {
+                ((1, 3), (1, 3), (1, 3), None, None, None): [1, 3],
+            },
+            (0, 3, 0, 3, 0, 3): {
+                (None, (1, 1), None, (1, 1), None, (1, 1)): [1, 1],
+            },
+        },
+        32: {
+            (0, 0, 0, 3, 3, 0): {
+                (None, None, None, (0, 1), (0, 1), None): [0, 1],
+            },
+            (0, 3, 0, 3, 0, 0): {
+                (None, (1, 1), None, (1, 1), None, None): [1, 1],
+            },
+            (0, 0, 3, 0, 3, 0): {
+                (None, None, (0, 0), None, (0, 0), None): [0, 0],
+            },
+            (0, 3, 3, 0, 0, 0): {
+                (None, (1, 0), (1, 0), None, None, None): [1, 0],
+            },
+            (3, 3, 0, 3, 0, 0): {
+                ((1, 2), (1, 2), None, (1, 2), None, None): [1, 2],
+            },
+            (3, 0, 3, 0, 3, 0): {
+                ((0, 3), None, (0, 3), None, (0, 3), None): [0, 3],
+            },
+            (3, 3, 3, 0, 0, 0): {
+                ((1, 3), (1, 3), (1, 3), None, None, None): [1, 3],
+            },
+            (3, 0, 0, 3, 3, 0): {
+                ((0, 2), None, None, (0, 2), (0, 2), None): [0, 2],
+            },
+        },
+        34: {
+            (3, 0, 0, 3, 3, 0): {
+                ((0, 2), None, None, (0, 2), (0, 2), None): [0, 2],
+            },
+        },
+        36: {
+            (3, 3, 0, 3, 0, 0): {
+                ((1, 2), (1, 2), None, (1, 2), None, None): [1, 2],
+            },
+            (3, 0, 0, 3, 3, 0): {
+                ((0, 2), None, None, (0, 2), (0, 2), None): [0, 2],
+            },
+        },
+        40: {
+            (3, 0, 3, 0, 3, 0): {
+                ((0, 3), None, (0, 3), None, (0, 3), None): [0, 3],
+            },
+            (3, 3, 3, 0, 0, 0): {
+                ((1, 3), (1, 3), (1, 3), None, None, None): [1, 3],
             },
         },
     }
 
-    def get_position_periphery_index(self, position, periphery_range, marked=True):
+    def get_position_periphery_index(self, position, periphery_range=1):
         """
         Some positions in a 3x3x3 periphery, represented by a bit each.
 
@@ -663,10 +1087,10 @@ class Periphery(PeripheryBase):
                     position_tmp = (position[0] + x, position[1] + y, position[2] + z)
                     if position_tmp == position:
                         continue
-                    if marked and self._block_list.get_index(position_tmp) in self._marked:
+                    if self._block_list.get_index(position_tmp) in self._marked:
                         periphery_index |= power
-                    if not marked and self._block_list.get_index(position_tmp) not in self._marked:
-                        periphery_index |= power
+                    # if not marked and self._block_list.get_index(position_tmp) not in self._marked:
+                    #     periphery_index |= power
                     power <<= 1
         return periphery_index
 
@@ -690,7 +1114,7 @@ class Periphery(PeripheryBase):
         @rtype: tuple[int], tuple[tuple[int] | None]
         """
         assert 1 <= periphery_range <= 3
-        angle_shapes = {block_config.get_shape_id("wedge"), block_config.get_shape_id("tetra")}  # 5, 7,
+        angle_shapes = {self._shape_id_wedge, self._shape_id_corner, self._shape_id_tetra, self._shape_id_hepta}  # 5, 7,
         periphery_orientation = []
         periphery_shape = []
         range_p = [-1, 0, 1]
@@ -702,7 +1126,10 @@ class Periphery(PeripheryBase):
                     position_tmp = (position[0] + x, position[1] + y, position[2] + z)
                     if position_tmp == position:
                         continue
-                    if self._block_list.get_index(position_tmp) in self._border:
+                    if not self._block_list.has_block_at(position_tmp):
+                        shape_orientation = 0
+                        orientation = None
+                    else:
                         block_tmp = self._block_list[position_tmp]
                         block_id = block_tmp.get_id()
                         shape_orientation = 0
@@ -710,11 +1137,11 @@ class Periphery(PeripheryBase):
                         if block_config[block_id].shape in angle_shapes:
                             shape_orientation = block_config[block_id].shape
                             orientation = block_tmp.get_axis_rotation(), block_tmp.get_rotations()
-                        periphery_shape.append(shape_orientation)
-                        periphery_orientation.append(orientation)
+                    periphery_shape.append(shape_orientation)
+                    periphery_orientation.append(orientation)
         return tuple(periphery_shape), tuple(periphery_orientation)
 
-    def get_periphery_simple(self, shape_id, marked=True):
+    def get_periphery_simple(self, shape_id):
         """
         Shapes:
             "Wedge": 1,
@@ -726,14 +1153,16 @@ class Periphery(PeripheryBase):
             if block_config[block.get_id()].shape != shape_id:
                 continue
             position = self._block_list.get_position(position_index)
-            periphery_index = self.get_position_periphery_index(position, 1, marked=marked)
+            periphery_index = self.get_position_periphery_index(position, 1)
             rotations = block.get_rotations()
             axis_rotation = block.get_axis_rotation()
             periphery[periphery_index] = [axis_rotation, rotations]
         return periphery
 
-    def get_periphery_complex(self, shape_id, marked=True):
+    def get_periphery_complex(self, shape_id):
         """
+        Called in test
+
         Shapes:
             "Corner": 2,
             "Hepta": 4,
@@ -744,7 +1173,7 @@ class Periphery(PeripheryBase):
             if block_config[block.get_id()].shape != shape_id:
                 continue
             position = self._block_list.get_position(position_index)
-            periphery_index = self.get_position_periphery_index(position, 1, marked=marked)
+            periphery_index = self.get_position_periphery_index(position, 1)
             periphery_shape, periphery_orientation = self.get_position_shape_periphery(position, 1)
             rotations = block.get_rotations()
             axis_rotation = block.get_axis_rotation()
