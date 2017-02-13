@@ -46,10 +46,12 @@ class Blueprint(object):
             self._find_blueprint_dirs(directory_blueprints)
 
     def __exit__(self, type, value, traceback):
-        shutil.rmtree(self._tmp)
+        if self._tmp and os.path.exists(self._tmp):
+            shutil.rmtree(self._tmp)
 
-    def __del__(self, type, value, traceback):
-        shutil.rmtree(self._tmp)
+    def __del__(self):
+        if self._tmp and os.path.exists(self._tmp):
+            shutil.rmtree(self._tmp)
 
     def __iter__(self):
         for directory in self._blueprints:
