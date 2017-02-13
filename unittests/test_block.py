@@ -1,5 +1,5 @@
 from unittest import TestCase
-from lib.smblueprint.smdblock.blockpool import block_handler, StyleBasic
+from lib.smblueprint.smdblock.blockpool import block_pool, StyleBasic
 from lib.utils.blockconfig import block_config
 
 __author__ = 'Peter Hofmann'
@@ -21,7 +21,7 @@ class DefaultSetup(TestCase):
         # hepta 601
         # tetra 602
         self.default_orientation = (2, 3)
-        self.object = block_handler(StyleBasic(599, 3).get_modified_int_24bit(
+        self.object = block_pool(StyleBasic(599, 3).get_modified_int_24bit(
             block_id=599,
             hit_points=75,
             active=None,
@@ -39,7 +39,6 @@ class DefaultSetup(TestCase):
 
 class TestBlock(DefaultSetup):
     """
-    @type object: StyleBasic
     """
     def test_get_id(self):
         self.assertEqual(self.object.get_id(), 599)
@@ -64,30 +63,30 @@ class TestBlock(DefaultSetup):
 
     def test_int_24bit(self):
         int24 = 123456
-        self.object = block_handler(int24)
+        self.object = block_pool(int24)
         self.assertEqual(self.object.get_int_24(), int24)
 
     def test_convert_to_type_6(self):
         expected_orientation = (0, 2)
-        self.object = block_handler(block_handler(7).get_modified_int_24bit(block_id=7))
-        self.object = block_handler(self.object.to_style6(665))
+        self.object = block_pool(7).get_modified_block(block_id=7)
+        self.object = self.object.to_style6(665)
         rotations = self.object.get_rotations()
         axis_rotation = self.object.get_axis_rotation()
         self.assertTupleEqual((axis_rotation, rotations), expected_orientation)
 
     def test_set_id(self):
-        self.object = block_handler(self.object.get_modified_int_24bit(block_id=604))
+        self.object = self.object.get_modified_block(block_id=604)
         self.assertEqual(self.object.get_id(), 604)
 
     def test_set_hit_points(self):
-        self.object = block_handler(self.object.get_modified_int_24bit(hit_points=50))
+        self.object = self.object.get_modified_block(hit_points=50)
         self.assertEqual(self.object.get_hit_points(), 50)
 
     # def test_set_active(self):
     #     self.assertRaises(AssertionError, self.object.set_active, True)
 
     def test_mirror(self):
-        self.object = block_handler(self.object.get_mirror(0))
+        self.object = self.object.get_mirror(0)
         expected_orientation = (2, 1)
         rotations = self.object.get_rotations()
         axis_rotation = self.object.get_axis_rotation()

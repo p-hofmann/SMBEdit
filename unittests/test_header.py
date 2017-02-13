@@ -2,7 +2,7 @@ from unittest import TestCase
 from io import BytesIO
 from lib.bits_and_bytes import BinaryStream
 from lib.smblueprint.header import Header
-from unittests.blueprints import Blueprint
+from unittests.blueprints import blueprint_handler
 from lib.utils.blockconfig import block_config
 
 __author__ = 'Peter Hofmann'
@@ -17,7 +17,7 @@ class DefaultSetup(TestCase):
         super(DefaultSetup, self).__init__(methodName)
         self.object = None
         block_config.from_hard_coded()
-        self._blueprints = Blueprint()
+        self._blueprints = blueprint_handler
 
     def setUp(self):
         self.object = Header()

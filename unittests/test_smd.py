@@ -1,8 +1,6 @@
 from unittest import TestCase
-from io import BytesIO
-from lib.bits_and_bytes import BinaryStream
 from lib.smblueprint.smd3.smd import Smd
-from unittests.blueprints import Blueprint
+from unittests.blueprints import blueprint_handler
 
 __author__ = 'Peter Hofmann'
 
@@ -15,7 +13,7 @@ class DefaultSetup(TestCase):
     def __init__(self, methodName='runTest'):
         super(DefaultSetup, self).__init__(methodName)
         self.object = None
-        self._blueprints = Blueprint()
+        self._blueprints = blueprint_handler
 
     def setUp(self):
         self.object = Smd()

@@ -4,7 +4,7 @@ from lib.bits_and_bytes import BinaryStream
 from lib.smblueprint.logic import Logic
 from lib.smblueprint.smd3.smd import Smd
 from lib.utils.blockconfig import block_config
-from unittests.blueprints import Blueprint
+from unittests.blueprints import blueprint_handler
 
 __author__ = 'Peter Hofmann'
 
@@ -21,7 +21,7 @@ class DefaultSetup(TestCase):
     def setUp(self):
         block_config.from_hard_coded()
         self.object = Logic()
-        self._blueprints = Blueprint()
+        self._blueprints = blueprint_handler
 
     def tearDown(self):
         self.object = None

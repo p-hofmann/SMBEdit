@@ -1,6 +1,6 @@
 from unittest import TestCase
 from smbedit import SMBEdit
-from unittests.blueprints import Blueprint
+from unittests.blueprints import blueprint_handler
 from lib.utils.blockconfig import block_config
 
 __author__ = 'Peter Hofmann'
@@ -14,7 +14,7 @@ class DefaultSetup(TestCase):
     def __init__(self, methodName='runTest'):
         super(DefaultSetup, self).__init__(methodName)
         self.object = None
-        self._blueprints = Blueprint(True)
+        self._blueprints = blueprint_handler
 
     def setUp(self):
         block_config.from_hard_coded()

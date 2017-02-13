@@ -2,7 +2,7 @@ from unittest import TestCase
 from io import BytesIO
 from lib.smblueprint.meta.meta import Meta
 from lib.bits_and_bytes import BinaryStream
-from unittests.blueprints import Blueprint
+from unittests.blueprints import blueprint_handler
 
 
 __author__ = 'Peter Hofmann'
@@ -16,7 +16,7 @@ class DefaultSetup(TestCase):
     def __init__(self, methodName='runTest'):
         super(DefaultSetup, self).__init__(methodName)
         self.object = None
-        self._blueprints = Blueprint()
+        self._blueprints = blueprint_handler
 
     def setUp(self):
         # block_config.from_hard_coded()

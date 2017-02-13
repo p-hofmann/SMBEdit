@@ -22,6 +22,7 @@ class DefaultSetup(TestCase):
         self.object = None
         return
 
+
 class TestBlockConfig(DefaultSetup):
     def test_from_hardcoded(self):
         self.object.from_hard_coded()

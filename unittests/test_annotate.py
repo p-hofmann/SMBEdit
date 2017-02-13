@@ -6,6 +6,8 @@ from lib.utils.annotate import Annotate
 from lib.utils.periphery import Periphery
 # from lib.utils.vector import Vector
 from lib.smblueprint.smd3.smd import Smd
+from unittests.blueprints import blueprint_handler
+
 
 __author__ = 'Peter Hofmann'
 
@@ -18,7 +20,7 @@ class DefaultSetup(TestCase):
     def __init__(self, methodName='runTest'):
         super(DefaultSetup, self).__init__(methodName)
         self.object = None
-        self._blueprint = os.path.join("test_blueprints", "B_Ball")
+        self._blueprint = blueprint_handler.extract_sment(os.path.join(".", "test_blueprints", "B_Ball.sment"))
 
     def setUp(self):
         block_config.from_hard_coded()
@@ -66,5 +68,5 @@ class TestAnnotate(DefaultSetup):
         special_position = self.object._block_list.get_index((18, 17, 18))
         self.assertIn(special_position, border)
         # self.assertIn(special_position, outside_border)
-        self.assertEqual(len(marked), len(outside_marked))
-        self.assertEqual(len(border), len(outside_border))
+        self.assertEqual(len(marked), 458)
+        self.assertEqual(len(border), 218)

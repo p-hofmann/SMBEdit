@@ -1,10 +1,12 @@
-import sys
+# import sys
 import os
 from unittest import TestCase
 from lib.utils.blockconfig import block_config
 from lib.utils.periphery import Periphery
 from lib.utils.annotate import Annotate
 from lib.smblueprint.smd3.smd import Smd
+from unittests.blueprints import blueprint_handler
+
 
 __author__ = 'Peter Hofmann'
 
@@ -18,11 +20,11 @@ class DefaultSetup(TestCase):
         super(DefaultSetup, self).__init__(methodName)
         self.object = None
         self._blueprint = {
-            1: os.path.join("test_blueprints", "B_Wedge"),
-            2: os.path.join("test_blueprints", "B_Corner"),
-            3: os.path.join("test_blueprints", "B_Tetra"),
-            4: os.path.join("test_blueprints", "B_Diamond_Shape"),
-            # 4: os.path.join("test_blueprints", "B_Hepta"),
+            1: blueprint_handler.extract_sment(os.path.join(".", "test_blueprints", "B_Wedge.sment")),
+            2: blueprint_handler.extract_sment(os.path.join(".", "test_blueprints", "B_Corner.sment")),
+            3: blueprint_handler.extract_sment(os.path.join(".", "test_blueprints", "B_Tetra.sment")),
+            4: blueprint_handler.extract_sment(os.path.join(".", "test_blueprints", "B_Diamond_Shape.sment")),
+            # 4: blueprint_handler.extract_sment(os.path.join("test_blueprints", "B_Hepta")),
         }
 
     def setUp(self):
