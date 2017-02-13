@@ -50,7 +50,7 @@ class LoggingWrapper(object):
         assert isinstance(verbose, bool)
         assert message_format is None or isinstance(message_format, str)
         assert message_format is None or isinstance(date_format, str)
-        assert stream is None or self.is_stream(stream)
+        assert stream is None or self.is_stream(stream), stream
 
         if message_format is None:
             message_format = "%(asctime)s %(levelname)s: [%(name)s] %(message)s"
@@ -89,10 +89,16 @@ class LoggingWrapper(object):
 
     @staticmethod
     def is_stream(stream):
-        if sys.version_info < (3,):
-            return isinstance(stream, (file, io.FileIO, StringIO)) or stream.__class__ is StringIO
-        else:
-            return isinstance(stream, (io.IOBase, io.FileIO, StringIO)) or stream.__class__ is StringIO
+        """
+        Test for streams
+
+        @param stream: Any kind of stream type
+        @type stream: file | io.FileIO | StringIO.StringIO
+
+        @return: True if stream
+        @rtype: bool
+        """
+        return hasattr(stream, 'read') and hasattr(stream, 'write')
 
     def get_label(self):
         return self._label
@@ -313,12 +319,8 @@ class DefaultLogging(object):
         if isinstance(logfile, str):
             self._logfile = logfile
         else:
-            if sys.version_info < (3,):
-                if isinstance(logfile, (file, io.FileIO)):
-                    self._logfile = logfile.name
-            else:
-                if isinstance(logfile, (io.IOBase, io.FileIO)):
-                    self._logfile = logfile.name
+            if hasattr(logfile, 'name'):
+                self._logfile = logfile.name
         self._verbose = verbose
 
     def __exit__(self, type, value, traceback):
@@ -365,7 +367,4 @@ class DefaultLogging(object):
         @return: True if stream
         @rtype: bool
         """
-        if sys.version_info < (3,):
-            return isinstance(stream, (file, io.FileIO, StringIO)) or stream.__class__ is StringIO
-        else:
-            return isinstance(stream, (io.IOBase, io.FileIO, StringIO)) or stream.__class__ is StringIO
+        return hasattr(stream, 'read') and hasattr(stream, 'write')
