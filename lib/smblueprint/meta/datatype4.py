@@ -2,6 +2,7 @@ __author__ = 'Peter Hofmann'
 
 import sys
 import os
+from collections import Iterable
 
 from lib.bits_and_bytes import BinaryStream
 from lib.loggingwrapper import DefaultLogging
@@ -20,13 +21,14 @@ class DataType4(DefaultLogging):
     @type _docked_entities: dict[int,TagManager]
     """
 
-    def __init__(self, meta_version, logfile=None, verbose=False, debug=False):
+    def __init__(self, meta_version, meta_version_max, logfile=None, verbose=False, debug=False):
         """
 
         @type meta_version: int
         @return:
         """
         self._meta_version = meta_version
+        self._meta_version_max = meta_version_max
         self._label = "DataType4"
         super(DataType4, self).__init__(logfile, verbose, debug)
         self._vector_float_0 = (0, 0, 0)
@@ -35,6 +37,13 @@ class DataType4(DefaultLogging):
         self._entity_wireless_logic_stuff = {}
         self._docked_entities = {}
         return
+
+    def __iter__(self):
+        """
+
+        @rtype: Iterable[int, TagManager]
+        """
+        return iter(self._docked_entities.values())
 
     # #######################################
     # ###  Read
@@ -199,7 +208,7 @@ class DataType4(DefaultLogging):
         assert docked_entity_index not in self._docked_entities, "Docked entity already exists: {}".format(
             docked_entity_index)
         tag_manager = TagManager(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
-        tag_manager.set_root_tag(rail_docker_links.to_tag())
+        tag_manager.set_root_tag(rail_docker_links.to_tag(self._meta_version))
         self._docked_entities[docked_entity_index] = tag_manager
 
     def move_position(self, vector_direction, main_only=False):
@@ -209,10 +218,10 @@ class DataType4(DefaultLogging):
         @type vector_direction: tuple[int]
         """
         for docker_key in self._docked_entities.keys():
-            rail_docker_links = RailDockedEntityLinks(self._meta_version)
-            rail_docker_links.from_tag(self._docked_entities[docker_key].get_root_tag())
+            rail_docker_links = RailDockedEntityLinks()
+            rail_docker_links.from_tag(self._docked_entities[docker_key].get_root_tag(), self._meta_version)
             rail_docker_links.move_position(vector_direction, main_only)
-            self._docked_entities[docker_key].set_root_tag(rail_docker_links.to_tag())
+            self._docked_entities[docker_key].set_root_tag(rail_docker_links.to_tag(self._meta_version))
 
     def to_stream(self, output_stream=sys.stdout):
         """
@@ -235,7 +244,7 @@ class DataType4(DefaultLogging):
             for dock_index in sorted(self._docked_entities.keys()):
                 output_stream.write("\nDocked entity {}:\n".format(dock_index))
                 # self._docked_entities[dock_index].to_stream(output_stream)
-                links = RailDockedEntityLinks(self._meta_version)
-                links.from_tag(self._docked_entities[dock_index].get_root_tag())
+                links = RailDockedEntityLinks()
+                links.from_tag(self._docked_entities[dock_index].get_root_tag(), self._meta_version)
                 links.to_stream(output_stream)
         output_stream.write("\n")

@@ -11,7 +11,6 @@ class RailDockedEntity(object):
     """
     Handling rail docked entity tag structure
 
-    @type _meta_version: int
     @type _location: tuple[int]
     """
 
@@ -76,13 +75,11 @@ class RailDockedEntity(object):
         (23, 0): "Left_down",
     }
 
-    def __init__(self, meta_version):
+    def __init__(self):
         """
 
-        @type meta_version: int
         @return:
         """
-        self._meta_version = meta_version
         self._unknown_byte_0 = 0
         self._label = ""
         self._location = (0, 0, 0)
@@ -100,7 +97,7 @@ class RailDockedEntity(object):
         """
         self._location = Vector.addition(self._location, vector_direction)
 
-    def set_by_block_side(self, label, location, block_id, side):
+    def set_by_block_side(self, label, location, block_id, side, version):
         """
 
         @param label:
@@ -113,7 +110,7 @@ class RailDockedEntity(object):
         @type side: int
         """
         byte_orientation_1, byte_orientation_2 = self._side_to_orientation[side]
-        if self._meta_version > 4:
+        if version > 4:
             byte_orientation_1, byte_orientation_2 = self._side_to_orientation_v5[side]
 
         self.set(label, location, block_id, byte_orientation_1, byte_orientation_2)
@@ -144,7 +141,7 @@ class RailDockedEntity(object):
         """
         return self._block_id
 
-    def from_tag(self, tag_payload):
+    def from_tag(self, tag_payload, version):
         """
         @type tag_payload: TagPayload
         """
@@ -155,9 +152,11 @@ class RailDockedEntity(object):
         assert isinstance(tag_list, TagList)
         list_of_tags = tag_list.get_list()
         offset = 0
-        if self._meta_version > 4:
+        # if list_of_tags[0].id == -1:
+        if version > 4:
             offset = 1
             self._unknown_byte_0 = list_of_tags[0].payload
+        # assert list_of_tags[0+offset].id == -8, list_of_tags[0+offset].id
         self._label = list_of_tags[0+offset].payload
         self._location = list_of_tags[1+offset].payload
         self._block_id = list_of_tags[2+offset].payload
@@ -165,7 +164,7 @@ class RailDockedEntity(object):
         self._byte_orientation_2 = list_of_tags[4+offset].payload
         self._unknown_byte_1 = list_of_tags[5+offset].payload
 
-    def to_tag(self):
+    def to_tag(self, version):
         """
         -1: 0,  # meta version 5
         -8: ENTITY_SHIP_Skallagrim_1483048232229,
@@ -178,14 +177,18 @@ class RailDockedEntity(object):
         @rtype: TagPayload
         """
         tag_list = TagList()
-        if self._meta_version > 4:
+        byte_orientation_1 = self._byte_orientation_1
+        byte_orientation_2 = self._byte_orientation_2
+        if version > 4:
             tag_list.add(TagPayload(-1, None, self._unknown_byte_0))
+            if byte_orientation_2 == 0 and byte_orientation_1 < 8:
+                byte_orientation_1 += 16
         tag_list.add(TagPayload(-8, None, self._label))
         tag_list.add(TagPayload(-10, None, self._location))
         tag_list.add(TagPayload(-2, None, self._block_id))
-        tag_list.add(TagPayload(-1, None, self._byte_orientation_1))
+        tag_list.add(TagPayload(-1, None, byte_orientation_1))
         # seemingly static unknown stuff
-        tag_list.add(TagPayload(-1, None, self._byte_orientation_2))
+        tag_list.add(TagPayload(-1, None, byte_orientation_2))
         tag_list.add(TagPayload(-1, None, self._unknown_byte_1))
         return TagPayload(-13, None, tag_list)
 
@@ -218,19 +221,20 @@ class RailDockedEntityLink(object):
     @type _unknown_matrix_2: list[list[int]]
     """
 
-    def __init__(self, meta_version):
+    def __init__(self):
         """
 
-        @type meta_version: int
         @return:
         """
-        self._meta_version = meta_version
         self._entity_main = None
         self._entity_docked = None
         self._docked_entity_location = (0, 0, 0)
-        self._unknown_matrix_0 = [[1.0, 0.0, 0.0, 0.0], [0.0, 1.0, 0.0, 0.0], [0.0, 0.0, 1.0, 0.0], [0.0, 0.0, 0.0, 1.0]]
-        self._unknown_matrix_1 = [[1.0, 0.0, 0.0, 0.0], [0.0, 1.0, 0.0, 0.0], [0.0, 0.0, 1.0, 0.0], [0.0, 0.0, 0.0, 1.0]]
-        self._unknown_matrix_2 = [[1.0, 0.0, 0.0, 0.0], [0.0, 1.0, 0.0, 0.0], [0.0, 0.0, 1.0, 0.0], [0.0, 0.0, 0.0, 1.0]]
+        self._unknown_matrix_0 = [
+            [1.0, 0.0, 0.0, 0.0], [0.0, 1.0, 0.0, 0.0], [0.0, 0.0, 1.0, 0.0], [0.0, 0.0, 0.0, 1.0]]
+        self._unknown_matrix_1 = [
+            [1.0, 0.0, 0.0, 0.0], [0.0, 1.0, 0.0, 0.0], [0.0, 0.0, 1.0, 0.0], [0.0, 0.0, 0.0, 1.0]]
+        self._unknown_matrix_2 = [
+            [1.0, 0.0, 0.0, 0.0], [0.0, 1.0, 0.0, 0.0], [0.0, 0.0, 1.0, 0.0], [0.0, 0.0, 0.0, 1.0]]
         self._unknown_byte_0 = 0
         self._unknown_byte_1 = 0
         self._unknown_byte_2 = 0
@@ -262,7 +266,7 @@ class RailDockedEntityLink(object):
         self._entity_docked = entity_docked
         self._docked_entity_location = docked_entity_location
 
-    def from_tag(self, tag_payload):
+    def from_tag(self, tag_payload, version):
         """
         @type tag_payload: TagPayload
         """
@@ -272,10 +276,10 @@ class RailDockedEntityLink(object):
         tag_list = tag_payload.payload
         assert isinstance(tag_list, TagList)
         list_of_tags = tag_list.get_list()
-        self._entity_main = RailDockedEntity(self._meta_version)
-        self._entity_main.from_tag(list_of_tags[0])
-        self._entity_docked = RailDockedEntity(self._meta_version)
-        self._entity_docked.from_tag(list_of_tags[1])
+        self._entity_main = RailDockedEntity()
+        self._entity_main.from_tag(list_of_tags[0], version)
+        self._entity_docked = RailDockedEntity()
+        self._entity_docked.from_tag(list_of_tags[1], version)
         self._unknown_matrix_0 = list_of_tags[2].payload
         self._unknown_matrix_1 = list_of_tags[3].payload
         self._docked_entity_location = list_of_tags[4].payload
@@ -284,7 +288,7 @@ class RailDockedEntityLink(object):
         self._unknown_byte_1 = list_of_tags[7].payload
         self._unknown_byte_2 = list_of_tags[8].payload
 
-    def to_tag(self):
+    def to_tag(self, version):
         """
         # entity_entry
         -13:  {}        // "Rail Basic"     Main entity
@@ -301,8 +305,8 @@ class RailDockedEntityLink(object):
         @rtype: TagPayload
         """
         link_tag = TagList()
-        link_tag.add(self._entity_main.to_tag())
-        link_tag.add(self._entity_docked.to_tag())
+        link_tag.add(self._entity_main.to_tag(version))
+        link_tag.add(self._entity_docked.to_tag(version))
         link_tag.add(TagPayload(-16, None, self._unknown_matrix_0))
         link_tag.add(TagPayload(-16, None, self._unknown_matrix_1))
         link_tag.add(TagPayload(-10, None, self._docked_entity_location))
@@ -337,13 +341,11 @@ class RailDockedEntityLinks(object):
     @type _list_links: list[RailDockedEntityLink]
     """
 
-    def __init__(self, meta_version):
+    def __init__(self):
         """
 
-        @type meta_version: int
         @return:
         """
-        self._meta_version = meta_version
         self._list_links = []
         return
 
@@ -362,11 +364,11 @@ class RailDockedEntityLinks(object):
         """
         self._list_links = links
 
-    def from_tag(self, tag_payload):
+    def from_tag(self, tag_payload, version):
         """
         @type tag_payload: TagPayload
         """
-        assert isinstance(tag_payload, TagPayload)
+        assert isinstance(tag_payload, TagPayload), tag_payload
         assert abs(tag_payload.id) == 13
         assert isinstance(tag_payload.payload, TagList)
         tag_list = tag_payload.payload
@@ -385,11 +387,11 @@ class RailDockedEntityLinks(object):
         for tag_index in range(number_of_links):
             # tag_list_link = tag_list[tag_index+1].payload
             # assert isinstance(tag_list_link, TagList)
-            link = RailDockedEntityLink(self._meta_version)
-            link.from_tag(list_of_tags[tag_index])
+            link = RailDockedEntityLink()
+            link.from_tag(list_of_tags[tag_index], version)
             self._list_links.append(link)
 
-    def to_tag(self):
+    def to_tag(self, version):
         """
         -13: {
                 -1: 1,
@@ -404,7 +406,7 @@ class RailDockedEntityLinks(object):
 
         tag_list = TagList()
         for link in self._list_links:
-            tag_list.add(link.to_tag())
+            tag_list.add(link.to_tag(version))
 
         links_tag_list.add(TagPayload(-13, None, tag_list))
         links_tag_list.add(TagPayload(-13, None, TagList()))  # why is here a empty tag list? No clue!
@@ -420,62 +422,3 @@ class RailDockedEntityLinks(object):
         for link in self._list_links:
             link.to_stream(output_stream)
             # output_stream.write("\n")
-
-"""
--13:
-{
-    -1: 1,
-    -13:
-    {
-        -13:
-        {
-            -13:
-            {
-                -1: 0,
-                -8: 'ENTITY_SHIP_0_199_435_ship',
-                -10: (15, 16, 16),
-                -2: 665,
-                -1: 17,
-                -1: 0,
-                -1: 100,
-            }
-            -13:
-            {
-                -1: 0,
-                -8: 'ENTITY_SHIP_turret',
-                -10: (16, 16, 17),
-                -2: 663,
-                -1: 2,
-                -1: 0,
-                -1: 100,
-            }
-            -16: [[1.0, 0.0, 0.0, 0.0], [0.0, 1.0, 0.0, 0.0], [0.0, 0.0, 1.0, 0.0], [0.0, 0.0, 0.0, 1.0]], -16: [[1.0, 0.0, 0.0, 0.0], [0.0, 1.0, 0.0, 0.0], [0.0, 0.0, 1.0, 0.0], [0.0, 0.0, 0.0, 1.0]], -10: (14, 16, 16), -16: [[1.0, 0.0, 0.0, 0.0], [0.0, 1.0, 0.0, 0.0], [0.0, 0.0, 1.0, 0.0], [0.0, 0.0, 0.0, 1.0]],
-            - 1: 0, -1: 0, -1: 0,
-        }
-    }
-    -13: {}
-}
-
--13:
-{
-    -1: 1,
-    -13:
-    {
-        -13:
-        {
-            -13:
-            {
-                -1: 0,
-                -8: 'ENTITY_SHIP_0_199_435_ship',
-                -10: (17, 16, 16), -2: 662,
-                -1: 21,
-                -1: 0,
-                -1: 100,
-            }
-            -13: {-1: 0, -8: 'ENTITY_SHIP_docker', -10: (16, 16, 17), -2: 663, -1: 2, -1: 0, -1: 100, }
-            -16: [[1.0, 0.0, 0.0, 0.0], [0.0, 1.0, 0.0, 0.0], [0.0, 0.0, 1.0, 0.0], [0.0, 0.0, 0.0, 1.0]], -16: [[1.0, 0.0, 0.0, 0.0], [0.0, 1.0, 0.0, 0.0], [0.0, 0.0, 1.0, 0.0], [0.0, 0.0, 0.0, 1.0]], -10: (18, 16, 16), -16: [[1.0, 0.0, 0.0, 0.0], [0.0, 1.0, 0.0, 0.0], [0.0, 0.0, 1.0, 0.0], [0.0, 0.0, 0.0, 1.0]],
-            - 1: 0, -1: 0, -1: 0, }
-        }
-    -13: {}
-}
-"""

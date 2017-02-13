@@ -49,7 +49,8 @@ class Meta(DefaultLogging):
         self._version = (0, 0, 0, 5)
         self._data_type_2 = DataType2(logfile=logfile, verbose=verbose, debug=debug)
         self._data_type_3 = DataType3(logfile=logfile, verbose=verbose, debug=debug)
-        self._data_type_4 = DataType4(max(self._valid_versions)[3], logfile=logfile, verbose=verbose, debug=debug)
+        self._data_type_4 = DataType4(
+            max(self._valid_versions)[3], max(self._valid_versions)[3], logfile=logfile, verbose=verbose, debug=debug)
         self._data_type_5 = DataType5(logfile=logfile, verbose=verbose, debug=debug)
         self._data_type_6 = DataType6(logfile=logfile, verbose=verbose, debug=debug)
         self._data_type_7 = DataType7(logfile=logfile, verbose=verbose, debug=debug)
@@ -74,7 +75,8 @@ class Meta(DefaultLogging):
 
         self._data_type_2 = DataType2(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
         self._data_type_3 = DataType3(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
-        self._data_type_4 = DataType4(self._version[3], logfile=self._logfile, verbose=self._verbose, debug=self._debug)
+        self._data_type_4 = DataType4(
+            self._version[3], max(self._valid_versions)[3], logfile=self._logfile, verbose=self._verbose, debug=self._debug)
         self._data_type_5 = DataType5(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
         self._data_type_6 = DataType6(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
         self._data_type_7 = DataType7(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
@@ -250,14 +252,15 @@ class Meta(DefaultLogging):
             docked_entity_index, docker_entity = self._data_type_3.popitem()
             assert isinstance(docker_entity, DockedEntity)
             block = smd.get_block_at_position(docker_entity.position)
-            main_entity = RailDockedEntity(max(self._valid_versions)[3])
-            rail_dock_entity = RailDockedEntity(max(self._valid_versions)[3])
+            main_entity = RailDockedEntity()
+            rail_dock_entity = RailDockedEntity()
             block_side_id = block.get_block_side_id()
             main_entity.set_by_block_side(
                 label=main_entity_label,
                 location=docker_entity.position,
                 block_id=block_config[block.get_id()].get_rail_equivalent(),
-                side=block_side_id
+                side=block_side_id,
+                version=self._version
             )
             rail_dock_entity.set(
                 label="{}{}".format(rail_docked_label_prefix, docked_entity_index),
@@ -267,13 +270,13 @@ class Meta(DefaultLogging):
                 byte_orientation_2=1  # Bottom pointing forward
             )
 
-            link = RailDockedEntityLink(max(self._valid_versions)[3])
+            link = RailDockedEntityLink()
             link.set(
                 docked_entity_location=self.get_docked_entity_location(docker_entity.position, block_side_id),
                 entity_main=main_entity,
                 entity_docked=rail_dock_entity
                 )
-            links = RailDockedEntityLinks(max(self._valid_versions)[3])
+            links = RailDockedEntityLinks()
             links.set([link])
             self._data_type_4.add(docked_entity_index, links)
 
