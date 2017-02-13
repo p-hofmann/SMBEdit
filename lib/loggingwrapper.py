@@ -9,6 +9,7 @@ from io import StringIO
 
 logger = logging.getLogger(__name__)
 
+
 class LoggingWrapper(object):
     CRITICAL = logging.CRITICAL
     FATAL = logging.CRITICAL
