@@ -3,9 +3,10 @@ __author__ = 'Peter Hofmann'
 import sys
 import os
 from collections import Iterable
-
+import struct
 from lib.bits_and_bytes import BinaryStream
 from lib.loggingwrapper import DefaultLogging
+from lib.utils.vector import Vector
 from lib.smblueprint.meta.tag.tagmanager import TagManager
 from lib.smblueprint.meta.tag.raildockentitylinks import RailDockedEntityLinks
 
@@ -50,50 +51,47 @@ class DataType4(DefaultLogging):
     # #######################################
 
     @staticmethod
-    def get_index(position_x, position_y, position_z):
+    def get_index(position):
         """
 
-        @param position_x:
-        @type position_x: int
-        @param position_y:
-        @type position_y: int
-        @param position_z:
-        @type position_z: int
+        @param position:
+        @type position: (int, int, int)
 
         @return:
         @rtype: int
         """
-        return int(position_z << 32) + int(position_y << 16) + int(position_x)
+        tmp = struct.pack("<hhhh", position[0], position[1], position[2], 0)
+        return struct.unpack("<q", tmp)[0]
 
     @staticmethod
-    def get_pos(position_index, bit_shift=0):
+    def get_pos(position_index):
         """
 
         @param position_index:
         @type position_index: int
 
         @return:
-        @rtype: int
+        @rtype: (int, int, int)
         """
-        if bit_shift == 0:
-            return int(position_index & 65535)
-        return int(position_index >> bit_shift & 65535)
+        # assert isinstance(position_index, int), position_index
+        tmp = struct.pack("<q", position_index)
+        return tuple(struct.unpack("<hhhh", tmp)[:3])
 
     def chunk16_to_chunk_32_shift_index(self, position_index, offset):
         """
 
         @type position_index: int
-        @type offset: int
+        @type offset: (int, int, int)
 
         @return:
         @rtype: int
         """
-        return self.get_index(
-            self.get_pos(position_index) + offset,
-            self.get_pos(position_index, 16) + offset,
-            self.get_pos(position_index, 32) + offset)
+        # Vector
+        position = self.get_pos(position_index)
+        new_position_index = Vector.addition(position, offset)
+        return new_position_index
 
-    def _read_wireless_logic_stuff(self, input_stream, offset):
+    def _read_wireless_connections(self, input_stream, offset):
         """
         Read unknown stuff from byte stream
 
@@ -103,14 +101,16 @@ class DataType4(DefaultLogging):
         @rtype (str, int, int)
         """
         unknown_string = input_stream.read_string()  # utf
-        unknown_position_index_0 = input_stream.read_int64()
-        unknown_position_index_1 = input_stream.read_int64()
+        wireless_position_index_src = input_stream.read_int64()
+        wireless_position_index_dst = input_stream.read_int64()
         self._logger.debug("wireless_logic stuff string: '{}'".format(unknown_string))
-        # if offset != 0:
-        #     # chunk16 to 32
-        #     unknown_position_index_0 = self.chunk16_to_chunk_32_shift_index(unknown_position_index_0, offset)
-        #     unknown_position_index_1 = self.chunk16_to_chunk_32_shift_index(unknown_position_index_1, offset)
-        return unknown_string, unknown_position_index_0, unknown_position_index_1
+        if offset != 0:
+            # chunk16 to 32
+            wireless_position_index_src = self.chunk16_to_chunk_32_shift_index(
+                wireless_position_index_src, (offset, offset, offset))
+            wireless_position_index_dst = self.chunk16_to_chunk_32_shift_index(
+                wireless_position_index_dst, (offset, offset, offset))
+        return unknown_string, wireless_position_index_src, wireless_position_index_dst
 
     def read(self, input_stream, version):
         """
@@ -129,7 +129,7 @@ class DataType4(DefaultLogging):
             number_of_wireless_connections = input_stream.read_int32()
             self._entity_wireless_logic_stuff = {}
             for some_index in range(number_of_wireless_connections):
-                self._entity_wireless_logic_stuff[some_index] = self._read_wireless_logic_stuff(input_stream, offset)
+                self._entity_wireless_logic_stuff[some_index] = self._read_wireless_connections(input_stream, offset)
 
         self._docked_entities = {}
         amount_of_docked_entities = input_stream.read_int32()
@@ -147,7 +147,7 @@ class DataType4(DefaultLogging):
     # #######################################
 
     @staticmethod
-    def _write_wireless_logic_stuff(output_stream, stuff):
+    def _write_wireless_connections(output_stream, stuff):
         """
         Write some stuff to byte stream
 
@@ -173,12 +173,10 @@ class DataType4(DefaultLogging):
 
         if version >= (0, 0, 0, 2):
             output_stream.write_string(self._entity_label)
-            list_size_of_unknown_stuff = len(self._entity_wireless_logic_stuff)
-            output_stream.write_int32_unassigned(list_size_of_unknown_stuff)
-            if list_size_of_unknown_stuff > 0:
-                self._logger.warning("Writing unknown stuff.")
+            number_of_wireless_connections = len(self._entity_wireless_logic_stuff)
+            output_stream.write_int32_unassigned(number_of_wireless_connections)
             for index in sorted(self._entity_wireless_logic_stuff.keys()):
-                self._write_wireless_logic_stuff(output_stream, self._entity_wireless_logic_stuff[index])
+                self._write_wireless_connections(output_stream, self._entity_wireless_logic_stuff[index])
 
         output_stream.write_int32_unassigned(len(self._docked_entities))
         for dock_index in sorted(self._docked_entities.keys()):
