@@ -670,8 +670,8 @@ class Datatype2TagReader(object):
             {
                 13: 'ACD' {}
                 13: 'TR' {}
-                13: 'A' {}
-                13: 'A' {}
+                13: 'A' {} # docked, not used since > v0.1867
+                13: 'A' {} # turret, not used since > v0.1867
                 13: 'J' {}
                 13: 'JP' {}
                 13: 'SC' {}
