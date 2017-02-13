@@ -141,7 +141,9 @@ class BlockBits(object):
         int_24bit = BitAndBytes.bits_combine(block_id, int_24bit, 0)
         int_24bit = BitAndBytes.bits_combine(hit_points, int_24bit, 11)
         if block_config[block_id].can_activate:  # For blocks with an activation status
-            if self._version < 3:
+            block_style = block_config[block_id].block_style
+            if self._version < 3 and block_style not in {2, 6}:
+                # block_style 2 and 6 use bit 19 for axis rotation before v3
                 int_24bit = BitAndBytes.bits_combine(active_bit, int_24bit, 19)
             else:
                 # version 3
