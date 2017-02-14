@@ -332,7 +332,7 @@ class RailDockedEntityLink(object):
         # output_stream.write("{}\n".format(self._unknown_matrix_0))
         # output_stream.write("{}\n".format(self._unknown_matrix_1))
         # output_stream.write("{}\n".format(self._unknown_matrix_2))
-        # output_stream.write("{}\n".format((self._unknown_byte_0, self._unknown_byte_1, self._unknown_byte_2)))
+        output_stream.write("{}\n\n".format((self._unknown_byte_0, self._unknown_byte_1, self._unknown_byte_2)))
 
 
 class NameList(object):
