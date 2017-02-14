@@ -50,47 +50,6 @@ class DataType4(DefaultLogging):
     # ###  Read
     # #######################################
 
-    @staticmethod
-    def get_index(position):
-        """
-
-        @param position:
-        @type position: (int, int, int)
-
-        @return:
-        @rtype: int
-        """
-        tmp = struct.pack("<hhhh", position[0], position[1], position[2], 0)
-        return struct.unpack("<q", tmp)[0]
-
-    @staticmethod
-    def get_pos(position_index):
-        """
-
-        @param position_index:
-        @type position_index: int
-
-        @return:
-        @rtype: (int, int, int)
-        """
-        # assert isinstance(position_index, int), position_index
-        tmp = struct.pack("<q", position_index)
-        return tuple(struct.unpack("<hhhh", tmp)[:3])
-
-    def chunk16_to_chunk_32_shift_index(self, position_index, offset):
-        """
-
-        @type position_index: int
-        @type offset: (int, int, int)
-
-        @return:
-        @rtype: int
-        """
-        # Vector
-        position = self.get_pos(position_index)
-        new_position_index = Vector.addition(position, offset)
-        return new_position_index
-
     def _read_wireless_connections(self, input_stream, offset):
         """
         Read unknown stuff from byte stream
@@ -106,9 +65,9 @@ class DataType4(DefaultLogging):
         self._logger.debug("wireless_logic stuff string: '{}'".format(unknown_string))
         if offset != 0:
             # chunk16 to 32
-            wireless_position_index_src = self.chunk16_to_chunk_32_shift_index(
+            wireless_position_index_src = Vector.shift_position_index(
                 wireless_position_index_src, (offset, offset, offset))
-            wireless_position_index_dst = self.chunk16_to_chunk_32_shift_index(
+            wireless_position_index_dst = Vector.shift_position_index(
                 wireless_position_index_dst, (offset, offset, offset))
         return unknown_string, wireless_position_index_src, wireless_position_index_dst
 
