@@ -215,6 +215,7 @@ class SMBEdit(ArgumentHandler):
                 self._replace_blocks(blueprint)
 
             if self._reset_hull_shape:
+                self._logger.info("Set outside hull to cube shape.")
                 blueprint.reset_ship_hull_shape()
 
             if self._replace_hull is not None:
