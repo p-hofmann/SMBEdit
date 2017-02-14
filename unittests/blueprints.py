@@ -36,12 +36,16 @@ class Blueprint(object):
         self._tmp = tempfile.mkdtemp(prefix="blueprint_tests")
         self._blueprints = set()
         self._file_name = "meta.smbpm"
-        directory_blueprints = os.path.join(".", "test_blueprints")
+        # directory_blueprints = os.path.join(".", "test_blueprints")
+        directory_blueprints = "/home/hofmann/Downloads/starmade-launcher-linux-x64/StarMade/blueprints/old"
         self._blueprints = set()
+        self._blueprint_attachments = set()
         blueprints = self._find_blueprint_sment(directory_blueprints)
         for blueprint_path in blueprints:
             self.extract_sment(blueprint_path)
         self._find_blueprint_dirs(directory_blueprints)
+        for directory_blueprint in self._blueprints:
+            self.get_attachments(directory_blueprint)
 
     def __exit__(self, type, value, traceback):
         if self._tmp and os.path.exists(self._tmp):
@@ -54,6 +58,16 @@ class Blueprint(object):
     def __iter__(self):
         for directory in self._blueprints:
             yield directory
+
+    def get_attachments(self, directory_blueprint):
+        for folder_item in os.listdir(directory_blueprint):
+            docked_dir = os.path.join(directory_blueprint, folder_item)
+            if not os.path.isdir(docked_dir):
+                continue
+            if not folder_item.startswith("ATTACHED_"):
+                continue
+            self._blueprint_attachments.add(docked_dir)
+            self.get_attachments(docked_dir)
 
     def extract_sment(self, file_path):
         tmp = tempfile.mkdtemp(prefix="blueprint_tests", dir=self._tmp)
