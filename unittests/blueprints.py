@@ -36,8 +36,7 @@ class Blueprint(object):
         self._tmp = tempfile.mkdtemp(prefix="blueprint_tests")
         self._blueprints = set()
         self._file_name = "meta.smbpm"
-        # directory_blueprints = os.path.join(".", "test_blueprints")
-        directory_blueprints = "/home/hofmann/Downloads/starmade-launcher-linux-x64/StarMade/blueprints/old"
+        directory_blueprints = os.path.join(".", "test_blueprints")
         self._blueprints = set()
         self._blueprint_attachments = set()
         blueprints = self._find_blueprint_sment(directory_blueprints)
