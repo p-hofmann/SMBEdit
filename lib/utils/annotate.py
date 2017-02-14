@@ -30,9 +30,23 @@ class Annotate(object):
         self._block_list = None
         del list
 
-    def flood(self, start_position, min_position, max_position, margin=0):
-        marked = set()
-        border = set()
+    def get_data(self):
+        """
+        @rtype: (set(int), set(int))
+        """
+        return self.marked, self.border
+
+    def flood(self, start_position, min_position, max_position):
+        """
+
+        @type start_position: (int, int, int)
+        @type min_position: (int, int, int)
+        @type max_position: (int, int, int)
+
+        @rtype: None
+        """
+        self.marked = set()
+        self.border = set()
         tmp = set()
         assert not self._block_list.has_block_at(start_position), "Start Position must be empty."
         tmp.add(self._block_list.get_index(start_position))
@@ -49,29 +63,28 @@ class Annotate(object):
             if position[index] < min_position[index]-1 or position[index] > max_position[index]+1:
                 continue
             if self._block_list.has_block_at(position):
-                border.add(position_index)
+                self.border.add(position_index)
                 continue
 
-            marked.add(position_index)
+            self.marked.add(position_index)
             position_index = self._block_list.get_index((position[0]-1, position[1], position[2]))
-            if position_index not in marked and position_index not in border:
+            if position_index not in self.marked and position_index not in self.border:
                 tmp.add(position_index)
             position_index = self._block_list.get_index((position[0], position[1]-1, position[2]))
-            if position_index not in marked and position_index not in border:
+            if position_index not in self.marked and position_index not in self.border:
                 tmp.add(position_index)
             position_index = self._block_list.get_index((position[0], position[1], position[2]-1))
-            if position_index not in marked and position_index not in border:
+            if position_index not in self.marked and position_index not in self.border:
                 tmp.add(position_index)
             position_index = self._block_list.get_index((position[0]+1, position[1], position[2]))
-            if position_index not in marked and position_index not in border:
+            if position_index not in self.marked and position_index not in self.border:
                 tmp.add(position_index)
             position_index = self._block_list.get_index((position[0], position[1]+1, position[2]))
-            if position_index not in marked and position_index not in border:
+            if position_index not in self.marked and position_index not in self.border:
                 tmp.add(position_index)
             position_index = self._block_list.get_index((position[0], position[1], position[2]+1))
-            if position_index not in marked and position_index not in border:
+            if position_index not in self.marked and position_index not in self.border:
                 tmp.add(position_index)
-        return marked, border
 
     @staticmethod
     def get_neighbours(position):
@@ -86,6 +99,14 @@ class Annotate(object):
                     yield taxi_dist, position_tmp
 
     def trace_boundary(self, start_position, min_position, max_position):
+        """
+
+        @type start_position: (int, int, int)
+        @type min_position: (int, int, int)
+        @type max_position: (int, int, int)
+
+        @rtype: None
+        """
         assert self._periphery.get_position_block_periphery_index(start_position) > 0
         tmp = set()
         tmp.add(self._block_list.get_index(start_position))
@@ -112,7 +133,16 @@ class Annotate(object):
                     if position_index not in self.marked and position_index not in self.border:
                         tmp.add(position_index)
 
-    def get_boundaries(self, min_position, max_position):
+    def calc_boundaries(self, min_position, max_position):
+        """
+
+        @type min_position: (int, int, int)
+        @type max_position: (int, int, int)
+
+        @rtype: None
+        """
+        self.marked = set()
+        self.border = set()
         outside = True
         for x in range(min_position[0], max_position[0]+1):
             for y in range(min_position[1], max_position[1]+1):
@@ -129,4 +159,4 @@ class Annotate(object):
                     if not outside:
                         continue
                     self.trace_boundary(position, min_position, max_position)
-                    return self.marked, self.border
+                    return
