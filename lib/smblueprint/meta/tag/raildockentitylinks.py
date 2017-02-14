@@ -88,7 +88,7 @@ class RailDockedEntity(RailBasis):
         self._block_id = 0
         self._byte_orientation_1 = 0
         self._byte_orientation_2 = 0
-        self._unknown_byte_1 = 100
+        self._hit_points = 100
         return
 
     def move_position(self, vector_direction):
@@ -164,7 +164,7 @@ class RailDockedEntity(RailBasis):
         self._block_id = list_of_tags[2+offset].payload
         self._byte_orientation_1 = list_of_tags[3+offset].payload
         self._byte_orientation_2 = list_of_tags[4+offset].payload
-        self._unknown_byte_1 = list_of_tags[5+offset].payload
+        self._hit_points = list_of_tags[5+offset].payload
 
     def to_tag(self, version):
         """
@@ -189,9 +189,8 @@ class RailDockedEntity(RailBasis):
         tag_list.add(TagPayload(-10, None, self._location))
         tag_list.add(TagPayload(-2, None, self._block_id))
         tag_list.add(TagPayload(-1, None, byte_orientation_1))
-        # seemingly static unknown stuff
         tag_list.add(TagPayload(-1, None, byte_orientation_2))
-        tag_list.add(TagPayload(-1, None, self._unknown_byte_1))
+        tag_list.add(TagPayload(-1, None, self._hit_points))
         return TagPayload(-13, None, tag_list)
 
     def to_stream(self, output_stream=sys.stdout):
