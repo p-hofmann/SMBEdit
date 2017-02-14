@@ -1,3 +1,4 @@
+import os
 from io import BytesIO
 from unittest import TestCase
 from unittests.blueprints import blueprint_handler
@@ -50,6 +51,23 @@ class TestMeta(DefaultSetup):
             self.object.read(directory_blueprint)
             self.object.move_center_by_vector((2, 5, 6))
 
+    def test_datatype_7(self):
+        for directory_blueprint in self._blueprints:
+            self.object.read(directory_blueprint)
+            # print(directory_blueprint, self.object._version[3])
+            # if not self.object._data_type_7.has_data():
+            #     continue
+            # for key, value in self.object._data_type_7._data.items():
+            #     position = Vector.get_pos(key)
+            #     # print(position, value)
+
+    def test_datatype_6(self):
+        for directory_blueprint in self._blueprints._blueprint_attachments:
+            print("\n\n", directory_blueprint, self.object._version[3])
+            self.object.read(directory_blueprint)
+            # for index, rail_entry in self.object._data_type_6._data.items():
+            #     rail_entry.to_stream()
+
     def test_datatype_5(self):
         for directory_blueprint in self._blueprints:
             self.object.read(directory_blueprint)
@@ -91,13 +109,3 @@ class TestMeta(DefaultSetup):
         position = (-16, -10, -3)
         position_index = Vector.get_index(position)
         self.assertTupleEqual(position, Vector.get_pos(position_index))
-
-    def test_datatype_7(self):
-        for directory_blueprint in self._blueprints:
-            self.object.read(directory_blueprint)
-            # print(directory_blueprint, self.object._version[3])
-            # if not self.object._data_type_7.has_data():
-            #     continue
-            # for key, value in self.object._data_type_7._data.items():
-            #     position = Vector.get_pos(key)
-            #     # print(position, value)
