@@ -48,7 +48,8 @@ class TestPeriphery(DefaultSetup):
         self.object = Periphery(smd.get_block_list())
         annotation = Annotate(smd.get_block_list(), self.object)
         min_position, max_position = smd.get_min_max_vector()
-        marked, border = annotation.flood(min_position, min_position, max_position)
+        annotation.flood(min_position, min_position, max_position)
+        marked, border = annotation.get_data()
         # block_list, marked, border
         self.object.set_annotation(marked=marked, border=border)
         periphery = self.object.get_periphery_simple(shape_id)
@@ -61,7 +62,8 @@ class TestPeriphery(DefaultSetup):
         self.object = Periphery(smd.get_block_list())
         annotation = Annotate(smd.get_block_list(), self.object)
         min_position, max_position = smd.get_min_max_vector()
-        marked, border = annotation.flood(min_position, min_position, max_position)
+        annotation.flood(min_position, min_position, max_position)
+        marked, border = annotation.get_data()
         # block_list, marked, border
         self.object.set_annotation(marked=marked, border=border)
         periphery = self.object.get_periphery_simple(shape_id)
@@ -74,7 +76,8 @@ class TestPeriphery(DefaultSetup):
         self.object = Periphery(smd.get_block_list())
         annotation = Annotate(smd.get_block_list(), self.object)
         min_position, max_position = smd.get_min_max_vector()
-        marked, border = annotation.get_boundaries(min_position, max_position)
+        annotation.calc_boundaries(min_position, max_position)
+        marked, border = annotation.get_data()
         # block_list, marked, border
         self.object.set_annotation(marked=marked, border=border)
         periphery = self.object.get_periphery_complex(shape_id)
@@ -88,7 +91,8 @@ class TestPeriphery(DefaultSetup):
         annotation = Annotate(smd.get_block_list(), self.object)
         min_position, max_position = smd.get_min_max_vector()
         # marked, border = annotation.flood(min_position, min_position, max_position)
-        marked, border = annotation.get_boundaries(min_position, max_position)
+        annotation.calc_boundaries(min_position, max_position)
+        marked, border = annotation.get_data()
         # block_list, marked, border
         self.object.set_annotation(marked=marked, border=border)
         periphery = self.object.get_periphery_complex(shape_id)

@@ -44,7 +44,7 @@ class ArgumentHandler(Validator):
         self._link_salvage = options.link_salvage
         self._index_turn_tilt = None  # options.turn
         self._reset_hull_shape = options.reset_hull_shape
-        self._replace_hull = options.replace_blocks_hull
+        self._replace_hull = options.replace_hull_blocks
         self._replace = options.replace
         self._remove_blocks = None
         remove_blocks = options.remove_blocks
@@ -335,7 +335,7 @@ class ArgumentHandler(Validator):
             Use '-sm' argument to ensure correct hit point for replaced block.""")
 
         group_replace.add_argument(
-            "-rh", "--replace_hull",
+            "-rh", "--replace_hull_blocks",
             default=None,
             type=str,
             help='''{h,s,a,c,z}:{h,s,a,c,z}

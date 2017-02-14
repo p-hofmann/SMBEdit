@@ -47,7 +47,7 @@ class Options(object):
         self.docked_entities = None
         self.link_salvage = None
         self.turn = None
-        self.replace_hull = None
+        self.replace_hull_blocks = None
         self.replace = None
         self.remove_blocks = None
         self.move_center = None
@@ -62,3 +62,4 @@ class Options(object):
         self.entity_class = None
         self.summary = None
         self.tmp_dir = None
+        self.reset_hull_shape = False

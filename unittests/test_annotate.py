@@ -40,7 +40,8 @@ class TestAnnotate(DefaultSetup):
     def test_flood(self):
         # inside
         start_position = (16, 17, 16)
-        inside_marked, inside_border = self.object.flood(start_position, self.min_position, self.max_position)
+        self.object.flood(start_position, self.min_position, self.max_position)
+        inside_marked, inside_border = self.object.get_data()
         # self.assertEqual(len(inside_marked), 5 * 5 * 5 - 1)
         # self.assertEqual(len(inside_border), 5 * 5 * 6 + 1)
         self.assertEqual(len(inside_marked), 72)
@@ -48,7 +49,8 @@ class TestAnnotate(DefaultSetup):
 
         # outside
         start_position = self.min_position
-        outside_marked, outside_border = self.object.flood(start_position, self.min_position, self.max_position)
+        self.object.flood(start_position, self.min_position, self.max_position)
+        outside_marked, outside_border = self.object.get_data()
         self.assertEqual(len(outside_marked), 1026)  # 9 * 9 * 9 - border - box
         self.assertEqual(len(outside_border), 134)
 
@@ -60,11 +62,12 @@ class TestAnnotate(DefaultSetup):
         # max_position = Vector.addition(self.max_position, (1, 1, 1))
 
         # outside
-        start_position = self.min_position
-        outside_marked, outside_border = self.object.flood(start_position, min_position, max_position)
+        # start_position = self.min_position
+        # outside_marked, outside_border = self.object.flood(start_position, min_position, max_position)
         # outside
         # start_position = self.min_position
-        marked, border = self.object.get_boundaries(min_position, max_position)
+        self.object.calc_boundaries(min_position, max_position)
+        marked, border = self.object.get_data()
         special_position = self.object._block_list.get_index((18, 17, 18))
         self.assertIn(special_position, border)
         # self.assertIn(special_position, outside_border)
