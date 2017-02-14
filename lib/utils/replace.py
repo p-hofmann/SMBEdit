@@ -63,3 +63,24 @@ class Replace(object):
             else:
                 new_block = block_pool(replace_id).get_modified_block(block_id=replace_id, active=False)
             self._block_list[position] = new_block
+
+    def reset_hull_shape(self, border):
+        """
+        Turn shape of armor blocks of ship hull to cubes
+
+        @param border: Set of position_index of blocks
+        @type border: set(int)
+        """
+        cube_id = block_config.get_shape_id('cube')
+        for position_index in border:
+            block = self._block_list[position_index]
+            block_id = block.get_id()
+            if not block_config[block_id].is_hull():
+                continue
+            if block_config[block.get_id()].shape == cube_id:
+                continue
+            block_hull_tier, color_id, shape_id = block_config[block_id].get_details()
+            new_block_id = block_config.get_block_id_by_details(
+                hull_type=block_hull_tier, color=color_id, shape_id=cube_id)
+            new_block = block.get_modified_block(block_id=new_block_id, block_side_id=0)
+            self._block_list[position_index] = new_block
