@@ -115,7 +115,7 @@ class SMBEdit(ArgumentHandler):
             old_hull_type = self._char_to_hull_type[old_hull_type]
         else:
             old_hull_type = None
-        blueprint.replace_hull(new_hull_type, old_hull_type)
+        blueprint.replace_blocks_hull(new_hull_type, old_hull_type)
 
     def run(self):
         try:
@@ -213,6 +213,9 @@ class SMBEdit(ArgumentHandler):
             if self._replace is not None:
                 self._logger.info("Replacing blocks...")
                 self._replace_blocks(blueprint)
+
+            if self._reset_hull_shape:
+                blueprint.reset_ship_hull_shape()
 
             if self._replace_hull is not None:
                 self._logger.info("Replacing hull...")

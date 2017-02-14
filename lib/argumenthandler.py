@@ -43,7 +43,8 @@ class ArgumentHandler(Validator):
         self._path_output = options.path_output
         self._link_salvage = options.link_salvage
         self._index_turn_tilt = None  # options.turn
-        self._replace_hull = options.replace_hull
+        self._reset_hull_shape = options.reset_hull_shape
+        self._replace_hull = options.replace_blocks_hull
         self._replace = options.replace
         self._remove_blocks = None
         remove_blocks = options.remove_blocks
@@ -159,6 +160,12 @@ class ArgumentHandler(Validator):
             ),
             formatter_class=argparse.RawTextHelpFormatter)
 
+        group_input = parser.add_argument_group('Required')
+        group_input.add_argument(
+            "path_input",
+            type=str,
+            help="Directory of a blueprint or '*.sment' file path.")
+
         parser.add_argument('-V', '--version',
                             action='version',
                             version="{label} {version}".format(label=label, version=version),)
@@ -184,12 +191,19 @@ class ArgumentHandler(Validator):
             type=str,
             help="Directory for temporary data in case of 'sment' files.")
 
-        group_input = parser.add_argument_group('optional arguments')
+        group_input = parser.add_argument_group('Optional arguments')
+        group_input.add_argument(
+            "-o", "--path_output",
+            default=None,
+            type=str,
+            help="Output directory of modified blueprint or '*.sment' file path")
+
         group_input.add_argument(
             "-sm", "--starmade_dir",
             default=None,
             type=str,
             help="Directory path to the StarMade folder, attempting to read block config there.")
+
         group_input.add_argument(
             "-s", "--summary",
             action='store_true',
@@ -209,34 +223,10 @@ class ArgumentHandler(Validator):
             help="Apply modifications to docked entities, too.")
 
         group_input.add_argument(
-            "-aw", "--auto_wedge",
-            action='store_true',
-            default=False,
-            help="Automatically replace hull blocks with wedges on edge blocks.")
-
-        group_input.add_argument(
-            "-at", "--auto_tetra",
-            action='store_true',
-            default=False,
-            help="Automatically replace hull blocks with tetras at corner blocks.")
-
-        group_input.add_argument(
-            "-ah", "--auto_hepta",
-            action='store_true',
-            default=False,
-            help="Automatically smooth out blocks cornered by wedges, tetra and corners.")
-
-        group_input.add_argument(
-            "-ac", "--auto_corner",
-            action='store_true',
-            default=False,
-            help="Automatically replace hull blocks with corners at corner blocks.")
-
-        group_input.add_argument(
             "-ls", "--link_salvage",
             action='store_true',
             default=False,
-            help="Link salvage computers to salvage modules.")
+            help="Link salvage modules to salvage computers in checker muster.")
 
     #     group_input.add_argument(
     #         "-t", "--turn",
@@ -257,7 +247,7 @@ class ArgumentHandler(Validator):
             default=None,
             type=int,
             choices=[0, 1, 2, 3, 4],
-            help='''change entity type to:
+            help='''Change entity type to:
         0: Ship
         1: Shop
         2: Space Station
@@ -270,7 +260,7 @@ class ArgumentHandler(Validator):
             default=None,
             type=int,
             choices=list(range(9)),
-            help='''change entity type to:
+            help='''Change entity type to:
             0: General
             1: Mining
             2: Support / Trade
@@ -299,20 +289,52 @@ class ArgumentHandler(Validator):
             z Front to Back
      ''')
 
-        group_input.add_argument(
+        group_auto_shape = parser.add_argument_group('Auto shape')
+        group_auto_shape.add_argument(
+            "-aw", "--auto_wedge",
+            action='store_true',
+            default=False,
+            help="Automatically replace hull blocks with wedges on edge blocks.")
+
+        group_auto_shape.add_argument(
+            "-at", "--auto_tetra",
+            action='store_true',
+            default=False,
+            help="Automatically replace hull blocks with tetras at corner blocks.")
+
+        group_auto_shape.add_argument(
+            "-ah", "--auto_hepta",
+            action='store_true',
+            default=False,
+            help="Automatically smooth out blocks cornered by wedges, tetra and corners.")
+
+        group_auto_shape.add_argument(
+            "-ac", "--auto_corner",
+            action='store_true',
+            default=False,
+            help="Automatically replace hull blocks with corners at corner blocks.")
+
+        group_replace = parser.add_argument_group('Replace blocks')
+        group_replace.add_argument(
+            "-rs", "--reset_hull_shape",
+            action='store_true',
+            default=False,
+            help="Set outer ship hull blocks to cube.")
+
+        group_replace.add_argument(
             "-rm", "--remove_blocks",
             default=None,
             type=str,
             help="Remove all blocks of the given block id.")
 
-        group_input.add_argument(
+        group_replace.add_argument(
             "-r", "--replace",
             default=None,
             type=str,
             help="""'old_id:new_id'
             Use '-sm' argument to ensure correct hit point for replaced block.""")
 
-        group_input.add_argument(
+        group_replace.add_argument(
             "-rh", "--replace_hull",
             default=None,
             type=str,
@@ -322,18 +344,6 @@ class ArgumentHandler(Validator):
             a: Advanced Armor
             c: Crystal Armor
             z: Hazard Armor''')
-
-        group_input.add_argument(
-            "-o", "--path_output",
-            default=None,
-            type=str,
-            help="Output directory of modified blueprint or '*.sment' file path")
-
-        group_input = parser.add_argument_group('required')
-        group_input.add_argument(
-            "path_input",
-            type=str,
-            help="Directory of a blue print or '*.sment' file path.")
 
         if args is None:
             return parser.parse_args()

@@ -38,6 +38,7 @@ class Blueprint(DefaultLogging):
         self.logic = Logic(logfile=logfile, verbose=verbose, debug=debug)
         self.meta = Meta(logfile=logfile, verbose=verbose, debug=debug)
         self.smd3 = Smd(logfile=logfile, verbose=verbose, debug=debug)
+        self._annotate = None
         return
 
     # #######################################
@@ -148,7 +149,22 @@ class Blueprint(DefaultLogging):
         self.logic.update(self.smd3)
         self.header.update(self.smd3)
 
-    def replace_hull(self, new_hull_type, hull_type=None):
+    def reset_ship_hull_shape(self):
+        periphery = Periphery(self.smd3.get_block_list())
+        if self._annotate is None:
+            self._logger.info("Tracing entity boundary, this will take some time.")
+            self._annotate = Annotate(self.smd3.get_block_list(), periphery)
+            min_position, max_position = self.smd3.get_min_max_vector()
+            # start_position = Vector.subtraction(min_position, (1, 1, 1))
+            # self._annotate.flood(start_position, min_position, max_position)
+            self._annotate.calc_boundaries(min_position, max_position)
+        marked, border = self._annotate.get_data()
+        periphery.set_annotation(marked=marked, border=border)
+        replace = Replace(self.smd3.get_block_list())
+        replace.reset_hull_shape(border)
+        self.header.update(self.smd3)
+
+    def replace_blocks_hull(self, new_hull_type, hull_type=None):
         """
         Replace all blocks of a specific hull type or all hull
 
@@ -187,11 +203,14 @@ class Blueprint(DefaultLogging):
         #     # self.smd3.auto_wedge_debug()
         #     return
         periphery = Periphery(self.smd3.get_block_list())
-        annotate = Annotate(self.smd3.get_block_list(), periphery)
-        min_position, max_position = self.smd3.get_min_max_vector()
-        start_position = Vector.subtraction(min_position, (1, 1, 1))
-        # marked, border = annotate.flood(start_position, min_position, max_position)
-        marked, border = annotate.get_boundaries(min_position, max_position)
+        if self._annotate is None:
+            self._logger.info("Tracing entity boundary, this will take some time.")
+            self._annotate = Annotate(self.smd3.get_block_list(), periphery)
+            min_position, max_position = self.smd3.get_min_max_vector()
+            # start_position = Vector.subtraction(min_position, (1, 1, 1))
+            # self._annotate.flood(start_position, min_position, max_position)
+            self._annotate.calc_boundaries(min_position, max_position)
+        marked, border = self._annotate.get_data()
         periphery.set_annotation(marked=marked, border=border)
         auto_shape = AutoShape(self.smd3.get_block_list(), periphery)
         auto_shape.auto_hull_shape(
