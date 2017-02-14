@@ -5,9 +5,10 @@ import sys
 from lib.bits_and_bytes import BinaryStream
 from lib.loggingwrapper import DefaultLogging
 from lib.utils.vector import Vector
+from lib.smblueprint.meta.tag.raildockentitylinks import RailBasis
 
 
-class RailEntry(object):
+class RailDockerEntry(RailBasis):
     """
     Data type 6 rail meta data
 
@@ -17,9 +18,9 @@ class RailEntry(object):
     def __init__(self):
         self._position = None
         self._block_id = 0
-        self._unknown_byte_0 = 0
-        self._active = False
-        self._unknown_byte_1 = 0
+        self._orientation = 0
+        self._orientation_bit_3 = 0
+        self._hit_points = 0
         return
 
     # #######################################
@@ -35,9 +36,9 @@ class RailEntry(object):
         """
         self._position = input_stream.read_vector_3_int32()
         self._block_id = input_stream.read_int16()
-        self._unknown_byte_0 = input_stream.read_byte()
-        self._active = input_stream.read_bool()
-        self._unknown_byte_1 = input_stream.read_byte()
+        self._orientation = input_stream.read_byte()
+        self._orientation_bit_3 = input_stream.read_byte()
+        self._hit_points = input_stream.read_byte()
 
     def write(self, output_stream):
         """
@@ -48,9 +49,9 @@ class RailEntry(object):
         """
         output_stream.write_vector_3_int32(self._position),
         output_stream.write_int16(self._block_id),
-        output_stream.write_byte(self._unknown_byte_0),
-        output_stream.write_bool(self._active),
-        output_stream.write_byte(self._unknown_byte_1)
+        output_stream.write_byte(self._orientation),
+        output_stream.write_byte(self._orientation_bit_3),
+        output_stream.write_byte(self._hit_points)
 
     def move_position(self, vector_direction):
         self._position = Vector.addition(self._position, vector_direction)
@@ -62,19 +63,18 @@ class RailEntry(object):
         @param output_stream: Output stream
         @type output_stream: file
         """
-        output_stream.write("{}\t{}\t{}\t{}\t{}\n".format(
+        output_stream.write("{}\tId: {}\tOr.: {}\tHp: {}\n".format(
             self._position,
             self._block_id,
-            self._unknown_byte_0,
-            self._active,
-            self._unknown_byte_1))
+            self._rail_orientation_map[(self._orientation, self._orientation_bit_3)],
+            self._hit_points))
 
 
 class DataType6(DefaultLogging):
     """
     Reading data type 6 meta data
 
-    @type _data: dict[int,RailEntry]
+    @type _data: dict[int,RailDockerEntry]
     """
 
     def __init__(self, logfile=None, verbose=False, debug=False):
@@ -99,7 +99,7 @@ class DataType6(DefaultLogging):
             self._data = {}
             for index in range(number_of_entries):
                 # self._data[unknown_byte] = input_stream.read_vector_x_int32(4)
-                self._data[index] = RailEntry()
+                self._data[index] = RailDockerEntry()
                 self._data[index].read(input_stream)
 
     # #######################################
