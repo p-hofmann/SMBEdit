@@ -32,18 +32,16 @@ class Blueprint(object):
     @type _blueprints: set[str]
     """
 
-    def __init__(self, sment=True):
+    def __init__(self):
         self._tmp = tempfile.mkdtemp(prefix="blueprint_tests")
         self._blueprints = set()
         self._file_name = "meta.smbpm"
         directory_blueprints = os.path.join(".", "test_blueprints")
         self._blueprints = set()
-        if sment:
-            blueprints = self._find_blueprint_sment(directory_blueprints)
-            for blueprint_path in blueprints:
-                self.extract_sment(blueprint_path)
-        else:
-            self._find_blueprint_dirs(directory_blueprints)
+        blueprints = self._find_blueprint_sment(directory_blueprints)
+        for blueprint_path in blueprints:
+            self.extract_sment(blueprint_path)
+        self._find_blueprint_dirs(directory_blueprints)
 
     def __exit__(self, type, value, traceback):
         if self._tmp and os.path.exists(self._tmp):
@@ -66,7 +64,6 @@ class Blueprint(object):
         return new_path
 
     def _find_blueprint_dirs(self, directory_blueprints):
-        self._blueprints = set()
         list_of_stuff = os.listdir(directory_blueprints)
         for name in list_of_stuff:
             path = os.path.join(directory_blueprints, name)
