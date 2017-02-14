@@ -37,14 +37,11 @@ class DataType7(DefaultLogging):
         self._has_data = input_stream.read_bool()
         if self._has_data:
             number_of_entries = input_stream.read_int32_unassigned()
-            assert number_of_entries < 10000, number_of_entries
             self._data = {}
             for _ in range(number_of_entries):
                 key = input_stream.read_int64()
                 value = input_stream.read_double()
                 self._data[key] = value
-        else:
-            raise NotImplementedError("Unknown tag: {}".format(self._has_data))
 
     # #######################################
     # ###  Write
@@ -57,8 +54,6 @@ class DataType7(DefaultLogging):
         @param output_stream: Output stream
         @type output_stream: BinaryStream
         """
-        # if len(self._data) == 0:
-        #     return
         self._logger.debug("Writing")
         output_stream.write_byte(7)
         output_stream.write_bool(self._has_data)
