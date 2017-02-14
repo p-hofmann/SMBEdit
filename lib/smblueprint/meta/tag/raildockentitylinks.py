@@ -7,38 +7,7 @@ from lib.utils.vector import Vector
 from lib.smblueprint.meta.tag.tagmanager import TagPayload, TagList
 
 
-class RailDockedEntity(object):
-    """
-    Handling rail docked entity tag structure
-
-    @type _location: tuple[int]
-    """
-
-    _side_to_orientation = {
-        0: (2, 1),  # "Front_up",
-        1: (4, 1),  # "Back_down",
-        2: (14, 1),  # "Top_forward"
-        3: (8, 1),  # "Bottom_backwards"
-        4: (0, 0),  # "Right_forward",
-        5: (4, 0),  # "Left_forward",
-    }
-
-    _side_to_orientation_v5 = {
-        0: (2, 1),  # "Front_up",
-        1: (4, 1),  # "Back_down",
-        2: (14, 1),  # "Top_forward"
-        3: (8, 1),  # "Bottom_backwards"
-        4: (16, 0),  # "Right_forward",
-        5: (20, 0),  # "Left_forward",
-    }
-
-    # 0: "FRONT ",
-    # 1: "BACK  ",
-    # 2: "TOP   ",
-    # 3: "BOTTOM",
-    # 4: "RIGHT ",
-    # 5: "LEFT  ",
-
+class RailBasis(object):
     _rail_orientation_map = {
         (0, 0): "Right_forward",
         (1, 0): "Right_up",
@@ -64,7 +33,7 @@ class RailDockedEntity(object):
         (13, 1): "Top_left",
         (14, 1): "Top_forward",
         (15, 1): "Top_right",
-        # meta version 5:
+        # meta version 5: Probably bug, might be properly used in future:
         (16, 0): "Right_forward",
         (17, 0): "Right_up",
         (18, 0): "Right_backwards",
@@ -74,6 +43,39 @@ class RailDockedEntity(object):
         (22, 0): "Left_backwards",
         (23, 0): "Left_down",
     }
+
+
+class RailDockedEntity(RailBasis):
+    """
+    Handling rail docked entity tag structure
+
+    @type _location: tuple[int]
+    """
+
+    _side_to_orientation = {
+        0: (2, 1),  # "Front_up",
+        1: (4, 1),  # "Back_down",
+        2: (14, 1),  # "Top_forward"
+        3: (8, 1),  # "Bottom_backwards"
+        4: (0, 0),  # "Right_forward",
+        5: (4, 0),  # "Left_forward",
+    }
+
+    # _side_to_orientation_v5 = {
+    #     0: (2, 1),  # "Front_up",
+    #     1: (4, 1),  # "Back_down",
+    #     2: (14, 1),  # "Top_forward"
+    #     3: (8, 1),  # "Bottom_backwards"
+    #     4: (16, 0),  # "Right_forward",
+    #     5: (20, 0),  # "Left_forward",
+    # }
+
+    # 0: "FRONT ",
+    # 1: "BACK  ",
+    # 2: "TOP   ",
+    # 3: "BOTTOM",
+    # 4: "RIGHT ",
+    # 5: "LEFT  ",
 
     def __init__(self):
         """
@@ -110,8 +112,8 @@ class RailDockedEntity(object):
         @type side: int
         """
         byte_orientation_1, byte_orientation_2 = self._side_to_orientation[side]
-        if version > 4:
-            byte_orientation_1, byte_orientation_2 = self._side_to_orientation_v5[side]
+        # if version > 4:
+        #     byte_orientation_1, byte_orientation_2 = self._side_to_orientation_v5[side]
 
         self.set(label, location, block_id, byte_orientation_1, byte_orientation_2)
 
