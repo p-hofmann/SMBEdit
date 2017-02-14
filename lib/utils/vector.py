@@ -1,3 +1,6 @@
+import struct
+
+
 __author__ = 'Peter Hofmann'
 
 
@@ -5,6 +8,48 @@ class Vector(object):
     """
     Collection of vector calculations
     """
+
+    @staticmethod
+    def get_index(position):
+        """
+
+        @param position:
+        @type position: (int, int, int)
+
+        @return:
+        @rtype: int
+        """
+        tmp = struct.pack("<hhhh", position[0], position[1], position[2], 0)
+        return struct.unpack("<q", tmp)[0]
+
+    @staticmethod
+    def get_pos(position_index):
+        """
+
+        @param position_index:
+        @type position_index: int
+
+        @return:
+        @rtype: (int, int, int)
+        """
+        # assert isinstance(position_index, int), position_index
+        tmp = struct.pack("<q", position_index)
+        return tuple(struct.unpack("<hhhh", tmp)[:3])
+
+    @staticmethod
+    def shift_position_index(position_index, offset):
+        """
+
+        @type position_index: int
+        @type offset: (int, int, int)
+
+        @return:
+        @rtype: int
+        """
+        # Vector
+        position = Vector.get_pos(position_index)
+        new_position_index = Vector.addition(position, offset)
+        return new_position_index
 
     @staticmethod
     def addition(vector1, vector2):
