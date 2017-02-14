@@ -4,7 +4,7 @@ import sys
 import math
 
 from lib.loggingwrapper import DefaultLogging
-from lib.bits_and_bytes import BinaryStream
+from lib.binarystream import BinaryStream
 from lib.smblueprint.smd2.smdsegment import SmdSegment, StyleBasic
 
 

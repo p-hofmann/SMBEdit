@@ -1,7 +1,7 @@
 __author__ = 'Peter Hofmann'
 
 
-from lib.bits_and_bytes import BitAndBytes
+from lib.binarystream import BinaryStream
 from lib.utils.blockconfig import block_config
 # from lib.smblueprint.smdblock.blockpool import block_pool
 
@@ -40,7 +40,7 @@ class BlockBits(object):
 
         @rtype: int
         """
-        return BitAndBytes.bits_parse(self._int_24, 0, 11)
+        return BinaryStream.bits_parse(self._int_24, 0, 11)
 
     def get_hit_points(self):
         """
@@ -49,11 +49,11 @@ class BlockBits(object):
         @rtype: int
         """
         if self._version < 2:
-            return BitAndBytes.bits_parse(self._int_24, 11, 9)
+            return BinaryStream.bits_parse(self._int_24, 11, 9)
         if self._version < 3:
-            return BitAndBytes.bits_parse(self._int_24, 11, 8)
+            return BinaryStream.bits_parse(self._int_24, 11, 8)
         # version 3
-        return BitAndBytes.bits_parse(self._int_24, 11, 7)
+        return BinaryStream.bits_parse(self._int_24, 11, 7)
 
     def is_active(self):
         """
@@ -65,31 +65,31 @@ class BlockBits(object):
         if not block_config[block_id].can_activate:
             return False
         if self._version < 3:
-            return BitAndBytes.bits_parse(self._int_24, 19, 1) == 0
+            return BinaryStream.bits_parse(self._int_24, 19, 1) == 0
         # version 3
-        return BitAndBytes.bits_parse(self._int_24, 18, 1) == 0
+        return BinaryStream.bits_parse(self._int_24, 18, 1) == 0
 
     def get_axis_rotation(self):
         if self._version < 3:
             block_id = self.get_id()
-            bit_22_23 = BitAndBytes.bits_parse(self._int_24, 22, 2)
+            bit_22_23 = BinaryStream.bits_parse(self._int_24, 22, 2)
             if block_config[block_id].block_style in {2, 6}:
-                return bit_22_23 | (BitAndBytes.bits_parse(self._int_24, 19, 1) << 2)
+                return bit_22_23 | (BinaryStream.bits_parse(self._int_24, 19, 1) << 2)
             return bit_22_23
         # version 3
-        return BitAndBytes.bits_parse(self._int_24, 21, 3)
+        return BinaryStream.bits_parse(self._int_24, 21, 3)
 
     def get_rotations(self):
         if self._version < 3:
-            return BitAndBytes.bits_parse(self._int_24, 20, 2)
+            return BinaryStream.bits_parse(self._int_24, 20, 2)
         # version 3
-        return BitAndBytes.bits_parse(self._int_24, 19, 2)
+        return BinaryStream.bits_parse(self._int_24, 19, 2)
 
     def get_block_side_id(self):
         if self._version < 3:
-            return BitAndBytes.bits_parse(self._int_24, 20, 3)
+            return BinaryStream.bits_parse(self._int_24, 20, 3)
         # version 3
-        return BitAndBytes.bits_parse(self._int_24, 19, 3)
+        return BinaryStream.bits_parse(self._int_24, 19, 3)
 
     # #######################################
     # ###  Edit integer Bits
@@ -138,16 +138,16 @@ class BlockBits(object):
         active_bit = self._get_active_bit(active=active, block_id=block_id)
 
         int_24bit = 0
-        int_24bit = BitAndBytes.bits_combine(block_id, int_24bit, 0)
-        int_24bit = BitAndBytes.bits_combine(hit_points, int_24bit, 11)
+        int_24bit = BinaryStream.bits_combine(block_id, int_24bit, 0)
+        int_24bit = BinaryStream.bits_combine(hit_points, int_24bit, 11)
         if block_config[block_id].can_activate:  # For blocks with an activation status
             block_style = block_config[block_id].block_style
             if self._version < 3 and block_style not in {2, 6}:
                 # block_style 2 and 6 use bit 19 for axis rotation before v3
-                int_24bit = BitAndBytes.bits_combine(active_bit, int_24bit, 19)
+                int_24bit = BinaryStream.bits_combine(active_bit, int_24bit, 19)
             else:
                 # version 3
-                int_24bit = BitAndBytes.bits_combine(active_bit, int_24bit, 18)
+                int_24bit = BinaryStream.bits_combine(active_bit, int_24bit, 18)
         return int_24bit
 
     def modify_orientation(self, new_int_24bit, rotations=None, axis_rotation=None, **kwargs):
@@ -168,13 +168,13 @@ class BlockBits(object):
             new_int_24bit &= 0b000000111111111111111111
             if axis_rotation > 3:
                 axis_rotation -= 4
-                new_int_24bit = BitAndBytes.bits_combine(1, new_int_24bit, 19)
-            new_int_24bit = BitAndBytes.bits_combine(rotations, new_int_24bit, 20)
-            new_int_24bit = BitAndBytes.bits_combine(axis_rotation, new_int_24bit, 22)
+                new_int_24bit = BinaryStream.bits_combine(1, new_int_24bit, 19)
+            new_int_24bit = BinaryStream.bits_combine(rotations, new_int_24bit, 20)
+            new_int_24bit = BinaryStream.bits_combine(axis_rotation, new_int_24bit, 22)
         else:
             new_int_24bit &= 0b000001111111111111111111
-            new_int_24bit = BitAndBytes.bits_combine(rotations, new_int_24bit, 19)
-            new_int_24bit = BitAndBytes.bits_combine(axis_rotation, new_int_24bit, 21)
+            new_int_24bit = BinaryStream.bits_combine(rotations, new_int_24bit, 19)
+            new_int_24bit = BinaryStream.bits_combine(axis_rotation, new_int_24bit, 21)
         return new_int_24bit
 
     def get_modified_int_24bit(self, block_id=None, hit_points=None, active=None,

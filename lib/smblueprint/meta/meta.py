@@ -3,7 +3,7 @@ __author__ = 'Peter Hofmann'
 import os
 import sys
 
-from lib.bits_and_bytes import BinaryStream
+from lib.binarystream import BinaryStream
 from lib.loggingwrapper import DefaultLogging
 from lib.utils.blockconfig import block_config
 from lib.utils.vector import Vector

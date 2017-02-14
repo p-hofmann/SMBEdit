@@ -3,7 +3,7 @@ from io import BytesIO
 from unittest import TestCase
 from unittests.blueprints import blueprint_handler
 from lib.smblueprint.meta.meta import Meta
-from lib.bits_and_bytes import BinaryStream
+from lib.binarystream import BinaryStream
 from lib.utils.vector import Vector
 from lib.smblueprint.meta.tag.aiconfig import AIConfig
 from lib.smblueprint.meta.tag.raildockentitylinks import RailDockedEntityLinks
@@ -63,7 +63,7 @@ class TestMeta(DefaultSetup):
 
     def test_datatype_6(self):
         for directory_blueprint in self._blueprints._blueprint_attachments:
-            print("\n\n", directory_blueprint, self.object._version[3])
+            # print("\n\n", directory_blueprint, self.object._version[3])
             self.object.read(directory_blueprint)
             # for index, rail_entry in self.object._data_type_6._data.items():
             #     rail_entry.to_stream()

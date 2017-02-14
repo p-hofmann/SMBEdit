@@ -1,4 +1,4 @@
-from lib.bits_and_bytes import BitAndBytes
+from lib.binarystream import BinaryStream
 from lib.smblueprint.smdblock.style.stylebasic import StyleBasic
 from lib.utils.blockconfig import block_config
 from lib.smblueprint.smdblock.style.style6 import Style6
@@ -48,8 +48,8 @@ class Style0(StyleBasic):
             block_side_id = self.get_block_side_id()
         new_int_24bit &= 0b000001111111111111111111
         if self._version < 3:
-            return BitAndBytes.bits_combine(block_side_id, new_int_24bit, 20)
-        return BitAndBytes.bits_combine(block_side_id, new_int_24bit, 19)
+            return BinaryStream.bits_combine(block_side_id, new_int_24bit, 20)
+        return BinaryStream.bits_combine(block_side_id, new_int_24bit, 19)
 
     def to_style6(self, block_id):
         """

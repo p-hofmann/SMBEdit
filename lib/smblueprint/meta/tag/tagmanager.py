@@ -2,7 +2,7 @@ __author__ = 'Peter Hofmann'
 
 import sys
 # import gzip
-from lib.bits_and_bytes import BinaryStream
+from lib.binarystream import BinaryStream
 from lib.loggingwrapper import DefaultLogging
 from lib.utils.vector import Vector
 

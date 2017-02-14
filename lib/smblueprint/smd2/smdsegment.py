@@ -5,7 +5,7 @@ import zlib
 import datetime
 
 from lib.loggingwrapper import DefaultLogging
-from lib.bits_and_bytes import BinaryStream
+from lib.binarystream import BinaryStream
 from lib.smblueprint.smdblock.blockpool import block_pool, StyleBasic
 
 

@@ -3,8 +3,7 @@ __author__ = 'Peter Hofmann'
 import sys
 import os
 from collections import Iterable
-import struct
-from lib.bits_and_bytes import BinaryStream
+from lib.binarystream import BinaryStream
 from lib.loggingwrapper import DefaultLogging
 from lib.utils.vector import Vector
 from lib.smblueprint.meta.tag.tagmanager import TagManager

@@ -7,7 +7,7 @@ from lib.loggingwrapper import DefaultLogging
 from lib.utils.blueprintentity import BlueprintEntity
 from lib.utils.blockconfig import block_config
 from lib.utils.vector import Vector
-from lib.bits_and_bytes import BinaryStream
+from lib.binarystream import BinaryStream
 from lib.smblueprint.smd3.smd import Smd
 
 

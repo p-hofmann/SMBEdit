@@ -1,6 +1,6 @@
 from unittest import TestCase
 from io import BytesIO
-from lib.bits_and_bytes import BinaryStream
+from lib.binarystream import BinaryStream
 from lib.smblueprint.header import Statistics
 # from lib.blueprint.smd3.smd import Smd
 
