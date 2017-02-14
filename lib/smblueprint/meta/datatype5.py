@@ -78,8 +78,8 @@ class DataType5(DefaultLogging):
         if self._debug:
             output_stream.write("DataType5\n")
             if self._tag_data.has_data():
-                self._tag_data.to_stream(output_stream)
-                # ai_config = AIConfig()
-                # ai_config.from_tag(self._tag_data.get_root_tag())
-                # ai_config.to_stream()
+                # self._tag_data.to_stream(output_stream)
+                ai_config = AIConfig()
+                ai_config.from_tag(self._tag_data.get_root_tag())
+                ai_config.to_stream()
                 output_stream.write("\n")
