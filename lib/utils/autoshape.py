@@ -32,9 +32,12 @@ class AutoShape(object):
         @type auto_wedge: bool
         @type auto_tetra: bool
         """
+        cube_id = block_config.get_shape_id('cube')
         for position, block in self._block_list.items():
             block_id = block.get_id()
             if not block_config[block_id].is_hull():
+                continue
+            if block_config[block_id].shape != cube_id:
                 continue
             orientation_simple = self._periphery.get_orientation_simple(
                 position, shape_wedge=auto_wedge, shape_tetra=auto_tetra)
@@ -54,9 +57,12 @@ class AutoShape(object):
 
         @type block_shape_id: int
         """
+        cube_id = block_config.get_shape_id('cube')
         for position, block in self._block_list.items():
             block_id = block.get_id()
             if not block_config[block_id].is_hull():
+                continue
+            if block_config[block_id].shape != cube_id:
                 continue
             orientation_complex = self._periphery.get_orientation_complex(position, block_shape_id)
             if orientation_complex is None:
