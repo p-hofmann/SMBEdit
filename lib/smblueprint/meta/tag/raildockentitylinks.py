@@ -80,7 +80,7 @@ class RailDockedEntity(object):
 
         @return:
         """
-        self._unknown_byte_0 = 0
+        self._unknown_byte_0 = -1
         self._label = ""
         self._location = (0, 0, 0)
         self._block_id = 0
@@ -152,8 +152,8 @@ class RailDockedEntity(object):
         assert isinstance(tag_list, TagList)
         list_of_tags = tag_list.get_list()
         offset = 0
-        # if list_of_tags[0].id == -1:
-        if version > 4:
+        # if version > 4:
+        if list_of_tags[0].id == -1:
             offset = 1
             self._unknown_byte_0 = list_of_tags[0].payload
         # assert list_of_tags[0+offset].id == -8, list_of_tags[0+offset].id
@@ -179,7 +179,7 @@ class RailDockedEntity(object):
         tag_list = TagList()
         byte_orientation_1 = self._byte_orientation_1
         byte_orientation_2 = self._byte_orientation_2
-        if version > 4:
+        if version > 4 and self._unknown_byte_0 != -1:
             tag_list.add(TagPayload(-1, None, self._unknown_byte_0))
         #     if byte_orientation_2 == 0 and byte_orientation_1 < 8:
         #         byte_orientation_1 += 16
@@ -334,6 +334,55 @@ class RailDockedEntityLink(object):
         # output_stream.write("{}\n".format((self._unknown_byte_0, self._unknown_byte_1, self._unknown_byte_2)))
 
 
+class NameList(object):
+    """
+    """
+    def __init__(self):
+        """
+
+        """
+        self._list_names = []
+        return
+
+    def from_tag(self, tag_payload):
+        """
+        -13:  { -8: 'ENTITY_SHIP_Skallagrim_1482413226243_SY_TEST-rl104' }
+
+        @type tag_payload: TagPayload
+        """
+        self._list_names = []
+        assert isinstance(tag_payload, TagPayload), tag_payload
+        assert tag_payload.id == -13, tag_payload.id
+        assert isinstance(tag_payload.payload, TagList)
+        tag_list = tag_payload.payload
+        assert isinstance(tag_list, TagList)
+        list_of_tags = tag_list.get_list()
+        for tag_payload in list_of_tags:
+            assert tag_payload.id == -8, (tag_payload.id, tag_payload.payload.get_list())
+            self._list_names.append(tag_payload.payload)
+
+    def to_tag(self):
+        """
+        -13:  { -8: 'ENTITY_SHIP_Skallagrim_1482413226243_SY_TEST-rl104' }
+
+        @rtype: TagPayload
+        """
+        tag_list = TagList()
+        for name in self._list_names:
+            tag_list.add(TagPayload(-8, None, name))
+        return TagPayload(-13, None, tag_list)
+
+    def to_stream(self, output_stream=sys.stdout):
+        """
+        Stream values
+
+        @param output_stream: Output stream
+        @type output_stream: fileIO[str]
+        """
+        for name in self._list_names:
+            output_stream.write("{}\n".format(name))
+
+
 class RailDockedEntityLinks(object):
     """
     Handling rail docked entity tag structure
@@ -344,9 +393,9 @@ class RailDockedEntityLinks(object):
     def __init__(self):
         """
 
-        @return:
         """
         self._list_links = []
+        self._names = NameList()
         return
 
     def move_position(self, vector_direction, main_only=False):
@@ -383,20 +432,22 @@ class RailDockedEntityLinks(object):
         assert isinstance(tag_payload.payload, TagList)
         tag_list = tag_payload.payload
         assert isinstance(tag_list, TagList), tag_list.to_stream(sys.stderr)
-        list_of_tags = tag_list.get_list()
+        list_of_link_tags = tag_list.get_list()
         for tag_index in range(number_of_links):
             # tag_list_link = tag_list[tag_index+1].payload
             # assert isinstance(tag_list_link, TagList)
             link = RailDockedEntityLink()
-            link.from_tag(list_of_tags[tag_index], version)
+            link.from_tag(list_of_link_tags[tag_index], version)
             self._list_links.append(link)
+        if len(list_of_tags) > 1+number_of_links:
+            self._names.from_tag(list_of_tags[-1])
 
     def to_tag(self, version):
         """
         -13: {
                 -1: 1,
                 -13:  { #RailDockedEntityLink }
-                -13:  {}
+                -13:  { -8: 'ENTITY_SHIP_Skallagrim_1482413226243_SY_TEST-rl104' }
             }
 
         @rtype: TagPayload
@@ -409,7 +460,7 @@ class RailDockedEntityLinks(object):
             tag_list.add(link.to_tag(version))
 
         links_tag_list.add(TagPayload(-13, None, tag_list))
-        links_tag_list.add(TagPayload(-13, None, TagList()))  # why is here a empty tag list? No clue!
+        links_tag_list.add(self._names.to_tag())  # why is here a empty tag list? No clue!
         return TagPayload(-13, None, links_tag_list)
 
     def to_stream(self, output_stream=sys.stdout):
@@ -422,3 +473,4 @@ class RailDockedEntityLinks(object):
         for link in self._list_links:
             link.to_stream(output_stream)
             # output_stream.write("\n")
+        self._names.to_stream(output_stream)
