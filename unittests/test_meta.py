@@ -1,8 +1,9 @@
 from io import BytesIO
 from unittest import TestCase
+from unittests.blueprints import blueprint_handler
 from lib.smblueprint.meta.meta import Meta
 from lib.bits_and_bytes import BinaryStream
-from unittests.blueprints import blueprint_handler
+from lib.utils.vector import Vector
 from lib.smblueprint.meta.tag.aiconfig import AIConfig
 from lib.smblueprint.meta.tag.raildockentitylinks import RailDockedEntityLinks
 
@@ -45,6 +46,7 @@ class TestMeta(DefaultSetup):
 
     def test_move_center_by_vector(self):
         for directory_blueprint in self._blueprints:
+            # print(directory_blueprint, self.object._version[3])
             self.object.read(directory_blueprint)
             self.object.move_center_by_vector((2, 5, 6))
 
@@ -53,6 +55,7 @@ class TestMeta(DefaultSetup):
             self.object.read(directory_blueprint)
             if not self.object._data_type_5.has_data():
                 continue
+            # print("\n\n", directory_blueprint, self.object._version[3])
             tag_stream_original = BytesIO()
             tag_stream_return = BytesIO()
             tag_object = AIConfig()
@@ -65,26 +68,36 @@ class TestMeta(DefaultSetup):
 
     def test_datatype_4(self):
         for directory_blueprint in self._blueprints:
+            # print("\n\n", directory_blueprint)
             self.object.read(directory_blueprint)
             for docker in self.object._data_type_4:
+                # print("\n\n", directory_blueprint, self.object._version[3])
                 tag_object = RailDockedEntityLinks()
                 tag_object.from_tag(docker.get_root_tag(), self.object._version[3])
                 tag_stream_original = BytesIO()
                 tag_stream_return = BytesIO()
                 docker.get_root_tag().write(BinaryStream(tag_stream_original))
-                # print("")
-                # print(directory_blueprint, self.object._version[3])
                 # docker.get_root_tag().to_stream()
                 # tag_object.to_tag(self.object._version[3]).to_stream()
                 tag_object.to_tag(self.object._version[3]).write(BinaryStream(tag_stream_return))
                 tag_stream_original.seek(0)
                 tag_stream_return.seek(0)
-                self.assertEqual(tag_stream_original.getvalue(), tag_stream_return.getvalue())
+                self.assertEqual(tag_stream_original.getvalue(), tag_stream_return.getvalue(), directory_blueprint)
             for key, value in self.object._data_type_4._entity_wireless_logic_stuff.items():
                 unknown_string, unknown_position_index_0, unknown_position_index_1 = value
                 for position_index in {unknown_position_index_0, unknown_position_index_1}:
-                    position = self.object._data_type_4.get_pos(position_index)
-                    self.assertEqual(position_index, self.object._data_type_4.get_index(position))
+                    position = Vector.get_pos(position_index)
+                    self.assertEqual(position_index, Vector.get_index(position))
         position = (-16, -10, -3)
-        position_index = self.object._data_type_4.get_index(position)
-        self.assertTupleEqual(position, self.object._data_type_4.get_pos(position_index))
+        position_index = Vector.get_index(position)
+        self.assertTupleEqual(position, Vector.get_pos(position_index))
+
+    def test_datatype_7(self):
+        for directory_blueprint in self._blueprints:
+            self.object.read(directory_blueprint)
+            # print(directory_blueprint, self.object._version[3])
+            # if not self.object._data_type_7.has_data():
+            #     continue
+            # for key, value in self.object._data_type_7._data.items():
+            #     position = Vector.get_pos(key)
+            #     # print(position, value)
