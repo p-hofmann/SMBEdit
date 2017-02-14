@@ -228,6 +228,7 @@ class Datatype2TagReader(object):
                 self._docker_turrets = DockedEntities()
                 self._docker_turrets.from_tag(tag_payload)
             if tag_payload.name == "A":
+                # docked, not used since > v0.1867
                 self._docker_ships = DockedEntities()
                 self._docker_ships.from_tag(tag_payload)
             if tag_payload.name == "J":
