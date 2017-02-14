@@ -75,12 +75,13 @@ class DataType6(DefaultLogging):
     Reading data type 6 meta data
 
     @type _data: dict[int,RailDockerEntry]
+    @type _has_data: bool
     """
 
     def __init__(self, logfile=None, verbose=False, debug=False):
         self._label = "DataType6"
         super(DataType6, self).__init__(logfile, verbose, debug)
-        self._has_data = 0
+        self._has_data = False
         self._data = {}
         return
 
@@ -91,16 +92,15 @@ class DataType6(DefaultLogging):
         @param input_stream: input stream
         @type input_stream: BinaryStream
         """
-        self._has_data = input_stream.read_byte()
-        if self._has_data == 0:
+        self._has_data = input_stream.read_bool()
+        if not self._has_data:
             return
-        elif self._has_data > 0:
-            number_of_entries = input_stream.read_int32_unassigned()
-            self._data = {}
-            for index in range(number_of_entries):
-                # self._data[unknown_byte] = input_stream.read_vector_x_int32(4)
-                self._data[index] = RailDockerEntry()
-                self._data[index].read(input_stream)
+        number_of_entries = input_stream.read_int32_unassigned()
+        self._data = {}
+        for index in range(number_of_entries):
+            # self._data[unknown_byte] = input_stream.read_vector_x_int32(4)
+            self._data[index] = RailDockerEntry()
+            self._data[index].read(input_stream)
 
     # #######################################
     # ###  Write
@@ -117,7 +117,7 @@ class DataType6(DefaultLogging):
         #     return
         self._logger.debug("Writing")
         output_stream.write_byte(6)
-        output_stream.write_byte(self._has_data)
+        output_stream.write_bool(self._has_data)
         if self._has_data == 0:
             return
         elif self._has_data == 1:
