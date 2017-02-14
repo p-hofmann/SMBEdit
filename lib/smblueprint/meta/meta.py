@@ -202,6 +202,7 @@ class Meta(DefaultLogging):
         self._data_type_4.move_position(vector_direction, main_only)
         self._data_type_5.move_position(vector_direction)
         self._data_type_6.move_position(vector_direction)
+        self._data_type_7.move_position(vector_direction)
 
     def has_old_docked_entities(self):
         """

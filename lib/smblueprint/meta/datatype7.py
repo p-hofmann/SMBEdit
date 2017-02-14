@@ -3,20 +3,25 @@ __author__ = 'Peter Hofmann'
 import sys
 from lib.bits_and_bytes import BinaryStream
 from lib.loggingwrapper import DefaultLogging
+from lib.utils.vector import Vector
 
 
 class DataType7(DefaultLogging):
     """
     Reading data type 7 meta data
+    # location of anything with storage and its volume
 
     @type _data: dict[int,float]
     """
     def __init__(self, logfile=None, verbose=False, debug=False):
         self._label = "DataType7"
         super(DataType7, self).__init__(logfile, verbose, debug)
-        self._has_data = 0
+        self._has_data = False
         self._data = {}
         return
+
+    def has_data(self):
+        return self._has_data
 
     # #######################################
     # ###  Read
@@ -29,8 +34,8 @@ class DataType7(DefaultLogging):
         @param input_stream: input stream
         @type input_stream: BinaryStream
         """
-        self._has_data = input_stream.read_byte()
-        if self._has_data > 0:
+        self._has_data = input_stream.read_bool()
+        if self._has_data:
             number_of_entries = input_stream.read_int32_unassigned()
             assert number_of_entries < 10000, number_of_entries
             self._data = {}
@@ -56,8 +61,8 @@ class DataType7(DefaultLogging):
         #     return
         self._logger.debug("Writing")
         output_stream.write_byte(7)
-        output_stream.write_byte(self._has_data)
-        if not self._has_data > 0:
+        output_stream.write_bool(self._has_data)
+        if not self._has_data:
             return
         output_stream.write_int32_unassigned(len(self._data))
         for key in sorted(self._data.keys()):
@@ -67,6 +72,19 @@ class DataType7(DefaultLogging):
     # #######################################
     # ###  Else
     # #######################################
+
+    def move_position(self, vector_direction):
+        """
+        Move positions of rail docked entities
+
+        @type vector_direction: tuple[int]
+        """
+        old_data = self._data
+        self._data = {}
+        for position_index, volume in old_data.items():
+            position_index = Vector.shift_position_index(position_index, vector_direction)
+            self._data[position_index] = volume
+        del old_data
 
     def to_stream(self, output_stream=sys.stdout):
         """
