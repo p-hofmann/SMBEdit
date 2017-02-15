@@ -56,11 +56,11 @@ class TestAnnotate(DefaultSetup):
         for blueprint_dir in blueprint_handler:
             # flood
             smd.read(blueprint_dir)
-            hull_blocks = 0
-            for block_id, amount in smd.get_block_id_to_quantity().items():
-                if block_config[block_id].tier is not None:
-                    hull_blocks += amount
-            print(blueprint_dir, hull_blocks)
+            # hull_blocks = 0
+            # for block_id, amount in smd.get_block_id_to_quantity().items():
+            #     if block_config[block_id].tier is not None:
+            #         hull_blocks += amount
+            # print(blueprint_dir, hull_blocks)
             periphery = Periphery(smd.get_block_list())
             annotate = Annotate(smd.get_block_list(), periphery)
             min_position, max_position = smd.get_min_max_vector()
@@ -74,7 +74,7 @@ class TestAnnotate(DefaultSetup):
             annotate.remove_empty_voxel()
             marked, border = annotate.get_data()
             # self.assertIn(special_position, outside_border)
-            print(len(marked), len(border))
+            # print(len(marked), len(border))
             self.assertEqual(len(border), len(outside_border))
             self.assertEqual(len(marked), len(outside_marked))
 
