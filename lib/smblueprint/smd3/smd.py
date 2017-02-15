@@ -62,6 +62,7 @@ class Smd(DefaultLogging):
         @param directory_blueprint: input directory path
         @type directory_blueprint: str
         """
+        self._block_list = BlockList()
         directory_data = os.path.join(directory_blueprint, "DATA")
         file_list = sorted(os.listdir(directory_data))
         assert len(file_list) > 0, "No smd files found"
