@@ -53,7 +53,7 @@ class PeripheryBase(object):
         """
         Some positions in a 3x3x3 periphery, represented by a bit each.
 
-        @type position: tuple[int]
+        @type position: (int, int, int)
         @rtype: int
         """
         assert 1 <= periphery_range <= 3
@@ -217,7 +217,7 @@ class PeripherySimple(PeripheryBase):
     #     """
     #     Every position in a 3x3x3 periphery is represented by a bit.
     #
-    #     @type position: tuple[int]
+    #     @type position: (int, int, int)
     #     @rtype: int
     #     """
     #     periphery_index = 0
@@ -248,7 +248,7 @@ class PeripherySimple(PeripheryBase):
             "1/2": 6,
             "3/4": 7,
 
-        @type position: tuple[int]
+        @type position: (int, int, int)
         @type periphery_range: int
 
         @rtype: tuple[int]
@@ -1072,7 +1072,7 @@ class Periphery(PeripheryBase):
         """
         Some positions in a 3x3x3 periphery, represented by a bit each.
 
-        @type position: tuple[int]
+        @type position: (int, int, int)
         @rtype: int
         """
         assert 1 <= periphery_range <= 3
@@ -1108,13 +1108,13 @@ class Periphery(PeripheryBase):
             "1/2": 6,
             "3/4": 7,
 
-        @type position: tuple[int]
+        @type position: (int, int, int)
         @type periphery_range: int
 
         @rtype: tuple[int], tuple[tuple[int] | None]
         """
         assert 1 <= periphery_range <= 3
-        angle_shapes = {self._shape_id_wedge, self._shape_id_corner, self._shape_id_tetra, self._shape_id_hepta}  # 5, 7,
+        angle_shapes = {self._shape_id_wedge, self._shape_id_corner, self._shape_id_tetra, self._shape_id_hepta}
         periphery_orientation = []
         periphery_shape = []
         range_p = [-1, 0, 1]
