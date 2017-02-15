@@ -79,7 +79,7 @@ class Replace(object):
                 continue
             if block_config[block.get_id()].shape == cube_id:
                 continue
-            block_hull_tier, color_id, shape_id = block_config[block_id].get_details()
+            block_hull_tier, color_id, _ = block_config[block_id].get_details()
             new_block_id = block_config.get_block_id_by_details(
                 hull_type=block_hull_tier, color=color_id, shape_id=cube_id)
             new_block = block.get_modified_block(block_id=new_block_id, block_side_id=0)
