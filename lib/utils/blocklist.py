@@ -29,12 +29,15 @@ class BlockList(object):
     def __setitem__(self, position, block):
         """
         @param position:
-        @type position: (int, int, int)
+        @type position: (int, int, int) | bytes | str
         @param block:
         @type block: StyleBasic
         """
+        if isinstance(position, (bytes, str)):
+            position_index = position
+        else:
+            position_index = self.get_index(position)
         assert isinstance(block, StyleBasic), block
-        position_index = self.get_index(position)
         self._position_index_to_instance[position_index] = block
 
     def __getitem__(self, position):
