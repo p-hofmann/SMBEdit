@@ -4,7 +4,7 @@ from unittest import TestCase
 from lib.utils.blockconfig import block_config
 from lib.utils.annotate import Annotate
 from lib.utils.periphery import Periphery
-# from lib.utils.vector import Vector
+from lib.utils.vector import Vector
 from lib.smblueprint.smd3.smd import Smd
 from unittests.blueprints import blueprint_handler
 
@@ -14,62 +14,71 @@ __author__ = 'Peter Hofmann'
 
 class DefaultSetup(TestCase):
     """
-    @type object: Annotate
     """
 
     def __init__(self, methodName='runTest'):
         super(DefaultSetup, self).__init__(methodName)
-        self.object = None
-        self._blueprint = blueprint_handler.extract_sment(os.path.join(".", "test_blueprints", "B_Ball.sment"))
+        self._blueprint = blueprint_handler
 
     def setUp(self):
         block_config.from_hard_coded()
-        smd = Smd()
-        smd.read(self._blueprint)
-        periphery = Periphery(smd.get_block_list())
-        self.object = Annotate(smd.get_block_list(), periphery)
-        self.min_position, self.max_position = smd.get_min_max_vector()
 
     def tearDown(self):
-        self.object = None
-        # if os.path.exists(self.directory_output):
-        #     os.rmdir(self.directory_output)
+        return
 
 
 class TestAnnotate(DefaultSetup):
     def test_flood(self):
+        blueprint = blueprint_handler.extract_sment(os.path.join(".", "test_blueprints", "B_Ball.sment"))
+        smd = Smd()
+        smd.read(blueprint)
+        periphery = Periphery(smd.get_block_list())
+        annotate_flood = Annotate(smd.get_block_list(), periphery)
+        min_position, max_position = smd.get_min_max_vector()
         # inside
         start_position = (16, 17, 16)
-        self.object.flood(start_position, self.min_position, self.max_position)
-        inside_marked, inside_border = self.object.get_data()
+        annotate_flood.flood(start_position, min_position, max_position)
+        inside_marked, inside_border = annotate_flood.get_data()
         # self.assertEqual(len(inside_marked), 5 * 5 * 5 - 1)
         # self.assertEqual(len(inside_border), 5 * 5 * 6 + 1)
         self.assertEqual(len(inside_marked), 72)
-        self.assertEqual(len(inside_border), 91)
+        self.assertEqual(len(inside_border), 163)
 
         # outside
-        start_position = self.min_position
-        self.object.flood(start_position, self.min_position, self.max_position)
-        outside_marked, outside_border = self.object.get_data()
+        start_position = Vector.subtraction(min_position, (1, 1, 1))
+        annotate_flood.flood(start_position, min_position, max_position)
+        outside_marked, outside_border = annotate_flood.get_data()
         self.assertEqual(len(outside_marked), 1026)  # 9 * 9 * 9 - border - box
-        self.assertEqual(len(outside_border), 134)
+        self.assertEqual(len(outside_border), 218)
 
     def test_get_boundaries(self):
-        # inside
-        min_position = self.min_position
-        max_position = self.max_position
-        # min_position = Vector.subtraction(self.min_position, (1, 1, 1))
-        # max_position = Vector.addition(self.max_position, (1, 1, 1))
+        smd = Smd()
+        for blueprint_dir in blueprint_handler:
+            # flood
+            smd.read(blueprint_dir)
+            hull_blocks = 0
+            for block_id, amount in smd.get_block_id_to_quantity().items():
+                if block_config[block_id].tier is not None:
+                    hull_blocks += amount
+            print(blueprint_dir, hull_blocks)
+            periphery = Periphery(smd.get_block_list())
+            annotate = Annotate(smd.get_block_list(), periphery)
+            min_position, max_position = smd.get_min_max_vector()
+            start_position = Vector.subtraction(min_position, (1, 1, 1))
+            annotate.flood(start_position, min_position, max_position)
+            annotate.remove_empty_voxel()
+            outside_marked, outside_border = annotate.get_data()
 
-        # outside
-        # start_position = self.min_position
-        # outside_marked, outside_border = self.object.flood(start_position, min_position, max_position)
-        # outside
-        # start_position = self.min_position
-        self.object.calc_boundaries(min_position, max_position)
-        marked, border = self.object.get_data()
-        special_position = self.object._block_list.get_index((18, 17, 18))
-        self.assertIn(special_position, border)
-        # self.assertIn(special_position, outside_border)
-        self.assertEqual(len(marked), 458)
-        self.assertEqual(len(border), 218)
+            # calc_boundaries
+            annotate.calc_boundaries(min_position, max_position)
+            annotate.remove_empty_voxel()
+            marked, border = annotate.get_data()
+            # self.assertIn(special_position, outside_border)
+            print(len(marked), len(border))
+            self.assertEqual(len(border), len(outside_border))
+            self.assertEqual(len(marked), len(outside_marked))
+
+    # def test_get_neighbours(self):
+    #     start_position = (0, 0, 0)
+    #     for position in self.object.get_neighbours(start_position):
+    #         print(position)
