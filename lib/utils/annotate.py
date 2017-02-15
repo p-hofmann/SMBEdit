@@ -1,5 +1,6 @@
 from lib.utils.blocklist import BlockList
 from lib.utils.periphery import PeripheryBase
+from lib.utils.vector import Vector
 
 
 __author__ = 'Peter Hofmann'
@@ -36,6 +37,27 @@ class Annotate(object):
         """
         return self.marked, self.border
 
+    def remove_empty_voxel(self):
+        for position_index in list(self.marked):
+            position = self._block_list.get_position(position_index)
+            if self._periphery.get_position_block_periphery_index(position, 3) == 0:
+                self.marked.remove(position_index)
+
+    def _add_neighbours_to_query(self, query, position):
+        for taxi_dist, position_tmp in self.get_neighbours(position):
+            if taxi_dist == 3:
+                continue
+            position_index_tmp = self._block_list.get_index(position_tmp)
+            if taxi_dist == 2:
+                if self._block_list.has_block_at(position_tmp):
+                    self.border.add(position_index_tmp)
+                continue
+            if position_index_tmp in self.marked:
+                continue
+            if position_index_tmp in self.border:
+                continue
+            query.add(position_index_tmp)
+
     def flood(self, start_position, min_position, max_position):
         """
 
@@ -65,26 +87,8 @@ class Annotate(object):
             if self._block_list.has_block_at(position):
                 self.border.add(position_index)
                 continue
-
             self.marked.add(position_index)
-            position_index = self._block_list.get_index((position[0]-1, position[1], position[2]))
-            if position_index not in self.marked and position_index not in self.border:
-                tmp.add(position_index)
-            position_index = self._block_list.get_index((position[0], position[1]-1, position[2]))
-            if position_index not in self.marked and position_index not in self.border:
-                tmp.add(position_index)
-            position_index = self._block_list.get_index((position[0], position[1], position[2]-1))
-            if position_index not in self.marked and position_index not in self.border:
-                tmp.add(position_index)
-            position_index = self._block_list.get_index((position[0]+1, position[1], position[2]))
-            if position_index not in self.marked and position_index not in self.border:
-                tmp.add(position_index)
-            position_index = self._block_list.get_index((position[0], position[1]+1, position[2]))
-            if position_index not in self.marked and position_index not in self.border:
-                tmp.add(position_index)
-            position_index = self._block_list.get_index((position[0], position[1], position[2]+1))
-            if position_index not in self.marked and position_index not in self.border:
-                tmp.add(position_index)
+            self._add_neighbours_to_query(tmp, position)
 
     @staticmethod
     def get_neighbours(position):
@@ -98,12 +102,10 @@ class Annotate(object):
                         continue
                     yield taxi_dist, position_tmp
 
-    def trace_boundary(self, start_position, min_position, max_position):
+    def trace_boundary(self, start_position):
         """
 
         @type start_position: (int, int, int)
-        @type min_position: (int, int, int)
-        @type max_position: (int, int, int)
 
         @rtype: None
         """
@@ -118,20 +120,8 @@ class Annotate(object):
                 continue
             if self._periphery.get_position_block_periphery_index(position, 3) == 0:
                 continue
-            for index in range(3):
-                if position[index] < min_position[index]-1 or position[index] > max_position[index]+1:
-                    continue
             self.marked.add(position_index)
-
-            for taxi_dist, position_tmp in self.get_neighbours(position):
-                if taxi_dist == 3:
-                    continue
-                position_index = self._block_list.get_index(position_tmp)
-                if taxi_dist == 2 and self._block_list.has_block_at(position_tmp):
-                    self.border.add(position_index)
-                if taxi_dist == 1:
-                    if position_index not in self.marked and position_index not in self.border:
-                        tmp.add(position_index)
+            self._add_neighbours_to_query(tmp, position)
 
     def calc_boundaries(self, min_position, max_position):
         """
@@ -143,20 +133,13 @@ class Annotate(object):
         """
         self.marked = set()
         self.border = set()
-        outside = True
-        for x in range(min_position[0], max_position[0]+1):
-            for y in range(min_position[1], max_position[1]+1):
-                for z in range(min_position[2], max_position[2]+1):
+        min_position = Vector.subtraction(min_position, (1, 1, 1))
+        max_position = Vector.addition(max_position, (1, 1, 1))
+        for x in range(min_position[0], max_position[0]):
+            for y in range(min_position[1], max_position[1]):
+                for z in range(min_position[2], max_position[2]):
                     position = (x, y, z)
                     if self._periphery.get_position_block_periphery_index(position) == 0:
                         continue
-                    if self._block_list.has_block_at(position):
-                        outside = False
-                        continue
-                    position_index = self._block_list.get_index(position)
-                    if position_index in self.marked:
-                        outside = True
-                    if not outside:
-                        continue
-                    self.trace_boundary(position, min_position, max_position)
+                    self.trace_boundary(position)
                     return
