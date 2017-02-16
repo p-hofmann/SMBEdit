@@ -48,8 +48,8 @@ class Vector(object):
         """
         # Vector
         position = Vector.get_pos(position_index)
-        new_position_index = Vector.addition(position, offset)
-        return new_position_index
+        new_position = Vector.addition(position, offset)
+        return Vector.get_index(new_position)
 
     @staticmethod
     def addition(vector1, vector2):
