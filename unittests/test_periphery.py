@@ -23,8 +23,8 @@ class DefaultSetup(TestCase):
             1: blueprint_handler.extract_sment(os.path.join(".", "test_blueprints", "B_Wedge.sment")),
             2: blueprint_handler.extract_sment(os.path.join(".", "test_blueprints", "B_Corner.sment")),
             3: blueprint_handler.extract_sment(os.path.join(".", "test_blueprints", "B_Tetra.sment")),
-            4: blueprint_handler.extract_sment(os.path.join(".", "test_blueprints", "B_Diamond_Shape.sment")),
-            # 4: blueprint_handler.extract_sment(os.path.join("test_blueprints", "B_Hepta")),
+            # 4: blueprint_handler.extract_sment(os.path.join(".", "test_blueprints", "B_Diamond_Shape.sment")),
+            4: blueprint_handler.extract_sment(os.path.join("test_blueprints", "B_Hepta.sment")),
         }
 
     def setUp(self):
@@ -70,9 +70,9 @@ class TestPeriphery(DefaultSetup):
         self.assertDictEqual(periphery, self.object.peripheries[shape_id])
 
     def test_get_periphery_complex_corner(self):
-        shape_id = block_config.get_shape_id("corner")
+        shape_id_corner = block_config.get_shape_id("corner")
         smd = Smd()
-        smd.read(self._blueprint[shape_id])
+        smd.read(self._blueprint[shape_id_corner])
         self.object = Periphery(smd.get_block_list())
         annotation = Annotate(smd.get_block_list(), self.object)
         min_position, max_position = smd.get_min_max_vector()
@@ -80,22 +80,46 @@ class TestPeriphery(DefaultSetup):
         marked, border = annotation.get_data()
         # block_list, marked, border
         self.object.set_annotation(marked=marked, border=border)
-        periphery = self.object.get_periphery_complex(shape_id)
-        self.assertSetEqual(set(periphery.keys()), set(self.object.peripheries[shape_id].keys()))
-
-    def test_get_periphery_complex_hepta(self):
-        shape_id = block_config.get_shape_id("hepta")
-        smd = Smd()
-        smd.read(self._blueprint[shape_id])
-        self.object = Periphery(smd.get_block_list())
-        annotation = Annotate(smd.get_block_list(), self.object)
-        min_position, max_position = smd.get_min_max_vector()
-        # marked, border = annotation.flood(min_position, min_position, max_position)
-        annotation.calc_boundaries(min_position, max_position)
-        marked, border = annotation.get_data()
-        # block_list, marked, border
-        self.object.set_annotation(marked=marked, border=border)
-        periphery = self.object.get_periphery_complex(shape_id)
+        periphery_indxes = {}
+        for periphery_index, periphery_shape, periphery_orientation, orientation in self.object.get_periphery_complex(shape_id_corner):
+            if periphery_index not in periphery_indxes:
+                periphery_indxes[periphery_index] = {}
+        #     if orientation not in periphery_indxes[periphery_index]:
+        #         periphery_indxes[periphery_index][orientation] = [set(), set(), set(), set(), set(), set()]
+        #     for index, shape_id in enumerate(periphery_shape):
+        #         periphery_indxes[periphery_index][orientation][index].add((shape_id, periphery_orientation[index]))
+        #         # periphery_indxes[periphery_index][orientation][index][shape_id].add(periphery_orientation)
+        # periphery = {}
+        # for periphery_index, orientations in sorted(periphery_indxes.items()):
+        #     for orientation, periphery_vectors in orientations.items():
+        #         for shape_id_periphery_orientation_0 in periphery_vectors[0]:
+        #             for shape_id_periphery_orientation_1 in periphery_vectors[1]:
+        #                 for shape_id_periphery_orientation_2 in periphery_vectors[2]:
+        #                     for shape_id_periphery_orientation_3 in periphery_vectors[3]:
+        #                         for shape_id_periphery_orientation_4 in periphery_vectors[4]:
+        #                             for shape_id_periphery_orientation_5 in periphery_vectors[5]:
+        #                                 periphery_shapes = (
+        #                                     shape_id_periphery_orientation_0[0],
+        #                                     shape_id_periphery_orientation_1[0],
+        #                                     shape_id_periphery_orientation_2[0],
+        #                                     shape_id_periphery_orientation_3[0],
+        #                                     shape_id_periphery_orientation_4[0],
+        #                                     shape_id_periphery_orientation_5[0],
+        #                                     )
+        #                                 periphery_orientation = (
+        #                                     shape_id_periphery_orientation_0[1],
+        #                                     shape_id_periphery_orientation_1[1],
+        #                                     shape_id_periphery_orientation_2[1],
+        #                                     shape_id_periphery_orientation_3[1],
+        #                                     shape_id_periphery_orientation_4[1],
+        #                                     shape_id_periphery_orientation_5[1],
+        #                                     )
+        #                                 if periphery_index not in periphery:
+        #                                     periphery[periphery_index] = {}
+        #                                 if periphery_shapes not in periphery[periphery_index]:
+        #                                     periphery[periphery_index][periphery_shapes] = {}
+        #                                 if periphery_orientation not in periphery[periphery_index][periphery_shapes]:
+        #                                     periphery[periphery_index][periphery_shapes][periphery_orientation] = orientation
         # for periphery_index, periphery_shapes in sorted(periphery.items()):
         #     sys.stdout.write("{}: ".format(periphery_index))
         #     sys.stdout.write("{\n")
@@ -107,4 +131,70 @@ class TestPeriphery(DefaultSetup):
         #             sys.stdout.write("\t\t{}: {},\n".format(periphery_orientation, orientation))
         #         sys.stdout.write("\t},\n")
         #     sys.stdout.write("},\n")
-        self.assertTrue(set(periphery.keys()).issubset(set(self.object.peripheries[shape_id].keys())))
+        self.assertTrue(set(periphery_indxes.keys()).issubset(set(self.object.peripheries[shape_id_corner].keys())))
+
+    def test_get_periphery_complex_hepta(self):
+        shape_id_hepta = block_config.get_shape_id("hepta")
+        smd = Smd()
+        smd.read(self._blueprint[shape_id_hepta])
+        self.object = Periphery(smd.get_block_list())
+        annotation = Annotate(smd.get_block_list(), self.object)
+        min_position, max_position = smd.get_min_max_vector()
+        # marked, border = annotation.flood(min_position, min_position, max_position)
+        annotation.calc_boundaries(min_position, max_position)
+        marked, border = annotation.get_data()
+        # block_list, marked, border
+        self.object.set_annotation(marked=marked, border=border)
+        periphery_indxes = {}
+        for periphery_index, periphery_shape, periphery_orientation, orientation in self.object.get_periphery_complex(shape_id_hepta):
+            if periphery_index not in periphery_indxes:
+                periphery_indxes[periphery_index] = {}
+        #     if orientation not in periphery_indxes[periphery_index]:
+        #         periphery_indxes[periphery_index][orientation] = [set(), set(), set(), set(), set(), set()]
+        #     for index, shape_id in enumerate(periphery_shape):
+        #         periphery_indxes[periphery_index][orientation][index].add((shape_id, periphery_orientation[index]))
+        #         # periphery_indxes[periphery_index][orientation][index][shape_id].add(periphery_orientation)
+        #
+        # periphery = {}
+        # for periphery_index, orientations in sorted(periphery_indxes.items()):
+        #     for orientation, periphery_vectors in orientations.items():
+        #         for shape_id_periphery_orientation_0 in periphery_vectors[0]:
+        #             for shape_id_periphery_orientation_1 in periphery_vectors[1]:
+        #                 for shape_id_periphery_orientation_2 in periphery_vectors[2]:
+        #                     for shape_id_periphery_orientation_3 in periphery_vectors[3]:
+        #                         for shape_id_periphery_orientation_4 in periphery_vectors[4]:
+        #                             for shape_id_periphery_orientation_5 in periphery_vectors[5]:
+        #                                 periphery_shapes = (
+        #                                     shape_id_periphery_orientation_0[0],
+        #                                     shape_id_periphery_orientation_1[0],
+        #                                     shape_id_periphery_orientation_2[0],
+        #                                     shape_id_periphery_orientation_3[0],
+        #                                     shape_id_periphery_orientation_4[0],
+        #                                     shape_id_periphery_orientation_5[0],
+        #                                     )
+        #                                 periphery_orientation = (
+        #                                     shape_id_periphery_orientation_0[1],
+        #                                     shape_id_periphery_orientation_1[1],
+        #                                     shape_id_periphery_orientation_2[1],
+        #                                     shape_id_periphery_orientation_3[1],
+        #                                     shape_id_periphery_orientation_4[1],
+        #                                     shape_id_periphery_orientation_5[1],
+        #                                     )
+        #                                 if periphery_index not in periphery:
+        #                                     periphery[periphery_index] = {}
+        #                                 if periphery_shapes not in periphery[periphery_index]:
+        #                                     periphery[periphery_index][periphery_shapes] = {}
+        #                                 if periphery_orientation not in periphery[periphery_index][periphery_shapes]:
+        #                                     periphery[periphery_index][periphery_shapes][periphery_orientation] = orientation
+        # for periphery_index, periphery_shapes in sorted(periphery.items()):
+        #     sys.stdout.write("{}: ".format(periphery_index))
+        #     sys.stdout.write("{\n")
+        #     for periphery_shape, periphery_orientations in periphery_shapes.items():
+        #         sys.stdout.write("\t{}: ".format(periphery_shape))
+        #         sys.stdout.write("{\n")
+        #         for periphery_orientation, orientation in periphery_orientations.items():
+        #             # axis_rotation, rotations = orientation
+        #             sys.stdout.write("\t\t{}: {},\n".format(periphery_orientation, orientation))
+        #         sys.stdout.write("\t},\n")
+        #     sys.stdout.write("},\n")
+        self.assertTrue(set(periphery_indxes.keys()).issubset(set(self.object.peripheries[shape_id_hepta].keys())))
