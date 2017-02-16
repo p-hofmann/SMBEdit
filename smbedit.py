@@ -4,6 +4,7 @@ __version__ = '0.1.5'
 import os
 import sys
 import zipfile
+import shutil
 import traceback
 
 from lib.argumenthandler import ArgumentHandler
@@ -39,9 +40,6 @@ class SMBEdit(ArgumentHandler):
             logfile=logfile,
             verbose=verbose,
             debug=debug)
-
-    def __exit__(self, type, value, traceback):
-        super(SMBEdit, self).__exit__(type, value, traceback)
 
     @staticmethod
     def get_label():
@@ -125,10 +123,23 @@ class SMBEdit(ArgumentHandler):
                 block_config.from_hard_coded()
             self.run_commands()
 
-            if self._path_output is not None and self._is_archived:
-                # .sment file
-                self._logger.info("Exporting blueprint to:\n{}".format(self._path_output))
-                self.zip_directory(self._directory_output, self._path_output)
+            if self._path_output is not None:
+                # move files to output
+                assert self.validate_dir(self._path_output, only_parent=True)
+                msg_output_exists = "Output location exists. Overwriting is not allowed, aborting."
+                if self._path_output.endswith(".sment"):
+                    assert not self.validate_file(self._path_output, silent=True), msg_output_exists
+                    # .sment file
+                    self._logger.info("Exporting blueprint to:\n{}".format(self._path_output))
+                    self.zip_directory(self._directory_output_tmp, self._path_output)
+                else:
+                    if self.validate_dir(self._path_output, silent=True):
+                        if len(os.listdir(self._path_output)) > 0:
+                            raise RuntimeError(msg_output_exists)
+                        # delete empty folder
+                        shutil.rmtree(self._path_output)
+                    self._logger.info("Moving blueprint to:\n{}".format(self._path_output))
+                    shutil.move(self._directory_output_tmp, self._path_output)
                 assert os.path.exists(self._path_output), "Compressing blueprint failed."
 
         except (KeyboardInterrupt, SystemExit, Exception, ValueError, RuntimeError) as e:
@@ -148,7 +159,7 @@ class SMBEdit(ArgumentHandler):
         if directory_input is None:
             is_docked_entity = False
             directory_input = self._directory_input
-            directory_output = self._directory_output
+            directory_output = self._directory_output_tmp
 
         file_names = ["header.smbph", "logic.smbpl", "meta.smbpm"]
         assert self.validate_dir(directory_input, file_names=file_names), "Blueprint directory is invalid, aborting."
@@ -156,7 +167,7 @@ class SMBEdit(ArgumentHandler):
             assert self.validate_dir(directory_output, only_parent=True, key="-o"), "Output Blueprint directory is invalid, aborting."
             if os.path.exists(directory_output):
                 if len(os.listdir(directory_output)) > 0:
-                    raise Exception("Blueprint found in output directory, aborting to prevent overwriting.")
+                    raise RuntimeError("Blueprint found in output directory, aborting to prevent overwriting.")
             else:
                 os.mkdir(directory_output)
 
@@ -251,7 +262,7 @@ class SMBEdit(ArgumentHandler):
                 blueprint.to_stream()
 
         if directory_output is not None:
-            self._logger.info("Saving blueprint to:\n{}".format(directory_output))
+            self._logger.debug("Saving blueprint to:\n{}".format(directory_output))
             if blueprint_path is None:
                 blueprint.write(directory_output)
                 return

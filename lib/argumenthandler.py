@@ -64,25 +64,21 @@ class ArgumentHandler(Validator):
             self._path_input = self.get_full_path(self._path_input)
         if self._path_output is not None:
             self._path_output = self.get_full_path(self._path_output)
-        self._is_archived = False
-        if self._path_input.endswith(".sment"):
-            self._is_archived = True
 
-        assert temp_directory is None or self.validate_dir(temp_directory)
-        assert self._path_output is None or self.validate_dir(self._path_output, only_parent=True)
         assert self._directory_starmade is None or self.validate_dir(
             self._directory_starmade, file_names=["StarMade.jar"], key='-sm'), "Bad StarMade directory."
 
-        self._directory_output = None
-        if self._is_archived:  # .sment file
+        # deal with temporary directory
+        if temp_directory is None:
+            self._tmp_dir = tempfile.mkdtemp(prefix="{}_".format(self._label))
+        else:
+            assert self.validate_dir(temp_directory)
+            self._tmp_dir = tempfile.mkdtemp(prefix="{}_".format(self._label), dir=temp_directory)
+
+        # deal with input directory
+        if self._path_input.endswith(".sment"):
             assert self.validate_file(self._path_input)
-            # .sment file
-
-            if temp_directory is None:
-                self._tmp_dir = tempfile.mkdtemp(prefix="{}_".format(self._label))
-            else:
-                self._tmp_dir = tempfile.mkdtemp(prefix="{}_".format(self._label), dir=temp_directory)
-
+            assert zipfile.is_zipfile(self._path_input)
             self._directory_input = tempfile.mkdtemp(dir=self._tmp_dir)
             with zipfile.ZipFile(self._path_input, "r") as read_handler:
                 read_handler.extractall(self._directory_input)
@@ -90,19 +86,28 @@ class ArgumentHandler(Validator):
             assert len(list_of_dir) == 1, "Invalid sment file"
             blueprint_name = list_of_dir[0]
             self._directory_input = os.path.join(self._directory_input, blueprint_name)
-
-            if self._path_output is not None:
-                assert self._path_output.endswith(".sment"), "Expected '*.sment' file ending."
-                assert not self.validate_file(self._path_output, silent=True), "Output file exists. Overwriting files is not allowed, aborting."
-                self._directory_output = os.path.join(tempfile.mkdtemp(dir=self._tmp_dir), blueprint_name)
         else:
-            self._tmp_dir = None
-            self._directory_input = self._clean_dir_path(self._path_input)
-            file_names = ["header.smbph", "logic.smbpl", "meta.smbpm"]
-            assert self.validate_dir(self._directory_input, file_names=file_names), "Blueprint input path is invalid, aborting."
-            if self._path_output is not None:
-                self._directory_output = self._clean_dir_path(self._path_output)
+            self._directory_input = self._path_input
+        file_names = ["header.smbph", "logic.smbpl", "meta.smbpm"]
+        msg_input_invalid = "Blueprint input path is invalid, aborting."
+        assert self.validate_dir(self._directory_input, file_names=file_names), msg_input_invalid
 
+        # deal with output directory
+        self._directory_output_tmp = None
+        if self._path_output is not None:
+            assert self.validate_dir(self._path_output, only_parent=True)
+            msg_output_exists = "Output location exists. Overwriting is not allowed, aborting."
+            if self._path_output.endswith(".sment"):
+                assert not self.validate_file(self._path_output, silent=True), msg_output_exists
+                blueprint_name = os.path.splitext(os.path.basename(self._path_output))[0]
+            else:
+                blueprint_name = os.path.basename(self._path_output)
+                if self.validate_dir(self._path_output, silent=True):
+                    if len(os.listdir(self._path_output)) > 0:
+                        raise RuntimeError(msg_output_exists)
+            self._directory_output_tmp = os.path.join(tempfile.mkdtemp(dir=self._tmp_dir), blueprint_name)
+
+        # deal with something else
         if remove_blocks is not None:
             try:
                 self._remove_blocks = list(map(int, remove_blocks.split(',')))
@@ -122,6 +127,11 @@ class ArgumentHandler(Validator):
 
     def __exit__(self, type, value, traceback):
         super(ArgumentHandler, self).__exit__(type, value, traceback)
+        if self.validate_dir(self._tmp_dir, silent=True):
+            shutil.rmtree(self._tmp_dir)
+
+    def __del__(self):
+        super(ArgumentHandler, self).__del__()
         if self.validate_dir(self._tmp_dir, silent=True):
             shutil.rmtree(self._tmp_dir)
 
@@ -349,7 +359,3 @@ class ArgumentHandler(Validator):
             return parser.parse_args()
         else:
             return parser.parse_args(args)
-
-    @staticmethod
-    def _clean_dir_path(directory):
-        return directory.rstrip('/').rstrip('\\')
