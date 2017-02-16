@@ -139,7 +139,7 @@ class SMBEdit(ArgumentHandler):
                             raise RuntimeError(msg_output_exists)
                         # delete empty folder
                         shutil.rmtree(self._path_output)
-                    self._logger.info("Moving blueprint to:\n{}".format(self._path_output))
+                    self._logger.info("Saving blueprint to:\n{}".format(self._path_output))
                     shutil.move(self._directory_output_tmp, self._path_output)
                 assert os.path.exists(self._path_output), "Compressing blueprint failed."
 
