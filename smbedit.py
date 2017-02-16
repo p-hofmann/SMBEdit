@@ -34,8 +34,8 @@ class SMBEdit(ArgumentHandler):
 
         @rtype: None
         """
-        self._label = "SMBEdit"
         super(SMBEdit, self).__init__(
+            label="SMBEdit",
             options=options,
             logfile=logfile,
             verbose=verbose,

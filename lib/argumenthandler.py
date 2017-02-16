@@ -84,6 +84,9 @@ class ArgumentHandler(Validator):
         section = "main"
         if self._directory_starmade is None:
             self._directory_starmade = config.get_value(option, section, is_path=True, silent=True)
+            if not self.validate_dir(self._directory_starmade, file_names=["StarMade.jar"], key='-sm'):
+                config.set_value(option, "", section)
+                config.write(config_file_path)
         if self._directory_starmade is not None:
             if not self.validate_dir(self._directory_starmade, file_names=["StarMade.jar"], key='-sm', silent=True):
                 self._logger.warning(msg_bad_sm_dir.format(self._directory_starmade))
