@@ -40,7 +40,7 @@ Several command line arguments are available and (most) can be used all at once.
 
 Directory path to the StarMade folder, attempting to read block config there.  
 This is required to ensure correct hit point values are given to replace blocks 
-or if smd2 blocks are converted to smd3 blocks which have different hit point values.
+or if old blocks are converted to the newest version of blocks which have different hit point values.
 
 ### Print summary of blueprint
 ```
@@ -57,19 +57,18 @@ Using '-debug' detailed information about ALL blocks will be shown and is not re
 
 The path can be a directory or a '.sment' file path.  
 No modification is saved unless this argument is provided.
-Using this argument without any other will simply copy a blueprint.  
-Using a directory as output will giving a new name to the blueprint.
-When a '.sment' path, the blueprint name is kept.  
-A directory will be created if it does not exist.  
-If the directory or file exists the script will abort to prevent accidental overwriting of an existing blueprint.  
-__Important__: Manually changing a blueprint folder name will likely break it, use the this script to rename a blueprint or use the StarMade client.
+Using this argument without any other will simply copy a blueprint and give it a new name if so desired.
+An output directory will be created if given.  
+If the directory or .sment file exists the script will abort to prevent accidental overwriting of an existing blueprint.  
+__Important__: Manually changing a blueprint folder name will break it, use the this script to rename a blueprint or use the StarMade client.
 
 ### Update entity
 ```
 -u, --update
 ```
 
-Removes outdated blocks and replaces old docking blocks with basic rails
+Removes outdated blocks and replaces old docking blocks with basic rails  
+In many cases this will be done in any case.  
 
 ### Change entity type
 ```
@@ -203,6 +202,14 @@ A specific change is represented by a number:
 The orientation of blocks is not changed.  
 A relocation of the core is always done before the entity is turned/tilted.
 
+### Reset hull/armor blocks of ship hull.
+```
+-rs, --reset_hull_shape
+```
+
+Set shape of outer hull/armor blocks of ship hull to cube.
+This is done before auto shaping and can be combined with it.
+
 ### Auto-shape of hull/armor edges and corners
 ```
 -aw, --auto_wedge
@@ -211,20 +218,19 @@ A relocation of the core is always done before the entity is turned/tilted.
 -ac, --auto_corner
 ```
 
-One can use either one or all at once and hull/armor blocks will be replaced automatically.  
-Previous shapes will be overwritten!  
-The algorithm works best if every edge is filled under the hull with a block type that is not a hull/armor, like scaffolds.
-Attention: 'auto_hepta' and 'auto_corner' check shapes of adjacent blocks for wedge and tetras, 
-if the blocks 'below' edges are of a hull type, they might change shape and cause errors.
+Use either one argument or all at once and hull/armor blocks will be replaced automatically.  
+Only  shaped hull/armor blocks will be changed.  
+__Important__: Only the outer cube shaped hull/armor blocks of ship hull will be affected.  
+__Important__: The 'inside' of the entity must be closed off from the 'outside' to work right.
+Note: The algorithm does not move diagonally.  
+__Important__: The entity must be a single connected entity, the algorithm looks for only one.
+ (docked entities do not matter)
 
 Recommended for smooth edges:
 
 ```
 python smbedit.py directory/original_blueprint -o directory/smooth_blueprint -aw -at -ah
 ```
-
-Corners can be very ambiguous for the palcement of corner shaped blocks and are skipped.
-Those can be auto-shaped with tetras.
 
 # Example
 Here is a quick example of what can be done:
@@ -251,19 +257,20 @@ The "Undeathinator" block  is replaced with a core.
 
 
 # Restrictions
-This editor works with StarMade blueprints from v0.199.253 to v0.199.357.  
+This editor works with StarMade blueprints from v0.199.253 to v0.199.435.  
 Older blueprint versions, smd2 and some old smd3, are not guaranteed to work.  
-It is recommended to use the StarMade client to update a blueprint before using with SMBEdit.
+It is recommended to use the StarMade client to update a blueprint before using with SMBEdit.  
 But if you notice that the StarMade client fails to load some turret heads from some smd2 blueprints, 
 try converting it with SMBEdit.
 
 ## Meta file / Docked entities
 Reading/manipulation of the 'meta.smbpm' file is very rudimentary at the moment and can lead to errors.  
 If a blueprint is deleted after loading a single player game, or it fails to upload, it probably is because of a faulty meta file.
-Send me a message, ideally with a link to the blueprint so I can try fixing it.
+Write me an 'issue' on github, ideally with a link to the blueprint so I can try fixing it.
 
 ## Header file
-The statistical info of an entity, read from the 'header.smbph' file is not updated after blocks are modified.
+The statistical info of an entity, read from the 'header.smbph' file, is not updated after blocks are modified.  
+But this causes no known problems.
 
 ## Turrets / Docked entities
 
