@@ -1,6 +1,7 @@
 from unittest import TestCase
 from lib.smblueprint.smd3.smd import Smd
 from unittests.blueprints import blueprint_handler
+from lib.utils.blockconfig import block_config
 
 __author__ = 'Peter Hofmann'
 
@@ -17,6 +18,7 @@ class DefaultSetup(TestCase):
 
     def setUp(self):
         self.object = Smd()
+        block_config.from_hard_coded()
 
     def tearDown(self):
         self.object = None
