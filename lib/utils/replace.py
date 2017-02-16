@@ -48,7 +48,9 @@ class Replace(object):
                 self._replace_cache_positive[block_id] = new_block_id
             new_block_id = self._replace_cache_positive[block_id]
             new_block = block_pool(new_block_id).get_modified_block(
-                block_id=new_block_id, active=False, hit_points=block_config[new_block_id].hit_points)
+                block_id=new_block_id, active=False,
+                block_side_id=block.get_block_side_id(), axis_rotation=block.get_axis_rotation(),
+                rotations=block.get_rotations())
             self._block_list[position] = new_block
 
     def replace_blocks(self, block_id, replace_id, compatible=False):
@@ -61,7 +63,8 @@ class Replace(object):
             if compatible:
                 new_block = block.get_modified_block(block_id=replace_id)
             else:
-                new_block = block_pool(replace_id).get_modified_block(block_id=replace_id, active=False)
+                new_block = block_pool(replace_id).get_modified_block(
+                    block_id=replace_id, active=False)
             self._block_list[position] = new_block
 
     def reset_hull_shape(self, border):
