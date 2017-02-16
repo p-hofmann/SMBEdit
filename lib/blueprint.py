@@ -32,8 +32,7 @@ class Blueprint(DefaultLogging):
 
         @rtype: None
         """
-        self._label = "Blueprint"
-        super(Blueprint, self).__init__(logfile=logfile, verbose=verbose, debug=debug)
+        super(Blueprint, self).__init__(label="Blueprint", logfile=logfile, verbose=verbose, debug=debug)
         self.header = Header(logfile=logfile, verbose=verbose, debug=debug)
         self.logic = Logic(logfile=logfile, verbose=verbose, debug=debug)
         self.meta = Meta(logfile=logfile, verbose=verbose, debug=debug)

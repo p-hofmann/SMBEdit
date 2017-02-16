@@ -32,8 +32,7 @@ class SmdRegion(DefaultLogging):
         @param segments_in_a_line: The number of segments that fit beside each other within a region
         @type segments_in_a_line: int
         """
-        self._label = "SmdRegion"
-        super(SmdRegion, self).__init__(logfile=logfile, verbose=verbose, debug=debug)
+        super(SmdRegion, self).__init__(label="SmdRegion", logfile=logfile, verbose=verbose, debug=debug)
         self._blocks_in_a_line_in_a_segment = blocks_in_a_line
         self._segments_in_a_line = segments_in_a_line  # 16
         self._segments_in_an_area = self._segments_in_a_line * self._segments_in_a_line  # 256

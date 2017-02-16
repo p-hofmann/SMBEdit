@@ -21,7 +21,7 @@ class ArgumentHandler(Validator):
     @type _tmp_dir: str
     """
 
-    def __init__(self, options, logfile=None, verbose=False, debug=False):
+    def __init__(self, options, label="ArgumentHandler", logfile=None, verbose=False, debug=False):
         """
         Constructor of Argumenthandler
 
@@ -35,6 +35,7 @@ class ArgumentHandler(Validator):
         @rtype: None
         """
         super(ArgumentHandler, self).__init__(
+            label=label,
             logfile=logfile,
             verbose=verbose,
             debug=debug)

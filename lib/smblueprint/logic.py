@@ -24,8 +24,7 @@ class Logic(DefaultLogging):
     _valid_versions = {0}
 
     def __init__(self, logfile=None, verbose=False, debug=False):
-        self._label = "Logic"
-        super(Logic, self).__init__(logfile, verbose, debug)
+        super(Logic, self).__init__(label="Logic", logfile=logfile, verbose=verbose, debug=debug)
         self.version = 0
         self._offset = None
         self._controller_version = -1026

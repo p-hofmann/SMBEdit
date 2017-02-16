@@ -21,8 +21,8 @@ class SmdSegment(DefaultLogging):
     """
 
     def __init__(self, version, blocks_in_a_line=16, logfile=None, verbose=False, debug=False):
-        self._label = "SmdSegment {}".format(datetime.time)
         super(SmdSegment, self).__init__(
+            label="SmdSegment",
             logfile=logfile,
             verbose=verbose,
             debug=debug)

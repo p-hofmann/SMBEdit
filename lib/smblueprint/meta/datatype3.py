@@ -94,8 +94,7 @@ class DataType3(DefaultLogging):
     """
 
     def __init__(self, logfile=None, verbose=False, debug=False):
-        self._label = "DataType3"
-        super(DataType3, self).__init__(logfile, verbose, debug)
+        super(DataType3, self).__init__(label="DataType3", logfile=logfile, verbose=verbose, debug=debug)
         self._docked_entity = {}
         return
 

@@ -395,8 +395,7 @@ class TagManager(DefaultLogging):
     """
 
     def __init__(self, logfile=None, verbose=False, debug=False):
-        self._label = "TagManager"
-        super(TagManager, self).__init__(logfile, verbose, debug)
+        super(TagManager, self).__init__(label="TagManager", logfile=logfile, verbose=verbose, debug=debug)
         self._is_compressed = False
         self._root_tag = None
         self._version = (0, 0)

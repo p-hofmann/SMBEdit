@@ -44,8 +44,7 @@ class Meta(DefaultLogging):
     }
 
     def __init__(self, logfile=None, verbose=False, debug=False):
-        self._label = "Meta"
-        super(Meta, self).__init__(logfile, verbose, debug)
+        super(Meta, self).__init__(label="Meta", logfile=logfile, verbose=verbose, debug=debug)
         self._version = (0, 0, 0, 5)
         self._data_type_2 = DataType2(logfile=logfile, verbose=verbose, debug=debug)
         self._data_type_3 = DataType3(logfile=logfile, verbose=verbose, debug=debug)

@@ -79,8 +79,7 @@ class DataType6(DefaultLogging):
     """
 
     def __init__(self, logfile=None, verbose=False, debug=False):
-        self._label = "DataType6"
-        super(DataType6, self).__init__(logfile, verbose, debug)
+        super(DataType6, self).__init__(label="DataType6", logfile=logfile, verbose=verbose, debug=debug)
         self._has_data = False
         self._data = {}
         return

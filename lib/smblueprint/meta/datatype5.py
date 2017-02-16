@@ -11,8 +11,7 @@ from lib.smblueprint.meta.tag.aiconfig import AIConfig
 class DataType5(DefaultLogging):
 
     def __init__(self, logfile=None, verbose=False, debug=False):
-        self._label = "DataType5"
-        super(DataType5, self).__init__(logfile, verbose, debug)
+        super(DataType5, self).__init__(label="DataType5", logfile=logfile, verbose=verbose, debug=debug)
         self._tag_data = TagManager(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
         return
 

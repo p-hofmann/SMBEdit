@@ -114,7 +114,7 @@ class Header(DefaultLogging):
     _valid_versions = {0, 1, 2, 3}
 
     def __init__(self, logfile=None, verbose=False, debug=False):
-        super(Header, self).__init__(logfile, verbose, debug)
+        super(Header, self).__init__(label="Header", logfile=logfile, verbose=verbose, debug=debug)
         self.version = 3
         self.type = 0
         self.classification = 0

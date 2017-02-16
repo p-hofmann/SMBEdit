@@ -29,8 +29,7 @@ class DataType4(DefaultLogging):
         """
         self._meta_version = meta_version
         self._meta_version_max = meta_version_max
-        self._label = "DataType4"
-        super(DataType4, self).__init__(logfile, verbose, debug)
+        super(DataType4, self).__init__(label="DataType4", logfile=logfile, verbose=verbose, debug=debug)
         self._vector_float_0 = (0, 0, 0)
         self._vector_float_1 = (0, 0, 0)
         self._entity_label = ""

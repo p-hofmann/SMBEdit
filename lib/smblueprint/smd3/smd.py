@@ -33,8 +33,8 @@ class Smd(DefaultLogging):
         @param segments_in_a_line_of_a_region: The number of segments that fit beside each other within a region
         @type segments_in_a_line_of_a_region: int
         """
-        self._label = "Smd3"
         super(Smd, self).__init__(
+            label="Smd3",
             logfile=logfile,
             verbose=verbose,
             debug=debug)

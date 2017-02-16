@@ -14,8 +14,7 @@ class DataType7(DefaultLogging):
     @type _data: dict[int,float]
     """
     def __init__(self, logfile=None, verbose=False, debug=False):
-        self._label = "DataType7"
-        super(DataType7, self).__init__(logfile, verbose, debug)
+        super(DataType7, self).__init__(label="DataType7", logfile=logfile, verbose=verbose, debug=debug)
         self._has_data = False
         self._data = {}
         return
