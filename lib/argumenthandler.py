@@ -37,6 +37,7 @@ class ArgumentHandler(Validator):
 
         @rtype: None
         """
+        self._tmp_dir = None
         smbe_dir = os.path.dirname(self.get_full_path(os.path.dirname(lib.__file__)))
         config_file_path = os.path.join(smbe_dir, "config.ini")
         super(ArgumentHandler, self).__init__(
@@ -69,9 +70,13 @@ class ArgumentHandler(Validator):
             self._path_output = self.get_full_path(self._path_output)
 
         # deal with StarMade directory
+        msg_bad_sm_dir = "Bad StarMade directory: '{}'."
         self._directory_starmade = options.starmade_dir
         if self._directory_starmade is not None:
             self._directory_starmade = self.get_full_path(self._directory_starmade)
+            assert self.validate_dir(
+                self._directory_starmade, file_names=["StarMade.jar"], key='-sm', silent=True), msg_bad_sm_dir.format(
+                self._directory_starmade)
         config = ConfigParserWrapper(logfile=logfile, verbose=verbose)
         if self.validate_file(config_file_path, silent=True):
             config.read(config_file_path)
@@ -81,7 +86,7 @@ class ArgumentHandler(Validator):
             self._directory_starmade = config.get_value(option, section, is_path=True, silent=True)
         if self._directory_starmade is not None:
             if not self.validate_dir(self._directory_starmade, file_names=["StarMade.jar"], key='-sm', silent=True):
-                self._logger.warning("Bad StarMade directory: {}.".format(self._directory_starmade))
+                self._logger.warning(msg_bad_sm_dir.format(self._directory_starmade))
                 self._directory_starmade = None
             else:
                 config.set_value(option, self._directory_starmade, section)
