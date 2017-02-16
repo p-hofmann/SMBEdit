@@ -6,7 +6,9 @@ import shutil
 import tempfile
 import argparse
 import zipfile
+import lib
 from lib.validator import Validator
+from lib.configparserwrapper import ConfigParserWrapper
 
 
 class ArgumentHandler(Validator):
@@ -19,6 +21,7 @@ class ArgumentHandler(Validator):
 
 
     @type _tmp_dir: str
+    @type _directory_starmade: str
     """
 
     def __init__(self, options, label="ArgumentHandler", logfile=None, verbose=False, debug=False):
@@ -34,6 +37,8 @@ class ArgumentHandler(Validator):
 
         @rtype: None
         """
+        smbe_dir = os.path.dirname(self.get_full_path(os.path.dirname(lib.__file__)))
+        config_file_path = os.path.join(smbe_dir, "config.ini")
         super(ArgumentHandler, self).__init__(
             label=label,
             logfile=logfile,
@@ -58,16 +63,29 @@ class ArgumentHandler(Validator):
         self._entity_class = options.entity_class
         self._summary = options.summary
         temp_directory = options.tmp_dir
-        self._directory_starmade = options.starmade_dir
-        if self._directory_starmade is not None:
-            self._directory_starmade = self.get_full_path(self._directory_starmade)
         if self._path_input is not None:
             self._path_input = self.get_full_path(self._path_input)
         if self._path_output is not None:
             self._path_output = self.get_full_path(self._path_output)
 
-        assert self._directory_starmade is None or self.validate_dir(
-            self._directory_starmade, file_names=["StarMade.jar"], key='-sm'), "Bad StarMade directory."
+        # deal with StarMade directory
+        self._directory_starmade = options.starmade_dir
+        if self._directory_starmade is not None:
+            self._directory_starmade = self.get_full_path(self._directory_starmade)
+        config = ConfigParserWrapper(logfile=logfile, verbose=verbose)
+        if self.validate_file(config_file_path, silent=True):
+            config.read(config_file_path)
+        option = "starmade_dir"
+        section = "main"
+        if self._directory_starmade is None:
+            self._directory_starmade = config.get_value(option, section, is_path=True, silent=True)
+        if self._directory_starmade is not None:
+            if not self.validate_dir(self._directory_starmade, file_names=["StarMade.jar"], key='-sm', silent=True):
+                self._logger.warning("Bad StarMade directory: {}.".format(self._directory_starmade))
+                self._directory_starmade = None
+            else:
+                config.set_value(option, self._directory_starmade, section)
+                config.write(config_file_path)
 
         # deal with temporary directory
         if temp_directory is None:

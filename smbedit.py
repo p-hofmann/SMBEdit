@@ -118,6 +118,7 @@ class SMBEdit(ArgumentHandler):
     def run(self):
         try:
             if self._directory_starmade is not None:
+                self._logger.debug("StarMade: {}".format(self._directory_starmade))
                 block_config.read(self._directory_starmade)
             else:
                 block_config.from_hard_coded()
