@@ -5,7 +5,7 @@ import sys
 from lib.binarystream import BinaryStream
 from lib.loggingwrapper import DefaultLogging
 from lib.smblueprint.meta.tag.tagmanager import TagManager
-from lib.smblueprint.meta.tag.aiconfig import AIConfig
+from lib.smblueprint.meta.tag.datatype2.aiconfig import AIConfig
 
 
 class DataType5(DefaultLogging):
