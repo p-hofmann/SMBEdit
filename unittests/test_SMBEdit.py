@@ -32,9 +32,9 @@ class TestSMBEdit(DefaultSetup):
             options.path_input = blueprint
             with SMBEdit(
                     options=options,
-                    logfile=None,
-                    verbose=False,
-                    debug=True) as manipulator:
+                    logfile=options.logfile,
+                    verbose=options.verbose,
+                    debug=options.verbose) as manipulator:
                 manipulator.run()
 
     def test_update(self):
@@ -44,21 +44,22 @@ class TestSMBEdit(DefaultSetup):
             options.update = True
             with SMBEdit(
                     options=options,
-                    logfile=None,
-                    verbose=False,
-                    debug=True) as manipulator:
+                    logfile=options.logfile,
+                    verbose=options.verbose,
+                    debug=options.verbose) as manipulator:
                 manipulator.run()
 
     def test_summary(self):
         for blueprint in self._blueprints:
+            print(blueprint)
             options = Options()
             options.path_input = blueprint
             options.summary = True
             with SMBEdit(
                     options=options,
-                    logfile=None,
-                    verbose=False,
-                    debug=True) as manipulator:
+                    logfile=options.logfile,
+                    verbose=options.verbose,
+                    debug=options.verbose) as manipulator:
                 manipulator.run()
 
     def test_move_center(self):
@@ -68,9 +69,9 @@ class TestSMBEdit(DefaultSetup):
             options.move_center = "2,-3,5"
             with SMBEdit(
                     options=options,
-                    logfile=None,
-                    verbose=False,
-                    debug=True) as manipulator:
+                    logfile=options.logfile,
+                    verbose=options.verbose,
+                    debug=options.verbose) as manipulator:
                 manipulator.run()
 
     def test_entity_type(self):
@@ -80,9 +81,9 @@ class TestSMBEdit(DefaultSetup):
             options.entity_type = 2
             with SMBEdit(
                     options=options,
-                    logfile=None,
-                    verbose=False,
-                    debug=True) as manipulator:
+                    logfile=options.logfile,
+                    verbose=options.verbose,
+                    debug=options.verbose) as manipulator:
                 manipulator.run()
 
     def test_entity_class(self):
@@ -92,9 +93,9 @@ class TestSMBEdit(DefaultSetup):
             options.entity_class = 2
             with SMBEdit(
                     options=options,
-                    logfile=None,
-                    verbose=False,
-                    debug=True) as manipulator:
+                    logfile=options.logfile,
+                    verbose=options.verbose,
+                    debug=options.verbose) as manipulator:
                 manipulator.run()
 
     def test_replace(self):
@@ -104,9 +105,9 @@ class TestSMBEdit(DefaultSetup):
             options.replace = "598:507"
             with SMBEdit(
                     options=options,
-                    logfile=None,
-                    verbose=False,
-                    debug=True) as manipulator:
+                    logfile=options.logfile,
+                    verbose=options.verbose,
+                    debug=options.verbose) as manipulator:
                 manipulator.run()
 
     def test_remove_blocks(self):
@@ -116,9 +117,9 @@ class TestSMBEdit(DefaultSetup):
             options.remove_blocks = "598,599"
             with SMBEdit(
                     options=options,
-                    logfile=None,
-                    verbose=False,
-                    debug=True) as manipulator:
+                    logfile=options.logfile,
+                    verbose=options.verbose,
+                    debug=options.verbose) as manipulator:
                 manipulator.run()
 
     def test_replace_hull_blocks(self):
@@ -128,9 +129,9 @@ class TestSMBEdit(DefaultSetup):
             options.replace_hull_blocks = ":a"
             with SMBEdit(
                     options=options,
-                    logfile=None,
-                    verbose=False,
-                    debug=True) as manipulator:
+                    logfile=options.logfile,
+                    verbose=options.verbose,
+                    debug=options.verbose) as manipulator:
                 manipulator.run()
 
     def test_reset_hull_shape(self):
@@ -140,9 +141,9 @@ class TestSMBEdit(DefaultSetup):
             options.reset_hull_shape = True
             with SMBEdit(
                     options=options,
-                    logfile=None,
-                    verbose=False,
-                    debug=True) as manipulator:
+                    logfile=options.logfile,
+                    verbose=options.verbose,
+                    debug=options.verbose) as manipulator:
                 manipulator.run()
 
     def test_mirror_axis_x(self):
@@ -152,9 +153,9 @@ class TestSMBEdit(DefaultSetup):
             options.mirror_axis = "x"
             with SMBEdit(
                     options=options,
-                    logfile=None,
-                    verbose=False,
-                    debug=True) as manipulator:
+                    logfile=options.logfile,
+                    verbose=options.verbose,
+                    debug=options.verbose) as manipulator:
                 manipulator.run()
 
     def test_mirror_axis_xr(self):
@@ -164,9 +165,9 @@ class TestSMBEdit(DefaultSetup):
             options.mirror_axis = "xr"
             with SMBEdit(
                     options=options,
-                    logfile=None,
-                    verbose=False,
-                    debug=True) as manipulator:
+                    logfile=options.logfile,
+                    verbose=options.verbose,
+                    debug=options.verbose) as manipulator:
                 manipulator.run()
 
     def test_mirror_axis_y(self):
@@ -176,9 +177,9 @@ class TestSMBEdit(DefaultSetup):
             options.mirror_axis = "y"
             with SMBEdit(
                     options=options,
-                    logfile=None,
-                    verbose=False,
-                    debug=True) as manipulator:
+                    logfile=options.logfile,
+                    verbose=options.verbose,
+                    debug=options.verbose) as manipulator:
                 manipulator.run()
 
     def test_mirror_axis_yr(self):
@@ -188,9 +189,9 @@ class TestSMBEdit(DefaultSetup):
             options.mirror_axis = "yr"
             with SMBEdit(
                     options=options,
-                    logfile=None,
-                    verbose=False,
-                    debug=True) as manipulator:
+                    logfile=options.logfile,
+                    verbose=options.verbose,
+                    debug=options.verbose) as manipulator:
                 manipulator.run()
 
     def test_mirror_axis_z(self):
@@ -200,9 +201,9 @@ class TestSMBEdit(DefaultSetup):
             options.mirror_axis = "z"
             with SMBEdit(
                     options=options,
-                    logfile=None,
-                    verbose=False,
-                    debug=True) as manipulator:
+                    logfile=options.logfile,
+                    verbose=options.verbose,
+                    debug=options.verbose) as manipulator:
                 manipulator.run()
 
     def test_mirror_axis_zr(self):
@@ -212,9 +213,9 @@ class TestSMBEdit(DefaultSetup):
             options.mirror_axis = "zr"
             with SMBEdit(
                     options=options,
-                    logfile=None,
-                    verbose=False,
-                    debug=True) as manipulator:
+                    logfile=options.logfile,
+                    verbose=options.verbose,
+                    debug=options.verbose) as manipulator:
                 manipulator.run()
 
     def test_auto_wedge(self):
@@ -224,9 +225,9 @@ class TestSMBEdit(DefaultSetup):
             options.auto_wedge = True
             with SMBEdit(
                     options=options,
-                    logfile=None,
-                    verbose=False,
-                    debug=True) as manipulator:
+                    logfile=options.logfile,
+                    verbose=options.verbose,
+                    debug=options.verbose) as manipulator:
                 manipulator.run()
 
     def test_auto_tetra(self):
@@ -236,9 +237,9 @@ class TestSMBEdit(DefaultSetup):
             options.auto_tetra = True
             with SMBEdit(
                     options=options,
-                    logfile=None,
-                    verbose=False,
-                    debug=True) as manipulator:
+                    logfile=options.logfile,
+                    verbose=options.verbose,
+                    debug=options.verbose) as manipulator:
                 manipulator.run()
 
     def test_auto_corner(self):
@@ -248,9 +249,9 @@ class TestSMBEdit(DefaultSetup):
             options.auto_corner = True
             with SMBEdit(
                     options=options,
-                    logfile=None,
-                    verbose=False,
-                    debug=True) as manipulator:
+                    logfile=options.logfile,
+                    verbose=options.verbose,
+                    debug=options.verbose) as manipulator:
                 manipulator.run()
 
     def test_auto_hepta(self):
@@ -260,9 +261,9 @@ class TestSMBEdit(DefaultSetup):
             options.auto_hepta = True
             with SMBEdit(
                     options=options,
-                    logfile=None,
-                    verbose=False,
-                    debug=True) as manipulator:
+                    logfile=options.logfile,
+                    verbose=options.verbose,
+                    debug=options.verbose) as manipulator:
                 manipulator.run()
 
     def test_auto_shape(self):
@@ -275,15 +276,18 @@ class TestSMBEdit(DefaultSetup):
             options.auto_hepta = True
             with SMBEdit(
                     options=options,
-                    logfile=None,
-                    verbose=False,
-                    debug=True) as manipulator:
+                    logfile=options.logfile,
+                    verbose=options.verbose,
+                    debug=options.verbose) as manipulator:
                 manipulator.run()
 
 
 class Options(object):
 
     def __init__(self):
+        self.logfile = None
+        self.verbose = False
+        self.debug = False
         self.tmp_dir = None
         self.starmade_dir = None
         self.path_input = None

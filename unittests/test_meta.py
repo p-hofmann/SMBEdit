@@ -1,4 +1,4 @@
-import os
+# import os
 from io import BytesIO
 from unittest import TestCase
 from unittests.blueprints import blueprint_handler
@@ -90,7 +90,7 @@ class TestMeta(DefaultSetup):
             self.object.read(directory_blueprint)
             for docker in self.object._data_type_4:
                 tag_object = RailDockedEntityLinks()
-                tag_object.from_tag(docker.get_root_tag(), self.object._version[3])
+                tag_object.from_tag(docker.get_root_tag(), self.object._version)
                 tag_stream_original = BytesIO()
                 tag_stream_return = BytesIO()
                 docker.get_root_tag().write(BinaryStream(tag_stream_original))
@@ -98,15 +98,15 @@ class TestMeta(DefaultSetup):
                 # docker.get_root_tag().to_stream()
                 # tag_object.to_tag(self.object._version[3]).to_stream()
                 # tag_object.to_stream()
-                tag_object.to_tag(self.object._version[3]).write(BinaryStream(tag_stream_return))
+                tag_object.to_tag(self.object._version).write(BinaryStream(tag_stream_return))
                 tag_stream_original.seek(0)
                 tag_stream_return.seek(0)
                 self.assertEqual(tag_stream_original.getvalue(), tag_stream_return.getvalue(), directory_blueprint)
             for key, value in self.object._data_type_4._entity_wireless_logic_stuff.items():
                 unknown_string, unknown_position_index_0, unknown_position_index_1 = value
                 for position_index in {unknown_position_index_0, unknown_position_index_1}:
-                    position = Vector.get_pos(position_index)
+                    position = Vector.get_position(position_index)
                     self.assertEqual(position_index, Vector.get_index(position))
         position = (-16, -10, -3)
         position_index = Vector.get_index(position)
-        self.assertTupleEqual(position, Vector.get_pos(position_index))
+        self.assertTupleEqual(position, Vector.get_position(position_index))

@@ -1,4 +1,5 @@
 from unittest import TestCase
+from lib.utils.vector import Vector
 from lib.utils.blocklist import BlockList
 
 
@@ -29,7 +30,7 @@ class TestBlockList(DefaultSetup):
             for y in [0]:
                 for z in [0]:
                     expected_position = (x, y, z)
-                    result = self.object.get_position(self.object.get_index(expected_position))
+                    result = Vector.get_position(Vector.get_index(expected_position))
                     self.assertTupleEqual(expected_position, result)
 
     # TODO: more tests
