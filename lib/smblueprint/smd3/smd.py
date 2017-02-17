@@ -80,9 +80,9 @@ class Smd(DefaultLogging):
                 self._file_name_prefix, x, y, z = os.path.splitext(file_name)[0].rsplit('.', 3)
                 smd_region.read(file_path, self._block_list)
         elif file_name.endswith(".smd2"):
-            self._logger.warning("'smd2' file format found.")
+            self._logger.debug("'smd2' file format found.")
             msg = "'smd2'->'smd3' conversion can results in blocks with low hit points if '-sm' argument is not used."
-            self._logger.warning(msg)
+            self._logger.debug(msg)
             smd2 = Smd2(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
             smd2.read(directory_blueprint)
             offset = (8, 8, 8)

@@ -99,7 +99,7 @@ class Meta(DefaultLogging):
         self.tail_data = input_stream.read()  # any data left?
         assert len(self.tail_data) == 0, "Unknown byte left: #{}".format(len(self.tail_data))
         if self._version < 4:
-            self._logger.warning("Converting smd2 to smd3 positions. v{}".format(self._version))
+            self._logger.debug("Converting smd2 to smd3 positions. v{}".format(self._version))
             self._smd2_to_smd3()
 
     def read(self, directory_blueprint):
