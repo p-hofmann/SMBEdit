@@ -1,5 +1,5 @@
 import sys
-
+from lib.utils.vector import Vector
 from lib.smblueprint.meta.tag.tagmanager import TagPayload, TagList
 
 
@@ -7,12 +7,12 @@ class Display(object):
     """
     Handling displays tag structure
 
-    @type _unknown_long: int
+    @type _position: int
     @type _text: str
     """
 
     def __init__(self):
-        self._unknown_long = None
+        self._position = None
         self._text = None
 
     def from_tag(self, tag_payload):
@@ -33,7 +33,7 @@ class Display(object):
 
         assert list_of_tags[0].id == -4
         assert list_of_tags[1].id == -8
-        self._unknown_long = list_of_tags[0].payload
+        self._position = list_of_tags[0].payload
         self._text = list_of_tags[1].payload
 
     def to_tag(self):
@@ -47,9 +47,17 @@ class Display(object):
         @rtype: TagPayload
         """
         tag_list = TagList()
-        tag_list.add(TagPayload(-4, None, self._unknown_long))
+        tag_list.add(TagPayload(-4, None, self._position))
         tag_list.add(TagPayload(-8, None, self._text))
         return TagPayload(-13, None, tag_list)
+
+    def move_position(self, vector_direction):
+        """
+        Move positions of rail docked entities
+
+        @type vector_direction: (int, int, int)
+        """
+        self._position = Vector.shift_position_index(self._position, vector_direction)
 
     def to_stream(self, output_stream=sys.stdout):
         """
@@ -58,6 +66,7 @@ class Display(object):
         @param output_stream: Output stream
         @type output_stream: file
         """
+        output_stream.write("{}\t".format(Vector.get_position(self._position)))
         output_stream.write("{}\n".format(self._text.strip('\n')))
 
 
@@ -105,6 +114,15 @@ class DisplayList(object):
         for display in self._displays:
             tag_list.add(display.to_tag())
         return TagPayload(-13, None, tag_list)
+
+    def move_positions(self, vector_direction):
+        """
+        Move positions of rail docked entities
+
+        @type vector_direction: (int, int, int)
+        """
+        for display in self._displays:
+            display.move_position(vector_direction)
 
     def to_stream(self, output_stream=sys.stdout):
         """
