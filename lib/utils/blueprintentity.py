@@ -32,7 +32,7 @@ class BlueprintEntity(object):
             2: "Support",
             3: "Cargo",
             4: "Attack",
-            5: "Defence",
+            5: "Defense",
             6: "Carrier",
             7: "Scout",
             8: "Scavenger",
