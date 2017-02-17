@@ -1,3 +1,4 @@
+from lib.utils.vector import Vector
 from lib.utils.blocklist import BlockList
 from lib.utils.blockconfig import block_config
 from lib.utils.peripheryhardcoded import PeripheryHardcoded
@@ -166,8 +167,8 @@ class Periphery(PeripheryBase, PeripheryHardcoded):
     """
     Collection of auto shape stuff
 
-    @type _marked: set[str]
-    @type _border: set[str]
+    @type _marked: set[int]
+    @type _border: set[int]
     """
 
     def __init__(self, block_list):
@@ -182,8 +183,8 @@ class Periphery(PeripheryBase, PeripheryHardcoded):
     def set_annotation(self, marked, border):
         """
 
-        @type marked: set[str]
-        @type border: set[str]
+        @type marked: set[int]
+        @type border: set[int]
         """
         self._marked = marked
         self._border = border
@@ -207,7 +208,7 @@ class Periphery(PeripheryBase, PeripheryHardcoded):
                     position_tmp = (position[0] + x, position[1] + y, position[2] + z)
                     if position_tmp == position:
                         continue
-                    if self._block_list.get_index(position_tmp) in self._marked:
+                    if Vector.get_index(position_tmp) in self._marked:
                         periphery_index |= power
                     # if not marked and self._block_list.get_index(position_tmp) not in self._marked:
                     #     periphery_index |= power
@@ -272,7 +273,7 @@ class Periphery(PeripheryBase, PeripheryHardcoded):
             block = self._block_list[position_index]
             if block_config[block.get_id()].shape != shape_id:
                 continue
-            position = self._block_list.get_position(position_index)
+            position = Vector.get_position(position_index)
             periphery_index = self.get_position_periphery_index(position, 1)
             rotations = block.get_rotations()
             axis_rotation = block.get_axis_rotation()
@@ -291,7 +292,7 @@ class Periphery(PeripheryBase, PeripheryHardcoded):
             block = self._block_list[position_index]
             if block_config[block.get_id()].shape != shape_id:
                 continue
-            position = self._block_list.get_position(position_index)
+            position = Vector.get_position(position_index)
             periphery_index = self.get_position_periphery_index(position, 1)
             periphery_shape, periphery_orientation = self.get_position_shape_periphery(position, 1)
             rotations = block.get_rotations()

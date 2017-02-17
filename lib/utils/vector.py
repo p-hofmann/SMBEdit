@@ -23,7 +23,7 @@ class Vector(object):
         return struct.unpack("<q", tmp)[0]
 
     @staticmethod
-    def get_pos(position_index):
+    def get_position(position_index):
         """
 
         @param position_index:
@@ -47,7 +47,7 @@ class Vector(object):
         @rtype: int
         """
         # Vector
-        position = Vector.get_pos(position_index)
+        position = Vector.get_position(position_index)
         new_position = Vector.addition(position, offset)
         return Vector.get_index(new_position)
 

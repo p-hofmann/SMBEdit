@@ -12,8 +12,8 @@ class Annotate(object):
 
     @type _block_list: BlockList
     @type _periphery: PeripheryBase
-    @type marked: set[str]
-    @type border: set[str]
+    @type marked: set[int]
+    @type border: set[int]
     """
 
     def __init__(self, block_list, periphery):
@@ -27,9 +27,8 @@ class Annotate(object):
         self.border = set()
 
     def __del__(self):
-        list = self._block_list
+        del self._block_list
         self._block_list = None
-        del list
 
     def get_data(self):
         """
@@ -39,7 +38,7 @@ class Annotate(object):
 
     def remove_empty_voxel(self):
         for position_index in list(self.marked):
-            position = self._block_list.get_position(position_index)
+            position = Vector.get_position(position_index)
             if self._periphery.get_position_block_periphery_index(position, 3) == 0:
                 self.marked.remove(position_index)
 
@@ -47,7 +46,7 @@ class Annotate(object):
         for taxi_dist, position_tmp in self.get_neighbours(position):
             if taxi_dist == 3:
                 continue
-            position_index_tmp = self._block_list.get_index(position_tmp)
+            position_index_tmp = Vector.get_index(position_tmp)
             if taxi_dist == 2:
                 if self._block_list.has_block_at(position_tmp):
                     self.border.add(position_index_tmp)
@@ -71,10 +70,10 @@ class Annotate(object):
         self.border = set()
         tmp = set()
         assert not self._block_list.has_block_at(start_position), "Start Position must be empty."
-        tmp.add(self._block_list.get_index(start_position))
+        tmp.add(Vector.get_index(start_position))
         while len(tmp) > 0:
             position_index = tmp.pop()
-            position = self._block_list.get_position(position_index)
+            position = Vector.get_position(position_index)
             index = 0
             if position[index] < min_position[index]-1 or position[index] > max_position[index]+1:
                 continue
@@ -111,10 +110,10 @@ class Annotate(object):
         """
         assert self._periphery.get_position_block_periphery_index(start_position) > 0
         tmp = set()
-        tmp.add(self._block_list.get_index(start_position))
+        tmp.add(Vector.get_index(start_position))
         while len(tmp) > 0:
             position_index = tmp.pop()
-            position = self._block_list.get_position(position_index)
+            position = Vector.get_position(position_index)
             if self._block_list.has_block_at(position):
                 self.border.add(position_index)
                 continue
