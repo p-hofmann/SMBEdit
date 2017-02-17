@@ -87,12 +87,14 @@ class JumpDrives(PositionFloat):
     """
     Handling docking tag structure
     """
+    pass
 
 
 class Scanner(PositionFloat):
     """
     Handling docking tag structure
     """
+    pass
 
 
 class PositionByte(object):
@@ -175,15 +177,18 @@ class DockedEntities(PositionByte):
     """
     Handling docking tag structure
     """
+    def has_data(self):
+        return len(self._entries) > 0
 
 
 class JumpInhibitor(PositionByte):
     """
     Handling docking tag structure
     """
+    pass
 
 
-class Datatype2TagReader(object):
+class Datatype2Index9(object):
     """
     Handling datatype2 tag structure
     """
@@ -216,6 +221,11 @@ class Datatype2TagReader(object):
         @type tag_payload_root: TagPayload
         """
         assert isinstance(tag_payload_root, TagPayload), tag_payload_root
+        self._jump_drives = JumpDrives()
+        self._docker_turrets = DockedEntities()
+        self._docker_ships = DockedEntities()
+        self._jump_inhibitors = JumpInhibitor()
+        self._scanner = Scanner()
         tag_list = tag_payload_root.payload
         list_of_tag_payload = tag_list.get_list()
         for tag_payload in list_of_tag_payload:
@@ -224,21 +234,16 @@ class Datatype2TagReader(object):
                 self._wireless_logic = None
             if tag_payload.name == "TR":
                 self._transporters = None
-            if tag_payload.name == "A" and self._docker_turrets is None:
-                self._docker_turrets = DockedEntities()
+            if tag_payload.name == "A" and not self._docker_turrets.has_data():
                 self._docker_turrets.from_tag(tag_payload)
-            if tag_payload.name == "A":
+            elif tag_payload.name == "A":
                 # docked, not used since > v0.1867
-                self._docker_ships = DockedEntities()
                 self._docker_ships.from_tag(tag_payload)
             if tag_payload.name == "J":
-                self._jump_drives = JumpDrives()
                 self._jump_drives.from_tag(tag_payload)
             if tag_payload.name == "JP":
-                self._jump_inhibitors = JumpInhibitor()
                 self._jump_inhibitors.from_tag(tag_payload)
             if tag_payload.name == "SC":
-                self._scanner = Scanner()
                 self._scanner.from_tag(tag_payload)
             if tag_payload.name == "SYRD":
                 self._shipyards = None
