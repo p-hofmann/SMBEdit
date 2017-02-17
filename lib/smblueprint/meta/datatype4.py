@@ -79,9 +79,9 @@ class DataType4(DefaultLogging):
         self._vector_float_0 = input_stream.read_vector_3_float()
         self._vector_float_1 = input_stream.read_vector_3_float()
         offset = 0
-        if version < (0, 0, 0, 4):
+        if version < 4:
             offset = 8
-        if version >= (0, 0, 0, 2):
+        if version >= 2:
             self._entity_label = input_stream.read_string()  # utf
             number_of_wireless_connections = input_stream.read_int32()
             self._entity_wireless_logic_stuff = {}
@@ -128,7 +128,7 @@ class DataType4(DefaultLogging):
         output_stream.write_vector_3_float(self._vector_float_0)
         output_stream.write_vector_3_float(self._vector_float_1)
 
-        if version >= (0, 0, 0, 2):
+        if version >= 2:
             output_stream.write_string(self._entity_label)
             number_of_wireless_connections = len(self._entity_wireless_logic_stuff)
             output_stream.write_int32_unassigned(number_of_wireless_connections)

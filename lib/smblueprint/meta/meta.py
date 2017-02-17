@@ -25,13 +25,7 @@ class Meta(DefaultLogging):
 
     _file_name = "meta.smbpm"
 
-    _valid_versions = {
-        (0, 0, 0, 0),
-        (0, 0, 0, 2),
-        (0, 0, 0, 3),
-        (0, 0, 0, 4),
-        (0, 0, 0, 5),
-        }
+    _valid_versions = {0, 1, 2, 3, 4, 5}
 
     _data_type = {
         1: "Finish",
@@ -45,11 +39,11 @@ class Meta(DefaultLogging):
 
     def __init__(self, logfile=None, verbose=False, debug=False):
         super(Meta, self).__init__(label="Meta", logfile=logfile, verbose=verbose, debug=debug)
-        self._version = (0, 0, 0, 5)
+        self._version = 5
         self._data_type_2 = DataType2(logfile=logfile, verbose=verbose, debug=debug)
         self._data_type_3 = DataType3(logfile=logfile, verbose=verbose, debug=debug)
         self._data_type_4 = DataType4(
-            max(self._valid_versions)[3], max(self._valid_versions)[3], logfile=logfile, verbose=verbose, debug=debug)
+            max(self._valid_versions), max(self._valid_versions), logfile=logfile, verbose=verbose, debug=debug)
         self._data_type_5 = DataType5(logfile=logfile, verbose=verbose, debug=debug)
         self._data_type_6 = DataType6(logfile=logfile, verbose=verbose, debug=debug)
         self._data_type_7 = DataType7(logfile=logfile, verbose=verbose, debug=debug)
@@ -67,49 +61,44 @@ class Meta(DefaultLogging):
         @type input_stream: BinaryStream
         """
         assert isinstance(input_stream, BinaryStream)
-        # self.version = input_stream.read_int32_unassigned()
-        self._version = input_stream.read_vector_4_byte()
+        self._version = input_stream.read_int32_unassigned()
+        # self._version = input_stream.read_vector_4_byte()
         assert self._version in self._valid_versions, "Unsupported version '{}' of '{}'.".format(
             self._version, self._file_name)
 
         self._data_type_2 = DataType2(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
         self._data_type_3 = DataType3(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
         self._data_type_4 = DataType4(
-            self._version[3], max(self._valid_versions)[3], logfile=self._logfile, verbose=self._verbose, debug=self._debug)
+            self._version, max(self._valid_versions), logfile=self._logfile, verbose=self._verbose, debug=self._debug)
         self._data_type_5 = DataType5(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
         self._data_type_6 = DataType6(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
         self._data_type_7 = DataType7(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
 
-        # assert self._version < (0, 0, 0, 5)
         while True:
             data_type = input_stream.read_byte()
             self._logger.debug("Found data_type: {}".format(data_type))
-            # input_stream.read(38)
             if data_type == 1:  # Finish
                 break
-            elif data_type == 2:  # TagManager # aLt.class
+            elif data_type == 2:  # TagManager
                 self._data_type_2.read(input_stream)
                 break
             elif data_type == 3:  # Docking
                 self._data_type_3.read(input_stream)
-            elif data_type == 4:  # Unknown stuff
+            elif data_type == 4:  # Rail Docked entities and wireless connections
                 self._data_type_4.read(input_stream, self._version)
-            elif data_type == 5:  # Unknown byte array
-                self._data_type_5.read(input_stream)  # aLt.class
-                # if self._data_type_5.has_data():
-                #     break
-            elif data_type == 6:  # Unknown byte array
-                self._data_type_6.read(input_stream)  # aLt.class
-            elif data_type == 7:  # Unknown byte array
-                self._data_type_7.read(input_stream)  # aLt.class
+            elif data_type == 5:  # AI config
+                self._data_type_5.read(input_stream)
+            elif data_type == 6:  # RailDocker info
+                self._data_type_6.read(input_stream)
+            elif data_type == 7:  # Remote wireless connections
+                self._data_type_7.read(input_stream)
             else:
                 msg = "read_file unknown data type: {}".format(data_type)
                 self._logger.debug(msg)
                 raise Exception(msg)
         self.tail_data = input_stream.read()  # any data left?
         assert len(self.tail_data) == 0, "Unknown byte left: #{}".format(len(self.tail_data))
-
-        if self._version < (0, 0, 0, 4):
+        if self._version < 4:
             self._logger.warning("Converting smd2 to smd3 positions. v{}".format(self._version))
             self._smd2_to_smd3()
 
@@ -147,7 +136,7 @@ class Meta(DefaultLogging):
         @param output_stream: Output stream
         @type output_stream: BinaryStream
         """
-        output_stream.write_vector_4_byte(self._version)
+        output_stream.write_int32_unassigned(self._version)
 
         # data_type 3
         if self._data_type_3.has_data():
@@ -156,7 +145,7 @@ class Meta(DefaultLogging):
 
         # self._data_type_3.write(output_stream, relative_path)
 
-        if self._version > (0, 0, 0, 4):
+        if self._version > 4:
             # data_type 6
             self._data_type_6.write(output_stream)
             # data_type 7
