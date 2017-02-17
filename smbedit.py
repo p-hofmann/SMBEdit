@@ -115,46 +115,6 @@ class SMBEdit(ArgumentHandler):
             old_hull_type = None
         blueprint.replace_blocks_hull(new_hull_type, old_hull_type)
 
-    def run(self):
-        try:
-            if self._directory_starmade is not None:
-                self._logger.debug("StarMade: {}".format(self._directory_starmade))
-                block_config.read(self._directory_starmade)
-            else:
-                block_config.from_hard_coded()
-            self.run_commands()
-
-            if self._path_output is not None:
-                # move files to output
-                assert self.validate_dir(self._path_output, only_parent=True)
-                msg_output_exists = "Output location exists. Overwriting is not allowed, aborting."
-                if self._path_output.endswith(".sment"):
-                    assert not self.validate_file(self._path_output, silent=True), msg_output_exists
-                    # .sment file
-                    self._logger.info("Exporting blueprint to:\n{}".format(self._path_output))
-                    self.zip_directory(self._directory_output_tmp, self._path_output)
-                else:
-                    if self.validate_dir(self._path_output, silent=True):
-                        if len(os.listdir(self._path_output)) > 0:
-                            raise RuntimeError(msg_output_exists)
-                        # delete empty folder
-                        shutil.rmtree(self._path_output)
-                    self._logger.info("Saving blueprint to:\n{}".format(self._path_output))
-                    shutil.move(self._directory_output_tmp, self._path_output)
-                assert os.path.exists(self._path_output), "Compressing blueprint failed."
-
-        except (KeyboardInterrupt, SystemExit, Exception, ValueError, RuntimeError) as e:
-            self._logger.debug("\n{}\n".format(traceback.format_exc()))
-            if len(e.args) > 0:
-                self._logger.error(e.args[0])
-            self._logger.error("Aborted")
-        except AssertionError as e:
-            if len(e.args) > 0:
-                self._logger.error(e.args[0])
-            self._logger.error("Aborted")
-        else:
-            self._logger.info("Finished")
-
     def run_commands(self, directory_input=None, directory_output=None, blueprint_path=None, entity_name=None):
         is_docked_entity = True
         if directory_input is None:
@@ -270,12 +230,59 @@ class SMBEdit(ArgumentHandler):
             relative_path = os.path.relpath(directory_output, os.path.dirname(blueprint_path))
             blueprint.write(directory_output, relative_path=relative_path)
 
+    def run(self):
+        """
+        @rtype: bool
+        """
+        try:
+            if self._directory_starmade is not None:
+                self._logger.debug("StarMade: {}".format(self._directory_starmade))
+                block_config.read(self._directory_starmade)
+            else:
+                block_config.from_hard_coded()
+            self.run_commands()
+
+            if self._path_output is not None:
+                # move files to output
+                assert self.validate_dir(self._path_output, only_parent=True)
+                msg_output_exists = "Output location exists. Overwriting is not allowed, aborting."
+                if self._path_output.endswith(".sment"):
+                    assert not self.validate_file(self._path_output, silent=True), msg_output_exists
+                    # .sment file
+                    self._logger.info("Exporting blueprint to:\n{}".format(self._path_output))
+                    self.zip_directory(self._directory_output_tmp, self._path_output)
+                else:
+                    if self.validate_dir(self._path_output, silent=True):
+                        if len(os.listdir(self._path_output)) > 0:
+                            raise RuntimeError(msg_output_exists)
+                        # delete empty folder
+                        shutil.rmtree(self._path_output)
+                    self._logger.info("Saving blueprint to:\n{}".format(self._path_output))
+                    shutil.move(self._directory_output_tmp, self._path_output)
+                assert os.path.exists(self._path_output), "Compressing blueprint failed."
+
+        except (KeyboardInterrupt, SystemExit, Exception, ValueError, RuntimeError) as e:
+            self._logger.debug("\n{}\n".format(traceback.format_exc()))
+            if len(e.args) > 0:
+                self._logger.error(e.args[0])
+            self._logger.error("Aborted")
+            return True
+        except AssertionError as e:
+            if len(e.args) > 0:
+                self._logger.error(e.args[0])
+            self._logger.error("Aborted")
+            return True
+        else:
+            self._logger.info("Finished")
+        return False
+
 
 def main():
     options = ArgumentHandler.get_parser_options(label=SMBEdit.get_label(), version=__version__)
     verbose = not options.silent
     debug = options.debug_mode
     logfile = options.logfile
+    error = None
     try:
         with SMBEdit(
             options=options,
@@ -283,18 +290,19 @@ def main():
             verbose=verbose,
             debug=debug
                 ) as manipulator:
-            manipulator.run()
+            error = manipulator.run()
     except (KeyboardInterrupt, SystemExit, Exception, ValueError, RuntimeError) as e:
         if debug:
             sys.stderr.write("\n{}\n".format(traceback.format_exc()))
         if len(e.args) > 0:
             sys.stderr.write("ERROR: ")
             sys.stderr.write(e.args[0])
-        sys.stderr.write("\nAborted\n")
+            sys.exit(1)
     except AssertionError as e:
         if len(e.args) > 0:
             sys.stderr.write(e.args[0])
-        sys.stderr.write("\nAborted\n")
+            sys.exit(1)
+    sys.exit(error)
 
 if __name__ == "__main__":
     main()
