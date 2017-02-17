@@ -1,11 +1,13 @@
 __author__ = 'Peter Hofmann'
 
 import sys
+
 from lib.smblueprint.meta.tag.tagmanager import TagPayload, TagList
-from lib.smblueprint.meta.tag.storage import StorageList
-from lib.smblueprint.meta.tag.aiconfig import AIConfig
-from lib.smblueprint.meta.tag.shop import Shop
-from lib.smblueprint.meta.tag.displaylist import DisplayList
+from lib.smblueprint.meta.tag.datatype2.shop import Shop
+from lib.smblueprint.meta.tag.datatype2.storage import StorageList
+from lib.smblueprint.meta.tag.datatype2.aiconfig import AIConfig
+from lib.smblueprint.meta.tag.datatype2.displaylist import DisplayList
+from lib.smblueprint.meta.tag.datatype2.datatype2index9 import Datatype2Index9
 
 
 class Unknown5(object):
@@ -638,7 +640,7 @@ class Datatype2TagReader(object):
         self._displays = DisplayList()
         self._block_list = BlockList()
         self._warp_gates = GateList()
-        self._unknown_9_tag = TagPayload(-13, None, TagList())  # TODO
+        self._unknown_9_tag = Datatype2Index9()
         self._ai_config = AIConfig()
         self._unknown_11 = Unknown11()
         self._race_gate = GateList()
@@ -732,7 +734,7 @@ class Datatype2TagReader(object):
                 self._warp_gates.from_tag(tag_payload)
 
             elif list_index == 9:
-                self._unknown_9_tag = tag_payload
+                self._unknown_9_tag.from_tag(tag_payload)
 
             elif list_index == 10:
                 self._ai_config.from_tag(tag_payload)

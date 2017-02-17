@@ -1,7 +1,7 @@
 import sys
 
 from lib.smblueprint.meta.tag.tagmanager import TagPayload, TagList
-from lib.smblueprint.meta.tag.storage import Stash
+from lib.smblueprint.meta.tag.datatype2.storage import Stash
 
 
 class ShopSetting(object):
