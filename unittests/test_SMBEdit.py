@@ -35,7 +35,7 @@ class TestSMBEdit(DefaultSetup):
                     logfile=options.logfile,
                     verbose=options.verbose,
                     debug=options.debug) as manipulator:
-                self.assertFalse(manipulator.run())
+                self.assertFalse(manipulator.run(), blueprint)
 
     def test_update(self):
         for blueprint in self._blueprints:
@@ -47,7 +47,7 @@ class TestSMBEdit(DefaultSetup):
                     logfile=options.logfile,
                     verbose=options.verbose,
                     debug=options.debug) as manipulator:
-                self.assertFalse(manipulator.run())
+                self.assertFalse(manipulator.run(), blueprint)
 
     def test_summary(self):
         for blueprint in self._blueprints:
@@ -59,7 +59,7 @@ class TestSMBEdit(DefaultSetup):
                     logfile=options.logfile,
                     verbose=options.verbose,
                     debug=options.debug) as manipulator:
-                self.assertFalse(manipulator.run())
+                self.assertFalse(manipulator.run(), blueprint)
 
     def test_move_center(self):
         for blueprint in self._blueprints:
@@ -71,7 +71,7 @@ class TestSMBEdit(DefaultSetup):
                     logfile=options.logfile,
                     verbose=options.verbose,
                     debug=options.debug) as manipulator:
-                self.assertFalse(manipulator.run())
+                self.assertFalse(manipulator.run(), blueprint)
 
     def test_entity_type(self):
         for blueprint in self._blueprints:
@@ -83,7 +83,7 @@ class TestSMBEdit(DefaultSetup):
                     logfile=options.logfile,
                     verbose=options.verbose,
                     debug=options.debug) as manipulator:
-                self.assertFalse(manipulator.run())
+                self.assertFalse(manipulator.run(), blueprint)
 
     def test_entity_class(self):
         for blueprint in self._blueprints:
@@ -95,7 +95,7 @@ class TestSMBEdit(DefaultSetup):
                     logfile=options.logfile,
                     verbose=options.verbose,
                     debug=options.debug) as manipulator:
-                self.assertFalse(manipulator.run())
+                self.assertFalse(manipulator.run(), blueprint)
 
     def test_replace(self):
         for blueprint in self._blueprints:
@@ -107,7 +107,7 @@ class TestSMBEdit(DefaultSetup):
                     logfile=options.logfile,
                     verbose=options.verbose,
                     debug=options.debug) as manipulator:
-                self.assertFalse(manipulator.run())
+                self.assertFalse(manipulator.run(), blueprint)
 
     def test_remove_blocks(self):
         for blueprint in self._blueprints:
@@ -119,7 +119,7 @@ class TestSMBEdit(DefaultSetup):
                     logfile=options.logfile,
                     verbose=options.verbose,
                     debug=options.debug) as manipulator:
-                self.assertFalse(manipulator.run())
+                self.assertFalse(manipulator.run(), blueprint)
 
     def test_replace_hull_blocks(self):
         for blueprint in self._blueprints:
@@ -131,7 +131,7 @@ class TestSMBEdit(DefaultSetup):
                     logfile=options.logfile,
                     verbose=options.verbose,
                     debug=options.debug) as manipulator:
-                self.assertFalse(manipulator.run())
+                self.assertFalse(manipulator.run(), blueprint)
 
     def test_reset_hull_shape(self):
         for blueprint in self._blueprints:
@@ -143,7 +143,7 @@ class TestSMBEdit(DefaultSetup):
                     logfile=options.logfile,
                     verbose=options.verbose,
                     debug=options.debug) as manipulator:
-                self.assertFalse(manipulator.run())
+                self.assertFalse(manipulator.run(), blueprint)
 
     def test_mirror_axis_x(self):
         for blueprint in self._blueprints:
@@ -155,7 +155,7 @@ class TestSMBEdit(DefaultSetup):
                     logfile=options.logfile,
                     verbose=options.verbose,
                     debug=options.debug) as manipulator:
-                self.assertFalse(manipulator.run())
+                self.assertFalse(manipulator.run(), blueprint)
 
     def test_mirror_axis_xr(self):
         for blueprint in self._blueprints:
@@ -167,7 +167,7 @@ class TestSMBEdit(DefaultSetup):
                     logfile=options.logfile,
                     verbose=options.verbose,
                     debug=options.debug) as manipulator:
-                self.assertFalse(manipulator.run())
+                self.assertFalse(manipulator.run(), blueprint)
 
     def test_mirror_axis_y(self):
         for blueprint in self._blueprints:
@@ -179,7 +179,7 @@ class TestSMBEdit(DefaultSetup):
                     logfile=options.logfile,
                     verbose=options.verbose,
                     debug=options.debug) as manipulator:
-                self.assertFalse(manipulator.run())
+                self.assertFalse(manipulator.run(), blueprint)
 
     def test_mirror_axis_yr(self):
         for blueprint in self._blueprints:
@@ -191,7 +191,7 @@ class TestSMBEdit(DefaultSetup):
                     logfile=options.logfile,
                     verbose=options.verbose,
                     debug=options.debug) as manipulator:
-                self.assertFalse(manipulator.run())
+                self.assertFalse(manipulator.run(), blueprint)
 
     def test_mirror_axis_z(self):
         for blueprint in self._blueprints:
@@ -203,7 +203,7 @@ class TestSMBEdit(DefaultSetup):
                     logfile=options.logfile,
                     verbose=options.verbose,
                     debug=options.debug) as manipulator:
-                self.assertFalse(manipulator.run())
+                self.assertFalse(manipulator.run(), blueprint)
 
     def test_mirror_axis_zr(self):
         for blueprint in self._blueprints:
@@ -215,7 +215,7 @@ class TestSMBEdit(DefaultSetup):
                     logfile=options.logfile,
                     verbose=options.verbose,
                     debug=options.debug) as manipulator:
-                self.assertFalse(manipulator.run())
+                self.assertFalse(manipulator.run(), blueprint)
 
     def test_auto_wedge(self):
         for blueprint in self._blueprints:
@@ -227,7 +227,7 @@ class TestSMBEdit(DefaultSetup):
                     logfile=options.logfile,
                     verbose=options.verbose,
                     debug=options.debug) as manipulator:
-                self.assertFalse(manipulator.run())
+                self.assertFalse(manipulator.run(), blueprint)
 
     def test_auto_tetra(self):
         for blueprint in self._blueprints:
@@ -239,7 +239,7 @@ class TestSMBEdit(DefaultSetup):
                     logfile=options.logfile,
                     verbose=options.verbose,
                     debug=options.debug) as manipulator:
-                self.assertFalse(manipulator.run())
+                self.assertFalse(manipulator.run(), blueprint)
 
     def test_auto_corner(self):
         for blueprint in self._blueprints:
@@ -251,7 +251,7 @@ class TestSMBEdit(DefaultSetup):
                     logfile=options.logfile,
                     verbose=options.verbose,
                     debug=options.debug) as manipulator:
-                self.assertFalse(manipulator.run())
+                self.assertFalse(manipulator.run(), blueprint)
 
     def test_auto_hepta(self):
         for blueprint in self._blueprints:
@@ -263,7 +263,7 @@ class TestSMBEdit(DefaultSetup):
                     logfile=options.logfile,
                     verbose=options.verbose,
                     debug=options.debug) as manipulator:
-                self.assertFalse(manipulator.run())
+                self.assertFalse(manipulator.run(), blueprint)
 
     def test_auto_shape(self):
         for blueprint in self._blueprints:
@@ -278,7 +278,7 @@ class TestSMBEdit(DefaultSetup):
                     logfile=options.logfile,
                     verbose=options.verbose,
                     debug=options.debug) as manipulator:
-                self.assertFalse(manipulator.run())
+                self.assertFalse(manipulator.run(), blueprint)
 
 
 class Options(object):
@@ -291,11 +291,11 @@ class Options(object):
         self.starmade_dir = None
         self.path_input = None
         self.path_output = None
+        self.docked_entities = True
         self.summary = None
         self.silent = True
         self.update = False
         self.turn = None
-        self.docked_entities = None
         self.link_salvage = None
 
         self.move_center = None

@@ -75,8 +75,8 @@ class TestAnnotate(DefaultSetup):
             marked, border = annotate.get_data()
             # self.assertIn(special_position, outside_border)
             # print(len(marked), len(border))
-            self.assertEqual(len(border), len(outside_border))
-            self.assertEqual(len(marked), len(outside_marked))
+            self.assertEqual(len(border), len(outside_border), blueprint_dir)
+            self.assertEqual(len(marked), len(outside_marked), blueprint_dir)
 
     # def test_get_neighbours(self):
     #     start_position = (0, 0, 0)

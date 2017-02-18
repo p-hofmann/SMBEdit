@@ -82,7 +82,7 @@ class TestMeta(DefaultSetup):
             tag_object.to_tag().write(BinaryStream(tag_stream_return))
             tag_stream_original.seek(0)
             tag_stream_return.seek(0)
-            self.assertEqual(tag_stream_original.getvalue(), tag_stream_return.getvalue())
+            self.assertEqual(tag_stream_original.getvalue(), tag_stream_return.getvalue(), directory_blueprint)
 
     def test_datatype_4(self):
         for directory_blueprint in self._blueprints:
