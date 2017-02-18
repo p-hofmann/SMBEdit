@@ -136,6 +136,7 @@ class RailDockedEntity(RailBasis):
         self._block_id = block_id
         self._byte_orientation_1 = byte_orientation_1
         self._byte_orientation_2 = byte_orientation_2
+        self._hit_points = block_config[block_id].hit_points
 
     def get_block_id(self):
         """
