@@ -191,6 +191,14 @@ class JumpInhibitor(PositionByte):
 class Datatype2Index9(object):
     """
     Handling datatype2 tag structure
+    @type _wireless_logic: = None
+    @type _transporters: = None
+    @type _docker_turrets: DockedEntities
+    @type _docker_ships: DockedEntities
+    @type _jump_drives: JumpDrives
+    @type _jump_inhibitors: JumpInhibitor
+    @type _scanner: Scanner
+    @type _shipyards: = None
     """
 
     def __init__(self):
@@ -272,5 +280,11 @@ class Datatype2Index9(object):
         @param output_stream: Output stream
         @type output_stream: file
         """
-
-        output_stream.write("\n")
+        if self._jump_drives is None:
+            return
+        self._jump_drives.to_stream(output_stream)
+        self._docker_turrets.to_stream(output_stream)
+        self._docker_ships.to_stream(output_stream)
+        self._jump_inhibitors.to_stream(output_stream)
+        self._scanner.to_stream(output_stream)
+        # output_stream.write("\n")

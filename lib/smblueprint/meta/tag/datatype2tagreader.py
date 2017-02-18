@@ -4,199 +4,13 @@ import sys
 
 from lib.smblueprint.meta.tag.tagmanager import TagPayload, TagList
 from lib.smblueprint.meta.tag.datatype2.shop import Shop
+from lib.smblueprint.meta.tag.datatype2.hotbar import Hotbar
 from lib.smblueprint.meta.tag.datatype2.storage import StorageList
 from lib.smblueprint.meta.tag.datatype2.aiconfig import AIConfig
 from lib.smblueprint.meta.tag.datatype2.displaylist import DisplayList
+from lib.smblueprint.meta.tag.datatype2.logictrigger import LogicTrigger
 from lib.smblueprint.meta.tag.datatype2.datatype2index9 import Datatype2Index9
-
-
-class Unknown5(object):
-    """
-
-    @type _unknown_list_0: TagPayload
-    @type _unknown_list_1: TagPayload
-    @type _unknown_list_2: TagPayload
-    """
-
-    def __init__(self):
-        self._label = 'a'
-        self._unknown_list_0 = TagPayload(-13, None, TagList())
-        self._unknown_list_1 = TagPayload(-13, None, TagList())
-        self._unknown_list_2 = TagPayload(-13, None, TagList())
-
-    def from_tag(self, tag_payload):
-        """
-        13: 'a'
-        {
-            -13: {} -13: {} -13: {}
-        }
-
-        @type tag_payload: TagPayload
-        """
-        assert tag_payload.id == 13, (tag_payload.id, tag_payload.name)
-        assert tag_payload.name == self._label, tag_payload.name
-        tag_list = tag_payload.payload
-        assert isinstance(tag_list, TagList)
-        list_of_tag_payloads = tag_list.get_list()
-        assert list_of_tag_payloads[0].id == -13
-        assert list_of_tag_payloads[1].id == -13
-        assert list_of_tag_payloads[2].id == -13
-        self._unknown_list_0 = list_of_tag_payloads[0]
-        self._unknown_list_1 = list_of_tag_payloads[1]
-        self._unknown_list_2 = list_of_tag_payloads[2]
-
-    def to_tag(self):
-        """
-        13: 'a'
-        {
-            -13: {} -13: {} -13: {}
-        }
-
-        @rtype: TagPayload
-        """
-        tag_list = TagList()
-        tag_list.add(self._unknown_list_0)
-        tag_list.add(self._unknown_list_1)
-        tag_list.add(self._unknown_list_2)
-        return TagPayload(13, self._label, tag_list)
-
-    def to_stream(self, output_stream=sys.stdout):
-        """
-        Stream values
-
-        @param output_stream: Output stream
-        @type output_stream: file
-        """
-        output_stream.write("Unknown5 values:\n")
-        self._unknown_list_0.to_stream(output_stream)
-        self._unknown_list_1.to_stream(output_stream)
-        self._unknown_list_2.to_stream(output_stream)
-
-
-class Unknown11(object):
-    """
-
-    @type _longs: Unknown11List
-    """
-
-    def __init__(self):
-        self._unknown_byte = 0
-        self._longs = Unknown11List()
-
-    def from_tag(self, tag_payload):
-        """
-        -13:
-        {
-            -1: 0,
-            -13: {}
-        }
-
-        @type tag_payload: TagPayload
-        """
-        assert tag_payload.id == -13, (tag_payload.id, tag_payload.name)
-        tag_list = tag_payload.payload
-        assert isinstance(tag_list, TagList)
-        list_of_tag_payloads = tag_list.get_list()
-        assert list_of_tag_payloads[0].id == -1
-        self._unknown_byte = list_of_tag_payloads[0].payload
-        self._longs.from_tag(list_of_tag_payloads[1])
-
-    def to_tag(self):
-        """
-        -13:
-        {
-            -1: 0,
-            -13: {}
-        }
-
-        @rtype: TagPayload
-        """
-        tag_list = TagList()
-        tag_list.add(TagPayload(-1, None, self._unknown_byte))
-        tag_list.add(self._longs.to_tag())
-        return TagPayload(-13, None, tag_list)
-
-    def to_stream(self, output_stream=sys.stdout):
-        """
-        Stream values
-
-        @param output_stream: Output stream
-        @type output_stream: file
-        """
-        output_stream.write("Unknown long values:\n")
-        self._longs.to_stream(output_stream)
-
-
-class Unknown11List(object):
-    """
-
-
-    @type _long_values: list[tuple]
-    """
-
-    def __init__(self):
-        self._long_values = []
-
-    def from_tag(self, tag_payload):
-        """
-        -13:
-        {
-            -13: {-1: 9, -4: 68720525328, }
-            -13: {-1: 5, -4: 68720525329, }
-            -13: {-1: 6, -4: 64425558033, }
-            -13: {-1: 3, -4: 68720525327, }
-            -13: {-1: 4, -4: 64425558031, }
-        }
-
-        @type tag_payload: TagPayload
-        """
-        assert isinstance(tag_payload, TagPayload)
-        assert tag_payload.id == -13, (tag_payload.id, tag_payload.name)
-        tag_list = tag_payload.payload
-        assert isinstance(tag_list, TagList)
-        list_of_tag_payloads = tag_list.get_list()
-        for tag_payload in list_of_tag_payloads:
-            assert isinstance(tag_payload, TagPayload)
-            assert tag_payload.id == -13, (tag_payload.id, tag_payload.name)
-            tag_list = tag_payload.payload
-            assert isinstance(tag_list, TagList)
-            list_of_tag_payloads_long = tag_list.get_list()
-            assert list_of_tag_payloads_long[0].id == -1
-            assert list_of_tag_payloads_long[1].id == -4
-            byte = list_of_tag_payloads_long[0].payload
-            long_value = list_of_tag_payloads_long[1].payload
-            self._long_values.append((byte, long_value))
-
-    def to_tag(self):
-        """
-        -13:
-        {
-            -13: {-1: 9, -4: 68720525328, }
-            -13: {-1: 5, -4: 68720525329, }
-            -13: {-1: 6, -4: 64425558033, }
-            -13: {-1: 3, -4: 68720525327, }
-            -13: {-1: 4, -4: 64425558031, }
-        }
-
-        @rtype: TagPayload
-        """
-        tag_list = TagList()
-        for byte_value, long_value in self._long_values:
-            tag_list_longs = TagList()
-            tag_list_longs.add(TagPayload(-1, None, byte_value))
-            tag_list_longs.add(TagPayload(-4, None, long_value))
-            tag_list.add(TagPayload(-13, None, tag_list_longs))
-        return TagPayload(-13, None, tag_list)
-
-    def to_stream(self, output_stream=sys.stdout):
-        """
-        Stream values
-
-        @param output_stream: Output stream
-        @type output_stream: file
-        """
-        for byte_value, long_value in self._long_values:
-            output_stream.write("{}: {}\n".format(byte_value, long_value))
+# from lib.utils.vector import Vector
 
 
 class GateList(object):
@@ -493,10 +307,22 @@ class Unknown1(object):
         3: 'shipMan0' 0,
 
         // old station
-        13: 'shipMan0'
+        13: 'shipMan0'  // v0_1616
         {
-            13: 'wepContr' {}
-            13: 'wepContr' {}
+            13: 'wepContr'
+            {
+                -13:
+                {
+                    -10: (16, 15, 6), -1: 0,
+                }
+            }
+            13: 'wepContr'
+            {
+                -13:
+                {
+                    -10: (16, 17, 6), -1: 0,
+                }
+            }
         }
         @type tag_payload: TagPayload
         """
@@ -636,13 +462,13 @@ class Datatype2TagReader(object):
         self._power = Power()
         self._shield = Shield()
         self._shop = Unknown4Ship()
-        self._unknown_5_tag = Unknown5()
+        self._unknown_5_tag = LogicTrigger()
         self._displays = DisplayList()
         self._block_list = BlockList()
         self._warp_gates = GateList()
         self._unknown_9_tag = Datatype2Index9()
         self._ai_config = AIConfig()
-        self._unknown_11 = Unknown11()
+        self._hot_bar = Hotbar()
         self._race_gate = GateList()
         self._unknown_13_tag = TagPayload(-13, None, TagList())
         self._unknown_14_tag = TagPayload(-13, None, TagList())
@@ -656,9 +482,21 @@ class Datatype2TagReader(object):
         1    3: 'shipMan0' 0,
         2    -13: {-6: 50000.0, -6: 0.0, }
         3    6: 'sh' 1000.0,
-        4    -13: {-4: -9223372036854775808, }  // not shop
-        5    13: 'a' {-13: {}-13: {}-13: {}}
-        6    -13: {}
+        4    -13: {-4: -9223372036854775808, }  // not shop  or 1: 'ex' 0  // 0_1616_ship, 0_1867_ship, 0_19498_ship
+        5    13: 'a'  // Logic blocks (Buttons, Delay blocks)
+            {
+                -13:  // list of positions
+                {
+                    -4: 281543697104912,
+                    -4: 281543697563664
+                }
+                -13:// list of lists with position to timestamp
+                {
+                    -13: { -4: 281479272661011, -4: 1475274596470 }
+                }
+                -13: {}
+            }
+        6    -13: {13: {-4: 188869692193570824, -8: 'Remotey', }} 0_19498_ship, 0_199_132_ship
         7    -13:
             {
                 -13: {-2: 478, -3: 0, }-13: {-2: 3, -3: 0, }-13: {-2: 937, -3: 0, }-13: {-2: 8, -3: 12, }
@@ -692,7 +530,7 @@ class Datatype2TagReader(object):
                 }
             }
         12  -1: 0,
-        13  -13: {}
+        13  -13: {} // 13: 'c16' {}  Defense_Field_Frigate_m, old/B_Bastion_Carrier_v2, old/Attackbomber_raw
         14  -13: {}
         }
 
@@ -722,7 +560,7 @@ class Datatype2TagReader(object):
                     self._shop = tag_payload
 
             elif list_index == 5:
-                self._unknown_5_tag = tag_payload
+                self._unknown_5_tag.from_tag(tag_payload)
 
             elif list_index == 6:
                 self._displays.from_tag(tag_payload)
@@ -740,7 +578,7 @@ class Datatype2TagReader(object):
                 self._ai_config.from_tag(tag_payload)
 
             elif list_index == 11:
-                self._unknown_11.from_tag(tag_payload)
+                self._hot_bar.from_tag(tag_payload)
             elif list_index == 12:
                 self._race_gate.from_tag(tag_payload)
 
@@ -786,7 +624,7 @@ class Datatype2TagReader(object):
         self._unknown_9_tag.to_stream(output_stream)
         output_stream.write("\n")
         # self._ai_config.to_stream(output_stream)
-        if self._unknown_11 is None:
+        if self._hot_bar is None:
             return
         # self._unknown_11.to_stream(output_stream)
         # output_stream.write("\n")
