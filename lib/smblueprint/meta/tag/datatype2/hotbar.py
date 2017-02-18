@@ -147,7 +147,7 @@ class HotbarItems(object):
         @param output_stream: Output stream
         @type output_stream: file
         """
-        for byte_value, long_value in self._positions:
+        for byte_value, long_value in self._positions.items():
             output_stream.write("{}: ".format(Vector.get_position(long_value)))
             output_stream.write("{}\n".format(byte_value))
             # output_stream.write("{}: {}\n".format(byte_value, long_value))
