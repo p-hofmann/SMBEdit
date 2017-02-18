@@ -8,7 +8,8 @@ from lib.smblueprint.meta.tag.tagmanager import TagPayload, TagList
 
 
 class RailBasis(object):
-    _rail_orientation_map = {
+
+    _rail_orientation_map_old = {
         (0, 0): "Right_forward",
         (1, 0): "Right_up",
         (2, 0): "Right_backwards",
@@ -33,7 +34,26 @@ class RailBasis(object):
         (13, 1): "Top_left",
         (14, 1): "Top_forward",
         (15, 1): "Top_right",
-        # meta version 5: Probably bug, might be properly used in future:
+    }
+
+    # meta version 5, 0_199_435:
+    _rail_orientation_map = {
+        (0, 0): "Front_down",
+        (1, 0): "Front_left",
+        (2, 0): "Front_up",
+        (3, 0): "Front_right",
+        (4, 0): "Back_down",
+        (5, 0): "Back_left",
+        (6, 0): "Back_up",
+        (7, 0): "Back_right",
+        (8, 0): "Bottom_backwards",
+        (9, 0): "Bottom_left",
+        (10, 0): "Bottom_forward",
+        (11, 0): "Bottom_right",
+        (12, 0): "Top_backwards",
+        (13, 0): "Top_left",
+        (14, 0): "Top_forward",
+        (15, 0): "Top_right",
         (16, 0): "Right_forward",
         (17, 0): "Right_up",
         (18, 0): "Right_backwards",
@@ -61,14 +81,14 @@ class RailDockedEntity(RailBasis):
         5: (4, 0),  # "Left_forward",
     }
 
-    # _side_to_orientation_v5 = {
-    #     0: (2, 1),  # "Front_up",
-    #     1: (4, 1),  # "Back_down",
-    #     2: (14, 1),  # "Top_forward"
-    #     3: (8, 1),  # "Bottom_backwards"
-    #     4: (16, 0),  # "Right_forward",
-    #     5: (20, 0),  # "Left_forward",
-    # }
+    _side_to_orientation_v5 = {
+        0: (2, 0),  # "Front_up",
+        1: (4, 0),  # "Back_down",
+        2: (14, 0),  # "Top_forward"
+        3: (8, 0),  # "Bottom_backwards"
+        4: (16, 0),  # "Right_forward",
+        5: (20, 0),  # "Left_forward",
+    }
 
     # 0: "FRONT ",
     # 1: "BACK  ",
@@ -112,8 +132,8 @@ class RailDockedEntity(RailBasis):
         @type side: int
         """
         byte_orientation_1, byte_orientation_2 = self._side_to_orientation[side]
-        # if version > 4:
-        #     byte_orientation_1, byte_orientation_2 = self._side_to_orientation_v5[side]
+        if version > 4:
+            byte_orientation_1, byte_orientation_2 = self._side_to_orientation_v5[side]
 
         self.set(label, location, block_id, byte_orientation_1, byte_orientation_2)
 
@@ -173,7 +193,7 @@ class RailDockedEntity(RailBasis):
         -8: ENTITY_SHIP_Skallagrim_1483048232229,
         -10: (16, 15, 16),
         -2: 662,
-        -1: 10,  // sometimes 14
+        -1: 10,
         -1: 1,
         -1: 100,
 
@@ -194,7 +214,7 @@ class RailDockedEntity(RailBasis):
         tag_list.add(TagPayload(-1, None, self._hit_points))
         return TagPayload(-13, None, tag_list)
 
-    def to_stream(self, output_stream=sys.stdout):
+    def to_stream(self, output_stream=sys.stdout, version=5):
         """
         Stream values
 
@@ -204,10 +224,11 @@ class RailDockedEntity(RailBasis):
         output_stream.write("{}\t".format(self._location))
         output_stream.write("{}\t".format(self._block_id))
         orientation = (self._byte_orientation_1, self._byte_orientation_2)
-        if orientation in self._rail_orientation_map:
-            output_stream.write("{}\t".format(self._rail_orientation_map[orientation]))
+        if self._byte_orientation_2 == 1 or version < 5:
+            #
+            output_stream.write("{}\t".format(self._rail_orientation_map_old[orientation]))
         else:
-            output_stream.write("{}\t".format(orientation))
+            output_stream.write("{}\t".format(self._rail_orientation_map[orientation]))
         output_stream.write("{}\n".format(self._label))
 
 
@@ -301,8 +322,8 @@ class RailDockedEntityLink(object):
         -10: (16, 14, 16),
         -16: [[1.0, 0.0, 0.0, 0.0], [0.0, 1.0, 0.0, 0.0], [0.0, 0.0, 1.0, 0.0], [0.0, 0.0, 0.0, 1.0]],
         -1: 0,
-        -1: 0,
-        -1: 0,
+        -1: 0,  // 1: 664, 669
+        -1: 0,  // 1: 662, sometimes
 
         @rtype: TagPayload
         """
@@ -318,7 +339,7 @@ class RailDockedEntityLink(object):
         link_tag.add(TagPayload(-1, None, self._unknown_byte_2))
         return TagPayload(-13, None, link_tag)
 
-    def to_stream(self, output_stream=sys.stdout):
+    def to_stream(self, output_stream=sys.stdout, version=5):
         """
         Stream values
 
@@ -327,9 +348,9 @@ class RailDockedEntityLink(object):
         """
         output_stream.write("Location: {}\n".format(self._docked_entity_location))
         output_stream.write("Main:\t")
-        self._entity_main.to_stream(output_stream)
+        self._entity_main.to_stream(output_stream, version)
         output_stream.write("Docked:\t")
-        self._entity_docked.to_stream(output_stream)
+        self._entity_docked.to_stream(output_stream, version)
         # output_stream.write("{}\n".format(self._unknown_matrix_0))
         # output_stream.write("{}\n".format(self._unknown_matrix_1))
         # output_stream.write("{}\n".format(self._unknown_matrix_2))
@@ -465,7 +486,7 @@ class RailDockedEntityLinks(object):
         links_tag_list.add(self._names.to_tag())  # why is here a empty tag list? No clue!
         return TagPayload(-13, None, links_tag_list)
 
-    def to_stream(self, output_stream=sys.stdout):
+    def to_stream(self, output_stream=sys.stdout, version=5):
         """
         Stream values
 
@@ -473,6 +494,6 @@ class RailDockedEntityLinks(object):
         @type output_stream: fileIO[str]
         """
         for link in self._list_links:
-            link.to_stream(output_stream)
+            link.to_stream(output_stream, version)
             # output_stream.write("\n")
         self._names.to_stream(output_stream)

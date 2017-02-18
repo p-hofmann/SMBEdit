@@ -292,7 +292,7 @@ class Meta(DefaultLogging):
             self._data_type_3.to_stream(output_stream)
             self._data_type_4.to_stream(output_stream)
             self._data_type_5.to_stream(output_stream)
-            self._data_type_6.to_stream(output_stream)
+            self._data_type_6.to_stream(output_stream, self._version)
             self._data_type_7.to_stream(output_stream)
         if self._debug and len(self.tail_data) > 0:
             output_stream.write("Tail: {} bytes\n".format(len(self.tail_data)))

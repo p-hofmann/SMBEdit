@@ -188,12 +188,12 @@ class DataType4(DefaultLogging):
         output_stream.write("DataType4: {}\n".format(len(self._docked_entities)))
         output_stream.write("Label: '{}'\t".format(self._entity_label))
         output_stream.write("Vector: '{}', '{}'\n".format(self._vector_float_0, self._vector_float_1))
-        list_size_of_unknown_stuff = len(self._entity_wireless_logic_stuff)
-        if self._debug and list_size_of_unknown_stuff > 0:
+        list_size_of_wireless_stuff = len(self._entity_wireless_logic_stuff)
+        if self._debug and list_size_of_wireless_stuff > 0:
             output_stream.write("Wireless connections: #{}\n".format(len(self._entity_wireless_logic_stuff)))
             for index in self._entity_wireless_logic_stuff:
                 name, long0, long1 = self._entity_wireless_logic_stuff[index]
-                output_stream.write("{}: {} {}\n".format(name, long0, long1))
+                output_stream.write("{}: {} {}\n".format(name, Vector.get_position(long0), Vector.get_position(long1)))
 
         if self._debug:
             for dock_index in sorted(self._docked_entities.keys()):
@@ -201,5 +201,5 @@ class DataType4(DefaultLogging):
                 # self._docked_entities[dock_index].to_stream(output_stream)
                 links = RailDockedEntityLinks()
                 links.from_tag(self._docked_entities[dock_index].get_root_tag(), self._meta_version)
-                links.to_stream(output_stream)
+                links.to_stream(output_stream, self._meta_version)
         output_stream.write("\n")

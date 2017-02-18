@@ -56,18 +56,25 @@ class RailDockerEntry(RailBasis):
     def move_position(self, vector_direction):
         self._position = Vector.addition(self._position, vector_direction)
 
-    def to_stream(self, output_stream=sys.stdout):
+    def to_stream(self, output_stream=sys.stdout, version=5):
         """
         Stream values
 
         @param output_stream: Output stream
         @type output_stream: file
         """
-        output_stream.write("{}\tId: {}\tOr.: {}\tHp: {}\n".format(
-            self._position,
-            self._block_id,
-            self._rail_orientation_map[(self._orientation, self._orientation_bit_3)],
-            self._hit_points))
+        if self._orientation_bit_3 == 1 or version < 5:
+            output_stream.write("{}\tId: {}\tOr.: {}\tHp: {}\n".format(
+                self._position,
+                self._block_id,
+                self._rail_orientation_map_old[(self._orientation, self._orientation_bit_3)],
+                self._hit_points))
+        else:
+            output_stream.write("{}\tId: {}\tOr.: {}\tHp: {}\n".format(
+                self._position,
+                self._block_id,
+                self._rail_orientation_map[(self._orientation, self._orientation_bit_3)],
+                self._hit_points))
 
 
 class DataType6(DefaultLogging):
@@ -132,7 +139,7 @@ class DataType6(DefaultLogging):
         for index in self._data.keys():
             self._data[index].move_position(vector_direction)
 
-    def to_stream(self, output_stream=sys.stdout):
+    def to_stream(self, output_stream=sys.stdout, version=5):
         """
         Stream values
 
@@ -142,5 +149,5 @@ class DataType6(DefaultLogging):
         if self._debug:
             output_stream.write("DataType6: #{}\n".format(len(self._data)))
             for index in self._data.keys():
-                self._data[index].to_stream(output_stream)
+                self._data[index].to_stream(output_stream, version)
             output_stream.write("\n")
