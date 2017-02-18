@@ -72,6 +72,8 @@ class BlockBits(object):
     def get_axis_rotation(self):
         if self._version < 3:
             block_id = self.get_id()
+            if block_config[block_id].block_style in {4, 5}:
+                return BinaryStream.bits_parse(self._int_24, 22, 1)
             bit_22_23 = BinaryStream.bits_parse(self._int_24, 22, 2)
             if block_config[block_id].block_style in {2, 6}:
                 return bit_22_23 | (BinaryStream.bits_parse(self._int_24, 19, 1) << 2)
