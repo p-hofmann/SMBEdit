@@ -2,7 +2,7 @@
 from io import BytesIO
 from unittest import TestCase
 
-from unittests.blueprints import blueprint_handler
+from unittests.testinput import blueprint_handler
 from lib.smblueprint.meta.meta import Meta
 from lib.binarystream import BinaryStream
 from lib.utils.vector import Vector

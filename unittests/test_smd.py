@@ -1,6 +1,6 @@
 from unittest import TestCase
 from lib.smblueprint.smd3.smd import Smd
-from unittests.blueprints import blueprint_handler
+from unittests.testinput import blueprint_handler
 from lib.utils.blockconfig import block_config
 
 __author__ = 'Peter Hofmann'

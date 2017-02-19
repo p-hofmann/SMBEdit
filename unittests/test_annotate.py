@@ -1,12 +1,11 @@
 import os
 from unittest import TestCase
-# from unittests.blueprints import Blueprint
 from lib.utils.blockconfig import block_config
 from lib.utils.annotate import Annotate
 from lib.utils.periphery import Periphery
 from lib.utils.vector import Vector
 from lib.smblueprint.smd3.smd import Smd
-from unittests.blueprints import blueprint_handler
+from unittests.testinput import blueprint_handler
 
 
 __author__ = 'Peter Hofmann'

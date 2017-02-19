@@ -7,7 +7,7 @@ import shutil
 __author__ = 'Peter Hofmann'
 
 
-class Blueprint(object):
+class BlueprintList(object):
     """
     python smbedit.py \
     "test.sment" \
@@ -34,7 +34,6 @@ class Blueprint(object):
 
     def __init__(self):
         self._tmp = tempfile.mkdtemp(prefix="blueprint_tests")
-        self._blueprints = set()
         self._file_name = "meta.smbpm"
         directory_blueprints = os.path.join(".", "test_blueprints")
         self._blueprints = set()
@@ -87,7 +86,8 @@ class Blueprint(object):
                 continue
             self._blueprints.add(path)
 
-    def _find_blueprint_sment(self, directory_blueprints):
+    @staticmethod
+    def _find_blueprint_sment(directory_blueprints):
         blueprints = set()
         list_of_stuff = os.listdir(directory_blueprints)
         for name in list_of_stuff:
@@ -98,4 +98,31 @@ class Blueprint(object):
                 blueprints.add(path)
         return blueprints
 
-blueprint_handler = Blueprint()
+
+class TemplateList(object):
+    """
+    @type _templates: set[str]
+    """
+
+    def __init__(self):
+        directory_blueprints = os.path.join(".", "test_templates")
+        self._templates = self._find_smtpl(directory_blueprints)
+
+    def __iter__(self):
+        for file_path in self._templates:
+            yield file_path
+
+    @staticmethod
+    def _find_smtpl(directory_blueprints):
+        blueprints = set()
+        list_of_stuff = os.listdir(directory_blueprints)
+        for name in list_of_stuff:
+            path = os.path.join(directory_blueprints, name)
+            if os.path.isdir(path):
+                continue
+            if path.endswith(".smtpl"):
+                blueprints.add(path)
+        return blueprints
+
+blueprint_handler = BlueprintList()
+template_handler = TemplateList()
