@@ -176,6 +176,14 @@ class BinaryStream(object):
         """
         return self._unpack(2, 'H', byte_order)[0]
 
+    def read_int24(self, by_byte=False):
+        """
+        @rtype: int
+        """
+        if by_byte:
+            return self.unpack_int24b(self.read(3))
+        return self.unpack_int24(self.read(3))
+
     def read_int32(self, byte_order=None):
         """
         @rtype: int
@@ -516,6 +524,15 @@ class BinaryStream(object):
 
     def tell(self):
         return self._bytestream.tell()
+
+    def is_eof(self):
+        """
+        Test if end of file is reached.
+        """
+        if not self._bytestream.read(1):
+            return True
+        self._bytestream.seek(-1, 1)
+        return False
 
     @staticmethod
     def is_stream(stream):
