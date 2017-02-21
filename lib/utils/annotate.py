@@ -142,3 +142,68 @@ class Annotate(object):
                         continue
                     self.trace_boundary(position)
                     return
+
+    def is_open(self, min_position, max_position, center=(16, 16, 16)):
+        """
+
+        @type min_position: (int, int, int)
+        @type max_position: (int, int, int)
+
+        @rtype: True | None
+        """
+        assert len(self.border) > 0
+        # min_position = Vector.subtraction(min_position, (1, 1, 1))
+        max_position = Vector.addition(max_position, (1, 1, 1))
+        position_index_previous = Vector.get_index(center)
+        if position_index_previous in self.border:
+            return True
+        for x in range(center[0], max_position[0]):
+            position = (x, center[1], center[2])
+            position_index = Vector.get_index(position)
+            if position_index in self.marked:
+                return True
+            if position_index in self.border:
+                return self.trace_border(position_index_previous)
+            position_index_previous = position_index
+        return True
+
+    def trace_border(self, start_position_index):
+        """
+
+        @type start_position_index: int
+
+        @rtype: True | None
+        """
+        assert start_position_index not in self.border
+        marked = set()
+        tmp = set()
+        tmp.add(start_position_index)
+        while len(tmp) > 0:
+            position_index = tmp.pop()
+            if position_index in self.border:
+                continue
+            if position_index in marked:
+                continue
+            if position_index in self.marked:
+                return True
+            position = Vector.get_position(position_index)
+            near_border = False
+            for distance, n_position in self.get_neighbours(position):
+                if Vector.get_index(n_position) in self.border:
+                    near_border = True
+                    break
+            if not near_border:
+                continue
+            marked.add(position_index)
+            for taxi_dist, position_tmp in self.get_neighbours(position):
+                if taxi_dist == 3:
+                    continue
+                if taxi_dist == 2:
+                    continue
+                position_index_tmp = Vector.get_index(position_tmp)
+                if position_index_tmp in self.marked:
+                    return True
+                if position_index_tmp in self.border:
+                    continue
+                tmp.add(position_index_tmp)
+        return None

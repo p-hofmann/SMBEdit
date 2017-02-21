@@ -70,12 +70,46 @@ class TestAnnotate(DefaultSetup):
 
             # calc_boundaries
             annotate.calc_boundaries(min_position, max_position)
-            annotate.remove_empty_voxel()
             marked, border = annotate.get_data()
             # self.assertIn(special_position, outside_border)
             # print(len(marked), len(border))
             self.assertEqual(len(border), len(outside_border), blueprint_dir)
             self.assertEqual(len(marked), len(outside_marked), blueprint_dir)
+
+    def test_is_open(self):
+        smd = Smd()
+        closed = {
+            "B_Ball",
+            "B_Box",
+            "B_Ball_plex",
+            "B_Minimal_Hull",
+
+            # "B_Corner",
+            # "B_Index_2",
+
+        }
+        for blueprint_dir in sorted(blueprint_handler):
+            # flood
+            print(blueprint_dir)
+            smd.read(blueprint_dir)
+            # hull_blocks = 0
+            # for block_id, amount in smd.get_block_id_to_quantity().items():
+            #     if block_config[block_id].tier is not None:
+            #         hull_blocks += amount
+            # print(blueprint_dir, hull_blocks)
+            periphery = Periphery(smd.get_block_list())
+            annotate = Annotate(smd.get_block_list(), periphery)
+            min_position, max_position = smd.get_min_max_vector()
+
+            annotate.calc_boundaries(min_position, max_position)
+            marked, border = annotate.get_data()
+            if len(border) == 0:
+                print("No border", blueprint_dir)
+                continue
+            if os.path.basename(blueprint_dir) in closed:
+                self.assertIsNone(annotate.is_open(min_position, max_position), blueprint_dir)
+            else:
+                self.assertTrue(annotate.is_open(min_position, max_position), blueprint_dir)
 
     # def test_get_neighbours(self):
     #     start_position = (0, 0, 0)
