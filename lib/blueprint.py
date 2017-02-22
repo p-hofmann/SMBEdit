@@ -207,7 +207,7 @@ class Blueprint(DefaultLogging):
         self.logic.update(self.smd3)
         self.header.update(self.smd3)
 
-    def auto_hull_shape(self, auto_wedge, auto_tetra, auto_corner, auto_hepta):
+    def auto_hull_shape(self, auto_wedge=False, auto_tetra=False, auto_corner=False, auto_hepta=False):
         # if self._debug:
         #     self.smd3.auto_hepta_debug()
         #     # self.smd3.auto_wedge_debug()
