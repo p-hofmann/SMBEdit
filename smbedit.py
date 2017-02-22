@@ -261,7 +261,7 @@ class SMBEdit(ArgumentHandler):
                     shutil.move(self._directory_output_tmp, self._path_output)
                 assert os.path.exists(self._path_output), "Compressing blueprint failed."
 
-        except (KeyboardInterrupt, SystemExit, Exception, ValueError, RuntimeError, BrokenPipeError) as e:
+        except (KeyboardInterrupt, SystemExit, Exception, ValueError, RuntimeError) as e:
             self._logger.debug("\n{}\n".format(traceback.format_exc()))
             if len(e.args) > 0:
                 self._logger.error(e.args[0])
