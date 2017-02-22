@@ -156,11 +156,13 @@ class ArgumentHandler(Validator):
         super(ArgumentHandler, self).__exit__(type, value, traceback)
         if self.validate_dir(self._tmp_dir, silent=True):
             shutil.rmtree(self._tmp_dir)
+        self.tmp_dir = None
 
     def __del__(self):
         super(ArgumentHandler, self).__del__()
         if self.validate_dir(self._tmp_dir, silent=True):
             shutil.rmtree(self._tmp_dir)
+        self.tmp_dir = None
 
     # #######################################
     # ###  Read command line arguments
