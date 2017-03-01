@@ -104,6 +104,7 @@ class Smd(DefaultLogging):
         @param blueprint_name: name of blueprint
         @type blueprint_name: str
         """
+        assert len(blueprint_name) > 0, "Bad blueprint name."
         # move blocks from pool into smd data structure
         for position_block, block in self._block_list.pop_positions():
             self.add(position_block, block)
