@@ -20,8 +20,6 @@ class Replace(object):
         """
         self._block_list = block_list
 
-    _replace_cache_positive = dict()
-
     def replace_hull(self, new_hull_type, hull_type=None):
         """
         Replace all blocks of a specific hull type or all hull
@@ -31,12 +29,13 @@ class Replace(object):
         @param hull_type:
         @type hull_type: int | None
         """
+        replace_cache_positive = dict()
         for position, block in self._block_list.pop_positions():
             block_id = block.get_id()
             if not block_config[block_id].is_hull():
                 self._block_list[position] = block
                 continue
-            if block_id not in self._replace_cache_positive:
+            if block_id not in replace_cache_positive:
                 hull_tier, color_id, shape_id = block_config[block_id].get_details()
                 if hull_tier is None:
                     self._block_list[position] = block
@@ -45,8 +44,8 @@ class Replace(object):
                     self._block_list[position] = block
                     continue
                 new_block_id = block_config.get_block_id_by_details(new_hull_type, color_id, shape_id)
-                self._replace_cache_positive[block_id] = new_block_id
-            new_block_id = self._replace_cache_positive[block_id]
+                replace_cache_positive[block_id] = new_block_id
+            new_block_id = replace_cache_positive[block_id]
             new_block = block_pool(new_block_id).get_modified_block(
                 block_id=new_block_id, active=False,
                 block_side_id=block.get_block_side_id(), axis_rotation=block.get_axis_rotation(),
