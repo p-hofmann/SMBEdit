@@ -1,5 +1,5 @@
 __author__ = 'Peter Hofmann'
-__version__ = '0.1.6'
+__version__ = '0.1.8'
 
 import os
 import sys
@@ -157,6 +157,7 @@ class SMBEdit(ArgumentHandler):
                 entity_name="{}{}".format(docked_entity_name_prefix, dock_index))
 
         blueprint = Blueprint(
+            entity_name=entity_name,
             logfile=self._logfile,
             verbose=self._verbose,
             debug=self._debug,
@@ -166,7 +167,7 @@ class SMBEdit(ArgumentHandler):
         self._logger.info("Reading blueprint '{}' ...".format(blueprint_name))
         blueprint.read(directory_input)
 
-        blueprint.replace_outdated_docker_modules(entity_name, docked_entity_name_prefix, is_docked_entity)
+        blueprint.replace_outdated_docker_modules(docked_entity_name_prefix, is_docked_entity)
 
         if self._docked_entities or not is_docked_entity:
 

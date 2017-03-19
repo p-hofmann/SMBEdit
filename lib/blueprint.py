@@ -18,8 +18,18 @@ from lib.smblueprint.smdblock.blockpool import block_pool
 
 
 class Blueprint(DefaultLogging):
+    """
 
-    def __init__(self, logfile=None, verbose=False, debug=False):
+    @type header: Header
+    @type logic: Logic
+    @type meta: Meta
+    @type smd3: Smd
+    @type _annotate: Annotate
+    @type _entity_name: str
+
+    """
+
+    def __init__(self, entity_name, logfile=None, verbose=False, debug=False):
         """
         Constructor
 
@@ -38,17 +48,14 @@ class Blueprint(DefaultLogging):
         self.meta = Meta(logfile=logfile, verbose=verbose, debug=debug)
         self.smd3 = Smd(logfile=logfile, verbose=verbose, debug=debug)
         self._annotate = None
+        self._entity_name = entity_name
         return
 
     def __del__(self):
         del self.header
-        self.header = None
         del self.logic
-        self.logic = None
         del self.meta
-        self.meta = None
         del self.smd3
-        self.smd3 = None
 
     # #######################################
     # ###  Read
@@ -94,7 +101,7 @@ class Blueprint(DefaultLogging):
     # ###  Else
     # #######################################
 
-    def replace_outdated_docker_modules(self, entity_name, rail_docked_label_prefix, is_docked_entity):
+    def replace_outdated_docker_modules(self, rail_docked_label_prefix, is_docked_entity):
         rail_docker_id = 663
         if is_docked_entity and self.smd3.search(rail_docker_id) is None:
             self._logger.info("Adding 'Rail docker' to docked entity.")
@@ -107,7 +114,7 @@ class Blueprint(DefaultLogging):
         if not self.meta.has_old_docked_entities():
             return
         self._logger.info("Replacing outdated docker modules")
-        self.meta.update_docked_entities(self.smd3, entity_name, rail_docked_label_prefix)
+        self.meta.update_docked_entities(self.smd3, self._entity_name, rail_docked_label_prefix)
         self.smd3.update()
         self.header.update(self.smd3)
 
