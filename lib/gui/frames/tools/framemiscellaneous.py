@@ -31,7 +31,7 @@ class FrameMiscellaneous(tk.LabelFrame):
         frame = tk.LabelFrame(
             self, text="Type")  # , relief=tk.RAISED
         # frame.pack(side=tk.RIGHT, fill=tk.Y)
-        frame.pack(side=tk.TOP, fill=tk.X)
+        frame.pack(side=tk.TOP, fill=tk.X, pady=2)
 
         self.combo_box_type = ttk.Combobox(frame, state='readonly')
         self.combo_box_type.pack(fill=tk.X)
@@ -44,7 +44,7 @@ class FrameMiscellaneous(tk.LabelFrame):
         frame = tk.LabelFrame(
             self, text="Class")  # , relief=tk.RAISED
         # frame.pack(side=tk.RIGHT, fill=tk.Y)
-        frame.pack(side=tk.TOP, fill=tk.X)
+        frame.pack(side=tk.TOP, fill=tk.X, pady=2)
 
         self.combo_box_class = ttk.Combobox(frame, state='readonly')
         # self.combo_box_class['values'] = list(self._ct_to_ship_class.values())

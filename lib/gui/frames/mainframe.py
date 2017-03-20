@@ -23,8 +23,11 @@ class MainFrame(tk.Frame):
         self._current_index = 0
         self._gui_combobox_blueprint(self)
 
-        self.tool = FrameTool(self)
+        note = ttk.Notebook(self)
+        self.tool = FrameTool(note)
         self.tool.pack(side=tk.TOP, fill=tk.X)
+        note.add(self.tool, text="Tools")
+        note.pack(side=tk.TOP, fill=tk.X)
 
     # #################
     # GUI

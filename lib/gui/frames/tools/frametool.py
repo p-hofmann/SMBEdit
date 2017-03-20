@@ -13,27 +13,31 @@ from lib.gui.frames.tools.framemirror import FrameMirror
 from lib.gui.frames.tools.framemiscellaneous import FrameMiscellaneous
 
 
-class FrameTool(tk.LabelFrame):
+class FrameTool(tk.Frame):
     """
     """
 
     def __init__(self, master):
-        tk.LabelFrame.__init__(self, master, text="Tools")
+        tk.Frame.__init__(self, master)  # , text="Tools"
 
-        self.auto_shape = FrameAutoShape(self)
-        self.auto_shape.pack(side=tk.LEFT)
+        some_frame = tk.Frame(self)
+        self.auto_shape = FrameAutoShape(some_frame)
+        self.auto_shape.pack(side=tk.TOP, fill=tk.X, pady=2)
 
-        self.tool_move_center = FrameMoveCenter(self)
-        self.tool_move_center.pack(side=tk.LEFT)
+        self.tool_mirror = FrameMirror(some_frame)
+        self.tool_mirror.pack(side=tk.TOP, pady=2)
+        some_frame.pack(side=tk.LEFT, fill=tk.Y)
+
+        some_frame = tk.Frame(self)
+        self.tool_move_center = FrameMoveCenter(some_frame)
+        self.tool_move_center.pack(side=tk.TOP, pady=2)
+
+        self.tool_else = FrameMiscellaneous(some_frame)
+        self.tool_else.pack(side=tk.TOP, fill=tk.X, pady=2)
+        some_frame.pack(side=tk.LEFT, fill=tk.Y)
 
         self.tool_replace = FrameReplace(self)
         self.tool_replace.pack(side=tk.LEFT)
-
-        self.tool_mirror = FrameMirror(self)
-        self.tool_mirror.pack(side=tk.LEFT)
-
-        self.tool_else = FrameMiscellaneous(self)
-        self.tool_else.pack(side=tk.LEFT)
 
         # blueprint.to_stream()
 

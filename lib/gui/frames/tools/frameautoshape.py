@@ -23,7 +23,7 @@ class FrameAutoShape(tk.LabelFrame):
         tk.LabelFrame.__init__(self, master, text="Auto Shape")
 
         self.button_reset = tk.Button(
-            text="Reset",
+            text="Cube",
             master=self)
         self.button_reset.pack(fill=tk.X)
 
