@@ -40,20 +40,26 @@ class ActionMiscellaneous(RootFrame):
         self._smbedit = smbedit
         super(ActionMiscellaneous, self).__init__(master, smbedit)
 
-        self.main_frame.tool.tool_else.combo_box_type.bind("<<ComboboxSelected>>", self.newselection)
-        self.main_frame.tool.tool_else.combo_box_class.bind("<<ComboboxSelected>>", self.newselection)
+        self.main_frame.tool.tool_else.combo_box_type.bind("<<ComboboxSelected>>", self.combo_box_type_change)
+        self.main_frame.tool.tool_else.combo_box_class.bind("<<ComboboxSelected>>", self.combo_box_class_change)
+        self.refresh_combobox_values()
 
-    def newselection(self, event):
+    def combo_box_type_change(self, event):
         self.refresh_combobox_values()
         self._smbedit.blueprint[self.main_frame.combo_box_entities.current()].set_entity(
             self.main_frame.tool.tool_else.combo_box_type.current(),
             self.main_frame.tool.tool_else.combo_box_class.current())
 
+    def combo_box_class_change(self, event):
+        self._smbedit.blueprint[self.main_frame.combo_box_entities.current()].set_entity(
+            self.main_frame.tool.tool_else.combo_box_type.current(),
+            self.main_frame.tool.tool_else.combo_box_class.current())
+
     def refresh_combobox_values(self):
-        self.main_frame.tool.tool_else.combo_box_class.current(0)
         if self.main_frame.tool.tool_else.combo_box_type.current() == 0:
             self.main_frame.tool.tool_else.combo_box_class['values'] = list(self._ct_to_ship_class.values())
         elif self.main_frame.tool.tool_else.combo_box_type.current() == 2:
             self.main_frame.tool.tool_else.combo_box_class['values'] = list(self._ct_to_station_class.values())
         else:
             self.main_frame.tool.tool_else.combo_box_class['values'] = ["General"]
+        self.main_frame.tool.tool_else.combo_box_class.current(0)
