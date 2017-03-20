@@ -2,7 +2,6 @@ __author__ = 'Peter Hofmann'
 
 import os
 import sys
-
 from lib.loggingwrapper import DefaultLogging
 from lib.utils.blockconfig import block_config
 from lib.utils.autoshape import AutoShape
@@ -15,6 +14,7 @@ from lib.smblueprint.logic import Logic
 from lib.smblueprint.meta.meta import Meta
 from lib.smblueprint.smd3.smd import Smd
 from lib.smblueprint.smdblock.blockpool import block_pool
+from lib.utils.blueprintentity import BlueprintEntity
 
 
 class Blueprint(DefaultLogging):
@@ -151,8 +151,11 @@ class Blueprint(DefaultLogging):
         if entity_class is not None:
             if self.header.type == 0:
                 self.header.set_class(entity_class)
-            else:
+            elif self.header.type == 2:
                 self.header.set_class(self._ct_to_station_class[entity_class])
+            else:
+                entity_class = list(BlueprintEntity.entity_classification[entity_type].keys())[0]
+                self.header.set_class(entity_class)
 
     def remove_blocks(self, block_ids):
         """
