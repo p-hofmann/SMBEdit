@@ -1,5 +1,5 @@
 __author__ = 'Peter Hofmann'
-__version__ = '0.1.6'
+__version__ = '0.1.8'
 
 import os
 import sys
