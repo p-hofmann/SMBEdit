@@ -1,12 +1,17 @@
+import sys
 from cx_Freeze import setup, Executable
 from smbedit import __version__ as version
 
 # Dependencies are automatically detected, but it might need
 # fine tuning.
-buildOptions = dict(packages=[], excludes=[])
+buildOptions = dict(packages=[], excludes=[])  # , includes=["tkinter"]
+
+base = None
+if sys.platform == "win32":
+    base = "Win32GUI"
 
 executables = [
-    Executable('smbedit.py', 'Console')
+    Executable('smbeditGUI.py', base=base)  # , 'Console'
 ]
 
 setup(name='SMBEdit',
