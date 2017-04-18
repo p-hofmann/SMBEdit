@@ -273,25 +273,30 @@ class BlockConfig(SuperBlockConfig, ):
             if label not in self._label_to_block:
                 print("Unknown label: {}".format(label))
                 continue
-            self._label_to_block[label].name = blockConfigNode.attrib["name"]
-            self._label_to_block[label].icon = blockConfigNode.attrib["icon"]
-            self._label_to_block[label].texture_id = blockConfigNode.attrib["textureId"]
-            self._label_to_block[label].hit_points = int(blockConfigNode.find("Hitpoints").text)
-            self._label_to_block[label].can_activate = blockConfigNode.find('CanActivate').text == "true"
-            # self._label_to_block[label]['door'] = blockConfigNode.find('Door').text
-            self._label_to_block[label].block_style = int(blockConfigNode.find("BlockStyle").text)
+            try:
+                self._label_to_block[label].name = blockConfigNode.attrib["name"]
+                self._label_to_block[label].icon = blockConfigNode.attrib["icon"]
+                self._label_to_block[label].texture_id = blockConfigNode.attrib["textureId"]
+                self._label_to_block[label].hit_points = int(blockConfigNode.find("Hitpoints").text)
+                self._label_to_block[label].can_activate = blockConfigNode.find('CanActivate').text == "true"
+                # self._label_to_block[label]['door'] = blockConfigNode.find('Door').text
+                self._label_to_block[label].block_style = int(blockConfigNode.find("BlockStyle").text)
 
-            self._label_to_block[label].armour = float(blockConfigNode.find("Armour").text)
-            self._label_to_block[label].armor_hp_contribution = int(blockConfigNode.find("ArmorHPContribution").text)
-            self._label_to_block[label].structure_hp_contribution = int(blockConfigNode.find("StructureHPContribution").text)
-            # ExplosionAbsorbtion ??
-            self._label_to_block[label].mass = float(blockConfigNode.find("Mass").text)
-            self._label_to_block[label].volume = float(blockConfigNode.find("Volume").text)
-            self._label_to_block[label].individual_sides = int(blockConfigNode.find("IndividualSides").text)
-            slab_node = blockConfigNode.find("SlabIds")
-            if slab_node is not None:
-                self._label_to_block[label].slab_ids = list(map(int, slab_node.text.split(", ")))
-            self._label_to_block[label].deprecated = blockConfigNode.find('Deprecated').text == "true"
+                self._label_to_block[label].armour = float(blockConfigNode.find("Armour").text)
+                self._label_to_block[label].armor_hp_contribution = int(blockConfigNode.find("ArmorHPContribution").text)
+                self._label_to_block[label].structure_hp_contribution = int(blockConfigNode.find("StructureHPContribution").text)
+                # ExplosionAbsorbtion ??
+                self._label_to_block[label].mass = float(blockConfigNode.find("Mass").text)
+                self._label_to_block[label].volume = float(blockConfigNode.find("Volume").text)
+                self._label_to_block[label].individual_sides = int(blockConfigNode.find("IndividualSides").text)
+                slab_node = blockConfigNode.find("SlabIds")
+                if slab_node is not None:
+                    self._label_to_block[label].slab_ids = list(map(int, slab_node.text.split(", ")))
+                self._label_to_block[label].deprecated = blockConfigNode.find('Deprecated').text == "true"
+            except AttributeError:
+                import sys
+                sys.stderr.write("WARNING: [BlockConfig] Could not parse: {}\n".format(label))
+                continue
 
             name_lower_case = self._label_to_block[label].name.lower()
             # Check for color name
