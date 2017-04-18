@@ -9,12 +9,14 @@ else:
     import tkinter as tk
     from tkinter import ttk
 from lib.gui.frames.tools.frametool import FrameTool
+from lib.gui.frames.framesummary import FrameSummary
 
 
 class MainFrame(tk.Frame):
     """
     @type combo_box_entities: ttk.Combobox
     @type tool: FrameTool
+    @type summary: FrameSummary
     """
 
     def __init__(self, master):
@@ -24,10 +26,15 @@ class MainFrame(tk.Frame):
         self._gui_combobox_blueprint(self)
 
         note = ttk.Notebook(self)
+        note.pack(side=tk.TOP, fill=tk.X)
+
+        self.summary = FrameSummary(note)
+        self.summary.pack(side=tk.TOP, fill=tk.X)
+        note.add(self.summary, text="Summary")
+
         self.tool = FrameTool(note)
         self.tool.pack(side=tk.TOP, fill=tk.X)
         note.add(self.tool, text="Tools")
-        note.pack(side=tk.TOP, fill=tk.X)
 
     # #################
     # GUI
