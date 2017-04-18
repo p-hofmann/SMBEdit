@@ -16,7 +16,7 @@ class ActionAutoshape(RootFrame):
         @type smbedit: SMBEditGUI
         """
         self._smbedit = smbedit
-        super(ActionAutoshape, self).__init__(root, smbedit)
+        RootFrame.__init__(self, root, smbedit)
 
         self.main_frame.tool.auto_shape.button_reset.configure(command=self.button_press_autoshape_reset)
         self.main_frame.tool.auto_shape.button_wedge.configure(command=self.button_press_autoshape_wedge)
