@@ -7,16 +7,27 @@ SMBEdit is compatible with both python2.7 and python3, and should work on all pl
 Input and output are either a directory of raw blueprints as found in "/../StarMade/blueprints/" or a path to a '.sment' file.  
 
 # Installation
-##Python
+## Python
 Unix users have python by default.  
 Windows users have to install one of those:
 
 * python2.7 https://www.python.org/download/releases/2.7/
 * python3.6 https://www.python.org/downloads/release/python-360/
 
-##SMBEdit
+## SMBEdit
+
+### With the zip file
+
 Download the zip file on release page and extract SMEdit anywhere you want.
 That's it, you can now use SMEdit to modify your blueprint.
+
+### Using [pip](https://pip.pypa.io/en/stable/installing/)
+
+Open a command prompt and type:
+
+```
+pip install "git+https://github.com/p-hofmann/SMBEdit.git"
+```
 
 # Usage
 Open a command prompt and go to the SMEdit folder.
@@ -25,6 +36,8 @@ To see the help, type:
 ```
 python smbedit.py --help 
 ```
+
+(or just `smbedit --help` if you install SMBEdit using pip)
 
 Several command line arguments are available and (most) can be used all at once.  
 
