@@ -1,5 +1,4 @@
 __author__ = 'Peter Hofmann'
-__version__ = '0.1.8'
 
 import os
 import sys
@@ -7,13 +6,10 @@ import zipfile
 import shutil
 import traceback
 
-from smbedit.lib.argumenthandler import ArgumentHandler
-from smbedit.lib.utils.blockconfig import block_config
-from smbedit.lib.blueprint import Blueprint
-
-# wildcard symbol will allow to import the following 
-# modules / functions / classes
-__all__ = ['SMBEdit', 'main']
+from smlib import __version__
+from smlib.argumenthandler import ArgumentHandler
+from smlib.utils.blockconfig import block_config
+from smlib.blueprint import Blueprint
 
 class SMBEdit(ArgumentHandler):
     """
