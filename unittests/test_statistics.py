@@ -1,8 +1,8 @@
 from unittest import TestCase
 from io import BytesIO
-from lib.binarystream import BinaryStream
-from lib.smblueprint.header import Statistics
-# from lib.blueprint.smd3.smd import Smd
+from smlib.binarystream import BinaryStream
+from smlib.smblueprint.header import Statistics
+# from smlib.blueprint.smd3.smd import Smd
 
 __author__ = 'Peter Hofmann'
 

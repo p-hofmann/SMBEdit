@@ -1,11 +1,11 @@
 import os
 from unittest import TestCase
 # from unittests.blueprints import Blueprint
-from lib.utils.blockconfig import block_config
-from lib.utils.annotate import Annotate
-from lib.utils.periphery import Periphery
-from lib.utils.vector import Vector
-from lib.smblueprint.smd3.smd import Smd
+from smlib.utils.blockconfig import block_config
+from smlib.utils.annotate import Annotate
+from smlib.utils.periphery import Periphery
+from smlib.utils.vector import Vector
+from smlib.smblueprint.smd3.smd import Smd
 from unittests.blueprints import blueprint_handler
 
 
