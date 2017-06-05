@@ -7,7 +7,7 @@ import tempfile
 import argparse
 import zipfile
 
-from .. import lib
+import smlib
 from .validator import Validator
 from .configparserwrapper import ConfigParserWrapper
 
@@ -39,7 +39,7 @@ class ArgumentHandler(Validator):
         @rtype: None
         """
         self._tmp_dir = None
-        smbe_dir = os.path.dirname(self.get_full_path(os.path.dirname(lib.__file__)))
+        smbe_dir = os.path.dirname(self.get_full_path(os.path.dirname(smlib.__file__)))
         config_file_path = os.path.join(smbe_dir, "config.ini")
         super(ArgumentHandler, self).__init__(
             label=label,
