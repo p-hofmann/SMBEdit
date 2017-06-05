@@ -1,4 +1,4 @@
-from smbedit import __version__ as version
+from smlib import __version__ as version
 
 from setuptools import setup, find_packages
 
@@ -11,7 +11,7 @@ setup(name='SMBEdit',
       packages=find_packages(exclude=('unittests',)),
       entry_points = {
           'console_scripts': [
-              'smbedit = smbedit.smbedit:main',
+              'smbedit = smbedit:main',
           ],
       },
      )

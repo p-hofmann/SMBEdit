@@ -3,10 +3,10 @@ from smbedit import __version__ as version
 
 # Dependencies are automatically detected, but it might need
 # fine tuning.
-buildOptions = dict(packages=['smbedit'], excludes=[])
+buildOptions = dict(packages=['smlib'], excludes=[])
 
 executables = [
-    Executable('smbedit/smbedit.py', 'Console')
+    Executable('smbedit.py', 'Console')
 ]
 setup(name='SMBEdit',
       version=version,
@@ -14,7 +14,7 @@ setup(name='SMBEdit',
       author='Peter Hofmann',
       author_email='',
       url='https://github.com/p-hofmann/SMBEdit',
-      packages=['smbedit'],
+      packages=['smlib'],
       options=dict(build_exe=buildOptions),
       executables=executables
      )
