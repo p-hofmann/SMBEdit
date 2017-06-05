@@ -1,4 +1,4 @@
-from lib.utils.blueprintentity import BlueprintEntity, SHIP
+from .blueprintentity import BlueprintEntity, SHIP
 
 __author__ = 'Peter Hofmann'
 

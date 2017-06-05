@@ -2,10 +2,10 @@ __author__ = 'Peter Hofmann'
 
 import sys
 
-from lib.binarystream import BinaryStream
-from lib.loggingwrapper import DefaultLogging
-from lib.smblueprint.meta.tag.tagmanager import TagManager
-from lib.smblueprint.meta.tag.datatype2.aiconfig import AIConfig
+from smbedit.lib.binarystream import BinaryStream
+from smbedit.lib.loggingwrapper import DefaultLogging
+from .tag.tagmanager import TagManager
+from .tag.datatype2.aiconfig import AIConfig
 
 
 class DataType5(DefaultLogging):

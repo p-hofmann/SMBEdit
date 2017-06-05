@@ -7,7 +7,8 @@ import math
 import string
 import filecmp
 from numbers import Number
-from lib.loggingwrapper import DefaultLogging
+
+from .loggingwrapper import DefaultLogging
 
 
 class Validator(DefaultLogging):

@@ -1,9 +1,9 @@
 __author__ = 'Peter Hofmann'
 
 
-from lib.binarystream import BinaryStream
-from lib.utils.blockconfig import block_config
-# from lib.smblueprint.smdblock.blockpool import block_pool
+from ...binarystream import BinaryStream
+from ...utils.blockconfig import block_config
+# from smbedit.lib.smblueprint.smdblock.blockpool import block_pool
 
 
 class BlockBits(object):
@@ -197,7 +197,7 @@ class BlockBits(object):
 
         @rtype: lib.smblueprint.smdblock.style.stylebasic.StyleBasic
         """
-        from lib.smblueprint.smdblock.blockpool import block_pool
+        from smbedit.lib.smblueprint.smdblock.blockpool import block_pool
         return block_pool(self.get_modified_int_24bit(
             block_id=block_id, hit_points=hit_points, active=active,
             block_side_id=block_side_id, rotations=rotations, axis_rotation=axis_rotation))

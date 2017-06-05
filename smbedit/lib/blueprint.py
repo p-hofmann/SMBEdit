@@ -3,18 +3,18 @@ __author__ = 'Peter Hofmann'
 import os
 import sys
 
-from lib.loggingwrapper import DefaultLogging
-from lib.utils.blockconfig import block_config
-from lib.utils.autoshape import AutoShape
-from lib.utils.periphery import Periphery
-from lib.utils.annotate import Annotate
-from lib.utils.replace import Replace
-from lib.utils.vector import Vector
-from lib.smblueprint.header import Header
-from lib.smblueprint.logic import Logic
-from lib.smblueprint.meta.meta import Meta
-from lib.smblueprint.smd3.smd import Smd
-from lib.smblueprint.smdblock.blockpool import block_pool
+from .loggingwrapper import DefaultLogging
+from .utils.blockconfig import block_config
+from .utils.autoshape import AutoShape
+from .utils.periphery import Periphery
+from .utils.annotate import Annotate
+from .utils.replace import Replace
+from .utils.vector import Vector
+from .smblueprint.header import Header
+from .smblueprint.logic import Logic
+from .smblueprint.meta.meta import Meta
+from .smblueprint.smd3.smd import Smd
+from .smblueprint.smdblock.blockpool import block_pool
 
 
 class Blueprint(DefaultLogging):

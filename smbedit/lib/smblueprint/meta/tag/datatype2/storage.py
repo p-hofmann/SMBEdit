@@ -2,7 +2,7 @@ __author__ = 'Peter Hofmann'
 
 import sys
 
-from lib.smblueprint.meta.tag.tagmanager import TagPayload, TagList, TagPayloadList
+from ..tagmanager import TagPayload, TagList, TagPayloadList
 
 
 class ItemGroup(object):

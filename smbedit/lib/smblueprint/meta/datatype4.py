@@ -3,11 +3,12 @@ __author__ = 'Peter Hofmann'
 import sys
 import os
 from collections import Iterable
-from lib.binarystream import BinaryStream
-from lib.loggingwrapper import DefaultLogging
-from lib.utils.vector import Vector
-from lib.smblueprint.meta.tag.tagmanager import TagManager
-from lib.smblueprint.meta.tag.raildockentitylinks import RailDockedEntityLinks
+
+from ...binarystream import BinaryStream
+from ...loggingwrapper import DefaultLogging
+from ...utils.vector import Vector
+from .tag.tagmanager import TagManager
+from .tag.raildockentitylinks import RailDockedEntityLinks
 
 
 class DataType4(DefaultLogging):

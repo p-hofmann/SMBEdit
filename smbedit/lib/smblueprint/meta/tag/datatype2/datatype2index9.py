@@ -1,7 +1,8 @@
 __author__ = 'Peter Hofmann'
 
 import sys
-from lib.smblueprint.meta.tag.tagmanager import TagPayload, TagList
+
+from ..tagmanager import TagPayload, TagList
 
 
 class PositionFloat(object):

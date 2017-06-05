@@ -4,9 +4,9 @@ import sys
 import zlib
 import datetime
 
-from lib.loggingwrapper import DefaultLogging
-from lib.binarystream import BinaryStream
-from lib.smblueprint.smdblock.blockpool import block_pool, StyleBasic
+from ...loggingwrapper import DefaultLogging
+from ...binarystream import BinaryStream
+from ..smdblock.blockpool import block_pool, StyleBasic
 
 
 class SmdSegment(DefaultLogging):

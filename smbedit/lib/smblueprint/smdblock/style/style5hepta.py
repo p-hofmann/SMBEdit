@@ -1,4 +1,4 @@
-from lib.smblueprint.smdblock.style.style4tetra import Style4Tetra
+from .style4tetra import Style4Tetra
 
 
 __author__ = 'Peter Hofmann'

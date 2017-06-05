@@ -3,18 +3,19 @@ __author__ = 'Peter Hofmann'
 import os
 import sys
 
-from lib.binarystream import BinaryStream
-from lib.loggingwrapper import DefaultLogging
-from lib.utils.blockconfig import block_config
-from lib.utils.vector import Vector
-from lib.smblueprint.meta.datatype2 import DataType2
-from lib.smblueprint.meta.datatype3 import DataType3, DockedEntity
-from lib.smblueprint.meta.datatype4 import DataType4
-from lib.smblueprint.meta.datatype5 import DataType5
-from lib.smblueprint.meta.datatype6 import DataType6
-from lib.smblueprint.meta.datatype7 import DataType7
-from lib.smblueprint.meta.tag.raildockentitylinks import RailDockedEntityLinks, RailDockedEntity, RailDockedEntityLink
-from lib.smblueprint.smd3.smd import Smd
+from ...binarystream import BinaryStream
+from ...loggingwrapper import DefaultLogging
+from ...utils.blockconfig import block_config
+from ...utils.vector import Vector
+from ..smd3.smd import Smd
+from .datatype2 import DataType2
+from .datatype3 import DataType3, DockedEntity
+from .datatype4 import DataType4
+from .datatype5 import DataType5
+from .datatype6 import DataType6
+from .datatype7 import DataType7
+from .tag.raildockentitylinks import RailDockedEntityLinks, RailDockedEntity, RailDockedEntityLink
+
 
 
 # #######################################

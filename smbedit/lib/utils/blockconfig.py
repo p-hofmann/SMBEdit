@@ -1,9 +1,10 @@
 import csv
 import os
 from xml.etree import ElementTree
-from lib.validator import Validator
-from lib.utils.blockconfighardcoded import BlockConfigHardcoded
-from lib.utils.blueprintentity import BlueprintEntity, SHIP
+
+from ..validator import Validator
+from .blockconfighardcoded import BlockConfigHardcoded
+from .blueprintentity import BlueprintEntity, SHIP
 
 
 class BlockInfo(object):

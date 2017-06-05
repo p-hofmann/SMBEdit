@@ -1,6 +1,7 @@
 import sys
-from lib.utils.vector import Vector
-from lib.smblueprint.meta.tag.tagmanager import TagPayload, TagList
+
+from smbedit.lib.utils.vector import Vector
+from ..tagmanager import TagPayload, TagList
 
 
 class Display(object):

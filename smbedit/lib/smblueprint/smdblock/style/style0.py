@@ -1,7 +1,7 @@
-from lib.binarystream import BinaryStream
-from lib.smblueprint.smdblock.style.stylebasic import StyleBasic
-from lib.utils.blockconfig import block_config
-from lib.smblueprint.smdblock.style.style6 import Style6
+from smbedit.lib.binarystream import BinaryStream
+from smbedit.lib.utils.blockconfig import block_config
+from .style6 import Style6
+from .stylebasic import StyleBasic
 
 
 __author__ = 'Peter Hofmann'

@@ -2,15 +2,15 @@ __author__ = 'Peter Hofmann'
 
 import sys
 
-from lib.smblueprint.meta.tag.tagmanager import TagPayload, TagList
-from lib.smblueprint.meta.tag.datatype2.shop import Shop
-from lib.smblueprint.meta.tag.datatype2.hotbar import Hotbar
-from lib.smblueprint.meta.tag.datatype2.storage import StorageList
-from lib.smblueprint.meta.tag.datatype2.aiconfig import AIConfig
-from lib.smblueprint.meta.tag.datatype2.displaylist import DisplayList
-from lib.smblueprint.meta.tag.datatype2.logictrigger import LogicTrigger
-from lib.smblueprint.meta.tag.datatype2.datatype2index9 import Datatype2Index9
-# from lib.utils.vector import Vector
+from .tagmanager import TagPayload, TagList
+from .datatype2.shop import Shop
+from .datatype2.hotbar import Hotbar
+from .datatype2.storage import StorageList
+from .datatype2.aiconfig import AIConfig
+from .datatype2.displaylist import DisplayList
+from .datatype2.logictrigger import LogicTrigger
+from .datatype2.datatype2index9 import Datatype2Index9
+# from smbedit.lib.utils.vector import Vector
 
 
 class GateList(object):

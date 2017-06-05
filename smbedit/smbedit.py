@@ -7,9 +7,9 @@ import zipfile
 import shutil
 import traceback
 
-from lib.argumenthandler import ArgumentHandler
-from lib.utils.blockconfig import block_config
-from lib.blueprint import Blueprint
+from smbedit.lib.argumenthandler import ArgumentHandler
+from smbedit.lib.utils.blockconfig import block_config
+from smbedit.lib.blueprint import Blueprint
 
 # wildcard symbol will allow to import the following 
 # modules / functions / classes

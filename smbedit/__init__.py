@@ -1,0 +1,1 @@
+from .smbedit import __author__, __version__

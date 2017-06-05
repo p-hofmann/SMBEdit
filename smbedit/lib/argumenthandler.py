@@ -6,9 +6,10 @@ import shutil
 import tempfile
 import argparse
 import zipfile
-import lib
-from lib.validator import Validator
-from lib.configparserwrapper import ConfigParserWrapper
+
+from .. import lib
+from .validator import Validator
+from .configparserwrapper import ConfigParserWrapper
 
 
 class ArgumentHandler(Validator):

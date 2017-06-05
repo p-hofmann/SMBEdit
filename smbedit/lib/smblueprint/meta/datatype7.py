@@ -1,9 +1,10 @@
 __author__ = 'Peter Hofmann'
 
 import sys
-from lib.binarystream import BinaryStream
-from lib.loggingwrapper import DefaultLogging
-from lib.utils.vector import Vector
+
+from smbedit.lib.binarystream import BinaryStream
+from smbedit.lib.loggingwrapper import DefaultLogging
+from smbedit.lib.utils.vector import Vector
 
 
 class DataType7(DefaultLogging):

@@ -1,15 +1,16 @@
 __author__ = 'Peter Hofmann'
 
 from weakref import WeakValueDictionary
-from lib.utils.blockconfig import block_config
-from lib.smblueprint.smdblock.style.stylebasic import StyleBasic
-from lib.smblueprint.smdblock.style.style0 import Style0
-from lib.smblueprint.smdblock.style.style1wedge import Style1Wedge
-from lib.smblueprint.smdblock.style.style2corner import Style2Corner
-from lib.smblueprint.smdblock.style.style3 import Style3
-from lib.smblueprint.smdblock.style.style4tetra import Style4Tetra
-from lib.smblueprint.smdblock.style.style5hepta import Style5Hepta
-from lib.smblueprint.smdblock.style.style6 import Style6
+
+from ...utils.blockconfig import block_config
+from .style.stylebasic import StyleBasic
+from .style.style0 import Style0
+from .style.style1wedge import Style1Wedge
+from .style.style2corner import Style2Corner
+from .style.style3 import Style3
+from .style.style4tetra import Style4Tetra
+from .style.style5hepta import Style5Hepta
+from .style.style6 import Style6
 
 
 class BlockPool(object):

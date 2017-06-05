@@ -1,4 +1,4 @@
-from lib.smblueprint.smdblock.style.style2corner import Style2Corner
+from .style2corner import Style2Corner
 
 
 __author__ = 'Peter Hofmann'

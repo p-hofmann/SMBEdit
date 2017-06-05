@@ -1,6 +1,6 @@
-from lib.utils.blocklist import BlockList
-from lib.utils.periphery import PeripheryBase
-from lib.utils.vector import Vector
+from .blocklist import BlockList
+from .periphery import PeripheryBase
+from .vector import Vector
 
 
 __author__ = 'Peter Hofmann'

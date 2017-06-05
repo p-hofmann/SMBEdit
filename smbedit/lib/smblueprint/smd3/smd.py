@@ -4,14 +4,15 @@ import sys
 import os
 import math
 
-from lib.loggingwrapper import DefaultLogging
-from lib.utils.blockconfig import block_config
-from lib.utils.blocklist import BlockList
-from lib.smblueprint.smdblock.blockpool import block_pool, StyleBasic
-from lib.utils.vector import Vector
-from lib.utils.blueprintentity import BlueprintEntity
-from lib.smblueprint.smd3.smdregion import SmdRegion
-from lib.smblueprint.smd2.smd import Smd as Smd2
+from ...loggingwrapper import DefaultLogging
+from ...utils.blockconfig import block_config
+from ...utils.blocklist import BlockList
+from ...utils.vector import Vector
+from ...utils.blueprintentity import BlueprintEntity
+from ..smdblock.blockpool import block_pool, StyleBasic
+from ..smd2.smd import Smd as Smd2
+from .smdregion import SmdRegion
+
 
 
 class Smd(DefaultLogging):

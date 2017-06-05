@@ -2,9 +2,9 @@ __author__ = 'Peter Hofmann'
 
 import sys
 
-from lib.utils.blockconfig import block_config
-from lib.utils.vector import Vector
-from lib.smblueprint.meta.tag.tagmanager import TagPayload, TagList
+from smbedit.lib.utils.blockconfig import block_config
+from smbedit.lib.utils.vector import Vector
+from .tagmanager import TagPayload, TagList
 
 
 class RailBasis(object):

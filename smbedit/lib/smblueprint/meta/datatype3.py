@@ -3,9 +3,9 @@ __author__ = 'Peter Hofmann'
 import os
 import sys
 
-from lib.binarystream import BinaryStream
-from lib.loggingwrapper import DefaultLogging
-from lib.utils.vector import Vector
+from ...binarystream import BinaryStream
+from ...loggingwrapper import DefaultLogging
+from ...utils.vector import Vector
 
 
 class DockedEntity(object):

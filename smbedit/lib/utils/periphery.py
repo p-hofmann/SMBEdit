@@ -1,7 +1,7 @@
-from lib.utils.vector import Vector
-from lib.utils.blocklist import BlockList
-from lib.utils.blockconfig import block_config
-from lib.utils.peripheryhardcoded import PeripheryHardcoded
+from .vector import Vector
+from .blocklist import BlockList
+from .blockconfig import block_config
+from .peripheryhardcoded import PeripheryHardcoded
 
 __author__ = 'Peter Hofmann'
 

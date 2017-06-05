@@ -2,11 +2,12 @@ __author__ = 'Peter Hofmann'
 
 import os
 import sys
-from lib.loggingwrapper import DefaultLogging
-from lib.binarystream import BinaryStream
-from lib.utils.blockconfig import block_config
-from lib.utils.blueprintentity import BlueprintEntity
-from lib.utils.vector import Vector
+
+from ..loggingwrapper import DefaultLogging
+from ..binarystream import BinaryStream
+from ..utils.blockconfig import block_config
+from ..utils.blueprintentity import BlueprintEntity
+from ..utils.vector import Vector
 
 
 # #######################################

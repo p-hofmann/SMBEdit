@@ -9,7 +9,8 @@ if sys.version_info < (3,):
     from ConfigParser import SafeConfigParser as ConfigParser
 else:
     from configparser import ConfigParser
-from lib.loggingwrapper import DefaultLogging
+    
+from .loggingwrapper import DefaultLogging
 
 
 class ConfigParserWrapper(DefaultLogging):

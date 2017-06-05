@@ -3,9 +3,9 @@ __author__ = 'Peter Hofmann'
 import sys
 import math
 
-from lib.loggingwrapper import DefaultLogging
-from lib.binarystream import BinaryStream
-from lib.smblueprint.smd3.smdsegment import SmdSegment, StyleBasic
+from ...loggingwrapper import DefaultLogging
+from ...binarystream import BinaryStream
+from .smdsegment import SmdSegment, StyleBasic
 
 
 class SmdRegion(DefaultLogging):

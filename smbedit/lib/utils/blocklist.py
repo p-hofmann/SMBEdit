@@ -1,6 +1,7 @@
 from collections import Iterable
-from lib.utils.vector import Vector
-from lib.smblueprint.smdblock.blockpool import StyleBasic
+
+from .vector import Vector
+from ..smblueprint.smdblock.blockpool import StyleBasic
 
 
 class BlockList(object):

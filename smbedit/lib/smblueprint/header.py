@@ -3,12 +3,12 @@ __author__ = 'Peter Hofmann'
 import os
 import sys
 
-from lib.loggingwrapper import DefaultLogging
-from lib.utils.blueprintentity import BlueprintEntity
-from lib.utils.blockconfig import block_config
-from lib.utils.vector import Vector
-from lib.binarystream import BinaryStream
-from lib.smblueprint.smd3.smd import Smd
+from ..loggingwrapper import DefaultLogging
+from ..utils.blueprintentity import BlueprintEntity
+from ..utils.blockconfig import block_config
+from ..utils.vector import Vector
+from ..binarystream import BinaryStream
+from .smd3.smd import Smd
 
 
 # #######################################

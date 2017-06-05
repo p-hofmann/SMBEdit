@@ -1,6 +1,6 @@
-from lib.utils.blocklist import BlockList
-from lib.utils.blockconfig import block_config
-from lib.smblueprint.smdblock.blockpool import block_pool
+from .blocklist import BlockList
+from .blockconfig import block_config
+from ..smblueprint.smdblock.blockpool import block_pool
 
 
 __author__ = 'Peter Hofmann'
