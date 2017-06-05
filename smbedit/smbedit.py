@@ -1,5 +1,5 @@
 __author__ = 'Peter Hofmann'
-__version__ = '0.1.6'
+__version__ = '0.1.8'
 
 import os
 import sys
@@ -239,8 +239,12 @@ class SMBEdit(ArgumentHandler):
         """
         try:
             if self._directory_starmade is not None:
-                self._logger.debug("StarMade: {}".format(self._directory_starmade))
-                block_config.read(self._directory_starmade)
+                try:
+                    self._logger.debug("Loading block config from: {}".format(self._directory_starmade))
+                    block_config.read(self._directory_starmade)
+                except:
+                    self._logger.warning("Parsing of block config failed! Loading default.")
+                    block_config.from_hard_coded()
             else:
                 block_config.from_hard_coded()
             self.run_commands()

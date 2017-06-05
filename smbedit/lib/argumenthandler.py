@@ -97,10 +97,10 @@ class ArgumentHandler(Validator):
 
         # deal with temporary directory
         if temp_directory is None:
-            self._tmp_dir = tempfile.mkdtemp(prefix="{}_".format(self._label))
+            self._tmp_dir = tempfile.mkdtemp(prefix="{}_".format(label))
         else:
             assert self.validate_dir(temp_directory)
-            self._tmp_dir = tempfile.mkdtemp(prefix="{}_".format(self._label), dir=temp_directory)
+            self._tmp_dir = tempfile.mkdtemp(prefix="{}_".format(label), dir=temp_directory)
 
         # deal with input directory
         if self._path_input.endswith(".sment"):
