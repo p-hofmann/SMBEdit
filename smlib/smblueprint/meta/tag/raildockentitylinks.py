@@ -2,8 +2,8 @@ __author__ = 'Peter Hofmann'
 
 import sys
 
-from smbedit.lib.utils.blockconfig import block_config
-from smbedit.lib.utils.vector import Vector
+from smlib.utils.blockconfig import block_config
+from smlib.utils.vector import Vector
 from .tagmanager import TagPayload, TagList
 
 

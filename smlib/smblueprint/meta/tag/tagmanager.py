@@ -3,9 +3,9 @@ __author__ = 'Peter Hofmann'
 import sys
 # import gzip
 
-from smbedit.lib.binarystream import BinaryStream
-from smbedit.lib.loggingwrapper import DefaultLogging
-from smbedit.lib.utils.vector import Vector
+from smlib.binarystream import BinaryStream
+from smlib.loggingwrapper import DefaultLogging
+from smlib.utils.vector import Vector
 
 
 class TagUtil(object):

@@ -1,5 +1,5 @@
-from smbedit.lib.binarystream import BinaryStream
-from smbedit.lib.utils.blockconfig import block_config
+from smlib.binarystream import BinaryStream
+from smlib.utils.blockconfig import block_config
 from .style6 import Style6
 from .stylebasic import StyleBasic
 

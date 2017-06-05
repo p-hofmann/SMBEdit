@@ -2,8 +2,8 @@ __author__ = 'Peter Hofmann'
 
 import sys
 
-from smbedit.lib.binarystream import BinaryStream
-from smbedit.lib.loggingwrapper import DefaultLogging
+from smlib.binarystream import BinaryStream
+from smlib.loggingwrapper import DefaultLogging
 from .tag.tagmanager import TagManager
 from .tag.datatype2.aiconfig import AIConfig
 

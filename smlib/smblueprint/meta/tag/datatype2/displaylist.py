@@ -1,6 +1,6 @@
 import sys
 
-from smbedit.lib.utils.vector import Vector
+from smlib.utils.vector import Vector
 from ..tagmanager import TagPayload, TagList
 
 

@@ -2,9 +2,9 @@ __author__ = 'Peter Hofmann'
 
 import sys
 
-from smbedit.lib.utils.blockconfig import block_config
-from smbedit.lib.smblueprint.smdblock.blockbits import BlockBits
-# from smbedit.lib.smblueprint.smdblock.blockhandler import block_pool
+from smlib.utils.blockconfig import block_config
+from smlib.smblueprint.smdblock.blockbits import BlockBits
+# from smlib.smblueprint.smdblock.blockhandler import block_pool
 
 
 class StyleBasic(BlockBits):
@@ -33,7 +33,7 @@ class StyleBasic(BlockBits):
 
         @rtype: StyleBasic
         """
-        from smbedit.lib.smblueprint.smdblock.blockpool import block_pool
+        from smlib.smblueprint.smdblock.blockpool import block_pool
         if axis_index == 0:
             return block_pool(self._mirror_x())
         if axis_index == 1:
