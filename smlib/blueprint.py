@@ -147,6 +147,22 @@ class Blueprint(DefaultLogging):
             else:
                 self.header.set_class(self._ct_to_station_class[entity_class])
 
+    def add_blocks(self, block_id, positions):
+        """
+        Add blocks with a specific id at different positions
+
+        @type block_id: int
+        @type positions: tuple list
+        """
+
+        new_block = SmdBlock()
+        new_block.set_id(block_id)
+        new_block.set_hit_points(BlockConfig[block_id]['max_HP']) # set to max HP
+        for position in positions:
+            self.smd3.add(position, new_block)
+        self.header.update(self.smd3)
+
+
     def remove_blocks(self, block_ids):
         """
         Removing all blocks of a specific id
