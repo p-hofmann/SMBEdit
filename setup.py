@@ -1,9 +1,9 @@
-#!/usr/bin/env python
+from smbedit import __version__ as version
 
 from setuptools import setup, find_packages
 
 setup(name='SMBEdit',
-      version='0.1.8',
+      version=version,
       description='StarMade Blueprint Editor',
       author='Peter Hofmann',
       author_email='',
