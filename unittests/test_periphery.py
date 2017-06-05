@@ -1,10 +1,10 @@
 # import sys
 import os
 from unittest import TestCase
-from lib.utils.blockconfig import block_config
-from lib.utils.periphery import Periphery
-from lib.utils.annotate import Annotate
-from lib.smblueprint.smd3.smd import Smd
+from smlib.utils.blockconfig import block_config
+from smlib.utils.periphery import Periphery
+from smlib.utils.annotate import Annotate
+from smlib.smblueprint.smd3.smd import Smd
 from unittests.blueprints import blueprint_handler
 
 
