@@ -155,11 +155,13 @@ class Blueprint(DefaultLogging):
         @type positions: tuple list
         """
 
-        new_block = SmdBlock()
-        new_block.set_id(block_id)
-        new_block.set_hit_points(BlockConfig[block_id]['max_HP']) # set to max HP
         for position in positions:
+            new_block = block_pool(block_id)#.get_modified_block(
+                # block_id=new_block_id, active=False,
+                # block_side_id=block.get_block_side_id(), axis_rotation=block.get_axis_rotation(),
+                # rotations=block.get_rotations())
             self.smd3.add(position, new_block)
+        self.logic.update(self.smd3)
         self.header.update(self.smd3)
 
 
