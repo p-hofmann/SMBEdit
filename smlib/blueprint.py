@@ -160,7 +160,7 @@ class Blueprint(DefaultLogging):
                 # block_id=new_block_id, active=False,
                 # block_side_id=block.get_block_side_id(), axis_rotation=block.get_axis_rotation(),
                 # rotations=block.get_rotations())
-            self.smd3.add(position, new_block)
+            self.smd3.add_block(new_block, tuple(position))
         self.logic.update(self.smd3)
         self.header.update(self.smd3)
 
