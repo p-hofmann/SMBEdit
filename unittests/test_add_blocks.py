@@ -39,7 +39,7 @@ class DefaultSetup(unittest.TestCase):
 
         block_id = 598 # Grey Hull
         self.bp.add_blocks(block_id, positions)
-        print(self.bp)
+
         # set the entity to ship
         self.bp.set_entity(0, 0)
 
@@ -47,8 +47,6 @@ class DefaultSetup(unittest.TestCase):
         self.tmpdir = tempfile.mkdtemp()
         # write the data
         self.bp.write(self.tmpdir)
-        print(self.tmpdir)
-        input()
 
     def tearDown(self):
         # delete the blueprint
