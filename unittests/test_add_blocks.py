@@ -37,11 +37,25 @@ class DefaultSetup(unittest.TestCase):
                      (-4,  37,  -9),
                      (37, -10,  23)]
 
-        block_id = 598 # Grey Hull
-        self.bp.add_blocks(block_id, positions)
+        # sort positions
+        positions.sort()
 
-        # set the entity to ship
-        self.bp.set_entity(0, 0)
+        # add blocks
+        block_id_grey_hull = 598 # Grey Hull
+        self.bp.add_blocks(block_id_grey_hull, positions)
+
+        # set the entity to space station
+        self.bp.set_entity(2, 0)
+
+        # test the number of blocks added (all positions + ship core)
+        self.assertEqual(len(positions), self.bp.smd3.get_number_of_blocks())
+
+        # test the block position
+        bp_positions = list(x for x in self.bp.smd3.get_block_list())
+        bp_positions.sort()
+        self.assertEqual(positions, bp_positions)
+
+        # test writing
 
         # create tempdir
         self.tmpdir = tempfile.mkdtemp()
