@@ -1,7 +1,7 @@
 from unittest import TestCase
 from smbedit import SMBEdit
 from unittests.blueprints import blueprint_handler
-from lib.utils.blockconfig import block_config
+from smlib.utils.blockconfig import block_config
 
 __author__ = 'Peter Hofmann'
 

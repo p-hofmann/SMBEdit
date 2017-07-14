@@ -1,6 +1,6 @@
 from unittest import TestCase
-from lib.utils.vector import Vector
-from lib.utils.blocklist import BlockList
+from smlib.utils.vector import Vector
+from smlib.utils.blocklist import BlockList
 
 
 __author__ = 'Peter Hofmann'
