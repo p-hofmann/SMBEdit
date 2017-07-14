@@ -10,9 +10,9 @@ if sys.version_info < (3,):
     import tkFileDialog as filedialog
 else:
     from tkinter import messagebox, filedialog
-from smlib.gui import RootFrame
-from lib.validator import Validator
-from lib.blueprint import Blueprint
+from ..frames.rootframe import RootFrame
+from ...validator import Validator
+from ...blueprint import Blueprint
 # from smbeditGUI import SMBEditGUI
 from smbedit import SMBEdit
 

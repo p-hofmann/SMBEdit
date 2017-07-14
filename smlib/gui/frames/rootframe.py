@@ -5,9 +5,9 @@ if sys.version_info < (3,):
     import Tkinter as tk
 else:
     import tkinter as tk
-from smlib.gui import MenuBar
-from smlib.gui import MainFrame
-from smlib.gui import StatusBar
+from .menubar import MenuBar
+from .mainframe import MainFrame
+from .statusbar import StatusBar
 
 
 class RootFrame(tk.Frame):

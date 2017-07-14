@@ -3,7 +3,7 @@ __author__ = 'Peter Hofmann'
 
 import sys
 
-from smlib.utils.vector import Vector
+from .....utils.vector import Vector
 from ..tagmanager import TagPayload, TagList
 
 

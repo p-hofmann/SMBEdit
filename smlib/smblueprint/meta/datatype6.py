@@ -2,9 +2,9 @@ __author__ = 'Peter Hofmann'
 
 import sys
 
-from smlib.binarystream import BinaryStream
-from smlib.loggingwrapper import DefaultLogging
-from smlib.utils.vector import Vector
+from ...binarystream import BinaryStream
+from ...loggingwrapper import DefaultLogging
+from ...utils.vector import Vector
 from .tag.raildockentitylinks import RailBasis
 
 

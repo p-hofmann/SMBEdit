@@ -8,8 +8,8 @@ if sys.version_info < (3,):
 else:
     import tkinter as tk
     from tkinter import ttk
-from smlib.gui import Widgets
-from lib.utils.blockconfig import block_config
+from ...frames.widgets import Widgets
+from ....utils.blockconfig import block_config
 
 
 class FrameReplace(tk.LabelFrame):

@@ -8,7 +8,7 @@ if sys.version_info < (3,):
 else:
     import tkinter as tk
     from tkinter import ttk
-from lib.utils.blueprintentity import BlueprintEntity
+from ....utils.blueprintentity import BlueprintEntity
 
 
 class FrameMiscellaneous(tk.LabelFrame):

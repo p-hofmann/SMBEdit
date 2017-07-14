@@ -2,7 +2,7 @@ __author__ = 'Peter Hofmann'
 
 
 # from smbeditGUI import SMBEditGUI
-from smlib.gui import RootFrame
+from ..frames.rootframe import RootFrame
 
 
 class ActionMirror(RootFrame):

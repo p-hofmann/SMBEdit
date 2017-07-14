@@ -3,9 +3,9 @@ __author__ = 'Peter Hofmann'
 import sys
 # import gzip
 
-from smlib.binarystream import BinaryStream
-from smlib.loggingwrapper import DefaultLogging
-from smlib.utils.vector import Vector
+from ....binarystream import BinaryStream
+from ....loggingwrapper import DefaultLogging
+from ....utils.vector import Vector
 
 
 class TagUtil(object):
@@ -488,7 +488,7 @@ class TagManager(DefaultLogging):
         """
         if not self.has_data:
             return
-        output_stream.write("{} v{} gzip: {}\n".format(self._label, self._version, self._is_compressed))
+        output_stream.write("{} v{} gzip: {}\n".format("TagManager", self._version, self._is_compressed))
         if self._debug:
             if len(self._tail_data) > 0:
                 output_stream.write("Tail data: {}\n".format(len(self._tail_data)))

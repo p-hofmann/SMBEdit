@@ -1,5 +1,6 @@
 from unittest import TestCase
-from lib.smtpl import StarMadeTemplate
+
+from smlib.smtpl import StarMadeTemplate
 from unittests.testinput import template_handler
 from lib.utils.blockconfig import block_config
 

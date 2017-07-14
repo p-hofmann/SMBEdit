@@ -10,7 +10,7 @@ from .datatype2.aiconfig import AIConfig
 from .datatype2.displaylist import DisplayList
 from .datatype2.logictrigger import LogicTrigger
 from .datatype2.datatype2index9 import Datatype2Index9
-# from smlib.utils.vector import Vector
+# from ....utils.vector import Vector
 
 
 class GateList(object):

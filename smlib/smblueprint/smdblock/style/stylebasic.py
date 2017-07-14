@@ -2,9 +2,9 @@ __author__ = 'Peter Hofmann'
 
 import sys
 
-from smlib.utils.blockconfig import block_config
-from smlib.smblueprint.smdblock.blockbits import BlockBits
-# from smlib.smblueprint.smdblock.blockhandler import block_pool
+from ....utils.blockconfig import block_config
+from ....smblueprint.smdblock.blockbits import BlockBits
+# from ....smblueprint.smdblock.blockhandler import block_pool
 
 
 class StyleBasic(BlockBits):

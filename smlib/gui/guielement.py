@@ -1,11 +1,11 @@
 __author__ = 'Peter Hofmann'
 
-from smlib.gui import ActionAutoshape
-from smlib.gui import ActionMirror
-from smlib.gui import ActionMiscellaneous
-from smlib.gui import ActionMoveCenter
-from smlib.gui import ActionReplace
-from smlib.gui import ActionMenuBar
+from .actions.actionautoshape import ActionAutoshape
+from .actions.actionmirror import ActionMirror
+from .actions.actionmiscellaneous import ActionMiscellaneous
+from .actions.actionmovecenter import ActionMoveCenter
+from .actions.actionreplace import ActionReplace
+from .actions.actionmenubar import ActionMenuBar
 
 
 class GuiElement(ActionAutoshape, ActionMirror, ActionMiscellaneous, ActionMoveCenter, ActionReplace, ActionMenuBar):

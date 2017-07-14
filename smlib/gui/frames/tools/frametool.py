@@ -6,11 +6,11 @@ if sys.version_info < (3,):
     import Tkinter as tk
 else:
     import tkinter as tk
-from smlib.gui import FrameAutoShape
-from smlib.gui import FrameMoveCenter
-from smlib.gui import FrameReplace
-from smlib.gui import FrameMirror
-from smlib.gui.frames.tools.framemiscellaneous import FrameMiscellaneous
+from ...frames.tools.frameautoshape import FrameAutoShape
+from ...frames.tools.framemovecenter import FrameMoveCenter
+from ...frames.tools.framereplace import FrameReplace
+from ...frames.tools.framemirror import FrameMirror
+from ...frames.tools.framemiscellaneous import FrameMiscellaneous
 
 
 class FrameTool(tk.Frame):

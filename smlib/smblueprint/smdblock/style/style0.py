@@ -1,5 +1,5 @@
-from smlib.binarystream import BinaryStream
-from smlib.utils.blockconfig import block_config
+from ....binarystream import BinaryStream
+from ....utils.blockconfig import block_config
 from .style6 import Style6
 from .stylebasic import StyleBasic
 

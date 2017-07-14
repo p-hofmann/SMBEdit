@@ -8,7 +8,7 @@ if sys.version_info < (3,):
 else:
     import tkinter as tk
     # from tkinter import ttk
-from lib.utils.blockconfig import block_config
+from ...utils.blockconfig import block_config
 
 
 class Widgets(tk.Button):

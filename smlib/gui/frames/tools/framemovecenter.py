@@ -8,7 +8,7 @@ if sys.version_info < (3,):
 else:
     import tkinter as tk
     from tkinter import ttk
-from smlib.gui import Widgets
+from ...frames.widgets import Widgets
 
 
 class FrameMoveCenter(tk.LabelFrame):

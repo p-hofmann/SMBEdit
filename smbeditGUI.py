@@ -2,13 +2,15 @@ __author__ = 'Peter Hofmann'
 
 import os
 import tempfile
+
 import smbedit
-import lib
-from lib.validator import Validator
-from lib.configparserwrapper import ConfigParserWrapper
-from lib.utils.blockconfig import block_config
-from lib.blueprint import Blueprint
-from lib.gui.window import Window
+import smlib
+from smlib import __version__
+from smlib.validator import Validator
+from smlib.configparserwrapper import ConfigParserWrapper
+from smlib.utils.blockconfig import block_config
+from smlib.blueprint import Blueprint
+from smlib.gui.window import Window
 
 
 class SMBEditGUI(Validator):
@@ -20,7 +22,7 @@ class SMBEditGUI(Validator):
 
     def __init__(self, temp_directory=None, logfile=None, verbose=False, debug=False):
         self.tmp_dir = None
-        label = "SMBEdit " + smbedit.__version__
+        label = "SMBEdit " + __version__
         super(Validator, self).__init__(label=label, logfile=logfile, verbose=verbose, debug=debug)
 
         # deal with temporary directory
@@ -59,7 +61,7 @@ class SMBEditGUI(Validator):
 
     def _get_starmade_directory(self):
         # deal with StarMade directory
-        smbe_dir = os.path.dirname(self.get_full_path(os.path.dirname(lib.__file__)))
+        smbe_dir = os.path.dirname(self.get_full_path(os.path.dirname(smlib.__file__)))
         config_file_path = os.path.join(smbe_dir, "config.ini")
 
         # msg_bad_sm_dir = "Bad StarMade directory: '{}'."

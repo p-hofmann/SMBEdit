@@ -8,8 +8,8 @@ if sys.version_info < (3,):
 else:
     import tkinter as tk
     from tkinter import ttk
-from smlib.gui import FrameTool
-from smlib.gui import FrameSummary
+from .tools.frametool import FrameTool
+from .framesummary import FrameSummary
 
 
 class MainFrame(tk.Frame):

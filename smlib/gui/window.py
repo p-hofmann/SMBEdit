@@ -5,7 +5,7 @@ if sys.version_info < (3,):
     import Tkinter as tk
 else:
     import tkinter as tk
-from smlib.gui import GuiElement
+from .guielement import GuiElement
 # from smbeditGUI import SMBEditGUI
 
 

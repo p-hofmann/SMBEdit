@@ -2,11 +2,11 @@ __author__ = 'Peter Hofmann'
 
 
 import sys
-from lib.loggingwrapper import DefaultLogging
-from lib.binarystream import BinaryStream
+from .loggingwrapper import DefaultLogging
+from .binarystream import BinaryStream
 # from lib.utils.vector import Vector
-from lib.utils.blocklist import BlockList
-from lib.smblueprint.smdblock.blockpool import block_pool
+from .utils.blocklist import BlockList
+from .smblueprint.smdblock.blockpool import block_pool
 
 
 class StarMadeTemplate(DefaultLogging):
