@@ -3,11 +3,11 @@ from io import BytesIO
 from unittest import TestCase
 
 from unittests.testinput import blueprint_handler
-from lib.smblueprint.meta.meta import Meta
-from lib.binarystream import BinaryStream
-from lib.utils.vector import Vector
-from lib.smblueprint.meta.tag.datatype2.aiconfig import AIConfig
-from lib.smblueprint.meta.tag.raildockentitylinks import RailDockedEntityLinks
+from smlib.smblueprint.meta.meta import Meta
+from smlib.binarystream import BinaryStream
+from smlib.utils.vector import Vector
+from smlib.smblueprint.meta.tag.datatype2.aiconfig import AIConfig
+from smlib.smblueprint.meta.tag.raildockentitylinks import RailDockedEntityLinks
 
 __author__ = 'Peter Hofmann'
 

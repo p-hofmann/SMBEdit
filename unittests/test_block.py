@@ -1,6 +1,6 @@
 from unittest import TestCase
-from lib.smblueprint.smdblock.blockpool import block_pool, StyleBasic
-from lib.utils.blockconfig import block_config
+from smlib.smblueprint.smdblock.blockpool import block_pool, StyleBasic
+from smlib.utils.blockconfig import block_config
 
 __author__ = 'Peter Hofmann'
 

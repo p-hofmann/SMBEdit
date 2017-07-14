@@ -1,5 +1,4 @@
 __author__ = 'Peter Hofmann'
-__version__ = '0.1.9'
 
 import os
 import sys
@@ -7,10 +6,10 @@ import zipfile
 import shutil
 import traceback
 
-from lib.argumenthandler import ArgumentHandler
-from lib.utils.blockconfig import block_config
-from lib.blueprint import Blueprint
-
+from smlib import __version__
+from smlib.argumenthandler import ArgumentHandler
+from smlib.utils.blockconfig import block_config
+from smlib.blueprint import Blueprint
 
 class SMBEdit(ArgumentHandler):
     """

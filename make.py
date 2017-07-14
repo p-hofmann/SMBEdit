@@ -4,7 +4,7 @@ from smbedit import __version__ as version
 
 # Dependencies are automatically detected, but it might need
 # fine tuning.
-buildOptions = dict(packages=[], excludes=[])  # , includes=["tkinter"]
+buildOptions = dict(packages=['smlib'], excludes=[])
 
 base = None
 if sys.platform == "win32":
@@ -13,13 +13,16 @@ if sys.platform == "win32":
 executables = [
     Executable('smbeditGUI.py', base=base)  # , 'Console'
 ]
-
 setup(name='SMBEdit',
       version=version,
       description='StarMade Blueprint Editor',
+      author='Peter Hofmann',
+      author_email='',
+      url='https://github.com/p-hofmann/SMBEdit',
+      packages=['smlib'],
       options=dict(build_exe=buildOptions),
-      executables=executables)
-
+      executables=executables
+     )
 # Some issue with TCL can occur on Windows 
 #
 # see https://github.com/ContinuumIO/anaconda-issues/issues/36

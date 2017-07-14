@@ -1,6 +1,6 @@
 import os
 from unittest import TestCase
-from lib.utils.blockconfig import BlockConfig
+from smlib.utils.blockconfig import BlockConfig
 
 __author__ = 'Peter Hofmann'
 
