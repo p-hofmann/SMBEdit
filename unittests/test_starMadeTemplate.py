@@ -2,7 +2,7 @@ from unittest import TestCase
 
 from smlib.smtpl import StarMadeTemplate
 from unittests.testinput import template_handler
-from lib.utils.blockconfig import block_config
+from smlib.utils.blockconfig import block_config
 
 __author__ = 'Peter Hofmann'
 
