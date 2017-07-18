@@ -41,7 +41,7 @@ class ActionMenuBar(Validator):
         if self._smbedit.directory_starmade:
             blueprint_dir = os.path.join(self._smbedit.directory_starmade, 'blueprints')
         file_path = filedialog.askopenfilename(
-            mustexist=True, filetypes=ActionMenuBar._file_types, initialdir=blueprint_dir)
+            filetypes=ActionMenuBar._file_types, initialdir=blueprint_dir)
         if not file_path:
             return
         if not self.validate_file(file_path):
@@ -191,8 +191,8 @@ class ActionMenuBar(Validator):
                 tmp_list_path.append(os.path.join(blueprint_path, folder_name))
                 tmp_list_name.append("{}{}".format(docked_entity_name_prefix, dock_index))
 
-        self.root_frame.main_frame.combo_box_entities['values'] = tmp_list_name
-        self.root_frame.main_frame.combo_box_entities.current(0)
+        self.root_frame.combo_box_entities['values'] = tmp_list_name
+        self.root_frame.combo_box_entities.current(0)
         self.root_frame.status_bar.set(msg + " Done")
         # self.text_box.delete("2.0 - 1c")
         # self.text_box.write("Done.\n")
