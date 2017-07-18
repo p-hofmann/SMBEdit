@@ -6,13 +6,13 @@ __author__ = 'Peter Hofmann'
 
 class ActionAutoshape(object):
     """
-    @type _smbedit: SMBEditGUI
+    @type _smbedit: smbeditGUI.SMBEditGUI
     """
     def __init__(self, main_frame, smbedit):
         """
 
-        @type main_frame: MainFrame
-        @type smbedit: SMBEditGUI
+        @type main_frame: smlib.gui.frames.mainframe.MainFrame
+        @type smbedit: smbeditGUI.SMBEditGUI
         """
         self._smbedit = smbedit
         self.main_frame = main_frame
@@ -24,16 +24,17 @@ class ActionAutoshape(object):
         self.main_frame.tool.auto_shape.button_tetra.configure(command=self.button_press_autoshape_tetra)
 
     def button_press_autoshape_reset(self):
-        self._smbedit.blueprint[self.main_frame.combo_box_entities.current()].reset_ship_hull_shape()
+        if self.main_frame.entities_variable_checkbox.set(0):
+            self._smbedit.blueprint[self.main_frame.entities_combo_box.current()].reset_ship_hull_shape()
 
     def button_press_autoshape_wedge(self):
-        self._smbedit.blueprint[self.main_frame.combo_box_entities.current()].auto_hull_shape(auto_wedge=True)
+        self._smbedit.blueprint[self.main_frame.entities_combo_box.current()].auto_hull_shape(auto_wedge=True)
 
     def button_press_autoshape_corner(self):
-        self._smbedit.blueprint[self.main_frame.combo_box_entities.current()].auto_hull_shape(auto_corner=True)
+        self._smbedit.blueprint[self.main_frame.entities_combo_box.current()].auto_hull_shape(auto_corner=True)
 
     def button_press_autoshape_hepta(self):
-        self._smbedit.blueprint[self.main_frame.combo_box_entities.current()].auto_hull_shape(auto_hepta=True)
+        self._smbedit.blueprint[self.main_frame.entities_combo_box.current()].auto_hull_shape(auto_hepta=True)
 
     def button_press_autoshape_tetra(self):
-        self._smbedit.blueprint[self.main_frame.combo_box_entities.current()].auto_hull_shape(auto_tetra=True)
+        self._smbedit.blueprint[self.main_frame.entities_combo_box.current()].auto_hull_shape(auto_tetra=True)

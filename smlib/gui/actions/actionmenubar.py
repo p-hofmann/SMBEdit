@@ -17,7 +17,7 @@ else:
 
 class ActionMenuBar(Validator):
     """
-    @type _smbedit: SMBEditGUI
+    @type _smbedit: smbeditGUI.SMBEditGUI
     """
 
     _file_types = [
@@ -26,6 +26,11 @@ class ActionMenuBar(Validator):
         ]
 
     def __init__(self, root_frame, smbedit, logfile=None, verbose=False, debug=False):
+        """
+
+        @type root_frame: smlib.gui.frames.mainframe.MainFrame
+        @type smbedit: smbeditGUI.SMBEditGUI
+        """
         # RootFrame.__init__(self, root, smbedit)
         self._smbedit = smbedit
         self.root_frame = root_frame

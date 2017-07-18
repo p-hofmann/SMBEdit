@@ -9,6 +9,10 @@ else:
 
 class StatusBar(tk.Frame):
     def __init__(self, master):
+        """
+
+        @type master: tk.Tk
+        """
         tk.Frame.__init__(self, master)
         self._text = tk.StringVar()
         self._label = tk.Label(

@@ -6,7 +6,7 @@ __author__ = 'Peter Hofmann'
 
 class ActionMiscellaneous(object):
     """
-    @type _smbedit: SMBEditGUI
+    @type _smbedit: smbeditGUI.SMBEditGUI
     @type _ct_to_ship_class: dict[int, str]
     @type _ct_to_station_class: dict[int, str]
     """
@@ -36,6 +36,11 @@ class ActionMiscellaneous(object):
     }
 
     def __init__(self, main_frame, smbedit):
+        """
+
+        @type main_frame: smlib.gui.frames.mainframe.MainFrame
+        @type smbedit: smbeditGUI.SMBEditGUI
+        """
         self._smbedit = smbedit
         self.main_frame = main_frame
 
@@ -45,12 +50,12 @@ class ActionMiscellaneous(object):
 
     def combo_box_type_change(self, event):
         self.refresh_combobox_values()
-        self._smbedit.blueprint[self.main_frame.combo_box_entities.current()].set_entity(
+        self._smbedit.blueprint[self.main_frame.entities_combo_box.current()].set_entity(
             self.main_frame.tool.tool_else.combo_box_type.current(),
             self.main_frame.tool.tool_else.combo_box_class.current())
 
     def combo_box_class_change(self, event):
-        self._smbedit.blueprint[self.main_frame.combo_box_entities.current()].set_entity(
+        self._smbedit.blueprint[self.main_frame.entities_combo_box.current()].set_entity(
             self.main_frame.tool.tool_else.combo_box_type.current(),
             self.main_frame.tool.tool_else.combo_box_class.current())
 

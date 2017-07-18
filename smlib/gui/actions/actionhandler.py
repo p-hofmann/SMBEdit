@@ -12,7 +12,8 @@ class ActionHandler(ActionAutoshape, ActionMirror, ActionMiscellaneous, ActionMo
     def __init__(self, main_frame, smbedit):
         """
 
-        @type smbedit: SMBEdit
+        @type main_frame: smlib.gui.frames.mainframe.MainFrame
+        @type smbedit: smbeditGUI.SMBEditGUI
         """
         ActionAutoshape.__init__(self, main_frame, smbedit)
         ActionMirror.__init__(self, main_frame, smbedit)
