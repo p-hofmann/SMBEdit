@@ -6,12 +6,12 @@ if sys.version_info < (3,):
 else:
     import tkinter as tk
 from .menubar import MenuBar
-from .mainframe import MainFrame
+# from .mainframe import MainFrame
 from .statusbar import StatusBar
 
 
 class RootFrame(tk.Frame):
-    def __init__(self, root, smbedit):
+    def __init__(self, root):
         """
 
         @type root: tk.Tk
@@ -19,11 +19,11 @@ class RootFrame(tk.Frame):
         tk.Frame.__init__(self, root)
         self.menubar = MenuBar(root)
 
-        self.main_frame = MainFrame(self)
-        self.main_frame.pack(fill=tk.BOTH, padx=5, pady=3)
+        # self.main_frame = MainFrame(self)
+        # self.main_frame.pack(fill=tk.BOTH, padx=5, pady=3)
 
         self.status_bar = StatusBar(self)
         self.status_bar.pack(side=tk.BOTTOM, fill=tk.X)
         self.status_bar.set("Ready")
 
-        self.pack()
+        self.pack(fill=tk.BOTH, padx=5, pady=3)

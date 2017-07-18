@@ -10,14 +10,12 @@ if sys.version_info < (3,):
     import tkFileDialog as filedialog
 else:
     from tkinter import messagebox, filedialog
-from ..frames.rootframe import RootFrame
 from ...validator import Validator
 from ...blueprint import Blueprint
-# from smbeditGUI import SMBEditGUI
 from smbedit import SMBEdit
 
 
-class ActionMenuBar(RootFrame, Validator):
+class ActionMenuBar(Validator):
     """
     @type _smbedit: SMBEditGUI
     """
@@ -27,15 +25,16 @@ class ActionMenuBar(RootFrame, Validator):
         ("Blueprint", "*.zip")
         ]
 
-    def __init__(self, master, smbedit, logfile=None, verbose=False, debug=False):
+    def __init__(self, root_frame, smbedit, logfile=None, verbose=False, debug=False):
+        # RootFrame.__init__(self, root, smbedit)
         self._smbedit = smbedit
-        super(ActionMenuBar, self).__init__(master, smbedit)
+        self.root_frame = root_frame
         super(Validator, self).__init__(label="MenuBar", logfile=logfile, verbose=verbose, debug=debug)
 
-        self.menubar.menu_cascade_load.add_command(label="Load blueprint", command=self._dialog_directory_load)
-        self.menubar.menu_cascade_load.add_command(label="Load *.sment", command=self._dialog_file_load)
-        self.menubar.menu_cascade_save.add_command(label="Save blueprint", command=self._dialog_directory_save)
-        self.menubar.menu_cascade_save.add_command(label="Save *.sment", command=self._dialog_file_save)
+        self.root_frame.menubar.menu_cascade_load.add_command(label="Load blueprint", command=self._dialog_directory_load)
+        self.root_frame.menubar.menu_cascade_load.add_command(label="Load *.sment", command=self._dialog_file_load)
+        self.root_frame.menubar.menu_cascade_save.add_command(label="Save blueprint", command=self._dialog_directory_save)
+        self.root_frame.menubar.menu_cascade_save.add_command(label="Save *.sment", command=self._dialog_file_save)
 
     def _dialog_file_load(self):
         blueprint_dir = None
@@ -125,7 +124,7 @@ class ActionMenuBar(RootFrame, Validator):
         directory_output = self.get_full_path(directory_output)
         blueprint_name = os.path.basename(directory_output)
         msg = "Saving blueprint '{}'... ".format(blueprint_name)
-        self.status_bar.set(msg)
+        self.root_frame.status_bar.set(msg)
         # self.text_box.delete(1.0)
         # self.text_box.write(msg)
         for index, blueprint in enumerate(self._smbedit.blueprint):
@@ -136,13 +135,13 @@ class ActionMenuBar(RootFrame, Validator):
                 blueprint_output = directory_output
             # self.text_box.delete(2.0)
             # self.text_box.write(, 2.0)
-            self.status_bar.set("Writing\t'{}'".format(relative_path))
+            self.root_frame.status_bar.set("Writing\t'{}'".format(relative_path))
             if not os.path.exists(blueprint_output):
                 os.mkdir(blueprint_output)
             blueprint.write(blueprint_output, relative_path)
         # self.text_box.delete("2.0 - 1c")
         # self.text_box.write("Done.\n")
-        self.status_bar.set(msg + " Done")
+        self.root_frame.status_bar.set(msg + " Done")
 
     def load_blueprint(self, directory_base):
         self._smbedit.blueprint = []
@@ -150,7 +149,7 @@ class ActionMenuBar(RootFrame, Validator):
 
         blueprint_name = os.path.basename(directory_base)
         msg = "Loading blueprint '{}'... ".format(blueprint_name)
-        self.status_bar.set(msg)
+        self.root_frame.status_bar.set(msg)
         # self.text_box.delete(1.0)
         # self.text_box.write("Loading blueprint '{}'... ".format(blueprint_name))
         directory_base = self.get_full_path(directory_base)
@@ -171,7 +170,7 @@ class ActionMenuBar(RootFrame, Validator):
                 relative_path = blueprint_name
             # self.text_box.delete(2.0)
             # self.text_box.write("\n\n", 2.0)
-            self.status_bar.set("Reading:\t'{}'".format(os.path.join(blueprint_name, relative_path)))
+            self.root_frame.status_bar.set("Reading:\t'{}'".format(os.path.join(blueprint_name, relative_path)))
             index += 1
             blueprint = Blueprint(entity_name, logfile=self._logfile, verbose=self._verbose, debug=self._debug)
             blueprint.read(blueprint_path)
@@ -192,9 +191,9 @@ class ActionMenuBar(RootFrame, Validator):
                 tmp_list_path.append(os.path.join(blueprint_path, folder_name))
                 tmp_list_name.append("{}{}".format(docked_entity_name_prefix, dock_index))
 
-        self.main_frame.combo_box_entities['values'] = tmp_list_name
-        self.main_frame.combo_box_entities.current(0)
-        self.status_bar.set(msg + " Done")
+        self.root_frame.main_frame.combo_box_entities['values'] = tmp_list_name
+        self.root_frame.main_frame.combo_box_entities.current(0)
+        self.root_frame.status_bar.set(msg + " Done")
         # self.text_box.delete("2.0 - 1c")
         # self.text_box.write("Done.\n")
 

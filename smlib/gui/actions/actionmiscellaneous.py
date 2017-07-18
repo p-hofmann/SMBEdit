@@ -2,10 +2,9 @@ __author__ = 'Peter Hofmann'
 
 
 # from smbeditGUI import SMBEditGUI
-from ..frames.rootframe import RootFrame
 
 
-class ActionMiscellaneous(RootFrame):
+class ActionMiscellaneous(object):
     """
     @type _smbedit: SMBEditGUI
     @type _ct_to_ship_class: dict[int, str]
@@ -36,9 +35,9 @@ class ActionMiscellaneous(RootFrame):
         8: "Factory",  #
     }
 
-    def __init__(self, master, smbedit):
+    def __init__(self, main_frame, smbedit):
         self._smbedit = smbedit
-        super(ActionMiscellaneous, self).__init__(master, smbedit)
+        self.main_frame = main_frame
 
         self.main_frame.tool.tool_else.combo_box_type.bind("<<ComboboxSelected>>", self.combo_box_type_change)
         self.main_frame.tool.tool_else.combo_box_class.bind("<<ComboboxSelected>>", self.combo_box_class_change)

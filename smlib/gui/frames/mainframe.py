@@ -10,17 +10,19 @@ else:
     from tkinter import ttk
 from .tools.frametool import FrameTool
 from .framesummary import FrameSummary
+from .rootframe import RootFrame
 
 
-class MainFrame(tk.Frame):
+class MainFrame(RootFrame):
     """
     @type combo_box_entities: ttk.Combobox
     @type tool: FrameTool
     @type summary: FrameSummary
     """
 
-    def __init__(self, master):
-        tk.Frame.__init__(self, master)
+    def __init__(self, root):
+        RootFrame.__init__(self, root)
+        # tk.Frame.__init__(self, master)
 
         self._current_index = 0
         self._gui_combobox_blueprint(self)

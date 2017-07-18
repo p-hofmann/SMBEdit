@@ -2,17 +2,15 @@ __author__ = 'Peter Hofmann'
 
 
 # from smbeditGUI import SMBEditGUI
-from ..frames.rootframe import RootFrame
 
 
-class ActionMirror(RootFrame):
+class ActionMirror(object):
     """
     @type _smbedit: SMBEditGUI
     """
-    def __init__(self, master, smbedit):
+    def __init__(self, main_frame, smbedit):
         self._smbedit = smbedit
-        super(ActionMirror, self).__init__(master, smbedit)
-
+        self.main_frame = main_frame
         self.main_frame.tool.tool_mirror.button_mirror.configure(command=self.button_press_mirror)
 
     def button_press_mirror(self):

@@ -2,21 +2,20 @@ __author__ = 'Peter Hofmann'
 
 
 # from smbeditGUI import SMBEditGUI
-from ..frames.rootframe import RootFrame
 
 
-class ActionAutoshape(RootFrame):
+class ActionAutoshape(object):
     """
     @type _smbedit: SMBEditGUI
     """
-    def __init__(self, root, smbedit):
+    def __init__(self, main_frame, smbedit):
         """
 
-        @type root: tk.Tk
+        @type main_frame: MainFrame
         @type smbedit: SMBEditGUI
         """
         self._smbedit = smbedit
-        RootFrame.__init__(self, root, smbedit)
+        self.main_frame = main_frame
 
         self.main_frame.tool.auto_shape.button_reset.configure(command=self.button_press_autoshape_reset)
         self.main_frame.tool.auto_shape.button_wedge.configure(command=self.button_press_autoshape_wedge)

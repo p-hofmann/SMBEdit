@@ -2,16 +2,15 @@ __author__ = 'Peter Hofmann'
 
 
 # from smbeditGUI import SMBEditGUI
-from ..frames.rootframe import RootFrame
 
 
-class ActionMoveCenter(RootFrame):
+class ActionMoveCenter(object):
     """
     @type _smbedit: SMBEditGUI
     """
-    def __init__(self, master, smbedit):
+    def __init__(self, main_frame, smbedit):
         self._smbedit = smbedit
-        super(ActionMoveCenter, self).__init__(master, smbedit)
+        self.main_frame = main_frame
 
         self.main_frame.tool.tool_move_center.button_block_id.configure(command=self.button_press_block_id)
         self.main_frame.tool.tool_move_center.button_vector.configure(command=self.button_press_vector)
