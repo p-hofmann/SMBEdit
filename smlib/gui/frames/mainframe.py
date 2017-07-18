@@ -43,16 +43,10 @@ class MainFrame(RootFrame):
     # GUI
     # #################
 
-    # def newselection(self, event):
-    #     self._current_index = self._combo_box.current()
-    #     # self.value_of_combo = self.box.current()
-    #     # print(self.value_of_combo)
-
     def _gui_combobox_blueprint(self, root_frame):
         self.box_value = tk.StringVar()
         frame = tk.LabelFrame(
             root_frame, text="Specific Entity")  # , relief=tk.RAISED
-        # frame.pack(side=tk.RIGHT, fill=tk.Y)
         frame.pack(side=tk.BOTTOM, fill=tk.X)
 
         self.entities_variable_checkbox = tk.BooleanVar()
@@ -67,26 +61,10 @@ class MainFrame(RootFrame):
         self.entities_combo_box.pack(fill=tk.X)
         self.entities_combo_box['values'] = ['All']
         self.entities_combo_box.current(0)
-        # self._combo_box.bind("<<ComboboxSelected>>", self.newselection)
-        # box.grid(column=0, row=0)
 
     def entities_check_box_onchange(self):
-        # if :
         if not self.entities_variable_checkbox.get():
             self.entities_combo_box['values'] = ['All']
         elif len(self.list_of_entity_names) > 0:
             self.entities_combo_box['values'] = self.list_of_entity_names
         self.entities_combo_box.current(0)
-
-# frame = tk.LabelFrame(self._root, text="Output")
-# frame.pack(side=tk.BOTTOM)
-# frame.grid_propagate(False)
-# implement stretchability
-# frame.grid_rowconfigure(0, weight=1)
-# frame.grid_columnconfigure(0, weight=1)
-# text_box = tk.Text(frame, wrap='word', height=5, width=100, state=tk.DISABLED)
-# text_box.pack(fill=tk.BOTH, expand=1)
-# scrollb = tk.Scrollbar(frame, command=text_box.yview)
-# scrollb.grid(row=0, column=1, sticky='nsew')
-# text_box['yscrollcommand'] = scrollb.set
-# self.text_box = StreamToTkText(text_box)
