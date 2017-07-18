@@ -5,14 +5,14 @@ import sys
 import os
 import zipfile
 import tempfile
+from ...validator import Validator
+from ...blueprint import Blueprint
+from smbedit import SMBEdit
 if sys.version_info < (3,):
     import tkMessageBox as messagebox
     import tkFileDialog as filedialog
 else:
     from tkinter import messagebox, filedialog
-from ...validator import Validator
-from ...blueprint import Blueprint
-from smbedit import SMBEdit
 
 
 class ActionMenuBar(Validator):
@@ -156,12 +156,12 @@ class ActionMenuBar(Validator):
         index = 0
         is_docked_entity = False
         tmp_list_path = list()
-        tmp_list_name = list()
+        self.root_frame.list_of_entity_names = list()
         tmp_list_path.append(directory_base)
-        tmp_list_name.append("ENTITY_Main_0")
+        self.root_frame.list_of_entity_names.append("MAIN")
         while index < len(tmp_list_path):
             blueprint_path = tmp_list_path[index]
-            entity_name = tmp_list_name[index]
+            entity_name = self.root_frame.list_of_entity_names[index]
             relative_path = os.path.relpath(blueprint_path, directory_base)
             if relative_path == '.':
                 relative_path = ''
@@ -174,7 +174,7 @@ class ActionMenuBar(Validator):
             index += 1
             blueprint = Blueprint(entity_name, logfile=self._logfile, verbose=self._verbose, debug=self._debug)
             blueprint.read(blueprint_path)
-            docked_entity_name_prefix = "ENTITY_Minor_{}".format(entity_name.rsplit('_', 1)[1])
+            docked_entity_name_prefix = "{}__ATTACHED_".format(entity_name)
             blueprint.replace_outdated_docker_modules(docked_entity_name_prefix, is_docked_entity)
             self._smbedit.blueprint.append(blueprint)
             # relative_path = os.path.relpath(directory_base, os.path.dirname(blueprint_path))
@@ -189,10 +189,11 @@ class ActionMenuBar(Validator):
                     continue
                 _, dock_index = folder_name.rsplit('_', 1)
                 tmp_list_path.append(os.path.join(blueprint_path, folder_name))
-                tmp_list_name.append("{}{}".format(docked_entity_name_prefix, dock_index))
+                self.root_frame.list_of_entity_names.append("{}{}".format(docked_entity_name_prefix, dock_index))
 
-        self.root_frame.combo_box_entities['values'] = tmp_list_name
-        self.root_frame.combo_box_entities.current(0)
+        self.root_frame.entities_combo_box['values'] = ['All']
+        self.root_frame.entities_combo_box.current(0)
+        self.root_frame.entities_variable_checkbox.set(0)
         self.root_frame.status_bar.set(msg + " Done")
         # self.text_box.delete("2.0 - 1c")
         # self.text_box.write("Done.\n")
