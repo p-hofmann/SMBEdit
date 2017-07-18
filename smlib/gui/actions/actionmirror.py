@@ -19,7 +19,14 @@ class ActionMirror(object):
         self.main_frame.tool.tool_mirror.button_mirror.configure(command=self.button_press_mirror)
 
     def button_press_mirror(self):
-        self._smbedit.blueprint[self.main_frame.entities_combo_box.current()].mirror_axis(
-            self.main_frame.tool.tool_mirror.variable_radiobox_axis.get(),
-            self.main_frame.tool.tool_mirror.variable_checkbox_reversed.get()
-            )
+        if self.main_frame.entities_variable_checkbox.get():
+            self._smbedit.blueprint[self.main_frame.entities_combo_box.current()].mirror_axis(
+                self.main_frame.tool.tool_mirror.variable_radiobox_axis.get(),
+                self.main_frame.tool.tool_mirror.variable_checkbox_reversed.get()
+                )
+        else:
+            for blueprint in self._smbedit.blueprint:
+                blueprint.mirror_axis(
+                    self.main_frame.tool.tool_mirror.variable_radiobox_axis.get(),
+                    self.main_frame.tool.tool_mirror.variable_checkbox_reversed.get()
+                    )
