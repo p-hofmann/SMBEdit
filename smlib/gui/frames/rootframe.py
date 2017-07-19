@@ -22,7 +22,7 @@ class RootFrame(tk.Frame):
         # self.main_frame = MainFrame(self)
         # self.main_frame.pack(fill=tk.BOTH, padx=5, pady=3)
 
-        self.status_bar = StatusBar(self)
+        self.status_bar = StatusBar(root)
         self.status_bar.pack(side=tk.BOTTOM, fill=tk.X)
         self.status_bar.set("Ready")
 

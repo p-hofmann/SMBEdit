@@ -31,10 +31,10 @@ class FrameMiscellaneous(tk.LabelFrame):
         frame = tk.LabelFrame(
             self, text="Type")  # , relief=tk.RAISED
         # frame.pack(side=tk.RIGHT, fill=tk.Y)
-        frame.pack(side=tk.TOP, fill=tk.X, pady=2)
+        frame.pack(side=tk.TOP, fill=tk.X, pady=2, padx=2)
 
         self.combo_box_type = ttk.Combobox(frame, state='readonly')
-        self.combo_box_type.pack(fill=tk.X)
+        self.combo_box_type.pack(fill=tk.X, pady=2, padx=5)
         self.combo_box_type['values'] = list(BlueprintEntity.entity_types.values())
         self.combo_box_type.current(0)
         # self.combo_box.bind("<<ComboboxSelected>>", self.newselection)
@@ -44,11 +44,11 @@ class FrameMiscellaneous(tk.LabelFrame):
         frame = tk.LabelFrame(
             self, text="Class")  # , relief=tk.RAISED
         # frame.pack(side=tk.RIGHT, fill=tk.Y)
-        frame.pack(side=tk.TOP, fill=tk.X, pady=2)
+        frame.pack(side=tk.TOP, fill=tk.X, pady=1, padx=2)
 
         self.combo_box_class = ttk.Combobox(frame, state='readonly')
         # self.combo_box_class['values'] = list(self._ct_to_ship_class.values())
         self.combo_box_class['values'] = ["General"]
         self.combo_box_class.current(0)
-        self.combo_box_class.pack(fill=tk.X)
+        self.combo_box_class.pack(fill=tk.X, pady=1, padx=5)
         # box.grid(column=0, row=0)

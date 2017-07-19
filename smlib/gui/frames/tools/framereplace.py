@@ -27,7 +27,7 @@ class FrameReplace(tk.LabelFrame):
     """
 
     def __init__(self, master):
-        tk.LabelFrame.__init__(self, master, text="Replace")
+        tk.LabelFrame.__init__(self, master, text="Remove/Replace")
         self._gui_remove_block()
         self._gui_replace_block()
         self._gui_replace_hull_and_armor()
@@ -46,6 +46,7 @@ class FrameReplace(tk.LabelFrame):
 
         self.button_remove = tk.Button(
             text="Remove block id",
+            bd=2,
             master=frame_top)
         self.button_remove.pack(fill=tk.X, side=tk.LEFT)
 
@@ -67,7 +68,7 @@ class FrameReplace(tk.LabelFrame):
         frame_bottom.pack(side=tk.BOTTOM, anchor=tk.W, fill=tk.X)
         # BOTTOM END
 
-        frame_main.pack(anchor=tk.W, fill=tk.X, padx=5, pady=5)
+        frame_main.pack(anchor=tk.W, fill=tk.X, padx=2, pady=2)
 
     def _gui_replace_block(self):
         frame_main = tk.Frame(self)
@@ -81,6 +82,7 @@ class FrameReplace(tk.LabelFrame):
 
         self.button_replace_block = tk.Button(
             text="Replace block id",
+            bd=2,
             master=frame_top)
         self.button_replace_block.pack(fill=tk.X, side=tk.LEFT)
 
@@ -116,7 +118,7 @@ class FrameReplace(tk.LabelFrame):
         frame_bottom.pack(side=tk.BOTTOM, anchor=tk.W, fill=tk.X)
         # BOTTOM END
 
-        frame_main.pack(fill=tk.X, padx=5, pady=5)
+        frame_main.pack(fill=tk.X, padx=2, pady=2)
 
     def _gui_replace_hull_and_armor(self):
         frame_main = tk.Frame(self)
@@ -149,10 +151,11 @@ class FrameReplace(tk.LabelFrame):
 
         self.button_replace_hull = tk.Button(
             text="Replace",
+            bd=2,
             master=frame_bottom)
         self.button_replace_hull.pack(fill=tk.X, side=tk.LEFT)
 
         frame_bottom.pack(side=tk.BOTTOM, anchor=tk.W, fill=tk.X)
         # BOTTOM END
 
-        frame_main.pack(fill=tk.X, padx=5, pady=5)
+        frame_main.pack(fill=tk.X, padx=2, pady=2)

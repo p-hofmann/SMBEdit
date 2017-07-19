@@ -29,14 +29,14 @@ class MainFrame(RootFrame):
         self._gui_combobox_blueprint(self)
 
         note = ttk.Notebook(self)
-        note.pack(side=tk.TOP, fill=tk.X)
+        note.pack(side=tk.TOP, fill=tk.BOTH, expand=tk.TRUE, pady=5)
 
         self.summary = FrameSummary(note)
-        self.summary.pack(side=tk.TOP, fill=tk.X)
+        self.summary.pack(side=tk.TOP, fill=tk.BOTH)
         note.add(self.summary, text="Summary")
 
         self.tool = FrameTool(note)
-        self.tool.pack(side=tk.TOP, fill=tk.X)
+        self.tool.pack(side=tk.TOP, fill=tk.BOTH)
         note.add(self.tool, text="Tools")
 
     # #################

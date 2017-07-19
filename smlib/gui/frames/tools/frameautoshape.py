@@ -24,25 +24,30 @@ class FrameAutoShape(tk.LabelFrame):
 
         self.button_reset = tk.Button(
             text="Cube",
+            bd=2,
             master=self)
-        self.button_reset.pack(fill=tk.X)
+        self.button_reset.pack(fill=tk.X, padx=2, pady=1)
 
         self.button_wedge = tk.Button(
             text="Wedge",
+            bd=2,
             master=self)
-        self.button_wedge.pack(fill=tk.X)
+        self.button_wedge.pack(fill=tk.X, padx=2, pady=1)
 
         self.button_tetra = tk.Button(
             text="Tetra",
+            bd=2,
             master=self)
-        self.button_tetra.pack(fill=tk.X)
+        self.button_tetra.pack(fill=tk.X, padx=2, pady=1)
 
         self.button_corner = tk.Button(
             text="Corner",
+            bd=2,
             master=self)
-        self.button_corner.pack(fill=tk.X)
+        self.button_corner.pack(fill=tk.X, padx=2, pady=1)
 
         self.button_hepta = tk.Button(
             text="Hepta",
+            bd=2,
             master=self)
-        self.button_hepta.pack(fill=tk.X)
+        self.button_hepta.pack(fill=tk.X, padx=2, pady=1)

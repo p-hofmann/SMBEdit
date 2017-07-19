@@ -40,6 +40,7 @@ class FrameMoveCenter(tk.LabelFrame):
 
         self.button_block_id = tk.Button(
             text="To block id",
+            bd=2,
             master=frame_top)
         self.button_block_id.pack(fill=tk.X, side=tk.LEFT)
 
@@ -60,7 +61,7 @@ class FrameMoveCenter(tk.LabelFrame):
         frame_bottom.pack(side=tk.BOTTOM)
         # BOTTOM END
 
-        frame_main.pack(anchor=tk.W, fill=tk.X, padx=5, pady=5)
+        frame_main.pack(anchor=tk.W, fill=tk.X, padx=2, pady=2)
 
     def _gui_move_center_by_vector(self):
         new_frame = tk.Frame(self)
@@ -76,6 +77,7 @@ class FrameMoveCenter(tk.LabelFrame):
 
         self.button_vector = tk.Button(
             text=" By vector ",
+            bd=2,
             master=new_frame)
         self.button_vector.pack(fill=tk.X, side=tk.LEFT)
 
@@ -92,4 +94,4 @@ class FrameMoveCenter(tk.LabelFrame):
             validatecommand=vcmd, width=4)
         textbox.pack(fill=tk.X, side=tk.LEFT)
 
-        new_frame.pack(fill=tk.X, padx=5, pady=5)
+        new_frame.pack(fill=tk.X, padx=2, pady=2)
