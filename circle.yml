@@ -5,8 +5,10 @@ machine:
 dependencies:
   override:
     - pip install tox tox-pyenv
+    - pip install ./
     - pyenv local 2.7.10 3.6.0
 
 test:
   override:
     - tox
+    - smbedit -h
