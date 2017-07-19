@@ -299,11 +299,11 @@ def main():
             sys.stderr.write("\n{}\n".format(traceback.format_exc()))
         if len(e.args) > 0:
             sys.stderr.write("ERROR: ")
-            sys.stderr.write(e.args[0])
+            sys.stderr.write("{}\n".format(e.args[0]))
             sys.exit(1)
     except AssertionError as e:
         if len(e.args) > 0:
-            sys.stderr.write(e.args[0])
+            sys.stderr.write("{}\n".format(e.args[0]))
             sys.exit(1)
     sys.exit(error)
 
