@@ -11,4 +11,5 @@ dependencies:
 test:
   override:
     - smbedit -h
+    - smbedit unittests/test_blueprints/B_Box.sment
     - tox
