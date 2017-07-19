@@ -36,10 +36,14 @@ class ActionMenuBar(Validator):
         self.root_frame = root_frame
         super(Validator, self).__init__(label="MenuBar", logfile=logfile, verbose=verbose, debug=debug)
 
-        self.root_frame.menubar.menu_cascade_load.add_command(label="Load blueprint", command=self._dialog_directory_load)
-        self.root_frame.menubar.menu_cascade_load.add_command(label="Load *.sment", command=self._dialog_file_load)
-        self.root_frame.menubar.menu_cascade_save.add_command(label="Save blueprint", command=self._dialog_directory_save)
-        self.root_frame.menubar.menu_cascade_save.add_command(label="Save *.sment", command=self._dialog_file_save)
+        self.root_frame.menubar.menu_cascade_load.add_command(
+            label="Load blueprint", command=self._dialog_directory_load)
+        self.root_frame.menubar.menu_cascade_load.add_command(
+            label="Load *.sment", command=self._dialog_file_load)
+        self.root_frame.menubar.menu_cascade_save.add_command(
+            label="Save blueprint", command=self._dialog_directory_save)
+        self.root_frame.menubar.menu_cascade_save.add_command(
+            label="Save *.sment", command=self._dialog_file_save)
 
     def _dialog_file_load(self):
         blueprint_dir = None
