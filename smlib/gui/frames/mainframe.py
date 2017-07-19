@@ -53,7 +53,7 @@ class MainFrame(RootFrame):
 
         self.entities_check_box = tk.Checkbutton(
             frame, text="", variable=self.entities_variable_checkbox,
-            command=self.entities_check_box_onchange,
+            # command=self.entities_check_box_onchange,
             onvalue=True, offvalue=False)
         self.entities_check_box.pack(fill=tk.X, side=tk.LEFT)
 
@@ -62,9 +62,49 @@ class MainFrame(RootFrame):
         self.entities_combo_box['values'] = ['All']
         self.entities_combo_box.current(0)
 
-    def entities_check_box_onchange(self):
-        if not self.entities_variable_checkbox.get():
-            self.entities_combo_box['values'] = ['All']
-        elif len(self.list_of_entity_names) > 0:
-            self.entities_combo_box['values'] = self.list_of_entity_names
-        self.entities_combo_box.current(0)
+    def update_summary(self, smbedit):
+        if len(self.list_of_entity_names) == 0:
+            return
+        self.summary.text_box.delete()
+        self.summary.text_box.write("# Header v{}\n".format(
+            smbedit.blueprint[self.entities_combo_box.current()].header.version))
+        self.summary.text_box.write("\tLength: {}, Width: {}, Height: {}, \n".format(
+            round(smbedit.blueprint[self.entities_combo_box.current()].header.get_length()),
+            round(smbedit.blueprint[self.entities_combo_box.current()].header.get_width()),
+            round(smbedit.blueprint[self.entities_combo_box.current()].header.get_height()),
+            ))
+        self.summary.text_box.write("\tType: {}\n".format(
+            smbedit.blueprint[self.entities_combo_box.current()].header.get_type_name()))
+        self.summary.text_box.write("\tRole: {}\n".format(
+            smbedit.blueprint[self.entities_combo_box.current()].header.get_classification_name()))
+
+        self.summary.text_box.write("\n")
+
+        controller_version = 0
+        tmp = smbedit.blueprint[self.entities_combo_box.current()].logic._controller_version
+        if tmp < -1:
+            controller_version = abs(tmp) - 1024
+        self.summary.text_box.write("# Logic v{}.{}\n".format(
+            smbedit.blueprint[self.entities_combo_box.current()].logic.version,
+            controller_version
+            ))
+        self.summary.text_box.write("\tControllers: {}\n".format(
+            len(smbedit.blueprint[self.entities_combo_box.current()].logic._controller_position_to_block_id_to_block_positions)))
+
+        self.summary.text_box.write("\n")
+
+        self.summary.text_box.write("# Metadata v{}\n".format(
+            smbedit.blueprint[self.entities_combo_box.current()].meta._version))
+
+        self.summary.text_box.write("\n")
+
+        self.summary.text_box.write("# SMD\n")
+        if self.entities_variable_checkbox.get():
+            self.summary.text_box.write("\tBlocks: {}\n".format(
+                len(smbedit.blueprint[self.entities_combo_box.current()].smd3._block_list)))
+        else:
+            total_sum = 0
+            for blueprint in smbedit.blueprint:
+                total_sum += len(blueprint.smd3._block_list)
+            self.summary.text_box.write("\tBlocks: {}\n".format(
+                total_sum))

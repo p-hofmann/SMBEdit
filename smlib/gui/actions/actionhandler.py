@@ -1,20 +1,22 @@
 __author__ = 'Peter Hofmann'
 
-from smlib.gui.actions.actionautoshape import ActionAutoshape
-from smlib.gui.actions.actionmirror import ActionMirror
-from smlib.gui.actions.actionmiscellaneous import ActionMiscellaneous
-from smlib.gui.actions.actionmovecenter import ActionMoveCenter
-from smlib.gui.actions.actionreplace import ActionReplace
-from smlib.gui.actions.actionmenubar import ActionMenuBar
+from .actioncomponents import ActionComponents
+from .actionautoshape import ActionAutoshape
+from .actionmirror import ActionMirror
+from .actionmiscellaneous import ActionMiscellaneous
+from .actionmovecenter import ActionMoveCenter
+from .actionreplace import ActionReplace
+from .actionmenubar import ActionMenuBar
 
 
-class ActionHandler(ActionAutoshape, ActionMirror, ActionMiscellaneous, ActionMoveCenter, ActionReplace, ActionMenuBar):
+class ActionHandler(ActionComponents, ActionAutoshape, ActionMirror, ActionMiscellaneous, ActionMoveCenter, ActionReplace, ActionMenuBar):
     def __init__(self, main_frame, smbedit):
         """
 
         @type main_frame: smlib.gui.frames.mainframe.MainFrame
         @type smbedit: smbeditGUI.SMBEditGUI
         """
+        ActionComponents.__init__(self, main_frame, smbedit)
         ActionAutoshape.__init__(self, main_frame, smbedit)
         ActionMirror.__init__(self, main_frame, smbedit)
         ActionMiscellaneous.__init__(self, main_frame, smbedit)
