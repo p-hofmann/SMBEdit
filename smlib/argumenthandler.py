@@ -2,12 +2,12 @@ __author__ = 'Peter Hofmann'
 __version__ = '0.1.0'
 
 import os
+import sys
 import shutil
 import tempfile
 import argparse
 import zipfile
 
-import smlib
 from .validator import Validator
 from .configparserwrapper import ConfigParserWrapper
 
@@ -39,8 +39,7 @@ class ArgumentHandler(Validator):
         @rtype: None
         """
         self._tmp_dir = None
-        smbe_dir = os.path.dirname(self.get_full_path(os.path.dirname(smlib.__file__)))
-        config_file_path = os.path.join(smbe_dir, "config.ini")
+        config_file_path = self.get_config_file_path()
         super(ArgumentHandler, self).__init__(
             label=label,
             logfile=logfile,
@@ -387,3 +386,21 @@ class ArgumentHandler(Validator):
             return parser.parse_args()
         else:
             return parser.parse_args(args)
+
+    def get_config_file_path(self):
+        app_name = ".SMBEdit"
+        file_name_config = "config.ini"
+        if sys.platform == "win32":
+            app_name = "SMBEdit"
+            root_dir = os.getenv("APPDATA")
+        else:
+            root_dir = self.get_full_path("~")
+            if sys.platform == "darwin":
+                app_name = "SMBEdit"
+                root_dir = os.path.join(root_dir, "Library", "Application Support")
+        assert os.path.exists(root_dir)
+        assert os.path.isdir(root_dir)
+        app_dir = os.path.join(root_dir, app_name)
+        if not os.path.exists(app_dir):
+            os.mkdir(app_dir)
+        return os.path.join(app_dir, file_name_config)
