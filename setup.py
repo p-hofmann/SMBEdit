@@ -9,9 +9,9 @@ setup(name='SMBEdit',
       author_email='',
       url='https://github.com/p-hofmann/SMBEdit',
       packages=find_packages(exclude=('unittests',)),
-      entry_points = {
+      entry_points={
           'console_scripts': [
               'smbedit = smbedit:main',
-          ],
-      },
-     )
+              ],
+          },
+      )
