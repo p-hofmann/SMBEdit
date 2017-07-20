@@ -137,7 +137,7 @@ class SuperBlockConfig(object):
             return self._id_to_block[int(int_block_id)]
         except KeyError as e:
             msg = 'Unknown block id: {}. '.format(int_block_id)
-            msg += 'Have you loaded the last version of the Starmade configuration files ?'
+            msg += 'Have you pointed "-sm" to latest version of StarMade?'
             raise KeyError(msg)
 
     def __iter__(self):
