@@ -78,10 +78,13 @@ class SMBEditGUI(Validator):
         return directory_starmade
 
 
-if __name__ == "__main__":
+def main():
     name = "SMBEdit " + smbedit.__version__
-    with SMBEditGUI(verbose=True, debug=True) as smbeditgui:
-        window = Window(smbeditgui)
+    with SMBEditGUI(verbose=True, debug=True) as smbedit_gui:
+        window = Window(smbedit_gui)
         window.resizable(0, 0)
         window.title(name)
         window.mainloop()
+
+if __name__ == "__main__":
+    main()
