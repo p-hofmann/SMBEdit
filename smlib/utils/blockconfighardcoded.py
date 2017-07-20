@@ -854,24 +854,7 @@ class BlockConfigHardcoded(object):
             return 0
         if block_id in BlockConfigHardcoded._block_ids["test"]:
             return 0
-        raise Exception("Unknown block style for id: {}".format(block_id))
-
-    @staticmethod
-    def are_compatible_blocks(block_id_1, block_id_2):
-        """
-        Return True if two blocks can be replace each other without orientation issues
-
-        @param block_id_1:
-        @type block_id_1: int
-        @param block_id_2:
-        @type block_id_2: int
-
-        @return:
-        @rtype: bool
-        """
-        if BlockConfigHardcoded.get_block_style(block_id_1) == BlockConfigHardcoded.get_block_style(block_id_2):
-                return True
-        return False
+        raise LookupError("Unknown block style for id: {}".format(block_id))
 
     @staticmethod
     def is_known_id(block_id):
