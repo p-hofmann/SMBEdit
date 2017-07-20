@@ -6,7 +6,7 @@ if sys.version_info < (3,):
     import Tkinter as tk
 else:
     import tkinter as tk
-from .streamtotktext import StreamToTkText
+from smlib.gui.frames.streamtotktext import StreamToTkText
 
 
 class FrameSummary(tk.Frame):

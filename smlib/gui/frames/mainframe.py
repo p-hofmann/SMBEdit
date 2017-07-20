@@ -9,7 +9,7 @@ else:
     import tkinter as tk
     from tkinter import ttk
 from .tools.frametool import FrameTool
-from .framesummary import FrameSummary
+from .summary.framesummary import FrameSummary
 from .rootframe import RootFrame
 
 
