@@ -17,9 +17,6 @@ class FrameSummary(tk.Frame):
     def __init__(self, master):
         tk.Frame.__init__(self, master)  # , text="Tools"
 
-        self.draw_summary()
-
-    def draw_summary(self):
         frame = tk.Frame(self)
         frame.pack(side=tk.TOP, padx=5, pady=5, expand=tk.TRUE, fill=tk.BOTH)
         frame.grid_propagate(False)
