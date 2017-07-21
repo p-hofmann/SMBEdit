@@ -8,7 +8,7 @@ __author__ = 'Peter Hofmann'
 
 class Annotate(object):
     """
-    Collection of auto shape stuff
+    Annotate block positions
 
     @type _block_list: BlockList
     @type _periphery: PeripheryBase
