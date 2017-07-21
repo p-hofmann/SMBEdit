@@ -1,7 +1,7 @@
 __author__ = 'Peter Hofmann'
 
 
-class ActionComponents(object):
+class ActionMain(object):
     """
     @type _smbedit: smbeditGUI.SMBEditGUI
     """
