@@ -1,12 +1,13 @@
 __author__ = 'Peter Hofmann'
 
 
-# from smbeditGUI import SMBEditGUI
+from .actiondefault import ActionDefault
 
 
-class ActionMiscellaneous(object):
+class ActionMiscellaneous(ActionDefault):
     """
-    @type _smbedit: smbeditGUI.SMBEditGUI
+    Dealing with component interactions
+
     @type _ct_to_ship_class: dict[int, str]
     @type _ct_to_station_class: dict[int, str]
     """
@@ -35,35 +36,30 @@ class ActionMiscellaneous(object):
         8: "Factory",  #
     }
 
-    def __init__(self, main_frame, smbedit):
+    def set_commands(self):
         """
-
-        @type main_frame: smlib.gui.frames.mainframe.MainFrame
-        @type smbedit: smbeditGUI.SMBEditGUI
+        Set commands of components
         """
-        self._smbedit = smbedit
-        self.main_frame = main_frame
-
-        self.main_frame.tool.tool_else.combo_box_type.bind("<<ComboboxSelected>>", self.combo_box_type_change)
-        self.main_frame.tool.tool_else.combo_box_class.bind("<<ComboboxSelected>>", self.combo_box_class_change)
+        self._main_frame.tool.tool_else.combo_box_type.bind("<<ComboboxSelected>>", self.combo_box_type_change)
+        self._main_frame.tool.tool_else.combo_box_class.bind("<<ComboboxSelected>>", self.combo_box_class_change)
         self.refresh_combobox_values()
 
     def combo_box_type_change(self, event):
         self.refresh_combobox_values()
-        self._smbedit.blueprint[self.main_frame.entities_combo_box.current()].set_entity(
-            self.main_frame.tool.tool_else.combo_box_type.current(),
-            self.main_frame.tool.tool_else.combo_box_class.current())
+        self._smbedit.blueprint[self._main_frame.entities_combo_box.current()].set_entity(
+            self._main_frame.tool.tool_else.combo_box_type.current(),
+            self._main_frame.tool.tool_else.combo_box_class.current())
 
     def combo_box_class_change(self, event):
-        self._smbedit.blueprint[self.main_frame.entities_combo_box.current()].set_entity(
-            self.main_frame.tool.tool_else.combo_box_type.current(),
-            self.main_frame.tool.tool_else.combo_box_class.current())
+        self._smbedit.blueprint[self._main_frame.entities_combo_box.current()].set_entity(
+            self._main_frame.tool.tool_else.combo_box_type.current(),
+            self._main_frame.tool.tool_else.combo_box_class.current())
 
     def refresh_combobox_values(self):
-        if self.main_frame.tool.tool_else.combo_box_type.current() == 0:
-            self.main_frame.tool.tool_else.combo_box_class['values'] = list(self._ct_to_ship_class.values())
-        elif self.main_frame.tool.tool_else.combo_box_type.current() == 2:
-            self.main_frame.tool.tool_else.combo_box_class['values'] = list(self._ct_to_station_class.values())
+        if self._main_frame.tool.tool_else.combo_box_type.current() == 0:
+            self._main_frame.tool.tool_else.combo_box_class['values'] = list(self._ct_to_ship_class.values())
+        elif self._main_frame.tool.tool_else.combo_box_type.current() == 2:
+            self._main_frame.tool.tool_else.combo_box_class['values'] = list(self._ct_to_station_class.values())
         else:
-            self.main_frame.tool.tool_else.combo_box_class['values'] = ["General"]
-        self.main_frame.tool.tool_else.combo_box_class.current(0)
+            self._main_frame.tool.tool_else.combo_box_class['values'] = ["General"]
+        self._main_frame.tool.tool_else.combo_box_class.current(0)

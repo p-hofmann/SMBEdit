@@ -7,6 +7,7 @@ import tempfile
 
 from ...common.validator import Validator
 from ...blueprint import Blueprint
+from .actiondefault import ActionDefault
 from smbedit import SMBEdit
 
 if sys.version_info < (3,):
@@ -16,9 +17,9 @@ else:
     from tkinter import messagebox, filedialog
 
 
-class ActionMenuBar(Validator):
+class ActionMenuBar(ActionDefault, Validator):
     """
-    @type _smbedit: smbeditGUI.SMBEditGUI
+    Dealing with component interactions
     """
 
     _file_types = [
@@ -26,24 +27,26 @@ class ActionMenuBar(Validator):
         ("Blueprint", "*.zip")
         ]
 
-    def __init__(self, root_frame, smbedit, logfile=None, verbose=False, debug=False):
+    def __init__(self, main_frame, smbedit, logfile=None, verbose=False, debug=False):
         """
 
-        @type root_frame: smlib.gui.frames.mainframe.MainFrame
+        @type main_frame: smlib.gui.frames.mainframe.MainFrame
         @type smbedit: smbeditGUI.SMBEditGUI
         """
-        # RootFrame.__init__(self, root, smbedit)
-        self._smbedit = smbedit
-        self.root_frame = root_frame
+        super(ActionMenuBar, self).__init__(main_frame=main_frame, smbedit=smbedit)
         super(Validator, self).__init__(label="MenuBar", logfile=logfile, verbose=verbose, debug=debug)
 
-        self.root_frame.menubar.menu_cascade_load.add_command(
+    def set_commands(self):
+        """
+        Set commands of components
+        """
+        self._main_frame.menubar.menu_cascade_load.add_command(
             label="Load blueprint", command=self._dialog_directory_load)
-        self.root_frame.menubar.menu_cascade_load.add_command(
+        self._main_frame.menubar.menu_cascade_load.add_command(
             label="Load *.sment", command=self._dialog_file_load)
-        self.root_frame.menubar.menu_cascade_save.add_command(
+        self._main_frame.menubar.menu_cascade_save.add_command(
             label="Save blueprint", command=self._dialog_directory_save)
-        self.root_frame.menubar.menu_cascade_save.add_command(
+        self._main_frame.menubar.menu_cascade_save.add_command(
             label="Save *.sment", command=self._dialog_file_save)
 
     def _dialog_file_load(self):
@@ -131,10 +134,10 @@ class ActionMenuBar(Validator):
     # #################
 
     def save_blueprint(self, directory_output):
-        directory_output = self.get_full_path(directory_output)
+        directory_output = Validator.get_full_path(directory_output)
         blueprint_name = os.path.basename(directory_output)
         msg = "Saving blueprint '{}'... ".format(blueprint_name)
-        self.root_frame.status_bar.set(msg)
+        self._main_frame.status_bar.set(msg)
         # self.text_box.delete(1.0)
         # self.text_box.write(msg)
         for index, blueprint in enumerate(self._smbedit.blueprint):
@@ -145,13 +148,13 @@ class ActionMenuBar(Validator):
                 blueprint_output = directory_output
             # self.text_box.delete(2.0)
             # self.text_box.write(, 2.0)
-            self.root_frame.status_bar.set("Writing\t'{}'".format(relative_path))
+            self._main_frame.status_bar.set("Writing\t'{}'".format(relative_path))
             if not os.path.exists(blueprint_output):
                 os.mkdir(blueprint_output)
             blueprint.write(blueprint_output, relative_path)
         # self.text_box.delete("2.0 - 1c")
         # self.text_box.write("Done.\n")
-        self.root_frame.status_bar.set(msg + " Done")
+        self._main_frame.status_bar.set(msg + " Done")
 
     def load_blueprint(self, directory_base):
         self._smbedit.blueprint = []
@@ -159,19 +162,19 @@ class ActionMenuBar(Validator):
 
         blueprint_name = os.path.basename(directory_base)
         msg = "Loading blueprint '{}'... ".format(blueprint_name)
-        self.root_frame.status_bar.set(msg)
+        self._main_frame.status_bar.set(msg)
         # self.text_box.delete(1.0)
         # self.text_box.write("Loading blueprint '{}'... ".format(blueprint_name))
-        directory_base = self.get_full_path(directory_base)
+        directory_base = Validator.get_full_path(directory_base)
         index = 0
         is_docked_entity = False
         tmp_list_path = list()
-        self.root_frame.list_of_entity_names = list()
+        self._main_frame.list_of_entity_names = list()
         tmp_list_path.append(directory_base)
-        self.root_frame.list_of_entity_names.append("MAIN")
+        self._main_frame.list_of_entity_names.append("MAIN")
         while index < len(tmp_list_path):
             blueprint_path = tmp_list_path[index]
-            entity_name = self.root_frame.list_of_entity_names[index]
+            entity_name = self._main_frame.list_of_entity_names[index]
             relative_path = os.path.relpath(blueprint_path, directory_base)
             if relative_path == '.':
                 relative_path = ''
@@ -180,7 +183,7 @@ class ActionMenuBar(Validator):
                 relative_path = blueprint_name
             # self.text_box.delete(2.0)
             # self.text_box.write("\n\n", 2.0)
-            self.root_frame.status_bar.set("Reading:\t'{}'".format(os.path.join(blueprint_name, relative_path)))
+            self._main_frame.status_bar.set("Reading:\t'{}'".format(os.path.join(blueprint_name, relative_path)))
             index += 1
             blueprint = Blueprint(entity_name, logfile=self._logfile, verbose=self._verbose, debug=self._debug)
             blueprint.read(blueprint_path)
@@ -199,15 +202,15 @@ class ActionMenuBar(Validator):
                     continue
                 _, dock_index = folder_name.rsplit('_', 1)
                 tmp_list_path.append(os.path.join(blueprint_path, folder_name))
-                self.root_frame.list_of_entity_names.append("{}{}".format(docked_entity_name_prefix, dock_index))
+                self._main_frame.list_of_entity_names.append("{}{}".format(docked_entity_name_prefix, dock_index))
 
-        self.root_frame.entities_combo_box['values'] = ['All']
-        self.root_frame.entities_combo_box.current(0)
-        self.root_frame.entities_variable_checkbox.set(0)
-        self.root_frame.status_bar.set(msg + " Done")
+        self._main_frame.entities_combo_box['values'] = ['All']
+        self._main_frame.entities_combo_box.current(0)
+        self._main_frame.entities_variable_checkbox.set(0)
+        self._main_frame.status_bar.set(msg + " Done")
         # self.text_box.delete("2.0 - 1c")
         # self.text_box.write("Done.\n")
-        self.root_frame.update_summary(self._smbedit)
+        self._main_frame.update_summary(self._smbedit)
 
     # @StandardError
     # def _dialog_file_save(self):
