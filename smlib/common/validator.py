@@ -1,4 +1,4 @@
-__author__ = 'Peter Hofmann'
+__author__ = 'hofmann'
 __version__ = '0.1.8'
 
 import os
@@ -7,43 +7,45 @@ import math
 import string
 import filecmp
 from numbers import Number
-
 from .loggingwrapper import DefaultLogging
 
 
 class Validator(DefaultLogging):
-
-    _label = "Validator"
 
     _boolean_states = {
         'yes': True, 'true': True, 'on': True,
         'no': False, 'false': False, 'off': False,
         'y': True, 't': True, 'n': False, 'f': False}
 
-    def is_boolean_state(self, word):
+    def __init__(self, label="Validator", logfile=None, verbose=False, debug=False):
+        super(Validator, self).__init__(label=label, logfile=logfile, verbose=verbose, debug=debug)
+
+    @staticmethod
+    def is_boolean_state(word):
         """
         Test for boolean state
 
         @param word: A word
-        @type word: str
+        @type word: str | unicode
 
         @return: True if word is identified as an word equivalent to true or false
         @rtype: bool
         """
-        return str(word) in self._boolean_states
+        return str(word) in Validator._boolean_states
 
-    def get_boolean_state(self, word):
+    @staticmethod
+    def get_boolean_state(word):
         """
         Get boolean from word
 
         @param word: A word
-        @type word: str
+        @type word: str | unicode
 
         @return: True if word is identified as an word equivalent to true
         @rtype: bool
         """
-        assert str(word) in self._boolean_states
-        return self._boolean_states[str(word)]
+        assert str(word) in Validator._boolean_states
+        return Validator._boolean_states[str(word)]
 
     def are_identical_files(self, file_path_a, file_path_b, silent=False):
         """
@@ -52,9 +54,9 @@ class Validator(DefaultLogging):
         @attention: Only for text files
 
         @param file_path_a: file path
-        @type file_path_a: str
+        @type file_path_a: str | unicode
         @param file_path_b: file path
-        @type file_path_b: str
+        @type file_path_b: str | unicode
 
         @rtype: bool
         """
@@ -127,11 +129,11 @@ class Validator(DefaultLogging):
         @attention:
 
         @param text: Some string
-        @type text: str
+        @type text: str | unicode
         @param legal_alphabet: String of legal characters
-        @type legal_alphabet: str
+        @type legal_alphabet: str | unicode
         @param key: If True, no error message will be made
-        @type key: str
+        @type key: str | None
         @param silent: If True, no error message will be made
         @type silent: bool
 
@@ -266,10 +268,10 @@ class Validator(DefaultLogging):
         @param directory: A directory
         @type directory: str
         @param extension: file extension to be filtered for
-        @type extension: str
+        @type extension: str | unicode | None
 
         @return: list of files that reflect the filter
-        @rtype: list[str]
+        @rtype: list[str|unicode]
         """
         assert extension is None or isinstance(extension, str)
         assert isinstance(directory, str)
@@ -372,10 +374,8 @@ class Validator(DefaultLogging):
                 required_space = argument
         assert count == 1
 
-        # required_space =
-        #   required_space_in_bytes or required_space_in_kb or required_space_in_mb or required_space_in_gb
-        # print(
-        #   required_space, required_space_in_bytes, required_space_in_kb, required_space_in_mb, required_space_in_gb)
+        # required_space = required_space_in_bytes or required_space_in_kb or required_space_in_mb or required_space_in_gb
+        # print required_space, required_space_in_bytes, required_space_in_kb, required_space_in_mb, required_space_in_gb
         assert self.validate_number(required_space, minimum=0)
         assert self.validate_dir(directory, key=key, silent=silent)
 
@@ -484,7 +484,7 @@ class Validator(DefaultLogging):
         Get available file path.
 
         @param proposed_path: Directory or file path
-        @type proposed_path: str
+        @type proposed_path: str | unicode
 
         @return: Available free space
         @rtype: str
