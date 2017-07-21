@@ -1,10 +1,9 @@
 __author__ = 'Peter Hofmann'
 
-
 import sys
-from .loggingwrapper import DefaultLogging
-from .binarystream import BinaryStream
-# from lib.utils.vector import Vector
+
+from .common.loggingwrapper import DefaultLogging
+from .utils.smbinarystream import SMBinaryStream
 from .utils.blocklist import BlockList
 from .smblueprint.smdblock.blockpool import block_pool
 
@@ -40,7 +39,7 @@ class StarMadeTemplate(DefaultLogging):
         Read controller group data from byte stream
 
         @param input_stream: input stream
-        @type input_stream: BinaryStream
+        @type input_stream: SMBinaryStream
 
         @return: dict of block id to set of positions
         @rtype: list[tuple]
@@ -60,7 +59,7 @@ class StarMadeTemplate(DefaultLogging):
         Read controller data from byte stream
 
         @param input_stream: input stream
-        @type input_stream: BinaryStream
+        @type input_stream: SMBinaryStream
 
         @return: set of positions
         @rtype: dict[tuple, dict[int, set[tuple[int]]]]
@@ -78,9 +77,9 @@ class StarMadeTemplate(DefaultLogging):
         Read block quantities from a byte stream
 
         @param input_stream: input stream
-        @type input_stream: BinaryStream
+        @type input_stream: SMBinaryStream
         """
-        assert isinstance(input_stream, BinaryStream)
+        assert isinstance(input_stream, SMBinaryStream)
         num_of_blocks = input_stream.read_int32_unassigned()
         for index in range(num_of_blocks):
             position = tuple(reversed(input_stream.read_vector_3_int32()))
@@ -99,9 +98,9 @@ class StarMadeTemplate(DefaultLogging):
         Read header data from a byte stream
 
         @param input_stream: input stream
-        @type input_stream: BinaryStream
+        @type input_stream: SMBinaryStream
         """
-        assert isinstance(input_stream, BinaryStream)
+        assert isinstance(input_stream, SMBinaryStream)
         self._version = input_stream.read_byte()
         assert self._version in self._valid_versions, "Unsupported version '{}' of '{}'.".format(
             self._version, self._file_name)
@@ -113,9 +112,9 @@ class StarMadeTemplate(DefaultLogging):
         Read blueprint header data from a byte stream
 
         @param input_stream: input stream
-        @type input_stream: BinaryStream
+        @type input_stream: SMBinaryStream
         """
-        assert isinstance(input_stream, BinaryStream)
+        assert isinstance(input_stream, SMBinaryStream)
         self._block_list = BlockList()
         self._read_header(input_stream)
         self._read_blocks(input_stream)
@@ -155,7 +154,7 @@ class StarMadeTemplate(DefaultLogging):
         Read blueprint header data from a byte stream
 
         @param input_stream: input stream
-        @type input_stream: BinaryStream
+        @type input_stream: SMBinaryStream
         """
         displays = {}
         # Displays
@@ -172,7 +171,7 @@ class StarMadeTemplate(DefaultLogging):
         Read blueprint header data from a byte stream
 
         @param input_stream: input stream
-        @type input_stream: BinaryStream
+        @type input_stream: SMBinaryStream
         """
         # Storages
         storage = {}
@@ -196,7 +195,7 @@ class StarMadeTemplate(DefaultLogging):
         """
         # file_path = os.path.join(file_path_template, self._file_name)
         with open(file_path_template, 'rb') as input_stream:
-            self._read_file(BinaryStream(input_stream))
+            self._read_file(SMBinaryStream(input_stream))
 
     def to_stream(self, output_stream=sys.stdout):
         """

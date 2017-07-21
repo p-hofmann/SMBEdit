@@ -3,8 +3,8 @@ __author__ = 'Peter Hofmann'
 import os
 import sys
 
-from ...binarystream import BinaryStream
-from ...loggingwrapper import DefaultLogging
+from ...utils.smbinarystream import SMBinaryStream
+from ...common.loggingwrapper import DefaultLogging
 from ...utils.vector import Vector
 
 
@@ -32,12 +32,12 @@ class DockedEntity(object):
         """
 
         @param input_stream:
-        @type input_stream: BinaryStream
+        @type input_stream: SMBinaryStream
 
         @return:
         @rtype: int
         """
-        assert isinstance(input_stream, BinaryStream)
+        assert isinstance(input_stream, SMBinaryStream)
         relative_path = input_stream.read_string()
         self.position = input_stream.read_vector_3_int32()
         self.size = input_stream.read_vector_3_float()
@@ -54,11 +54,11 @@ class DockedEntity(object):
         """
 
         @param output_stream:
-        @type output_stream: BinaryStream
+        @type output_stream: SMBinaryStream
         @type dock_index: int
         @type relative_path: str
         """
-        assert isinstance(output_stream, BinaryStream)
+        assert isinstance(output_stream, SMBinaryStream)
         new_relative_directory = os.path.join(relative_path, "ATTACHED_{}".format(dock_index))
         output_stream.write_string(new_relative_directory)
         output_stream.write_vector_3_int32(self.position)
@@ -106,7 +106,7 @@ class DataType3(DefaultLogging):
         """
 
         @param input_stream:
-        @type input_stream: BinaryStream
+        @type input_stream: SMBinaryStream
 
         @return:
         @rtype: dict
@@ -129,7 +129,7 @@ class DataType3(DefaultLogging):
         write dummy values
 
         @param output_stream: Output stream
-        @type output_stream: BinaryStream
+        @type output_stream: SMBinaryStream
         """
         self._logger.debug("Writing")
         output_stream.write_byte(3)
@@ -140,7 +140,7 @@ class DataType3(DefaultLogging):
         write values
 
         @param output_stream: Output stream
-        @type output_stream: BinaryStream
+        @type output_stream: SMBinaryStream
         """
         self._logger.debug("Writing")
         output_stream.write_byte(3)

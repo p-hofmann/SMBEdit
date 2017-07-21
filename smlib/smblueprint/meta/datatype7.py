@@ -2,8 +2,8 @@ __author__ = 'Peter Hofmann'
 
 import sys
 
-from ...binarystream import BinaryStream
-from ...loggingwrapper import DefaultLogging
+from ...utils.smbinarystream import SMBinaryStream
+from ...common.loggingwrapper import DefaultLogging
 from ...utils.vector import Vector
 
 
@@ -32,7 +32,7 @@ class DataType7(DefaultLogging):
         Read from byte stream
 
         @param input_stream: input stream
-        @type input_stream: BinaryStream
+        @type input_stream: SMBinaryStream
         """
         self._has_data = input_stream.read_bool()
         if self._has_data:
@@ -52,7 +52,7 @@ class DataType7(DefaultLogging):
         write values
 
         @param output_stream: Output stream
-        @type output_stream: BinaryStream
+        @type output_stream: SMBinaryStream
         """
         self._logger.debug("Writing")
         output_stream.write_byte(7)

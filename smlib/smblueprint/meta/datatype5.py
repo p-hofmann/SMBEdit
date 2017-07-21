@@ -2,8 +2,8 @@ __author__ = 'Peter Hofmann'
 
 import sys
 
-from ...binarystream import BinaryStream
-from ...loggingwrapper import DefaultLogging
+from ...utils.smbinarystream import SMBinaryStream
+from ...common.loggingwrapper import DefaultLogging
 from .tag.tagmanager import TagManager
 from .tag.datatype2.aiconfig import AIConfig
 
@@ -24,7 +24,7 @@ class DataType5(DefaultLogging):
         Read tag root from byte stream
 
         @param input_stream: input stream
-        @type input_stream: BinaryStream
+        @type input_stream: SMBinaryStream
         """
         tag_size = input_stream.read_int32_unassigned()
         if tag_size > 0:
@@ -40,7 +40,7 @@ class DataType5(DefaultLogging):
         write values
 
         @param output_stream: Output stream
-        @type output_stream: BinaryStream
+        @type output_stream: SMBinaryStream
         """
         if not self.has_data():
             self._tag_data.set_root_tag(AIConfig().to_tag())

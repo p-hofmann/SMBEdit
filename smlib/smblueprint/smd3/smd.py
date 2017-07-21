@@ -4,7 +4,7 @@ import sys
 import os
 import math
 
-from ...loggingwrapper import DefaultLogging
+from ...common.loggingwrapper import DefaultLogging
 from ...utils.blockconfig import block_config
 from ...utils.blocklist import BlockList
 from ...utils.vector import Vector
@@ -12,7 +12,6 @@ from ...utils.blueprintentity import BlueprintEntity
 from ..smdblock.blockpool import block_pool, StyleBasic
 from ..smd2.smd import Smd as Smd2
 from .smdregion import SmdRegion
-
 
 
 class Smd(DefaultLogging):

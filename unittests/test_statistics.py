@@ -1,7 +1,9 @@
 from unittest import TestCase
 from io import BytesIO
-from smlib.binarystream import BinaryStream
+
+from smlib.utils.smbinarystream import SMBinaryStream
 from smlib.smblueprint.header import Statistics
+
 # from smlib.blueprint.smd3.smd import Smd
 
 __author__ = 'Peter Hofmann'
@@ -27,21 +29,21 @@ class DefaultSetup(TestCase):
 
 class TestStatistics(DefaultSetup):
     def test_bad_version(self):
-        stream = BinaryStream(BytesIO())
+        stream = SMBinaryStream(BytesIO())
         stream.write_bool(True)
         stream.write_int16_unassigned(2)
         stream.seek(0)
         self.assertRaises(AssertionError, self.object.read, stream)
 
     def test_read_write_empty(self):
-        stream = BinaryStream(BytesIO())
+        stream = SMBinaryStream(BytesIO())
         self.object.write(stream)
         stream.seek(0)
         self.object.read(stream)
         self.assertFalse(self.object.has_statistics)
 
     def test_read_write_data(self):
-        stream = BinaryStream(BytesIO())
+        stream = SMBinaryStream(BytesIO())
         self.object.has_statistics = True
         self.object.write(stream)
         self.object.has_statistics = False

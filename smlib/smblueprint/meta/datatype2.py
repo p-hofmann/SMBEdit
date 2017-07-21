@@ -2,8 +2,8 @@ __author__ = 'Peter Hofmann'
 
 import sys
 
-from ...binarystream import BinaryStream
-from ...loggingwrapper import DefaultLogging
+from ...utils.smbinarystream import SMBinaryStream
+from ...common.loggingwrapper import DefaultLogging
 from .tag.tagmanager import TagManager
 from .tag.datatype2tagreader import Datatype2TagReader
 
@@ -31,7 +31,7 @@ class DataType2(DefaultLogging):
         Read tags from byte stream
 
         @param input_stream: input stream
-        @type input_stream: BinaryStream
+        @type input_stream: SMBinaryStream
         """
         self._tag_data = TagManager(logfile=self._logfile, verbose=self._verbose, debug=self._debug)
         self._tag_data.read(input_stream)
@@ -45,7 +45,7 @@ class DataType2(DefaultLogging):
         write values
 
         @param output_stream: Output stream
-        @type output_stream: BinaryStream
+        @type output_stream: SMBinaryStream
         """
         if not self.has_data():
             return

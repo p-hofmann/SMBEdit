@@ -1,13 +1,14 @@
 __author__ = 'Peter Hofmann'
 
-
 import sys
 import os
 import zipfile
 import tempfile
-from ...validator import Validator
+
+from ...common.validator import Validator
 from ...blueprint import Blueprint
 from smbedit import SMBEdit
+
 if sys.version_info < (3,):
     import tkMessageBox as messagebox
     import tkFileDialog as filedialog

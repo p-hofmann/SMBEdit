@@ -1,6 +1,7 @@
 from unittest import TestCase
 from io import BytesIO
-from smlib.binarystream import BinaryStream
+
+from smlib.utils.smbinarystream import SMBinaryStream
 from smlib.smblueprint.logic import Logic
 from smlib.smblueprint.smd3.smd import Smd
 from smlib.utils.blockconfig import block_config
@@ -35,20 +36,20 @@ class TestLogic(DefaultSetup):
             self.object.read(directory_blueprint)
 
     def test_bad_version(self):
-        input_stream = BinaryStream(BytesIO())
+        input_stream = SMBinaryStream(BytesIO())
         input_stream.write_int32_unassigned(1)
         input_stream.seek(0)
         self.assertRaises(AssertionError, self.object._read_file, input_stream)
 
     def test_bad_controller_version(self):
-        input_stream = BinaryStream(BytesIO())
+        input_stream = SMBinaryStream(BytesIO())
         input_stream.write_int32_unassigned(0)
         input_stream.write_int32(-1024)
         input_stream.seek(0)
         self.assertRaises(NotImplementedError, self.object._read_file, input_stream)
 
     def test_smd2_logic(self):
-        input_stream = BinaryStream(BytesIO())
+        input_stream = SMBinaryStream(BytesIO())
         input_stream.write_int32_unassigned(0)
         input_stream.write_int32(0)
         input_stream.seek(0)
@@ -56,7 +57,7 @@ class TestLogic(DefaultSetup):
         expected_tuple = (8, 8, 8)
         self.assertTupleEqual(expected_tuple, self.object._offset)
 
-        input_stream = BinaryStream(BytesIO())
+        input_stream = SMBinaryStream(BytesIO())
         input_stream.write_int32_unassigned(0)
         input_stream.write_int32(-1026)
         input_stream.write_int32_unassigned(0)
@@ -69,7 +70,7 @@ class TestLogic(DefaultSetup):
         expected_set_of_positions.add((1, 2, 3))
         expected_set_of_positions.add((1, 2, 5))
 
-        input_stream = BinaryStream(BytesIO())
+        input_stream = SMBinaryStream(BytesIO())
         self.object._write_list_of_positions(expected_set_of_positions, input_stream)
 
         input_stream.seek(0)
@@ -84,7 +85,7 @@ class TestLogic(DefaultSetup):
             1: expected_set_of_positions,
             100: expected_set_of_positions,
         }
-        input_stream = BinaryStream(BytesIO())
+        input_stream = SMBinaryStream(BytesIO())
         self.object._write_list_of_groups(expected_dict, input_stream)
         input_stream.seek(0)
         read_dict = self.object._read_dict_of_groups(input_stream)
@@ -102,7 +103,7 @@ class TestLogic(DefaultSetup):
             (0, 0, 0): expected_group,
             (1, 0, 0): expected_group,
         }
-        input_stream = BinaryStream(BytesIO())
+        input_stream = SMBinaryStream(BytesIO())
         self.object._controller_position_to_block_id_to_block_positions = expected_controller
         self.object._write_list_of_controllers(input_stream)
         input_stream.seek(0)

@@ -390,14 +390,15 @@ class ArgumentHandler(Validator):
         else:
             return parser.parse_args(args)
 
-    def get_config_file_path(self):
+    @staticmethod
+    def get_config_file_path():
         app_name = ".SMBEdit"
         file_name_config = "config.ini"
         if sys.platform == "win32":
             app_name = "SMBEdit"
             root_dir = os.getenv("APPDATA")
         else:
-            root_dir = self.get_full_path("~")
+            root_dir = ArgumentHandler.get_full_path("~")
             if sys.platform == "darwin":
                 app_name = "SMBEdit"
                 root_dir = os.path.join(root_dir, "Library", "Application Support")

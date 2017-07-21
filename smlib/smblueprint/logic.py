@@ -3,8 +3,8 @@ __author__ = 'Peter Hofmann'
 import os
 import sys
 
-from ..loggingwrapper import DefaultLogging
-from ..binarystream import BinaryStream
+from ..common.loggingwrapper import DefaultLogging
+from ..utils.smbinarystream import SMBinaryStream
 from ..utils.blockconfig import block_config
 from ..utils.blueprintentity import BlueprintEntity
 from ..utils.vector import Vector
@@ -42,7 +42,7 @@ class Logic(DefaultLogging):
         Read position data from byte stream
 
         @param input_stream: input stream
-        @type input_stream: BinaryStream
+        @type input_stream: SMBinaryStream
 
         @return: set of positions
         @rtype: set[tuple[int]]
@@ -62,7 +62,7 @@ class Logic(DefaultLogging):
         Read controller group data from byte stream
 
         @param input_stream: input stream
-        @type input_stream: BinaryStream
+        @type input_stream: SMBinaryStream
 
         @return: dict of block id to set of positions
         @rtype: dict[int, set[tuple[int]]]
@@ -79,7 +79,7 @@ class Logic(DefaultLogging):
         Read controller data from byte stream
 
         @param input_stream: input stream
-        @type input_stream: BinaryStream
+        @type input_stream: SMBinaryStream
 
         @return: set of positions
         @rtype: dict[tuple, dict[int, set[tuple[int]]]]
@@ -99,7 +99,7 @@ class Logic(DefaultLogging):
         Read data from byte stream
 
         @param input_stream: input stream
-        @type input_stream: BinaryStream
+        @type input_stream: SMBinaryStream
         """
         self._offset = None
         self.version = input_stream.read_int32_unassigned()
@@ -126,7 +126,7 @@ class Logic(DefaultLogging):
         """
         file_path = os.path.join(directory_blueprint, self._file_name)
         with open(file_path, 'rb') as input_stream:
-            self._read_file(BinaryStream(input_stream))
+            self._read_file(SMBinaryStream(input_stream))
 
     # #######################################
     # ###  Write
@@ -140,7 +140,7 @@ class Logic(DefaultLogging):
         @param positions: dict of block id to list of positions
         @type positions: set[tuple[int]]
         @param output_stream: output stream
-        @type output_stream: BinaryStream
+        @type output_stream: SMBinaryStream
         """
         output_stream.write_int32_unassigned(len(positions))
         for position in positions:
@@ -153,7 +153,7 @@ class Logic(DefaultLogging):
         @param groups: dict of block id to list of positions
         @type groups: dict[int, set[tuple[int]]]
         @param output_stream: output stream
-        @type output_stream: BinaryStream
+        @type output_stream: SMBinaryStream
         """
         output_stream.write_int32_unassigned(len(groups))
         for block_id, positions in groups.items():
@@ -165,7 +165,7 @@ class Logic(DefaultLogging):
         Write controller data to a byte stream
 
         @param output_stream: output stream
-        @type output_stream: BinaryStream
+        @type output_stream: SMBinaryStream
         """
         num_controllers = len(self._controller_position_to_block_id_to_block_positions)
         output_stream.write_int32_unassigned(num_controllers)
@@ -178,7 +178,7 @@ class Logic(DefaultLogging):
         Write data to a byte stream
 
         @param output_stream: output stream
-        @type output_stream: BinaryStream
+        @type output_stream: SMBinaryStream
         """
         output_stream.write_int32_unassigned(self.version)
         if self._controller_version < 0:
@@ -196,7 +196,7 @@ class Logic(DefaultLogging):
         self._controller_version = -1026
         file_path = os.path.join(directory_blueprint, self._file_name)
         with open(file_path, 'wb') as output_stream:
-            self._write_file(BinaryStream(output_stream))
+            self._write_file(SMBinaryStream(output_stream))
 
     # #######################################
     # ###  Turning

@@ -1,6 +1,7 @@
 from unittest import TestCase
 from io import BytesIO
-from smlib.binarystream import BinaryStream
+
+from smlib.utils.smbinarystream import SMBinaryStream
 from smlib.smblueprint.header import Header
 from unittests.testinput import blueprint_handler
 from smlib.utils.blockconfig import block_config
@@ -45,7 +46,7 @@ class TestHeader(DefaultSetup):
             1: 1,
             2: 100
         }
-        stream = BinaryStream(BytesIO())
+        stream = SMBinaryStream(BytesIO())
         stream.write_int32_unassigned(len(block_id_to_quantity))
         for block_id in block_id_to_quantity:
             stream.write_int16_unassigned(block_id)
@@ -55,25 +56,25 @@ class TestHeader(DefaultSetup):
         self.assertDictEqual(self.object.block_id_to_quantity, block_id_to_quantity)
 
     def test__read_write_header(self):
-        stream = BinaryStream(BytesIO())
+        stream = SMBinaryStream(BytesIO())
         self.object._write_file(stream)
         stream.seek(0)
         self.object._read_header(stream)
 
     def test__write_block_quantities(self):
-        stream = BinaryStream(BytesIO())
+        stream = SMBinaryStream(BytesIO())
         self.object._write_block_quantities(stream)
         stream.seek(0)
         self.object._read_block_quantities(stream)
 
     def test__read_file(self):
-        stream = BinaryStream(BytesIO())
+        stream = SMBinaryStream(BytesIO())
         self.object._write_file(stream)
         stream.seek(0)
         self.object._read_file(stream)
 
     def test__write_file(self,):
-        stream = BinaryStream(BytesIO())
+        stream = SMBinaryStream(BytesIO())
         self.object._write_file(stream)
 
     def test_iteritems(self):

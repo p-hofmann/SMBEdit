@@ -4,7 +4,7 @@ import sys
 import os
 import math
 
-from ...loggingwrapper import DefaultLogging
+from ...common.loggingwrapper import DefaultLogging
 from ...utils.blocklist import BlockList
 from .smdregion import SmdRegion, StyleBasic
 

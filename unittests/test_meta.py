@@ -4,7 +4,7 @@ from unittest import TestCase
 
 from unittests.testinput import blueprint_handler
 from smlib.smblueprint.meta.meta import Meta
-from smlib.binarystream import BinaryStream
+from smlib.utils.smbinarystream import SMBinaryStream
 from smlib.utils.vector import Vector
 from smlib.smblueprint.meta.tag.datatype2.aiconfig import AIConfig
 from smlib.smblueprint.meta.tag.raildockentitylinks import RailDockedEntityLinks
@@ -38,11 +38,11 @@ class TestMeta(DefaultSetup):
             self.object.read(directory_blueprint)
 
     def test__write_dummy(self):
-        input_stream = BinaryStream(BytesIO())
+        input_stream = SMBinaryStream(BytesIO())
         self.object._write_dummy(input_stream)
 
     def test__write_file(self):
-        input_stream = BinaryStream(BytesIO())
+        input_stream = SMBinaryStream(BytesIO())
         self.object._write_file(input_stream, "./")
 
     def test_move_center_by_vector(self):
@@ -78,8 +78,8 @@ class TestMeta(DefaultSetup):
             tag_stream_return = BytesIO()
             tag_object = AIConfig()
             tag_object.from_tag(self.object._data_type_5._tag_data.get_root_tag())
-            self.object._data_type_5._tag_data.get_root_tag().write(BinaryStream(tag_stream_original))
-            tag_object.to_tag().write(BinaryStream(tag_stream_return))
+            self.object._data_type_5._tag_data.get_root_tag().write(SMBinaryStream(tag_stream_original))
+            tag_object.to_tag().write(SMBinaryStream(tag_stream_return))
             tag_stream_original.seek(0)
             tag_stream_return.seek(0)
             self.assertEqual(tag_stream_original.getvalue(), tag_stream_return.getvalue(), directory_blueprint)
@@ -93,12 +93,12 @@ class TestMeta(DefaultSetup):
                 tag_object.from_tag(docker.get_root_tag(), self.object._version)
                 tag_stream_original = BytesIO()
                 tag_stream_return = BytesIO()
-                docker.get_root_tag().write(BinaryStream(tag_stream_original))
+                docker.get_root_tag().write(SMBinaryStream(tag_stream_original))
                 # print("\n\n", directory_blueprint, self.object._version[3])
                 # docker.get_root_tag().to_stream()
                 # tag_object.to_tag(self.object._version[3]).to_stream()
                 # tag_object.to_stream()
-                tag_object.to_tag(self.object._version).write(BinaryStream(tag_stream_return))
+                tag_object.to_tag(self.object._version).write(SMBinaryStream(tag_stream_return))
                 tag_stream_original.seek(0)
                 tag_stream_return.seek(0)
                 self.assertEqual(tag_stream_original.getvalue(), tag_stream_return.getvalue(), directory_blueprint)

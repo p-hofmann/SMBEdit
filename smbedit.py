@@ -6,10 +6,11 @@ import zipfile
 import shutil
 import traceback
 
-from smlib import __version__
-from smlib.argumenthandler import ArgumentHandler
+from smlib import __version__ as version
+from smlib.common.argumenthandler import ArgumentHandler
 from smlib.utils.blockconfig import block_config
 from smlib.blueprint import Blueprint
+
 
 class SMBEdit(ArgumentHandler):
     """
@@ -282,7 +283,7 @@ class SMBEdit(ArgumentHandler):
 
 
 def main():
-    options = ArgumentHandler.get_parser_options(label=SMBEdit.get_label(), version=__version__)
+    options = ArgumentHandler.get_parser_options(label=SMBEdit.get_label(), version=version)
     verbose = not options.silent
     debug = options.debug_mode
     logfile = options.logfile
@@ -307,6 +308,7 @@ def main():
             sys.stderr.write("{}\n".format(e.args[0]))
             sys.exit(1)
     sys.exit(error)
+
 
 if __name__ == "__main__":
     main()

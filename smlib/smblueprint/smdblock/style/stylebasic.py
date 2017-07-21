@@ -4,7 +4,6 @@ import sys
 
 from ....utils.blockconfig import block_config
 from ....smblueprint.smdblock.blockbits import BlockBits
-# from ....smblueprint.smdblock.blockhandler import block_pool
 
 
 class StyleBasic(BlockBits):

@@ -4,8 +4,8 @@ import sys
 import zlib
 import datetime
 
-from ...loggingwrapper import DefaultLogging
-from ...binarystream import BinaryStream
+from ...common.loggingwrapper import DefaultLogging
+from ...utils.smbinarystream import SMBinaryStream
 from ..smdblock.blockpool import block_pool, StyleBasic
 
 
@@ -51,7 +51,7 @@ class SmdSegment(DefaultLogging):
         Size: 25/26 byte
 
         @param input_stream: input byte stream
-        @type input_stream: BinaryStream
+        @type input_stream: SMBinaryStream
         """
         if self._region_version != 0:
             self._version = abs(input_stream.read_byte())  # 1 byte
@@ -67,13 +67,13 @@ class SmdSegment(DefaultLogging):
 
         @type block_list: BlockList
         @param input_stream: input byte stream
-        @type input_stream: BinaryStream
+        @type input_stream: SMBinaryStream
         """
         decompressed_data = zlib.decompress(input_stream.read(self._compressed_size))
         self.block_index_to_block = {}
         for block_index in range(0, int(len(decompressed_data) / 3)):
             position = block_index * 3
-            int_24bit = BinaryStream.unpack_int24(decompressed_data[position:position+3])
+            int_24bit = SMBinaryStream.unpack_int24(decompressed_data[position:position+3])
             block = block_pool(int_24bit, version=self._version)
             if block is None:
                 continue
@@ -87,9 +87,9 @@ class SmdSegment(DefaultLogging):
 
         @type block_list: BlockList
         @param input_stream: input byte stream
-        @type input_stream: BinaryStream
+        @type input_stream: SMBinaryStream
         """
-        assert isinstance(input_stream, BinaryStream)
+        assert isinstance(input_stream, SMBinaryStream)
         self._read_header(input_stream)
         if not self.has_valid_data:
             input_stream.seek(self._data_size, 1)  # skip presumably empty bytes
@@ -108,7 +108,7 @@ class SmdSegment(DefaultLogging):
         Size: 49126 byte + 4 byte because of compressed_size
 
         @param output_stream: input byte stream
-        @type output_stream: BinaryStream
+        @type output_stream: SMBinaryStream
         """
         if not self.has_valid_data:
             self._compressed_size = 0
@@ -119,7 +119,7 @@ class SmdSegment(DefaultLogging):
             for block_index in range(0, self._blocks_in_a_cube):
                 if block_index in set_of_valid_block_index:
                     block_int_24 = self.block_index_to_block[block_index].get_int_24()
-                    byte_string += BinaryStream.pack_int24(block_int_24)
+                    byte_string += SMBinaryStream.pack_int24(block_int_24)
                     continue
                 byte_string += b"\0" * 3
             compressed_data = zlib.compress(byte_string)
@@ -138,7 +138,7 @@ class SmdSegment(DefaultLogging):
         @attention: compressed_size, 4 bytes, will be written later when the size is known
 
         @param output_stream: input byte stream
-        @type output_stream: BinaryStream
+        @type output_stream: SMBinaryStream
         """
         output_stream.write_byte(self._version)  # 1 byte
         output_stream.write_int64_unassigned(self._timestamp)  # 8 byte
@@ -151,9 +151,9 @@ class SmdSegment(DefaultLogging):
         Always total size 49152 byte
 
         @param output_stream: Output byte stream
-        @type output_stream: BinaryStream
+        @type output_stream: SMBinaryStream
         """
-        assert isinstance(output_stream, BinaryStream)
+        assert isinstance(output_stream, SMBinaryStream)
         self._write_header(output_stream)
         self._write_block_data(output_stream)
 

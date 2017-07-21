@@ -2,10 +2,10 @@ __author__ = 'Peter Hofmann'
 
 import sys
 import os
-from collections import Iterable
 
-from ...binarystream import BinaryStream
-from ...loggingwrapper import DefaultLogging
+from collections import Iterable
+from ...utils.smbinarystream import SMBinaryStream
+from ...common.loggingwrapper import DefaultLogging
 from ...utils.vector import Vector
 from .tag.tagmanager import TagManager
 from .tag.raildockentitylinks import RailDockedEntityLinks
@@ -54,7 +54,7 @@ class DataType4(DefaultLogging):
         Read unknown stuff from byte stream
 
         @param input_stream: input stream
-        @type input_stream: BinaryStream
+        @type input_stream: SMBinaryStream
 
         @rtype (str, int, int)
         """
@@ -75,7 +75,7 @@ class DataType4(DefaultLogging):
         Read rail docker data?
 
         @param input_stream: input stream
-        @type input_stream: BinaryStream
+        @type input_stream: SMBinaryStream
         """
         self._vector_float_0 = input_stream.read_vector_3_float()
         self._vector_float_1 = input_stream.read_vector_3_float()
@@ -110,7 +110,7 @@ class DataType4(DefaultLogging):
         Write some stuff to byte stream
 
         @param output_stream: output_stream
-        @type output_stream: BinaryStream
+        @type output_stream: SMBinaryStream
         """
         output_stream.write_string(stuff[0])
         output_stream.write_int64(stuff[1])
@@ -121,7 +121,7 @@ class DataType4(DefaultLogging):
         write values
 
         @param output_stream: Output stream
-        @type output_stream: BinaryStream
+        @type output_stream: SMBinaryStream
         """
         self._logger.debug("Writing")
         output_stream.write_byte(4)

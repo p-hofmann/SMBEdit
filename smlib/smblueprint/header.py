@@ -3,11 +3,11 @@ __author__ = 'Peter Hofmann'
 import os
 import sys
 
-from ..loggingwrapper import DefaultLogging
+from smlib.common.loggingwrapper import DefaultLogging
 from ..utils.blueprintentity import BlueprintEntity
 from ..utils.blockconfig import block_config
 from ..utils.vector import Vector
-from ..binarystream import BinaryStream
+from smlib.utils.smbinarystream import SMBinaryStream
 from .smd3.smd import Smd
 
 
@@ -42,7 +42,7 @@ class Statistics(object):
         Read statistic data from a byte stream
 
         @param input_stream: input stream
-        @type input_stream: BinaryStream
+        @type input_stream: SMBinaryStream
         """
         self.has_statistics = input_stream.read_bool()
         if not self.has_statistics:
@@ -65,7 +65,7 @@ class Statistics(object):
         Write statistic data to a byte stream
 
         @param output_stream: input stream
-        @type output_stream: BinaryStream
+        @type output_stream: SMBinaryStream
         """
         self.version = max(self._valid_versions)
         output_stream.write_bool(self.has_statistics)
@@ -133,9 +133,9 @@ class Header(DefaultLogging):
         Read block quantities from a byte stream
 
         @param input_stream: input stream
-        @type input_stream: BinaryStream
+        @type input_stream: SMBinaryStream
         """
-        assert isinstance(input_stream, BinaryStream)
+        assert isinstance(input_stream, SMBinaryStream)
         num_of_block_types = input_stream.read_int32_unassigned()
         for index in range(0, num_of_block_types):
             block_identifier = input_stream.read_int16_unassigned()
@@ -147,9 +147,9 @@ class Header(DefaultLogging):
         Read header data from a byte stream
 
         @param input_stream: input stream
-        @type input_stream: BinaryStream
+        @type input_stream: SMBinaryStream
         """
-        assert isinstance(input_stream, BinaryStream)
+        assert isinstance(input_stream, SMBinaryStream)
         self.version = input_stream.read_int32_unassigned()
         assert self.version in self._valid_versions, "Unsupported version '{}' of '{}'.".format(self.version, self._file_name)
         self.type = input_stream.read_int32_unassigned()
@@ -165,9 +165,9 @@ class Header(DefaultLogging):
         Read blueprint header data from a byte stream
 
         @param input_stream: input stream
-        @type input_stream: BinaryStream
+        @type input_stream: SMBinaryStream
         """
-        assert isinstance(input_stream, BinaryStream)
+        assert isinstance(input_stream, SMBinaryStream)
         self._read_header(input_stream)
         self._read_block_quantities(input_stream)
         if self.version > 0:
@@ -182,7 +182,7 @@ class Header(DefaultLogging):
         """
         file_path = os.path.join(directory_blueprint, self._file_name)
         with open(file_path, 'rb') as input_stream:
-            self._read_file(BinaryStream(input_stream))
+            self._read_file(SMBinaryStream(input_stream))
 
     # #######################################
     # ###  Write
@@ -193,9 +193,9 @@ class Header(DefaultLogging):
         Write block quantities to a byte stream
 
         @param output_stream: input stream
-        @type output_stream: BinaryStream
+        @type output_stream: SMBinaryStream
         """
-        assert isinstance(output_stream, BinaryStream)
+        assert isinstance(output_stream, SMBinaryStream)
         num_of_block_types = len(self.block_id_to_quantity)
         output_stream.write_int32_unassigned(num_of_block_types)
         for identifier, quantity in self.block_id_to_quantity.items():
@@ -207,9 +207,9 @@ class Header(DefaultLogging):
         Write header data to a byte stream
 
         @param output_stream: input stream
-        @type output_stream: BinaryStream
+        @type output_stream: SMBinaryStream
         """
-        assert isinstance(output_stream, BinaryStream)
+        assert isinstance(output_stream, SMBinaryStream)
         output_stream.write_int32_unassigned(self.version)
         output_stream.write_int32_unassigned(self.type)
         if self.version > 2:
@@ -222,9 +222,9 @@ class Header(DefaultLogging):
         Write header data to a byte stream
 
         @param output_stream: output stream
-        @type output_stream: BinaryStream
+        @type output_stream: SMBinaryStream
         """
-        assert isinstance(output_stream, BinaryStream)
+        assert isinstance(output_stream, SMBinaryStream)
         self._write_header(output_stream)
         self._write_block_quantities(output_stream)
         if self.version > 0:
@@ -240,7 +240,7 @@ class Header(DefaultLogging):
         self.version = max(self._valid_versions)
         file_path = os.path.join(directory_blueprint, self._file_name)
         with open(file_path, 'wb') as output_stream:
-            self._write_file(BinaryStream(output_stream))
+            self._write_file(SMBinaryStream(output_stream))
 
     # #######################################
     # ###  Else

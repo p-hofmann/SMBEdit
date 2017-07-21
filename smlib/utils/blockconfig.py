@@ -1,8 +1,8 @@
 import csv
 import os
-from xml.etree import ElementTree
 
-from ..validator import Validator
+from xml.etree import ElementTree
+from ..common.validator import Validator
 from .blockconfighardcoded import BlockConfigHardcoded
 from .blueprintentity import BlueprintEntity, SHIP
 

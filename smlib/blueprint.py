@@ -3,7 +3,7 @@ __author__ = 'Peter Hofmann'
 import os
 import sys
 
-from .loggingwrapper import DefaultLogging
+from .common.loggingwrapper import DefaultLogging
 from .utils.blockconfig import block_config
 from .utils.autoshape import AutoShape
 from .utils.periphery import Periphery

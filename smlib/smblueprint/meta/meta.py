@@ -3,8 +3,8 @@ __author__ = 'Peter Hofmann'
 import os
 import sys
 
-from ...binarystream import BinaryStream
-from ...loggingwrapper import DefaultLogging
+from ...utils.smbinarystream import SMBinaryStream
+from ...common.loggingwrapper import DefaultLogging
 from ...utils.blockconfig import block_config
 from ...utils.vector import Vector
 from ..smd3.smd import Smd
@@ -15,7 +15,6 @@ from .datatype5 import DataType5
 from .datatype6 import DataType6
 from .datatype7 import DataType7
 from .tag.raildockentitylinks import RailDockedEntityLinks, RailDockedEntity, RailDockedEntityLink
-
 
 
 # #######################################
@@ -59,9 +58,9 @@ class Meta(DefaultLogging):
         Read data from byte stream
 
         @param input_stream: input stream
-        @type input_stream: BinaryStream
+        @type input_stream: SMBinaryStream
         """
-        assert isinstance(input_stream, BinaryStream)
+        assert isinstance(input_stream, SMBinaryStream)
         self._version = input_stream.read_int32_unassigned()
         # self._version = input_stream.read_vector_4_byte()
         assert self._version in self._valid_versions, "Unsupported version '{}' of '{}'.".format(
@@ -112,7 +111,7 @@ class Meta(DefaultLogging):
         """
         file_path = os.path.join(directory_blueprint, self._file_name)
         with open(file_path, 'rb') as input_stream:
-            self._read_file(BinaryStream(input_stream))
+            self._read_file(SMBinaryStream(input_stream))
 
     # #######################################
     # ###  Write
@@ -125,7 +124,7 @@ class Meta(DefaultLogging):
         Until I know how a meta file has to look like, this will have to do
 
         @param output_stream: output stream
-        @type output_stream: BinaryStream
+        @type output_stream: SMBinaryStream
         """
         output_stream.write_int32_unassigned(0)  # version
         output_stream.write_byte(1)  # data byte 'Finish'
@@ -135,7 +134,7 @@ class Meta(DefaultLogging):
         write values
 
         @param output_stream: Output stream
-        @type output_stream: BinaryStream
+        @type output_stream: SMBinaryStream
         """
         output_stream.write_int32_unassigned(self._version)
 
@@ -173,9 +172,9 @@ class Meta(DefaultLogging):
         with open(file_path, 'wb') as output_stream:
             if relative_path is None:
                 self._logger.warning("Writing dummy meta file.")
-                self._write_dummy(BinaryStream(output_stream))
+                self._write_dummy(SMBinaryStream(output_stream))
                 return
-            self._write_file(BinaryStream(output_stream), relative_path)
+            self._write_file(SMBinaryStream(output_stream), relative_path)
 
     # #######################################
     # ###  Else
