@@ -36,7 +36,7 @@ class FrameMoveCenter(tk.LabelFrame):
 
         # TOP
         frame_top = tk.Frame(frame_main)
-        self.variable_block_id = tk.StringVar()
+        self.variable_block_id = tk.IntVar()
 
         self.button_block_id = tk.Button(
             text="To block id",
@@ -68,11 +68,11 @@ class FrameMoveCenter(tk.LabelFrame):
 
         vcmd = (new_frame.register(Widgets.validate_int), '%d', '%i', '%P', '%s', '%S', '%v', '%V', '%W')
 
-        self.variable_x = tk.StringVar()
+        self.variable_x = tk.IntVar()
         self.variable_x.set('0')
-        self.variable_y = tk.StringVar()
+        self.variable_y = tk.IntVar()
         self.variable_y.set('0')
-        self.variable_z = tk.StringVar()
+        self.variable_z = tk.IntVar()
         self.variable_z.set('0')
 
         self.button_vector = tk.Button(

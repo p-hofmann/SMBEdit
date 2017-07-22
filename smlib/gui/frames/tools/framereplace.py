@@ -21,7 +21,7 @@ class FrameReplace(tk.LabelFrame):
     @type variable_block_replacement: ttk.StringVar
     @type button_replace_block: ttk.Button
 
-    @type ariable_hull_original: ttk.IntVar
+    @type variable_hull_original: ttk.IntVar
     @type variable_hull_replacement: ttk.IntVar
     @type button_replace_hull: ttk.Button
     """
@@ -42,7 +42,7 @@ class FrameReplace(tk.LabelFrame):
 
         # TOP
         frame_top = tk.Frame(frame_main)
-        self.variable_remove = tk.StringVar()
+        self.variable_remove = tk.IntVar()
 
         self.button_remove = tk.Button(
             text="Remove block id",
@@ -77,8 +77,8 @@ class FrameReplace(tk.LabelFrame):
 
         # TOP
         frame_top = tk.Frame(frame_main)
-        self.variable_block_original = tk.StringVar()
-        self.variable_block_replacement = tk.StringVar()
+        self.variable_block_original = tk.IntVar()
+        self.variable_block_replacement = tk.IntVar()
 
         self.button_replace_block = tk.Button(
             text="Replace block id",
@@ -125,20 +125,20 @@ class FrameReplace(tk.LabelFrame):
 
         # TOP
         frame_top = tk.Frame(frame_main)
-        self.ariable_hull_original = tk.IntVar()
+        self.variable_hull_original = tk.IntVar()
         self.variable_hull_replacement = tk.IntVar()
 
         radio_box_0 = tk.LabelFrame(frame_top, relief=tk.RIDGE, text="From")
         radio_box_1 = tk.LabelFrame(frame_top, relief=tk.RIDGE, text="To")
 
         for index, tier_name in enumerate(block_config.tiers[:4]):
-            left = tk.Radiobutton(radio_box_0, text=tier_name, variable=self.ariable_hull_original, value=index)
+            left = tk.Radiobutton(radio_box_0, text=tier_name, variable=self.variable_hull_original, value=index)
             right = tk.Radiobutton(radio_box_1, text=tier_name, variable=self.variable_hull_replacement, value=index)
             left.pack(anchor=tk.W)
             right.pack(anchor=tk.W)
             # left.grid()
             # right.grid()
-        left = tk.Radiobutton(radio_box_0, text="All", variable=self.ariable_hull_original, value=None)
+        left = tk.Radiobutton(radio_box_0, text="All", variable=self.variable_hull_original, value=None)
         left.pack(anchor=tk.W)
 
         radio_box_0.pack(side=tk.LEFT, fill=tk.Y)
