@@ -9,6 +9,10 @@ class ActionMain(ActionDefault):
     Dealing with component interactions
     """
 
+    def __init__(self, main_frame, smbedit):
+        super(ActionMain, self).__init__(main_frame=main_frame, smbedit=smbedit)
+        ActionMain.set_commands(self)
+
     def set_commands(self):
         """
         Set commands of components

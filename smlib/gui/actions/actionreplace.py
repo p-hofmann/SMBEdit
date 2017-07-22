@@ -9,10 +9,15 @@ class ActionReplace(ActionDefault):
     Dealing with component interactions
     """
 
+    def __init__(self, main_frame, smbedit):
+        super(ActionReplace, self).__init__(main_frame=main_frame, smbedit=smbedit)
+        ActionReplace.set_commands(self)
+
     def set_commands(self):
         """
         Set commands of components
         """
+        # print("ActionReplace")
         self._main_frame.tool.tool_replace.button_remove.configure(command=self.button_press_remove)
         self._main_frame.tool.tool_replace.button_replace_block.configure(command=self.button_press_replace_block)
         self._main_frame.tool.tool_replace.button_replace_hull.configure(command=self.button_press_replace_hull)

@@ -9,6 +9,10 @@ class ActionMoveCenter(ActionDefault):
     Dealing with component interactions
     """
 
+    def __init__(self, main_frame, smbedit):
+        super(ActionMoveCenter, self).__init__(main_frame=main_frame, smbedit=smbedit)
+        ActionMoveCenter.set_commands(self)
+
     def set_commands(self):
         """
         Set commands of components

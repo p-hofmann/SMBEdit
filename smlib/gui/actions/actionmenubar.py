@@ -35,11 +35,13 @@ class ActionMenuBar(ActionDefault, Validator):
         """
         super(ActionMenuBar, self).__init__(main_frame=main_frame, smbedit=smbedit)
         super(Validator, self).__init__(label="MenuBar", logfile=logfile, verbose=verbose, debug=debug)
+        ActionMenuBar.set_commands(self)
 
     def set_commands(self):
         """
         Set commands of components
         """
+        # print("ActionMenuBar")
         self._main_frame.menubar.menu_cascade_load.add_command(
             label="Load blueprint", command=self._dialog_directory_load)
         self._main_frame.menubar.menu_cascade_load.add_command(

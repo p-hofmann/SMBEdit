@@ -17,6 +17,8 @@ class ActionDefault(object):
         self._smbedit = smbedit
         self._main_frame = main_frame
 
+        self.set_commands()
+
     def set_commands(self):
         """
         Set commands of components

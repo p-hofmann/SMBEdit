@@ -28,3 +28,4 @@ class StatusBar(tk.Frame):
         @type text: str
         """
         self._text.set(text)
+        self.update_idletasks()

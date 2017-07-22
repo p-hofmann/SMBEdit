@@ -36,6 +36,10 @@ class ActionMiscellaneous(ActionDefault):
         8: "Factory",  #
     }
 
+    def __init__(self, main_frame, smbedit):
+        super(ActionMiscellaneous, self).__init__(main_frame=main_frame, smbedit=smbedit)
+        ActionMiscellaneous.set_commands(self)
+
     def set_commands(self):
         """
         Set commands of components
