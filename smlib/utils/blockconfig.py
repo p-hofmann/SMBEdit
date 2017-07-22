@@ -137,7 +137,7 @@ class SuperBlockConfig(object):
             return self._id_to_block[int(int_block_id)]
         except KeyError as e:
             msg = 'Unknown block id: {}. '.format(int_block_id)
-            msg += 'Have you loaded the last version of the Starmade configuration files ?'
+            msg += 'Have you pointed "-sm" to latest version of StarMade?'
             raise KeyError(msg)
 
     def __iter__(self):
@@ -200,8 +200,12 @@ class BlockConfig(SuperBlockConfig, ):
             if self._id_to_block[block_id].is_rail() or block_id == 663:
                 self._id_to_block[block_id].hit_points = 100
             self._id_to_block[block_id].can_activate = BlockConfigHardcoded.is_activatable_block(block_id)
-            self._id_to_block[block_id].block_style = BlockConfigHardcoded.get_block_style(block_id)
             self._id_to_block[block_id].deprecated = BlockConfigHardcoded.is_deprecated(block_id)
+            try:
+                self._id_to_block[block_id].block_style = BlockConfigHardcoded.get_block_style(block_id)
+            except LookupError as e:
+                # TODO: output a warning
+                self._id_to_block[block_id].block_style = 0
 
             name_lower_case = self._id_to_block[block_id].name.lower()
 
