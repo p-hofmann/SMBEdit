@@ -21,13 +21,19 @@ class ActionMoveCenter(ActionDefault):
         self._main_frame.tool.tool_move_center.button_vector.configure(command=self.button_press_vector)
 
     def button_press_block_id(self):
+        self._main_frame.status_bar.set("Moving center/core to specific block id ...".format())
         self._smbedit.blueprint[self._main_frame.entities_combo_box.current()].move_center_by_block_id(
             int(self._main_frame.tool.tool_move_center.variable_block_id.get()))
+        self._main_frame.update_summary(self._smbedit)
+        self._main_frame.status_bar.set("Moving center/core to specific block id ... Done!".format())
 
     def button_press_vector(self):
+        self._main_frame.status_bar.set("Moving center/core by vector ...".format())
         self._smbedit.blueprint[self._main_frame.entities_combo_box.current()].move_center_by_vector(
             (
                 int(self._main_frame.tool.tool_move_center.variable_x.get()),
                 int(self._main_frame.tool.tool_move_center.variable_y.get()),
                 int(self._main_frame.tool.tool_move_center.variable_z.get()))
             )
+        self._main_frame.update_summary(self._smbedit)
+        self._main_frame.status_bar.set("Moving center/core by vector ... Done!".format())

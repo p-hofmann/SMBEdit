@@ -185,7 +185,7 @@ class ActionMenuBar(ActionDefault, Validator):
                 relative_path = blueprint_name
             # self.text_box.delete(2.0)
             # self.text_box.write("\n\n", 2.0)
-            self._main_frame.status_bar.set("Reading:\t'{}'".format(os.path.join(blueprint_name, relative_path)))
+            self._main_frame.status_bar.set("Reading:\t'{}' ...".format(os.path.join(blueprint_name, relative_path)))
             index += 1
             blueprint = Blueprint(entity_name, logfile=self._logfile, verbose=self._verbose, debug=self._debug)
             blueprint.read(blueprint_path)

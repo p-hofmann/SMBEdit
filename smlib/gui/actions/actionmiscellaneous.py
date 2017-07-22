@@ -53,11 +53,15 @@ class ActionMiscellaneous(ActionDefault):
         self._smbedit.blueprint[self._main_frame.entities_combo_box.current()].set_entity(
             self._main_frame.tool.tool_else.combo_box_type.current(),
             self._main_frame.tool.tool_else.combo_box_class.current())
+        self._main_frame.update_summary(self._smbedit)
+        self._main_frame.status_bar.set("Entity type changed!".format())
 
     def combo_box_class_change(self, event):
         self._smbedit.blueprint[self._main_frame.entities_combo_box.current()].set_entity(
             self._main_frame.tool.tool_else.combo_box_type.current(),
             self._main_frame.tool.tool_else.combo_box_class.current())
+        self._main_frame.update_summary(self._smbedit)
+        self._main_frame.status_bar.set("Entity class changed!".format())
 
     def refresh_combobox_values(self):
         if self._main_frame.tool.tool_else.combo_box_type.current() == 0:
