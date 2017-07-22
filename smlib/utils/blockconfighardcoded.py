@@ -200,6 +200,8 @@ class BlockConfigHardcoded(object):
         937: "Pickup Point",
         938: "Pickup Rail",
         939: "Shootout Rail",
+        1104: "Rail Load",
+        1105: "Rail Unload",
         }
 
     _block_ids["effects"] = {
@@ -588,6 +590,21 @@ class BlockConfigHardcoded(object):
         292: "Faction Hub",
     }
 
+    _block_ids["test"] = {
+        1008: "Reactor Main",
+        1100: "Jump Distance 0",
+        1101: "Jump Distance 1",
+        1102: "Jump Distance 2",
+        1103: "Jump Distance 3",
+        1009: "Reactor Stabilizer",
+        1010: "Reactor Conduit",
+        1011: "Reactor Mobility Chamber",
+        1012: "Reactor Chamber Scanner",
+        1013: "Jump Chamber",
+        1014: "Reactor Stealth Chamber",
+        1015: "Reactor Logistics Chamber",
+    }
+
     _hp_by_hull_type = {
         0: 75,
         1: 100,
@@ -835,24 +852,9 @@ class BlockConfigHardcoded(object):
             return 3
         if BlockConfigHardcoded._is_block_style_0(block_id):
             return 0
-        raise Exception("Unknown block style for id: {}".format(block_id))
-
-    @staticmethod
-    def are_compatible_blocks(block_id_1, block_id_2):
-        """
-        Return True if two blocks can be replace each other without orientation issues
-
-        @param block_id_1:
-        @type block_id_1: int
-        @param block_id_2:
-        @type block_id_2: int
-
-        @return:
-        @rtype: bool
-        """
-        if BlockConfigHardcoded.get_block_style(block_id_1) == BlockConfigHardcoded.get_block_style(block_id_2):
-                return True
-        return False
+        if block_id in BlockConfigHardcoded._block_ids["test"]:
+            return 0
+        raise LookupError("Unknown block style for id: {}".format(block_id))
 
     @staticmethod
     def is_known_id(block_id):
