@@ -95,3 +95,11 @@ class FrameMoveCenter(tk.LabelFrame):
         textbox.pack(fill=tk.X, side=tk.LEFT)
 
         new_frame.pack(fill=tk.X, padx=2, pady=2)
+
+    def disable(self):
+        self.button_block_id.config(state=tk.DISABLED)
+        self.button_vector.config(state=tk.DISABLED)
+
+    def enable(self):
+        self.button_block_id.config(state=tk.NORMAL)
+        self.button_vector.config(state=tk.NORMAL)

@@ -51,3 +51,17 @@ class FrameAutoShape(tk.LabelFrame):
             bd=2,
             master=self)
         self.button_hepta.pack(fill=tk.X, padx=2, pady=1)
+
+    def disable(self):
+        self.button_reset.config(state=tk.DISABLED)
+        self.button_wedge.config(state=tk.DISABLED)
+        self.button_tetra.config(state=tk.DISABLED)
+        self.button_corner.config(state=tk.DISABLED)
+        self.button_hepta.config(state=tk.DISABLED)
+
+    def enable(self):
+        self.button_reset.config(state=tk.NORMAL)
+        self.button_wedge.config(state=tk.NORMAL)
+        self.button_tetra.config(state=tk.NORMAL)
+        self.button_corner.config(state=tk.NORMAL)
+        self.button_hepta.config(state=tk.NORMAL)

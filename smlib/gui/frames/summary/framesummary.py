@@ -29,3 +29,9 @@ class FrameSummary(tk.Frame):
         scrollb.grid(row=0, column=1, sticky='nsew')
         text_box['yscrollcommand'] = scrollb.set
         self.text_box = StreamToTkText(text_box)
+
+    def disable(self):
+        pass
+
+    def enable(self):
+        pass

@@ -213,6 +213,7 @@ class ActionMenuBar(ActionDefault, Validator):
         # self.text_box.delete("2.0 - 1c")
         # self.text_box.write("Done.\n")
         self._main_frame.update_summary(self._smbedit)
+        self._main_frame.enable()
 
     # @StandardError
     # def _dialog_file_save(self):

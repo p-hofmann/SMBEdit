@@ -68,3 +68,9 @@ class FrameMirror(tk.LabelFrame):
         # BOTTOM END
 
         frame_main.pack(fill=tk.X, padx=5, pady=5)
+
+    def disable(self):
+        self.button_mirror.config(state=tk.DISABLED)
+
+    def enable(self):
+        self.button_mirror.config(state=tk.NORMAL)

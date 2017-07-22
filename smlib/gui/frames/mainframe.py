@@ -40,6 +40,8 @@ class MainFrame(RootFrame):
         self.tool.pack(side=tk.TOP, fill=tk.BOTH)
         note.add(self.tool, text="Tools")
 
+        self.disable()
+
     # #################
     # GUI
     # #################
@@ -151,3 +153,15 @@ class MainFrame(RootFrame):
             self.summary.text_box.write("\t{}:\t{}\n".format(quantity, block_config[block_id].name))
 
         self.summary.text_box.write("\n")
+
+    def disable(self):
+        self.entities_combo_box.config(state=tk.DISABLED)
+        self.entities_check_box.config(state=tk.DISABLED)
+        self.summary.disable()
+        self.tool.disable()
+
+    def enable(self):
+        self.entities_combo_box.config(state=tk.NORMAL)
+        self.entities_check_box.config(state=tk.NORMAL)
+        self.summary.enable()
+        self.tool.enable()

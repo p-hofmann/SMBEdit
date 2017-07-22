@@ -38,3 +38,17 @@ class FrameTool(tk.Frame):
 
         self.tool_replace = FrameReplace(self)
         self.tool_replace.pack(side=tk.TOP, pady=7, padx=3)
+
+    def disable(self):
+        self.auto_shape.disable()
+        self.tool_mirror.disable()
+        self.tool_move_center.disable()
+        self.tool_else.disable()
+        self.tool_replace.disable()
+
+    def enable(self):
+        self.auto_shape.enable()
+        self.tool_mirror.enable()
+        self.tool_move_center.enable()
+        self.tool_else.enable()
+        self.tool_replace.enable()

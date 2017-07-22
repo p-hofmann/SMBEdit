@@ -52,3 +52,11 @@ class FrameMiscellaneous(tk.LabelFrame):
         self.combo_box_class.current(0)
         self.combo_box_class.pack(fill=tk.X, pady=1, padx=5)
         # box.grid(column=0, row=0)
+
+    def disable(self):
+        self.combo_box_type.config(state=tk.DISABLED)
+        self.combo_box_class.config(state=tk.DISABLED)
+
+    def enable(self):
+        self.combo_box_type.config(state=tk.NORMAL)
+        self.combo_box_class.config(state=tk.NORMAL)

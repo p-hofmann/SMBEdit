@@ -159,3 +159,13 @@ class FrameReplace(tk.LabelFrame):
         # BOTTOM END
 
         frame_main.pack(fill=tk.X, padx=2, pady=2)
+
+    def disable(self):
+        self.button_remove.config(state=tk.DISABLED)
+        self.button_replace_block.config(state=tk.DISABLED)
+        self.button_replace_hull.config(state=tk.DISABLED)
+
+    def enable(self):
+        self.button_remove.config(state=tk.NORMAL)
+        self.button_replace_block.config(state=tk.NORMAL)
+        self.button_replace_hull.config(state=tk.NORMAL)
