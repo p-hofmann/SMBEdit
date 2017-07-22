@@ -77,7 +77,7 @@ class SMBEditGUI(Validator):
 
 def main():
     name = "SMBEdit " + version
-    with SMBEditGUI(verbose=True, debug=True) as smbedit_gui:
+    with SMBEditGUI(verbose=False, debug=False) as smbedit_gui:
         window = Window(smbedit_gui)
         window.resizable(0, 0)
         window.title(name)
