@@ -11,12 +11,12 @@ from .statusbar import StatusBar
 
 
 class RootFrame(tk.Frame):
-    def __init__(self, root):
+    def __init__(self, root, width=100):
         """
 
         @type root: tk.Tk
         """
-        tk.Frame.__init__(self, root)
+        tk.Frame.__init__(self, root, width=width)
         self.menubar = MenuBar(root)
 
         # self.main_frame = MainFrame(self)
@@ -26,4 +26,4 @@ class RootFrame(tk.Frame):
         self.status_bar.pack(side=tk.BOTTOM, fill=tk.X)
         self.status_bar.set("Ready")
 
-        self.pack(fill=tk.BOTH, padx=5, pady=3)
+        self.pack(fill=None, expand=False, padx=5, pady=3)  # fill=tk.BOTH,

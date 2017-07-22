@@ -26,31 +26,35 @@ class FrameAutoShape(tk.LabelFrame):
             text="Cube",
             bd=2,
             master=self)
-        self.button_reset.pack(fill=tk.X, padx=2, pady=1)
+        self.button_reset.pack(fill=tk.X, padx=4, pady=1)
 
+        some_frame = tk.Frame(self)
         self.button_wedge = tk.Button(
             text="Wedge",
             bd=2,
-            master=self)
-        self.button_wedge.pack(fill=tk.X, padx=2, pady=1)
+            master=some_frame)
+        self.button_wedge.pack(side=tk.LEFT, expand=tk.TRUE, fill=tk.X, padx=2, pady=1)
 
         self.button_tetra = tk.Button(
             text="Tetra",
             bd=2,
-            master=self)
-        self.button_tetra.pack(fill=tk.X, padx=2, pady=1)
+            master=some_frame)
+        self.button_tetra.pack(side=tk.LEFT, expand=tk.TRUE, fill=tk.X, padx=2, pady=1)
+        some_frame.pack(fill=tk.X, pady=5, padx=3)
 
+        some_frame = tk.Frame(self)
         self.button_corner = tk.Button(
             text="Corner",
             bd=2,
-            master=self)
-        self.button_corner.pack(fill=tk.X, padx=2, pady=1)
+            master=some_frame)
+        self.button_corner.pack(side=tk.LEFT, expand=tk.TRUE, fill=tk.X, padx=2, pady=1)
 
         self.button_hepta = tk.Button(
             text="Hepta",
             bd=2,
-            master=self)
-        self.button_hepta.pack(fill=tk.X, padx=2, pady=1)
+            master=some_frame)
+        self.button_hepta.pack(side=tk.LEFT, expand=tk.TRUE, fill=tk.X, padx=2, pady=1)
+        some_frame.pack(fill=tk.X, pady=5, padx=3)
 
     def disable(self):
         self.button_reset.config(state=tk.DISABLED)

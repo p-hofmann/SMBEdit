@@ -21,24 +21,19 @@ class MainFrame(RootFrame):
     @type summary: FrameSummary
     """
 
-    def __init__(self, root):
-        RootFrame.__init__(self, root)
+    def __init__(self, root, width=100):
+        RootFrame.__init__(self, root, width=width)
         # tk.Frame.__init__(self, master)
 
         self._current_index = 0
         self.list_of_entity_names = []
         self._gui_combobox_blueprint(self)
 
-        note = ttk.Notebook(self)
-        note.pack(side=tk.TOP, fill=tk.BOTH, expand=tk.TRUE, pady=5)
+        self.tool = FrameTool(self)
+        self.tool.pack(side=tk.LEFT, pady=2, fill=tk.Y)
 
-        self.summary = FrameSummary(note)
-        self.summary.pack(side=tk.TOP, fill=tk.BOTH)
-        note.add(self.summary, text="Summary")
-
-        self.tool = FrameTool(note)
-        self.tool.pack(side=tk.TOP, fill=tk.BOTH)
-        note.add(self.tool, text="Tools")
+        self.summary = FrameSummary(self)
+        self.summary.pack(side=tk.LEFT, pady=2, fill=tk.Y)
 
         self.disable()
 
@@ -87,15 +82,15 @@ class MainFrame(RootFrame):
         """
         self.summary.text_box.write("# Header v{}\n".format(
             smbedit.blueprint[self.entities_combo_box.current()].header.version))
+        self.summary.text_box.write("\tType: {}\n".format(
+            smbedit.blueprint[self.entities_combo_box.current()].header.get_type_name()))
+        self.summary.text_box.write("\tRole: {}\n".format(
+            smbedit.blueprint[self.entities_combo_box.current()].header.get_classification_name()))
         self.summary.text_box.write("\tLength: {}, Width: {}, Height: {}, \n".format(
             round(smbedit.blueprint[self.entities_combo_box.current()].header.get_length()),
             round(smbedit.blueprint[self.entities_combo_box.current()].header.get_width()),
             round(smbedit.blueprint[self.entities_combo_box.current()].header.get_height()),
             ))
-        self.summary.text_box.write("\tType: {}\n".format(
-            smbedit.blueprint[self.entities_combo_box.current()].header.get_type_name()))
-        self.summary.text_box.write("\tRole: {}\n".format(
-            smbedit.blueprint[self.entities_combo_box.current()].header.get_classification_name()))
 
         self.summary.text_box.write("\n")
 

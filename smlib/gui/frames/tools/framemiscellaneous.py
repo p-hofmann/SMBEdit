@@ -11,7 +11,7 @@ else:
 from ....utils.blueprintentity import BlueprintEntity
 
 
-class FrameMiscellaneous(tk.LabelFrame):
+class FrameMiscellaneous(tk.Label):
     """
     @type combo_box_type: ttk.Combobox
     @type combo_box_class: ttk.Combobox
@@ -20,7 +20,7 @@ class FrameMiscellaneous(tk.LabelFrame):
     def __init__(self, master):
         """
         """
-        tk.LabelFrame.__init__(self, master, text="Miscellaneous")
+        tk.Label.__init__(self, master)  # , text="Miscellaneous"
         self._gui_entity_type()
         self._gui_entity_class()
         # blueprint.set_entity(self._entity_type, self._entity_class)

@@ -64,7 +64,7 @@ class FrameMirror(tk.LabelFrame):
             master=frame_bottom)
         self.button_mirror.pack(fill=tk.X, side=tk.RIGHT)
 
-        frame_bottom.pack(side=tk.BOTTOM, anchor=tk.W, fill=tk.X)
+        frame_bottom.pack(side=tk.BOTTOM, anchor=tk.SW)
         # BOTTOM END
 
         frame_main.pack(fill=tk.X, padx=5, pady=5)

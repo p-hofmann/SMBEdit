@@ -22,7 +22,7 @@ class Window(tk.Tk, ActionMain, ActionAutoshape, ActionMirror, ActionMiscellaneo
         @type smbedit: SMBEditGUI
         """
         tk.Tk.__init__(self)
-        main_frame = MainFrame(self)
+        main_frame = MainFrame(self, width=75)
 
         ActionMain.__init__(self, main_frame, smbedit)
         # ActionAutoshape.__init__(self, main_frame, smbedit)

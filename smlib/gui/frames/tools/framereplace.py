@@ -12,7 +12,7 @@ from ...frames.widgets import Widgets
 from ....utils.blockconfig import block_config
 
 
-class FrameReplace(tk.LabelFrame):
+class FrameReplace(tk.Frame):
     """
     @type variable_remove: ttk.StringVar
     @type button_remove: ttk.Button
@@ -27,7 +27,8 @@ class FrameReplace(tk.LabelFrame):
     """
 
     def __init__(self, master):
-        tk.LabelFrame.__init__(self, master, text="Remove/Replace")
+        tk.Frame.__init__(self, master)
+        # , text="Remove/Replace"
         self._gui_remove_block()
         self._gui_replace_block()
         self._gui_replace_hull_and_armor()
@@ -131,7 +132,8 @@ class FrameReplace(tk.LabelFrame):
         radio_box_0 = tk.LabelFrame(frame_top, relief=tk.RIDGE, text="From")
         radio_box_1 = tk.LabelFrame(frame_top, relief=tk.RIDGE, text="To")
 
-        for index, tier_name in enumerate(block_config.tiers[:4]):
+        tiers = ["hull", "std. armor", "adv. armor", "crystal armor", "hazard armor"]
+        for index, tier_name in enumerate(tiers[:4]):
             left = tk.Radiobutton(radio_box_0, text=tier_name, variable=self.variable_hull_original, value=index)
             right = tk.Radiobutton(radio_box_1, text=tier_name, variable=self.variable_hull_replacement, value=index)
             left.pack(anchor=tk.W)
