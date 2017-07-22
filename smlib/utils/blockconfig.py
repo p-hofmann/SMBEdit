@@ -149,6 +149,12 @@ class SuperBlockConfig(object):
         for block_id in sorted(self._id_to_block):
             yield self._id_to_block[block_id]
 
+    def __contains__(self, item):
+        try:
+            return int(item) in self._id_to_block
+        except ValueError as e:
+            return False
+
 
 class BlockConfig(SuperBlockConfig, ):
     """
