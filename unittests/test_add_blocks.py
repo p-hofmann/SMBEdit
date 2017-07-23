@@ -26,6 +26,21 @@ class DefaultSetup(unittest.TestCase):
         # create the blueprint and populate it
         self.bp = Blueprint()
 
+        # create tempdir
+        self.tmpdir = tempfile.mkdtemp()
+
+    def tearDown(self):
+        # delete the blueprint
+        del self.bp
+
+        # clean the tmpdir
+        shutil.rmtree(self.tmpdir)
+
+
+class TestAddBlocks(DefaultSetup):
+    """
+    """
+    def test_add_blocks(self):
         # define available rotations
         rotation_axes = {'+Y': 0b0,
                          '-Y': 0b1,
@@ -119,7 +134,6 @@ class DefaultSetup(unittest.TestCase):
                                positions=data[block_id]['positions'],
                                rotations=data[block_id]['rotations'])
 
-
         # test the number of blocks added
         number_of_blocks = (1 +    # hull
                             4*4 +  # wedge - 4 axes * 4 rotations
@@ -136,26 +150,12 @@ class DefaultSetup(unittest.TestCase):
 
         # test writing
 
-        # create tempdir
-        self.tmpdir = tempfile.mkdtemp()
         # write the data
         self.bp.write(self.tmpdir)
 
-    def tearDown(self):
-        # delete the blueprint
-        del self.bp
-
-        # clean the tmpdir
-        shutil.rmtree(self.tmpdir)
-
-
-class TestAddBlocks(DefaultSetup):
-    """
-    """
-
-    def test_positions(self):
-        self.assertEqual(599, 599)
-        # self.bp.get_block_list()
+    # def test_positions(self):
+    #     self.assertEqual(599, 599)
+    #     self.bp.get_block_list()
 
 if __name__ == '__main__':
     unittest.main()
