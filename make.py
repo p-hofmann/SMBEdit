@@ -1,6 +1,6 @@
 import sys
 from cx_Freeze import setup, Executable
-from smbedit import __version__ as version
+from smlib import __version__ as version
 
 # Dependencies are automatically detected, but it might need
 # fine tuning.
