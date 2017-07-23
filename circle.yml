@@ -15,5 +15,5 @@ test:
   override:
     - smbedit -h
     - smbedit unittests/test_blueprints/B_Box.sment
-    - python make.py build
     - tox
+#    - python make.py build
