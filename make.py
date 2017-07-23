@@ -4,7 +4,7 @@ from smlib import __version__ as version
 
 # Dependencies are automatically detected, but it might need
 # fine tuning.
-buildOptions = dict(packages=['smlib'], excludes=[])
+buildOptions = dict(packages=['smlib'], excludes=["unittests"])
 
 base = None
 if sys.platform == "win32":
@@ -12,7 +12,7 @@ if sys.platform == "win32":
 
 executable_files = [
     Executable('smbedit.py', 'Console'),
-    Executable('smbeditGUI.py', base=base),
+    Executable('smbeditGUI.py', base=base)
 ]
 
 setup(
