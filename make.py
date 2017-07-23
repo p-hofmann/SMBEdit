@@ -1,10 +1,20 @@
 import sys
 from cx_Freeze import setup, Executable
 from smlib import __version__ as version
+# from setuptools import find_packages
 
 # Dependencies are automatically detected, but it might need
 # fine tuning.
-buildOptions = dict(packages=['smlib'], excludes=["unittests"])
+# buildOptions = dict(packages=['smlib'], excludes=["unittests"])
+# packages = find_packages(exclude=["unittests", "*.pyc"])
+packages = ["smlib", "sys", "os", "zipfile", "shutil", "traceback", "struct", "math"]
+if sys.version_info < (3,):
+    packages.append("Tkinter")
+    packages.append("ttk")
+else:
+    packages.append("tkinter")
+
+buildOptions = dict(packages=packages, excludes=["unittests"])
 
 base = None
 if sys.platform == "win32":
