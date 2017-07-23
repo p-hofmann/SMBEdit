@@ -168,8 +168,8 @@ class Blueprint(DefaultLogging):
         @type positions: list[(int, int, int)]
         @type rotations: list[int]
         """
-        # check if block_id is lower than 2^11 
-        assert block_id < (1 << 11)
+        # check if block_id is known
+        assert block_id in block_config, "Unknown block id: {}".format(block_id)
 
         for idx_position, position in enumerate(positions):
             rotation = rotations[idx_position] if rotations else 0
