@@ -72,7 +72,7 @@ class ArgumentHandler(Validator):
         # deal with StarMade directory
         msg_bad_sm_dir = "Bad StarMade directory: '{}'."
         self._directory_starmade = options.starmade_dir
-        if self._directory_starmade is not None:
+        if self._directory_starmade:
             self._directory_starmade = self.get_full_path(self._directory_starmade)
             assert self.validate_dir(
                 self._directory_starmade, file_names=["StarMade.jar"], key='-sm', silent=True), msg_bad_sm_dir.format(
@@ -82,7 +82,7 @@ class ArgumentHandler(Validator):
             config.read(config_file_path)
         option = "starmade_dir"
         section = "main"
-        if self._directory_starmade is None:
+        if not self._directory_starmade:
             self._directory_starmade = config.get_value(option, section, is_path=True, silent=True)
             if self._directory_starmade:
                 if not self.validate_dir(self._directory_starmade, file_names=["StarMade.jar"], key='-sm'):
