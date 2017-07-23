@@ -7,6 +7,8 @@ dependencies:
     - sudo apt-get update; sudo apt-get install python-tk python3-tk tk tk-dev
     - pip install tox tox-pyenv cx_Freeze
     - pip install -I ./
+    - pip3 install tox tox-pyenv cx_Freeze
+    - pip3 install -I ./
     - pyenv local 2.7.10 3.6.0
 
 test:
