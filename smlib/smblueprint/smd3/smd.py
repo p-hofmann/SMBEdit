@@ -257,6 +257,19 @@ class Smd(DefaultLogging):
         """
         self._block_list.remove_blocks(block_ids)
 
+    def add_block(self, block, position):
+        """
+        Add blocks with a specific id and position
+
+        @param position:
+        @type position: (int, int, int) | int
+        @param block:
+        @type block: StyleBasic
+        """
+        assert isinstance(position, tuple)
+        assert isinstance(block, StyleBasic)
+        self._block_list[position] = block
+
     def get_number_of_blocks(self):
         """
         Get total number of blocks
