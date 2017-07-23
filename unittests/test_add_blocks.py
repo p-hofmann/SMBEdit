@@ -24,7 +24,7 @@ class DefaultSetup(unittest.TestCase):
         block_config.from_hard_coded()
 
         # create the blueprint and populate it
-        self.bp = Blueprint()
+        self.bp = Blueprint("unittest_entity")
 
         # create tempdir
         self.tmpdir = tempfile.mkdtemp()
