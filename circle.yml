@@ -4,16 +4,14 @@ machine:
 
 dependencies:
   override:
-    - sudo apt-get update; sudo apt-get install python-tk python3-tk tk tk-dev
-    - pip install tox tox-pyenv cx_Freeze
+    - sudo apt-get update; sudo apt-get install python-tk tk
+    - pip install -I tox tox-pyenv cx_Freeze
     - pip install -I ./
-    - pip3 install tox tox-pyenv cx_Freeze
-    - pip3 install -I ./
     - pyenv local 2.7.10 3.6.0
 
 test:
   override:
     - smbedit -h
     - smbedit unittests/test_blueprints/B_Box.sment
-    - python3.6 make.py build
+    - python make.py build
     - tox
