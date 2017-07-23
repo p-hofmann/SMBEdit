@@ -1,6 +1,7 @@
 __author__ = 'Peter Hofmann'
 
 import tempfile
+import sys
 
 from smlib import __version__ as version
 from smlib.common.validator import Validator
@@ -75,13 +76,18 @@ class SMBEditGUI(Validator):
         return directory_starmade
 
 
-def main():
+def main(test_run=False):
     name = "SMBEdit " + version
     with SMBEditGUI(verbose=False, debug=False) as smbedit_gui:
         window = Window(smbedit_gui)
         window.resizable(0, 0)
         window.title(name)
+        if test_run:
+            window.after(2000, lambda: window.destroy())
         window.mainloop()
 
 if __name__ == "__main__":
-    main()
+    if len(sys.argv) > 1 and sys.argv[1] == "test":
+        main(True)
+    else:
+        main()
