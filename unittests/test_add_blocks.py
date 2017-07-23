@@ -6,7 +6,6 @@ from smlib.blueprint import Blueprint
 from smlib.utils.blockconfig import block_config
 
 
-
 __author__ = 'Sonny Lion'
 
 
@@ -21,56 +20,119 @@ class DefaultSetup(unittest.TestCase):
         self.bp = None
 
     def setUp(self):
+        # load block config 
         block_config.from_hard_coded()
+
         # create the blueprint and populate it
         self.bp = Blueprint()
 
-        # setup positions
-        positions = [(14,  40,  17),
-                     (7, -45, -47),
-                     (-42, -47, -55),
-                     (44,   8, -31),
-                     (-2,  40,  15),
-                     (-37,  45,  -8),
-                     (-32, -11, -5),
-                     (-18,  34, -36),
-                     (-4,  37,  -9),
-                     (37, -10,  23)]
+        # define available rotations
+        rotation_axes = {'+Y': 0b0,
+                         '-Y': 0b1,
+                         '-Z': 0b10,
+                         '+Z': 0b11,
+                         '-X': 0b100,
+                         '+X': 0b101, }
 
-        # sort positions
-        positions.sort()
+        available_rotations = {axis_k: [(axis_v << 2) + step
+                                        for step in [0, 1, 2, 3]]
+                               for axis_k, axis_v in rotation_axes.items()}
 
-        # add blocks
-        block_id_grey_hull = 598 # grey hull
-        block_id_grey_hull_wedge = 599 # grey hull wedge
-        block_id_grey_hull_corner = 600 # grey hull corner
-        block_id_grey_hull_tetra = 602 # grey hull tetra
-        block_id_grey_hull_hepta = 601 # grey hull hepta
-        block_id_grey_hull_slabe_34 = 700 # grey hull 3/4
-        block_id_grey_hull_slabe_12 = 699 # grey hull 1/2
-        block_id_grey_hull_slabe_14 = 698 # grey hull 1/4
-        self.bp.add_blocks(block_id_grey_hull, positions)
-        self.bp.add_blocks(block_id_grey_hull_wedge, [(0, 0, 0)])
-        self.bp.add_blocks(block_id_grey_hull_corner, [(0, 0, 1)])
-        self.bp.add_blocks(block_id_grey_hull_tetra, [(0, 0, 2)])
-        self.bp.add_blocks(block_id_grey_hull_hepta, [(0, 0, 3)])
-        self.bp.add_blocks(block_id_grey_hull_slabe_34, [(0, 0, 4)])
-        self.bp.add_blocks(block_id_grey_hull_slabe_12, [(0, 0, 5)])
-        self.bp.add_blocks(block_id_grey_hull_slabe_14, [(0, 0, 6)])
+        # create dict to store block properties
+        data = dict()
+
+        # define allowed rotations for each kind of blocks
+        allowed_rotations_1 = ['+Y',  # wedge
+                               '-Y',
+                               '-Z',
+                               '+Z', ]
+
+        allowed_rotations_26 = ['+Y',  # corner/rail
+                                '-Y',
+                                '-Z',
+                                '+Z',
+                                '-X',
+                                '+X', ]
+
+        allowed_rotations_45 = ['+Y', '-Y', ]  # tetra/hepta
+
+        # add blocks props to the properties dict
+
+        # basic
+        block_id_grey_hull = 598  # grey hull
+        data[block_id_grey_hull] = {'positions': [(0, 0, 0)],
+                                    'rotations': [0]}
+
+        # wedge
+        block_id_grey_hull_wedge = 599  # grey hull wedge
+        wedge_rotation_list = [rotation for key in available_rotations
+                               if key in allowed_rotations_1
+                               for rotation in available_rotations[key]]
+        data[block_id_grey_hull_wedge] = {'positions': [(1, 0, rotation)
+                                                        for rotation in wedge_rotation_list],
+                                          'rotations': wedge_rotation_list}
+
+        # corner
+        block_id_grey_hull_corner = 600  # grey hull corner
+        corner_rotation_list = [rotation for key in available_rotations
+                                if key in allowed_rotations_26
+                                for rotation in available_rotations[key]]
+        data[block_id_grey_hull_corner] = {'positions': [(2, 0, rotation)
+                                                         for rotation in corner_rotation_list],
+                                           'rotations': corner_rotation_list}
+
+        # tetra/hepta
+        block_id_grey_hull_tetra = 602  # grey hull tetra
+        block_id_grey_hull_hepta = 601  # grey hull hepta
+        tetra_rotation_list = [rotation for key in available_rotations
+                               if key in allowed_rotations_45
+                               for rotation in available_rotations[key]]
+        data[block_id_grey_hull_tetra] = {'positions': [(3, 0, rotation)
+                                                        for rotation in tetra_rotation_list],
+                                          'rotations': tetra_rotation_list}
+
+        data[block_id_grey_hull_hepta] = {'positions': [(3, 1, rotation)
+                                                        for rotation in tetra_rotation_list],
+                                          'rotations': tetra_rotation_list}
+
+        # same with block facing
+        block_facing_rotation = list(range(0, 6))
+        block_id_grey_hull_slabe_34 = 700  # grey hull 3/4
+        block_id_grey_hull_slabe_12 = 699  # grey hull 1/2
+        block_id_grey_hull_slabe_14 = 698  # grey hull 1/4
+
+        data[block_id_grey_hull_slabe_34] = {'positions': [(4, 0, rotation)
+                                                           for rotation in block_facing_rotation],
+                                             'rotations': block_facing_rotation}
+
+        data[block_id_grey_hull_slabe_12] = {'positions': [(4, 1, rotation)
+                                                           for rotation in block_facing_rotation],
+                                             'rotations': block_facing_rotation}
+
+        data[block_id_grey_hull_slabe_14] = {'positions': [(4, 2, rotation)
+                                                           for rotation in block_facing_rotation],
+                                             'rotations': block_facing_rotation}
+
+        # finally add blocks to the bp
+        for block_id in data:
+            self.bp.add_blocks(block_id,
+                               positions=data[block_id]['positions'],
+                               rotations=data[block_id]['rotations'])
+
+
+        # test the number of blocks added
+        number_of_blocks = (1 +    # hull
+                            4*4 +  # wedge - 4 axes * 4 rotations
+                            6*4 +  # corner - 6 axes
+                            2*4 +  # tetra - 2 axes
+                            2*4 +  # hepta - 2 axes
+                            6 +    # slab 3/4
+                            6 +    # slab 1/2
+                            6)     # slab 1/4
+        self.assertEqual(number_of_blocks, self.bp.smd3.get_number_of_blocks())
 
         # set the entity to space station
         self.bp.set_entity(2, 0)
-
-        self.bp.write('my_test_bp')
-
-        # test the number of blocks added (all positions + ship core)
-        self.assertEqual(len(positions), self.bp.smd3.get_number_of_blocks())
-
-        # test the block position
-        bp_positions = list(x for x in self.bp.smd3.get_block_list())
-        bp_positions.sort()
-
-        self.assertEqual(positions, bp_positions)
 
         # test writing
 
