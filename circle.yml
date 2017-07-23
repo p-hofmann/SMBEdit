@@ -4,6 +4,7 @@ machine:
 
 dependencies:
   override:
+    - apt-get install python-tk python3-tk
     - pip install tox tox-pyenv cx_Freeze
     - pip install -I ./
     - pyenv local 2.7.10 3.6.0
