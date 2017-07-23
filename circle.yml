@@ -4,7 +4,7 @@ machine:
 
 dependencies:
   override:
-    - sudo apt-get update; sudo apt-get install python-tk python3-tk
+    - sudo apt-get update; sudo apt-get install python-tk python3-tk tk-devel
     - pip install tox tox-pyenv cx_Freeze
     - pip install -I ./
     - pyenv local 2.7.10 3.6.0
