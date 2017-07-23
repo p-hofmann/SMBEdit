@@ -262,7 +262,7 @@ class Smd(DefaultLogging):
         Add blocks with a specific id and position
 
         @param position:
-        @type position: (int, int, int) | int
+        @type position: (int, int, int)
         @param block:
         @type block: StyleBasic
         """
