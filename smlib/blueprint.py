@@ -147,6 +147,29 @@ class Blueprint(DefaultLogging):
             else:
                 self.header.set_class(self._ct_to_station_class[entity_class])
 
+    def add_blocks(self, block_id, positions=[], rotations=None):
+        """
+        Add blocks with a specific ID with/at different rotations/positions
+        Note: since this function is design to create the most recent
+        blueprints, it works only with the Segment-data v3
+
+        @type block_id: int
+        @type positions: tuple list
+        @type rotations: int list
+        """
+        # check if block_id is lower than 2^11 
+        assert block_id < (1 << 11)
+
+        for idx_position, position in enumerate(positions):
+            rotation = rotations[idx_position] if rotations else 0
+            assert rotation < (1 << 5)
+            # the rotations correspond to the last 5 bits of the state (int_24)
+            new_block = block_pool(block_id + (rotation << 19))
+            self.smd3.add_block(new_block, tuple(position))
+        self.logic.update(self.smd3)
+        self.header.update(self.smd3)
+
+
     def remove_blocks(self, block_ids):
         """
         Removing all blocks of a specific id
