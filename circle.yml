@@ -8,6 +8,7 @@ dependencies:
 #    - pyenv install -f 2.7.10
 #    - pyenv install -f 3.6.0
     - pip install tox tox-pyenv cx_Freeze
+    - pip install -I "git+https://github.com/p-hofmann/PyVoxelizer.git"
     - pip install -I ./
     - pyenv local 2.7.10 3.6.0
 
