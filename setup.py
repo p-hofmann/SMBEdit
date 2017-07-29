@@ -9,7 +9,7 @@ setup(
     author="Peter Hofmann",
     author_email="",
     url="https://github.com/p-hofmann/SMBEdit",
-    packages=find_packages(exclude=["unittests", "*.pyc"]),
+    packages=find_packages(exclude=["unittests", "__pycache__"]),
     py_modules=["smbedit", "smbeditGUI"],
     entry_points={
         "console_scripts": [
