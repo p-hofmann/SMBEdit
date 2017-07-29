@@ -8,7 +8,10 @@ from smlib import __version__ as version
 # fine tuning.
 # buildOptions = dict(packages=['smlib'], excludes=["unittests"])
 # packages = find_packages(exclude=["unittests", "*.pyc"])
-packages = ["smlib", "sys", "os", "zipfile", "shutil", "traceback", "struct", "math", "tempfile"]
+packages = [
+    "smlib", 'voxlib',
+    # "sys", "os", "zipfile", "shutil", "traceback", "struct", "math", "tempfile", 'encodings'
+    ]
 if sys.version_info < (3,):
     packages.append("Tkinter")
     packages.append("ttk")
@@ -26,7 +29,7 @@ if sys.platform == "win32":
 
 build_options = dict(
     packages=packages,
-    excludes=["unittests"],
+    excludes=["unittests", "__pycache__"],
     include_files=include_files
 )
 
@@ -42,7 +45,7 @@ setup(
     author='Peter Hofmann',
     author_email='',
     url='https://github.com/p-hofmann/SMBEdit',
-    # packages=['smlib'],
+    packages=['smlib'],
     options=dict(build_exe=build_options),
     executables=executable_files
     )
