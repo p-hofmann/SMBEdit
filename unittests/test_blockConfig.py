@@ -12,7 +12,7 @@ class DefaultSetup(TestCase):
 
     def __init__(self, methodName='runTest'):
         super(DefaultSetup, self).__init__(methodName)
-        self._starmade_dir = "/home/hofmann/Downloads/starmade-launcher-linux-x64/StarMadeDev"
+        self._starmade_dir = "/home/hofmann/Downloads/starmade-launcher-linux-x64/StarMade"
 
     def setUp(self):
         self.object = BlockConfig()

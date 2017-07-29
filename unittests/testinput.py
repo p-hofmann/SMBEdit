@@ -35,7 +35,7 @@ class BlueprintList(object):
     def __init__(self):
         self._tmp = tempfile.mkdtemp(prefix="blueprint_tests")
         self._file_name = "meta.smbpm"
-        directory_blueprints = os.path.join(".", "test_blueprints")
+        directory_blueprints = os.path.join(".", "input_blueprints")
         self._blueprints = set()
         self._blueprint_attachments = set()
         blueprints = self._find_blueprint_sment(directory_blueprints)
@@ -105,7 +105,7 @@ class TemplateList(object):
     """
 
     def __init__(self):
-        directory_blueprints = os.path.join(".", "test_templates")
+        directory_blueprints = os.path.join(".", "input_templates")
         self._templates = self._find_smtpl(directory_blueprints)
 
     def __iter__(self):
