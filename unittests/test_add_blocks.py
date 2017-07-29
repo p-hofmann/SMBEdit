@@ -46,7 +46,6 @@ class TestAddBlocks(DefaultSetup):
     """
 
     def test_add_blocks(self):
-        self.skipTest("muh")
         # define available rotations
         rotation_axes = {'+Y': 0b0,
                          '-Y': 0b1,
@@ -164,22 +163,18 @@ class TestAddBlocks(DefaultSetup):
         from voxlib.voxelize import voxelize
         # file_path_stl = "./input_mesh/Dragon_2.5.stl"
         # file_path_obj = "./input_mesh/Scaffold.obj"
-        file_path_stl = "./input_mesh/cube_corner.stl"
+        file_path_stl = os.path.join(".", "input_mesh", "cube_corner.stl")
         file_path_stl = os.path.abspath(file_path_stl)
         input_path = file_path_stl
         self.assertTrue(os.path.exists(input_path), file_path_stl)
-        # self.bp.add_blocks(
-        #     598,
-        #     positions=list(voxelize_lazy(file_path_stl, resolution=1024))
-        # )
-        resolution = 128
+        resolution = 10
         self.bp.add_blocks(
             598,
             positions=list(voxelize(input_path, resolution=resolution)),
             offset=(16, 16, 16)
         )
-        name = os.path.splitext(os.path.basename(input_path))[0]
-        output = "/tmp/test_{}_{}".format(name, resolution)
+        # name = os.path.splitext(os.path.basename(input_path))[0]
+        # output = "/tmp/test_{}_{}".format(name, resolution)
         # if not os.path.exists(output):
         #     os.mkdir(output)
         # self.bp.write(output)

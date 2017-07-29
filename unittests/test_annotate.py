@@ -29,7 +29,7 @@ class DefaultSetup(TestCase):
 
 class TestAnnotate(DefaultSetup):
     def test_flood(self):
-        blueprint = blueprint_handler.extract_sment(os.path.join(".", "test_blueprints", "B_Ball.sment"))
+        blueprint = blueprint_handler.extract_sment(os.path.join(".", "input_blueprints", "B_Ball.sment"))
         smd = Smd()
         smd.read(blueprint)
         periphery = Periphery(smd.get_block_list())

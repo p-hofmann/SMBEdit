@@ -20,11 +20,11 @@ class DefaultSetup(TestCase):
         super(DefaultSetup, self).__init__(methodName)
         self.object = None
         self._blueprint = {
-            1: blueprint_handler.extract_sment(os.path.join(".", "test_blueprints", "B_Wedge.sment")),
-            2: blueprint_handler.extract_sment(os.path.join(".", "test_blueprints", "B_Corner.sment")),
-            3: blueprint_handler.extract_sment(os.path.join(".", "test_blueprints", "B_Tetra.sment")),
+            1: blueprint_handler.extract_sment(os.path.join(".", "input_blueprints", "B_Wedge.sment")),
+            2: blueprint_handler.extract_sment(os.path.join(".", "input_blueprints", "B_Corner.sment")),
+            3: blueprint_handler.extract_sment(os.path.join(".", "input_blueprints", "B_Tetra.sment")),
             # 4: blueprint_handler.extract_sment(os.path.join(".", "test_blueprints", "B_Diamond_Shape.sment")),
-            4: blueprint_handler.extract_sment(os.path.join("test_blueprints", "B_Hepta.sment")),
+            4: blueprint_handler.extract_sment(os.path.join("input_blueprints", "B_Hepta.sment")),
         }
 
     def setUp(self):
