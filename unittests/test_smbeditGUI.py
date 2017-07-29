@@ -1,5 +1,5 @@
 from unittest import TestCase
-# from smbeditGUI import main
+from smbeditGUI import main
 
 __author__ = 'Peter Hofmann'
 
@@ -16,4 +16,4 @@ class DefaultSetup(TestCase):
 class TestSMBEdit(DefaultSetup):
     def test_run(self):
         self.skipTest("Can not manage to install tkinter on circleci")
-        # main(True)
+        main(True)
