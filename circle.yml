@@ -7,12 +7,12 @@ dependencies:
 #    - sudo apt-get update; sudo apt-get install python-tk python3-tk tk tk-dev
 #    - pyenv install -f 2.7.10
 #    - pyenv install -f 3.6.0
+#    - pip3 install tox tox-pyenv cx_Freeze numpy
+#    - pip3 install -I ./ "git+https://github.com/p-hofmann/PyVoxelizer.git"
     - sudo apt-get update; sudo apt-get install python3-pip
+    - pip install tox tox-pyenv
+    - pip install -I ./
     - pyenv local 2.7.10 3.6.2
-    - pip install tox tox-pyenv cx_Freeze numpy
-    - pip3 install tox tox-pyenv cx_Freeze numpy
-    - pip install -I ./ "git+https://github.com/p-hofmann/PyVoxelizer.git"
-    - pip3 install -I ./ "git+https://github.com/p-hofmann/PyVoxelizer.git"
 
 test:
   override:
