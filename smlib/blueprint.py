@@ -158,7 +158,7 @@ class Blueprint(DefaultLogging):
                 entity_class = list(BlueprintEntity.entity_classification[entity_type].keys())[0]
                 self.header.set_class(entity_class)
 
-    def add_blocks(self, block_id, positions, rotations=None):
+    def add_blocks(self, block_id, positions, rotations=None, offset=None):
         """
         Add blocks with a specific ID with/at different rotations/positions
         Note: since this function is design to create the most recent
@@ -167,16 +167,22 @@ class Blueprint(DefaultLogging):
         @type block_id: int
         @type positions: list[(int, int, int)]
         @type rotations: list[int]
+        @param offset: if blocks centered around origin (0, 0, 0) then offset (16, 16, 16)
+        @type offset: (int, int, int)
         """
         # check if block_id is known
         assert block_id in block_config, "Unknown block id: {}".format(block_id)
-
         for idx_position, position in enumerate(positions):
-            rotation = rotations[idx_position] if rotations else 0
-            assert rotation < (1 << 5)
-            # the rotations correspond to the last 5 bits of the state (int_24)
-            new_block = block_pool(block_id + (rotation << 19))
-            self.smd3.add_block(new_block, tuple(position))
+            if rotations:
+                rotation = rotations[idx_position]
+                assert rotation < 32, "Invalid rotation: {}".format(rotation)  # (1 << 5)
+                # the rotations correspond to the last 5 bits of the state (int_24)
+                block_id += (rotation << 19)
+            new_block = block_pool(block_id)
+            if offset:
+                self.smd3.add_block(new_block, (position[0]+offset[0], position[1]+offset[1], position[2]+offset[2]))
+            else:
+                self.smd3.add_block(new_block, tuple(position))
         self.logic.update(self.smd3)
         self.header.update(self.smd3)
 
