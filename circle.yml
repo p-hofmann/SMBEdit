@@ -4,7 +4,7 @@ machine:
 
 dependencies:
   override:
-#    - sudo apt-get update; sudo apt-get install python-tk python3-tk tk tk-dev
+    - sudo apt-get update; sudo apt-get install python-tk python3-tk tk tk-dev
     - pyenv install -s 2.7.10
     - pyenv install -s 3.6.2
     - pip install tox tox-pyenv
