@@ -28,11 +28,15 @@ def main(sys_argv, description='Create a blueprint from a 3D model (obj/stl)'):
         description=description)
     # 3d model input path (obj or stl)
     parser.add_argument(
-        'path_input',
+        '-i', '--path_input',
         action=CheckExt({'obj','stl'}),
-        help="'*.obj' or '*.stl' file path.")
+        help="'*.obj' or '*.stl' file path.",
+        required=True)
 
-    parser.add_argument('resolution', type=int, help='Voxelization resolution')
+    parser.add_argument('-r', '--resolution',
+        type=int,
+        help='Voxelization resolution',
+        required=True)
     parser.add_argument(
         '-b', '--block_id',
         type=int,
@@ -43,7 +47,8 @@ def main(sys_argv, description='Create a blueprint from a 3D model (obj/stl)'):
         '-o', '--path_output',
         default=None,
         type=str,
-        help="Output directory of modified blueprint or '*.sment' file path")
+        help="Output directory of modified blueprint or '*.sment' file path",
+        required=True)
     args = parser.parse_args(sys_argv)
 
     # load block config 
