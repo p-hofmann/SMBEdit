@@ -66,5 +66,13 @@ def main(sys_argv, description='Create a blueprint from a 3D model (obj/stl)'):
         positions=list(voxelize(args.path_input, resolution=args.resolution)),
         offset=(16, 16, 16)
     )
+
+    # create output dir if not already existing
+    if not os.path.exists(args.path_output):
+        os.makedirs(args.path_output)
+
+    # write the file
+    bp.write(args.path_output)
+
 if __name__ == '__main__':
     main(sys.argv[1:])
