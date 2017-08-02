@@ -165,7 +165,7 @@ class Blueprint(DefaultLogging):
         blueprints, it works only with the Segment-data v3
 
         @type block_id: int
-        @type positions: list[(int, int, int)]
+        @type positions: list[(int, int, int)] | set[(int, int, int)]
         @type rotations: list[int]
         @param offset: if blocks centered around origin (0, 0, 0) then offset (16, 16, 16)
         @type offset: (int, int, int)
