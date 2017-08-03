@@ -37,6 +37,7 @@ def main(sys_argv, description='Create a blueprint from a 3D model (obj/stl)'):
         type=int,
         help='Voxelization resolution',
         required=True)
+
     parser.add_argument(
         '-b', '--block_id',
         type=int,
@@ -49,6 +50,7 @@ def main(sys_argv, description='Create a blueprint from a 3D model (obj/stl)'):
         type=str,
         help="Output directory of modified blueprint or '*.sment' file path",
         required=True)
+
     args = parser.parse_args(sys_argv)
 
     # load block config 
@@ -56,6 +58,8 @@ def main(sys_argv, description='Create a blueprint from a 3D model (obj/stl)'):
 
     # create the blueprint
 
+    # for the moment, the name of the blueprint is not important since it is
+    # the name of the output folder that is used to name the ship
     bp = Blueprint('bp_vox')
     # set the entity to space station
     bp.set_entity(2, 0)
@@ -72,7 +76,8 @@ def main(sys_argv, description='Create a blueprint from a 3D model (obj/stl)'):
         os.makedirs(args.path_output)
 
     # write the file
-    bp.write(args.path_output)
+    # note: trailing path separators produce empty bp names
+    bp.write(args.path_output.rstrip('\\/'))
 
 if __name__ == '__main__':
     main(sys.argv[1:])
