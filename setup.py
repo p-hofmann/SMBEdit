@@ -10,10 +10,11 @@ setup(
     author_email="",
     url="https://github.com/p-hofmann/SMBEdit",
     packages=find_packages(exclude=["unittests", "__pycache__"]),
-    py_modules=["smbedit", "smbeditGUI"],
+    py_modules=["smbedit", "smbeditGUI", "smbedit_cli"],
     entry_points={
         "console_scripts": [
             "smbedit = smbedit:main",
+            "smb = smbedit_cli.smb:main",
             ],
         "gui_scripts": [
             "smbeditGUI = smbeditGUI:main",
