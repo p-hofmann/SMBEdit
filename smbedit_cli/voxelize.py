@@ -1,6 +1,7 @@
 import sys
 import argparse
 import os
+import numpy
 
 from voxlib.voxelize import voxelize
 from smlib.blueprint import Blueprint
@@ -55,6 +56,22 @@ def main(sys_argv, description='Create a blueprint from a 3D model (obj/stl)'):
         help="Output directory of modified blueprint or '*.sment' file path",
         required=True)
 
+    parser.add_argument(
+        '-a', '--rotation_axis',
+        default=None,
+        type=str,
+        choices=['x', 'y', 'z'],
+        help="The model is rotated in the plane perpendicular to the given axis",
+        required=False)
+
+    parser.add_argument(
+        '-n', '--rotation_number',
+        default=0,
+        type=int,
+        choices=[0, 1, 2, 3],
+        help="Number of times the model is rotated by 90 degrees",
+        required=False)
+
     args = parser.parse_args(sys_argv)
 
     # load block config
@@ -72,7 +89,9 @@ def main(sys_argv, description='Create a blueprint from a 3D model (obj/stl)'):
     bp.add_blocks(
         args.block_id,
         positions=list(voxelize(args.path_input, resolution=args.resolution)),
-        offset=(16, 16, 16)
+        offset=(16, 16, 16),
+        rotation_axis=args.rotation_axis,
+        rotation_number=args.rotation_number
     )
 
     # create output dir if not already existing
