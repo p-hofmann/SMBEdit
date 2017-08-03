@@ -6,18 +6,22 @@ from voxlib.voxelize import voxelize
 from smlib.blueprint import Blueprint
 from smlib.utils.blockconfig import block_config
 
+
 def CheckExt(choices):
     """
     File extension checking with argparse
     """
     class Act(argparse.Action):
-        def __call__(self,parser,namespace,fname,option_string=None):
+
+        def __call__(self, parser, namespace, fname, option_string=None):
             ext = os.path.splitext(fname)[1][1:].lower()
             if ext not in choices:
-                option_string = '({})'.format(option_string) if option_string else ''
-                parser.error("file doesn't end with one of {}{}".format(choices,option_string))
+                option_string = '({})'.format(
+                    option_string) if option_string else ''
+                parser.error("file doesn't end with one of {}{}".format(
+                    choices, option_string))
             else:
-                setattr(namespace,self.dest,fname)
+                setattr(namespace, self.dest, fname)
 
     return Act
 
@@ -29,14 +33,14 @@ def main(sys_argv, description='Create a blueprint from a 3D model (obj/stl)'):
     # 3d model input path (obj or stl)
     parser.add_argument(
         '-i', '--path_input',
-        action=CheckExt({'obj','stl'}),
+        action=CheckExt({'obj', 'stl'}),
         help="'*.obj' or '*.stl' file path.",
         required=True)
 
     parser.add_argument('-r', '--resolution',
-        type=int,
-        help='Voxelization resolution',
-        required=True)
+                        type=int,
+                        help='Voxelization resolution',
+                        required=True)
 
     parser.add_argument(
         '-b', '--block_id',
@@ -53,7 +57,7 @@ def main(sys_argv, description='Create a blueprint from a 3D model (obj/stl)'):
 
     args = parser.parse_args(sys_argv)
 
-    # load block config 
+    # load block config
     block_config.from_hard_coded()
 
     # create the blueprint
