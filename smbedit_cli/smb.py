@@ -4,8 +4,8 @@ import os
 
 from functools import partial
 
-from smbedit import main as cli_edit
-from smbedit_cli.voxelizer import main as cli_voxelize
+from smbedit_cli.edit import main as cli_edit
+from smbedit_cli.voxelize import main as cli_voxelize
 
 def subcommand(func, description=None):
     """
@@ -80,6 +80,9 @@ class Smb(object):
         # use dispatch pattern to invoke the corresponding subcommand
         self._subcommands.get(args.command, default_subcommand)()
 
-if __name__ == '__main__':
+def main():
     cli = Smb()
     cli.run()
+
+if __name__ == '__main__':
+    main()
