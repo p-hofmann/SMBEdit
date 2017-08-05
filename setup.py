@@ -1,4 +1,4 @@
-from smlib import __version__ as version
+from smlib import __version__ as version, __author__ as author
 
 from setuptools import setup, find_packages
 
@@ -6,7 +6,7 @@ setup(
     name="SMBEdit",
     version=version,
     description="StarMade Blueprint Editor",
-    author="Peter Hofmann",
+    author=author,
     author_email="",
     url="https://github.com/p-hofmann/SMBEdit",
     packages=find_packages(exclude=["unittests", "__pycache__"]),
