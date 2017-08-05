@@ -147,7 +147,8 @@ class SuperBlockConfig(object):
         @rtype:
         """
         for block_id in sorted(self._id_to_block):
-            yield self._id_to_block[block_id]
+            yield block_id
+            # yield self._id_to_block[block_id]
 
     def __contains__(self, item):
         try:

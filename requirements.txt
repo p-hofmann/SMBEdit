@@ -2,3 +2,4 @@ numpy>=1.12.1
 cx_Freeze>=5.0.2
 git+https://github.com/p-hofmann/MeshReader.git
 git+https://github.com/p-hofmann/PyVoxelizer.git
+pyqt5

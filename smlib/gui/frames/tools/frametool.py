@@ -1,65 +1,74 @@
-__author__ = 'Peter Hofmann'
+from PyQt5.QtWidgets import (QSizePolicy, QSlider, QFormLayout, QGridLayout, QGroupBox, QListWidget, QWidget,
+                             QStackedWidget, QScrollBar, QFormLayout, QAbstractScrollArea, QSpacerItem)
+from PyQt5.QtCore import Qt
+from .framemiscellaneous import FrameMiscellaneous
+from .frameautoshape import FrameAutoShape
+from .framemovecenter import FrameMoveCenter
+from .framemirror import FrameMirror
+from .framereplace import FrameReplace
 
 
-import sys
-if sys.version_info < (3,):
-    import Tkinter as tk
-    import ttk
-else:
-    import tkinter as tk
-    from tkinter import ttk
-from ...frames.tools.frameautoshape import FrameAutoShape
-from ...frames.tools.framemovecenter import FrameMoveCenter
-from ...frames.tools.framereplace import FrameReplace
-from ...frames.tools.framemirror import FrameMirror
-from ...frames.tools.framemiscellaneous import FrameMiscellaneous
-
-
-class FrameTool(tk.LabelFrame):
+class FrameTool(QGroupBox):
     """
     """
 
-    def __init__(self, master):
-        tk.LabelFrame.__init__(self, master, text="Tools")
+    def __init__(self, main_frame, smbedit):
+        super().__init__('Tools')
+        # self.tool_list = QListWidget()
+        # self.tool_list.insertItem(0, 'Autoshape')
+        # self.tool_list.insertItem(1, 'Move Center')
+        # self.tool_list.insertItem(2, 'Mirror')
+        # self.tool_list.insertItem(3, 'Remove/Replace')
+        # self.tool_list.insertItem(4, 'Miscellaneous')
+        # self.tool_list.setFixedSize(
+        #     self.tool_list.sizeHintForColumn(0) + 2 * self.tool_list.frameWidth(),
+        #     self.tool_list.sizeHintForRow(0) * self.tool_list.count() + 2 * self.tool_list.frameWidth())
 
-        note = ttk.Notebook(self)
-        note.pack(side=tk.TOP, fill=tk.BOTH, expand=tk.TRUE, pady=2)
+        self.sp = QScrollBar(Qt.Horizontal)
+        self.sp.setMaximum(4)
+        self.sp.setToolTip("Slide between tool pages")
+        self.sp.valueChanged[int].connect(self.value_change)
 
-        some_frame = tk.Frame(note)
-        self.auto_shape = FrameAutoShape(some_frame)
-        self.auto_shape.pack(side=tk.TOP, fill=tk.X, pady=2, padx=2)
+        self.tool_auto_shape = FrameAutoShape(main_frame, smbedit)
+        self.tool_move_center = FrameMoveCenter(main_frame, smbedit)
+        self.tool_mirror = FrameMirror(main_frame, smbedit)
+        self.tool_replace = FrameReplace(main_frame, smbedit)
+        self.tool_miscellaneous = FrameMiscellaneous(main_frame, smbedit)
 
-        self.tool_move_center = FrameMoveCenter(some_frame)
-        self.tool_move_center.pack(side=tk.TOP, fill=tk.X, pady=2, padx=2)
+        self.stack = QStackedWidget(self)
+        self.stack.addWidget(self.tool_auto_shape)
+        self.stack.addWidget(self.tool_move_center)
+        self.stack.addWidget(self.tool_mirror)
+        self.stack.addWidget(self.tool_replace)
+        self.stack.addWidget(self.tool_miscellaneous)
 
-        self.tool_mirror = FrameMirror(some_frame)
-        self.tool_mirror.pack(side=tk.TOP, fill=tk.X, pady=2, padx=2)
-        some_frame.pack(side=tk.LEFT, fill=tk.Y, pady=5, padx=3)
-        note.add(some_frame, text="Shape")
-        # note.add(some_frame, text="AutoShape/Mirror")
+        grid = QGridLayout()
+        # grid.addWidget(self.tool_list)
+        # line = QFrame()
+        # line.setFrameShape(QFrame.HLine)
+        # grid.addWidget(line)
+        grid.addWidget(self.sp)
+        grid.addWidget(self.stack)
+        self.setLayout(grid)
+        # self.tool_list.currentRowChanged.connect(self.display)
+        self.setMaximumWidth(250)
 
-        self.tool_replace = FrameReplace(note)
-        self.tool_replace.pack(side=tk.TOP, pady=7, padx=3)
-        note.add(self.tool_replace, text="Replace")
-        # note.add(self.tool_replace, text="Remove/Replace")
+    def display(self, i):
+        self.stack.setCurrentIndex(i)
 
-        some_frame = tk.Frame(note)
-        self.tool_else = FrameMiscellaneous(some_frame)
-        self.tool_else.pack(side=tk.TOP, fill=tk.X, pady=2, padx=2)
-        some_frame.pack(side=tk.LEFT, fill=tk.Y, pady=5, padx=3)
-        note.add(some_frame, text="Miscellaneous")
-        # note.add(some_frame, text="MoveCenter/Miscellaneous")
+    def value_change(self):
+        self.stack.setCurrentIndex(self.sp.sliderPosition())
 
     def disable(self):
-        self.auto_shape.disable()
+        self.tool_auto_shape.disable()
         self.tool_mirror.disable()
         self.tool_move_center.disable()
-        self.tool_else.disable()
+        self.tool_miscellaneous.disable()
         self.tool_replace.disable()
 
     def enable(self):
-        self.auto_shape.enable()
+        self.tool_auto_shape.enable()
         self.tool_mirror.enable()
         self.tool_move_center.enable()
-        self.tool_else.enable()
+        self.tool_miscellaneous.enable()
         self.tool_replace.enable()

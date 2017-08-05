@@ -1,17 +1,8 @@
-__author__ = 'Peter Hofmann'
-
-
-import sys
-if sys.version_info < (3,):
-    import Tkinter as tk
-    # import ttk
-else:
-    import tkinter as tk
-    # from tkinter import ttk
+from PyQt5.QtWidgets import QComboBox
 from ...utils.blockconfig import block_config
 
 
-class Widgets(tk.Button):
+class Widgets(object):
     @staticmethod
     def validate_float(action, index, value_if_allowed, prior_value, text, validation_type, trigger_type, widget_name):
         if value_if_allowed in ['', '-', '.']:
@@ -51,3 +42,13 @@ class Widgets(tk.Button):
             label['text'] = block_config.tiers[tier]
         except (KeyError, ValueError):
             label['text'] = ""
+
+    @staticmethod
+    def insert_items(combo_box):
+        """
+
+        @type combo_box: QComboBox
+        """
+        for block_id in block_config:
+            combo_box.addItem(block_config[block_id].name, block_id)
+            combo_box.setSizeAdjustPolicy(QComboBox.AdjustToMinimumContentsLength)

@@ -1,24 +1,17 @@
-__author__ = 'Peter Hofmann'
+from PyQt5.QtWidgets import (QSizePolicy, QFrame, QFormLayout, QGridLayout, QGroupBox, QCheckBox, QWidget,
+                             QStackedWidget, QVBoxLayout, QPushButton, QRadioButton, QButtonGroup)
+from ...actions.actionmirror import ActionMirror
 
 
-import sys
-if sys.version_info < (3,):
-    import Tkinter as tk
-else:
-    import tkinter as tk
-
-
-class FrameMirror(tk.LabelFrame):
+class FrameMirror(ActionMirror):
     """
-    @type variable_radiobox_axis: tk.IntVar
-    @type variable_checkbox_reversed: tk.BooleanVar
-    @type button_mirror: tk.Button
     """
 
-    def __init__(self, master):
+    def __init__(self, main_frame, smbedit):
         """
         """
-        tk.LabelFrame.__init__(self, master, text="Mirror")
+        super(FrameMirror, self).__init__(main_frame, smbedit)
+        self.setTitle("Mirror")
         self._gui_mirror()
 
     def _gui_mirror(self):
@@ -27,50 +20,38 @@ class FrameMirror(tk.LabelFrame):
         1: y top to bottom
         2: z front to back
         """
-        frame_main = tk.Frame(self)
-
         # TOP
-        frame_top = tk.Frame(frame_main)
-        self.variable_radiobox_axis = tk.IntVar()
-        self.variable_checkbox_reversed = tk.BooleanVar()
-
-        radio_box_0 = tk.LabelFrame(frame_top, relief=tk.RIDGE, text="")
-
-        radio_box_option = tk.Radiobutton(
-            radio_box_0, text="Left -> Right", variable=self.variable_radiobox_axis, value=0)
-        radio_box_option.pack(anchor=tk.W)
-        radio_box_option = tk.Radiobutton(
-            radio_box_0, text="Top -> Bottom", variable=self.variable_radiobox_axis, value=1)
-        radio_box_option.pack(anchor=tk.W)
-        radio_box_option = tk.Radiobutton(
-            radio_box_0, text="Front -> Back", variable=self.variable_radiobox_axis, value=2)
-        radio_box_option.pack(anchor=tk.W)
-
-        radio_box_0.pack(side=tk.LEFT, fill=tk.Y)
-        frame_top.pack(side=tk.TOP, anchor=tk.W)
+        radio_box_option_x = QRadioButton("Left to Right")
+        radio_box_option_y = QRadioButton("Top to Bottom")
+        radio_box_option_z = QRadioButton("Front to Back")
+        self.button_group = QButtonGroup()
+        self.button_group.addButton(radio_box_option_x, 0)
+        self.button_group.addButton(radio_box_option_y, 1)
+        self.button_group.addButton(radio_box_option_z, 2)
+        radio_box_option_x.setChecked(True)
         # TOP END
 
         # BOTTOM
-        frame_bottom = tk.Frame(frame_main)
+        self.check_button = QCheckBox("Reverse")
 
-        check_button = tk.Checkbutton(
-            frame_bottom, text="Reverse", variable=self.variable_checkbox_reversed,
-            onvalue=True, offvalue=False)
-        check_button.pack(fill=tk.X, side=tk.RIGHT)
-
-        self.button_mirror = tk.Button(
-            text="Mirror",
-            bd=2,
-            master=frame_bottom)
-        self.button_mirror.pack(fill=tk.X, side=tk.RIGHT)
-
-        frame_bottom.pack(side=tk.BOTTOM, anchor=tk.SW)
+        self.button_mirror = QPushButton("Mirror")
+        self.button_mirror.pressed.connect(self.button_press_mirror)
         # BOTTOM END
 
-        frame_main.pack(fill=tk.X, padx=5, pady=5)
+        grid = QGridLayout()
+        grid.addWidget(radio_box_option_x, 0, 0)
+        grid.addWidget(radio_box_option_z, 1, 0)
+        grid.addWidget(radio_box_option_y, 2, 0)
+        grid.addWidget(self.check_button, 3, 0)
+        grid.addWidget(self.button_mirror, 4, 0)
+
+        v_box = QVBoxLayout()
+        v_box.addLayout(grid)
+        v_box.addStretch()
+        self.setLayout(v_box)
 
     def disable(self):
-        self.button_mirror.config(state=tk.DISABLED)
+        self.button_mirror.setEnabled(False)
 
     def enable(self):
-        self.button_mirror.config(state=tk.NORMAL)
+        self.button_mirror.setEnabled(True)
