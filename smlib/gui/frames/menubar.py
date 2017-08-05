@@ -16,9 +16,7 @@ class MenuBar(ActionMenuBar):
         # menu_file_new = QAction('New', window)
 
         # import 3D model
-        # menu_file_import = QMenu('Import', window)
         self.menu_file_import_3d_model = QAction('Import ...', window)
-        # menu_file_import.addAction(self.menu_file_import_3d_model)
 
         # Load blueprint
         menu_file_load = QMenu('Load', window)
@@ -26,7 +24,6 @@ class MenuBar(ActionMenuBar):
         self.menu_file_load_blueprint = QAction('Load blueprint', window)
         menu_file_load.addAction(self.menu_file_load_blueprint)
         menu_file_load.addAction(self.menu_file_load_sment)
-        # menu_file_load_blueprint.triggered,connect()
 
         # Save blueprint
         menu_file_save = QMenu('Save', window)
@@ -35,11 +32,9 @@ class MenuBar(ActionMenuBar):
         menu_file_save.addAction(self.menu_file_save_blueprint)
         menu_file_save.addAction(self.menu_file_save_sment)
 
-        # menu_file.addAction(menu_file_new)
         menu_file.addMenu(menu_file_load)
         menu_file.addMenu(menu_file_save)
         menu_file.addSeparator()
-        # menu_file.addMenu(menu_file_import)
         menu_file.addAction(self.menu_file_import_3d_model)
 
         # Tools
@@ -70,7 +65,6 @@ class MenuBar(ActionMenuBar):
         #
         # menu_help = menu_bar.addMenu('Help')
 
-        # exitButton = QAction(QIcon('exit24.png'), 'Exit', window)
         self.menu_file_exit = QAction('Exit', window)
         self.menu_file_exit.setShortcut('Ctrl+Q')
         self.menu_file_exit.setStatusTip('Exit application')

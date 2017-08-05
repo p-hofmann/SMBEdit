@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import (QComboBox, QCheckBox, QVBoxLayout, QSplitter, QStatusBar,
+from PyQt5.QtWidgets import (QComboBox, QCheckBox, QVBoxLayout, QStatusBar,
                              QGridLayout, QHBoxLayout)
 from PyQt5.QtGui import QTextCursor
 from .tools.frametool import FrameTool
@@ -26,17 +26,12 @@ class MainFrame(ActionMain):
 
         self.tool = FrameTool(self, smbedit)
         self.summary = FrameSummary()
-        # splitter1 = QSplitter(Qt.Horizontal)
-        # splitter1.addWidget(self.tool)
-        # splitter1.addWidget(self.summary)
-        # splitter1.setHandleWidth(10)
-        splitter1 = QHBoxLayout()
-        splitter1.addWidget(self.tool)
-        splitter1.addWidget(self.summary)
+        h_box = QHBoxLayout()
+        h_box.addWidget(self.tool)
+        h_box.addWidget(self.summary)
 
         v_box = QVBoxLayout()
-        # v_box.addWidget(splitter1)
-        v_box.addLayout(splitter1)
+        v_box.addLayout(h_box)
         self._gui_combobox_blueprint(v_box)
         self.setLayout(v_box)
         self.tool.tool_miscellaneous.refresh_combobox_values()
@@ -64,7 +59,6 @@ class MainFrame(ActionMain):
         grid = QGridLayout()
         grid.setSpacing(10)
         grid.setColumnStretch(0, 9)
-        # grid.addWidget(label, 0, 0)
         grid.addWidget(self.entities_combo_box, 0, 0)
         grid.addWidget(self.entities_check_box, 0, 1)
         parent_box.addLayout(grid)
@@ -138,7 +132,6 @@ class MainFrame(ActionMain):
         @type smbedit: smbeditGUI.SMBEditGUI
         """
         self.summary.text_box.append("# SMD")
-        # self.summary.text_box.append("\tNumber of Blocks: ")
         if self.entities_check_box.checkState():
             current_index = self.entities_combo_box.currentIndex()
             self.summary.text_box.append("  Number of Blocks: {}".format(
@@ -165,7 +158,7 @@ class MainFrame(ActionMain):
     def disable(self):
         self.entities_combo_box.setEnabled(False)
         self.entities_check_box.setEnabled(False)
-        # self.summary.disable()
+        self.summary.disable()
         self.tool.disable()
 
     def enable(self):

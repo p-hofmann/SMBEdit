@@ -150,7 +150,6 @@ class ActionMenuBar(ActionDefault):
             filter="Blueprint (*.sment *.zip);; All Files (*)",
             options=options,
             )
-        # print("SFile:", file_path)
 
         if not file_path:
             return

@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import (QLabel, QGridLayout, QGroupBox, QComboBox, QSpacerItem, QFormLayout,
+from PyQt5.QtWidgets import (QLabel, QGridLayout, QComboBox, QFormLayout,
                              QPushButton, QVBoxLayout, QFrame)
 from ...frames.widgets import Widgets
 from ...actions.actionreplace import ActionReplace
@@ -43,12 +43,9 @@ class FrameReplace(ActionReplace):
         line.setFrameShape(QFrame.HLine)
         grid.addWidget(line)
         box.addLayout(grid)
-        # combobox.completer().setCompletionMode(QtGui.QCompleter.PopupCompletion)
         # TOP END
 
     def _gui_replace_block(self, box):
-        # combobox->findText("level"); // prints - 1, not found
-
         self.combobox_replace_original = QComboBox()
         self.combobox_replace_original.setEditable(True)
         self.combobox_replace_original.setStyleSheet("combobox-popup: 0;")
@@ -75,12 +72,10 @@ class FrameReplace(ActionReplace):
     def _gui_replace_hull_and_armor(self, box):
         tiers = ["Hull", "Std. armor", "Adv. armor", "Crystal armor", "Hazard armor"]
         self.combobox_replace_hull_original = QComboBox()
-        # self.combobox_replace_hull_original.setEditable(True)
         self.combobox_replace_hull_original.setStyleSheet("combobox-popup: 0;")
         self.combobox_replace_hull_original.setMaxVisibleItems(10)
 
         self.combobox_replace_hull_replacement = QComboBox()
-        # self.combobox_replace_hull_replacement.setEditable(True)
         self.combobox_replace_hull_replacement.setStyleSheet("combobox-popup: 0;")
         self.combobox_replace_hull_replacement.setMaxVisibleItems(10)
         for index, tier in enumerate(tiers):
@@ -92,7 +87,6 @@ class FrameReplace(ActionReplace):
 
         self.button_replace_hull = QPushButton("Replace")
 
-        # label = QLabel("To")
         form = QFormLayout()
         form.addRow(QLabel("From"), self.combobox_replace_hull_original)
         form.addRow(QLabel("To"), self.combobox_replace_hull_replacement)

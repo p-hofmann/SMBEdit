@@ -1,6 +1,3 @@
-__author__ = 'Peter Hofmann'
-
-
 from .actiondefault import ActionDefault
 
 
@@ -28,10 +25,5 @@ class ActionMirror(ActionDefault):
                 self._main_frame.tool.tool_mirror.button_group.checkedId(),
                 self._main_frame.tool.tool_mirror.check_button.isChecked()
                 )
-        #     for blueprint in self._smbedit.blueprint:
-        #         blueprint.mirror_axis(
-        #             self._main_frame.tool.tool_mirror.variable_radiobox_axis.get(),
-        #             self._main_frame.tool.tool_mirror.variable_checkbox_reversed.get()
-        #             )
         self._main_frame.update_summary()
         self._main_frame.status_bar.showMessage("Mirroring ... Done!".format())

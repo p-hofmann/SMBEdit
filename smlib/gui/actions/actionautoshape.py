@@ -1,6 +1,3 @@
-__author__ = 'Peter Hofmann'
-
-
 from .actiondefault import ActionDefault
 
 

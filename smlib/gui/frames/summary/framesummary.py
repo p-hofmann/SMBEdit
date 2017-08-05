@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QTextEdit, QGroupBox, QLabel, QVBoxLayout
+from PyQt5.QtWidgets import QTextEdit, QGroupBox, QVBoxLayout
 from PyQt5.QtGui import QFont
 
 
@@ -9,8 +9,6 @@ class FrameSummary(QGroupBox):
 
     def __init__(self):
         super().__init__('Summary')
-        # title = QLabel()
-        # self.addWidget(title)
 
         v_box = QVBoxLayout()
         self.text_box = QTextEdit()

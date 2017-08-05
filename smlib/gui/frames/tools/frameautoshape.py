@@ -1,5 +1,4 @@
-from PyQt5.QtWidgets import (QLabel, QGridLayout, QGroupBox, QComboBox, QSpacerItem, QFormLayout, QButtonGroup,
-                             QPushButton, QWidget, QVBoxLayout)
+from PyQt5.QtWidgets import (QGridLayout, QPushButton, QVBoxLayout)
 from ...actions.actionautoshape import ActionAutoshape
 
 

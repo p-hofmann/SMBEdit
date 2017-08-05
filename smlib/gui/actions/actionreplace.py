@@ -11,7 +11,6 @@ class ActionReplace(ActionDefault):
         super(ActionReplace, self).__init__(main_frame=main_frame, smbedit=smbedit)
 
     def button_press_remove(self):
-        # index = self.combobox_remove_blocks.currentIndex()
         text = self.combobox_remove_blocks.currentText()
         index = self.combobox_remove_blocks.findText(text)
         if index == -1:
@@ -48,9 +47,6 @@ class ActionReplace(ActionDefault):
             self._main_frame.status_bar.showMessage("Unknown block: '{}'".format(text))
             return
         block_id_new = int(self.combobox_replace_replacement.itemData(index))
-
-        # block_id_old = self._main_frame.tool.tool_replace.variable_block_original.get()
-        # block_id_new = self._main_frame.tool.tool_replace.variable_block_replacement.get()
 
         if block_id_old not in block_config:
             self._main_frame.status_bar.showMessage("Unknown id: '{}'".format(block_id_old))

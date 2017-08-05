@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QLabel, QVBoxLayout, QGroupBox, QComboBox, QPushButton, QFormLayout
+from PyQt5.QtWidgets import QLabel, QVBoxLayout, QComboBox, QPushButton, QFormLayout
 from ....utils.blueprintentity import BlueprintEntity
 from ...actions.actionmiscellaneous import ActionMiscellaneous
 
@@ -14,12 +14,6 @@ class FrameMiscellaneous(ActionMiscellaneous):
         """
         super().__init__(main_frame, smbedit)
         self.setTitle("Miscellaneous")
-        # v_box = QVBoxLayout()
-        # self._gui_entity_type(v_box)
-        # v_box.addSpacerItem(QSpacerItem(100, 10))
-        # self._gui_entity_class(v_box)
-        # v_box.addStretch()
-        # self.setLayout(v_box)
 
         my_form = QFormLayout()
         self._gui_entity_type(my_form)
@@ -45,8 +39,6 @@ class FrameMiscellaneous(ActionMiscellaneous):
         self.combo_box_type.setEditable(False)
         self.combo_box_type.insertItems(0, list(BlueprintEntity.entity_types.values()))
         box.addRow(label, self.combo_box_type)
-        # box.addWidget(label)
-        # box.addWidget()
 
     def _gui_entity_class(self, box):
         label = QLabel()
@@ -56,15 +48,9 @@ class FrameMiscellaneous(ActionMiscellaneous):
 
         self.combo_box_class.insertItem(0, "General")
         box.addRow(label, self.combo_box_class)
-        # box.addWidget(label)
-        # box.addWidget(self.combo_box_class)
 
     def disable(self):
-        # self.combo_box_type.setEnabled(False)
-        # self.combo_box_class.setEnabled(False)
         self.confirm.setEnabled(False)
 
     def enable(self):
-        # self.combo_box_type.setEnabled(True)
-        # self.combo_box_class.setEnabled(True)
         self.confirm.setEnabled(True)

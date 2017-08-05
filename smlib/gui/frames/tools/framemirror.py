@@ -1,5 +1,4 @@
-from PyQt5.QtWidgets import (QSizePolicy, QFrame, QFormLayout, QGridLayout, QGroupBox, QCheckBox, QWidget,
-                             QStackedWidget, QVBoxLayout, QPushButton, QRadioButton, QButtonGroup)
+from PyQt5.QtWidgets import (QGridLayout, QCheckBox, QVBoxLayout, QPushButton, QRadioButton, QButtonGroup)
 from ...actions.actionmirror import ActionMirror
 
 

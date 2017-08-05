@@ -7,8 +7,6 @@ class ActionMiscellaneous(ActionDefault):
 
     @type _ct_to_ship_class: dict[int, str]
     @type _ct_to_station_class: dict[int, str]
-    # @type combo_box_type: PyQt5.QtWidgets.QComboBox
-    # @type combo_box_class: PyQt5.QtWidgets.QComboBox
     """
 
     _ct_to_ship_class = {

@@ -1,5 +1,4 @@
-from PyQt5.QtWidgets import (QCompleter, QLabel, QGridLayout, QGroupBox, QComboBox, QSpacerItem, QFormLayout, QButtonGroup,
-                             QPushButton, QWidget, QVBoxLayout, QLineEdit, QFrame)
+from PyQt5.QtWidgets import (QLabel, QGridLayout, QComboBox, QPushButton, QVBoxLayout, QLineEdit, QFrame)
 from PyQt5.QtGui import QIntValidator
 from ...actions.actionmovecenter import ActionMoveCenter
 
@@ -30,7 +29,6 @@ class FrameMoveCenter(ActionMoveCenter):
         self.button_block_id = QPushButton()
         self.button_block_id.setText("Move to")
         self.button_block_id.setToolTip("Move to a specific block")
-        # self.button_block_id.setMaximumWidth(20)
 
         self.block_id_combobox = QComboBox()
         self.block_id_combobox.setStyleSheet("combobox-popup: 0;")
@@ -46,7 +44,6 @@ class FrameMoveCenter(ActionMoveCenter):
             }
         for block_id, name in target_ids.items():
             self.block_id_combobox.addItem(name, block_id)
-        # self.block_id_combobox.completer().setCompletionMode(QCompleter.PopupCompletion)
 
         grid = QGridLayout()
         grid.addWidget(self.block_id_combobox, 0, 0)
