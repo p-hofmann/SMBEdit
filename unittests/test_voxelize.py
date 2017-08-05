@@ -58,7 +58,7 @@ class TestAddBlocks(DefaultSetup):
 
             # create blueprint and add blocks
             blueprint_name = os.path.splitext(os.path.basename(input_path))[0]
-            self.bp.smd3.re = Blueprint(blueprint_name)
+            self.bp = Blueprint(blueprint_name)
             # set the entity to space station
             self.bp.set_entity(2, 0)
             self.bp.add_blocks(
