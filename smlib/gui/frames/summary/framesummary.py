@@ -16,6 +16,7 @@ class FrameSummary(QGroupBox):
         self.text_box = QTextEdit()
         font = QFont("Courier")
         font.setPointSize(10)
+        self.text_box.setReadOnly(True)
         self.text_box.setCurrentFont(font)
         self.text_box.setLineWrapMode(QTextEdit.NoWrap)
         v_box.addWidget(self.text_box)
