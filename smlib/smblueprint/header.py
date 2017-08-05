@@ -257,7 +257,8 @@ class Header(DefaultLogging):
 
         @rtype: int
         """
-        return self.box_max[index] - self.box_min[index]
+        # -2 to remove buffer zone around entity.
+        return self.box_max[index] - self.box_min[index] - 2
 
     def get_type_name(self):
         """
