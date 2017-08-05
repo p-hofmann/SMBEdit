@@ -9,7 +9,7 @@ from smlib import __version__ as version
 # buildOptions = dict(packages=['smlib'], excludes=["unittests"])
 # packages = find_packages(exclude=["unittests", "*.pyc"])
 packages = [
-    "smlib", 'voxlib',
+    'numpy', 'meshlib', 'voxlib', 'PyQt5', "smlib",
     # "sys", "os", "zipfile", "shutil", "traceback", "struct", "math", "tempfile", 'encodings'
     ]
 if sys.version_info < (3,):
@@ -50,7 +50,7 @@ setup(
     executables=executable_files
     )
 
-# Some issue with TCL can occur on Windows 
+# Some issue with TCL can occur on Windows
 #
 # see https://github.com/ContinuumIO/anaconda-issues/issues/36
 #
