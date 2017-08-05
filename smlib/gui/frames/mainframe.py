@@ -22,7 +22,7 @@ class MainFrame(ActionMain):
         super(MainFrame, self).__init__(smbedit)
         self.status_bar = status_bar
         self._current_index = 0
-        self.list_of_entity_names = []
+        self.list_of_entity_names = ['Main']
 
         self.tool = FrameTool(self, smbedit)
         self.summary = FrameSummary()
