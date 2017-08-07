@@ -1,0 +1,72 @@
+solid diagonal_0_0_0
+  facet normal 0.577 0.577 0.577
+    outer loop
+      vertex 1.0 0.0 0.0
+      vertex 0.0 1.0 0.0
+      vertex 0.0 0.0 1.0
+    endloop
+  endfacet
+endsolid
+solid diagonal_0_0_1
+  facet normal 0.577 0.577 0.577
+    outer loop
+      vertex 0.0 0.0 0.0
+      vertex 1.0 0.0 1.0
+      vertex 0.0 1.0 1.0
+    endloop
+  endfacet
+endsolid
+solid diagonal_0_1_0
+  facet normal 0.577 0.577 0.577
+    outer loop
+      vertex 0.0 0.0 0.0
+      vertex 0.0 1.0 1.0
+      vertex 1.0 1.0 0.0
+    endloop
+  endfacet
+endsolid
+solid diagonal_0_1_1
+  facet normal 0.577 0.577 0.577
+    outer loop
+      vertex 1.0 1.0 1.0
+      vertex 0.0 1.0 0.0
+      vertex 0.0 0.0 1.0
+    endloop
+  endfacet
+endsolid
+solid diagonal_1_0_0
+  facet normal 0.577 0.577 0.577
+    outer loop
+      vertex 0.0 0.0 0.0
+      vertex 1.0 1.0 0.0
+      vertex 1.0 0.0 1.0
+    endloop
+  endfacet
+endsolid
+solid diagonal_1_0_1
+  facet normal 0.577 0.577 0.577
+    outer loop
+      vertex 1.0 1.0 1.0
+      vertex 0.0 0.0 1.0
+      vertex 1.0 0.0 0.0
+    endloop
+  endfacet
+endsolid
+solid diagonal_1_1_0
+  facet normal 0.577 0.577 0.577
+    outer loop
+      vertex 1.0 1.0 1.0
+      vertex 0.0 1.0 0.0
+      vertex 1.0 0.0 0.0
+    endloop
+  endfacet
+endsolid
+solid diagonal_1_1_1
+  facet normal -0.577 -0.577 -0.577
+    outer loop
+      vertex 1.0 1.0 0.0
+      vertex 0.0 1.0 1.0
+      vertex 1.0 0.0 1.0
+    endloop
+  endfacet
+endsolid

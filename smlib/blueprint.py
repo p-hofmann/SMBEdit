@@ -201,7 +201,7 @@ class Blueprint(DefaultLogging):
         blueprints, it works only with the Segment-data v3
 
         @type block_id: int
-        @type positions: list[(int, int, int)]
+        @type positions: list[(int, int, int)] | set[(int, int, int)]
         @type rotations: list[int]
         @param offset: if blocks centered around origin (0, 0, 0) then offset (16, 16, 16)
         @type offset: (int, int, int)
@@ -347,23 +347,32 @@ class Blueprint(DefaultLogging):
         @type reverse: bool
         """
         self.smd3.mirror(axis_index=axis_index, reverse=reverse)
-        min_vector, max_vector = self.smd3.get_min_max_vector()
-        self.logic.update(self.smd3)
         self.logic.mirror(axis_index=axis_index, reverse=reverse)
+        min_vector, max_vector = self.smd3.get_min_max_vector()
         self.header.set_box(min_vector, max_vector)
         self.header.update(self.smd3)
+        self.logic.update(self.smd3)
         # self.meta.mirror(axis_index=axis_index, reverse=reverse)
 
     def turn_tilt(self, index_turn_tilt):
         """
+        0: # tilt up
+        1: # tilt down
+        2: # turn right
+        3: # turn left
+        4: # tilt right
+        5: # tilt left
 
         @param index_turn_tilt:
         @type index_turn_tilt: int
         """
         assert 0 <= index_turn_tilt <= 5
         self.logic.tilt_turn(index_turn_tilt)
-        min_vector, max_vector = self.smd3.tilt_turn(index_turn_tilt)
+        self.smd3.tilt_turn(index_turn_tilt)
+        min_vector, max_vector = self.smd3.get_min_max_vector()
         self.header.set_box(min_vector, max_vector)
+        self.header.update(self.smd3)
+        self.logic.update(self.smd3)
 
     def link_salvage_modules(self):
         """

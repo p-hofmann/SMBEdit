@@ -1,8 +1,7 @@
-__author__ = 'Peter Hofmann'
-
 import tempfile
 import sys
 
+from PyQt5.QtWidgets import QApplication
 from smlib import __version__ as version
 from smlib.common.validator import Validator
 from smlib.common.configparserwrapper import ConfigParserWrapper
@@ -10,6 +9,7 @@ from smlib.common.argumenthandler import ArgumentHandler
 from smlib.utils.blockconfig import block_config
 from smlib.blueprint import Blueprint
 from smlib.gui.window import Window
+# from smlib.gui.window import Window
 
 
 class SMBEditGUI(Validator):
@@ -43,6 +43,7 @@ class SMBEditGUI(Validator):
         self._directory_input = []
         self.blueprint = []
         self.blueprint.append(Blueprint("ENTITY_Main", logfile=logfile, verbose=verbose, debug=debug))
+        self._directory_input.append('')
 
     def __exit__(self, type, value, traceback):
         super(SMBEditGUI, self).__exit__(type, value, traceback)
@@ -75,19 +76,28 @@ class SMBEditGUI(Validator):
             return None
         return directory_starmade
 
+    def save_starmade_directory(self, directory_starmade):
+        config_file_path = ArgumentHandler.get_config_file_path()
+        config = ConfigParserWrapper(logfile=self._logfile, verbose=self._verbose)
+        if self.validate_file(config_file_path, silent=True):
+            config.read(config_file_path)
+        option = "starmade_dir"
+        section = "main"
+        if directory_starmade and self.validate_dir(directory_starmade, file_names=["StarMade.jar"]):
+            config.set_value(option, directory_starmade, section)
+            config.write(config_file_path)
 
-def main(test_run=False):
+
+def main():
+    app = QApplication(sys.argv)
+    # QApplication.setStyle(QStyleFactory.create('Cleanlooks'))
     name = "SMBEdit " + version
     with SMBEditGUI(verbose=False, debug=False) as smbedit_gui:
         window = Window(smbedit_gui)
-        window.resizable(0, 0)
-        window.title(name)
-        if test_run:
-            window.after(2000, lambda: window.destroy())
-        window.mainloop()
+        window.setWindowTitle(name)
+        window.show()
+
+    sys.exit(app.exec_())
 
 if __name__ == "__main__":
-    if len(sys.argv) > 1 and sys.argv[1] == "test":
-        main(True)
-    else:
-        main()
+    main()

@@ -1,3 +1,7 @@
-numpy==1.12.1
-cx_Freeze
-git+https://github.com/p-hofmann/PyVoxelizer.git
+numpy>=1.12.1
+cx_Freeze>=5.0.2
+git+https://github.com/p-hofmann/MeshReader.git#egg=meshlib
+git+https://github.com/p-hofmann/PyVoxelizer.git#egg=voxlib
+#meshlib>=0.0.2
+#voxlib>=0.0.3
+#pyqt5

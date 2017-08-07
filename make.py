@@ -1,23 +1,18 @@
 import sys
 import os
+import shutil
 from cx_Freeze import setup, Executable
 from smlib import __version__ as version
-# from setuptools import find_packages
 
-# Dependencies are automatically detected, but it might need
-# fine tuning.
-# buildOptions = dict(packages=['smlib'], excludes=["unittests"])
-# packages = find_packages(exclude=["unittests", "*.pyc"])
+build_path = os.path.abspath('build')
+if os.path.exists(build_path):
+    shutil.rmtree(build_path)
+
 packages = [
-    "smlib", 'voxlib',
+    "smlib",
+    # 'PyQt5', 'numpy', 'meshlib', 'voxlib',
     # "sys", "os", "zipfile", "shutil", "traceback", "struct", "math", "tempfile", 'encodings'
     ]
-if sys.version_info < (3,):
-    packages.append("Tkinter")
-    packages.append("ttk")
-else:
-    packages.append("tkinter")
-
 base = None
 include_files = []
 if sys.platform == "win32":
@@ -29,13 +24,21 @@ if sys.platform == "win32":
 
 build_options = dict(
     packages=packages,
-    excludes=["unittests", "__pycache__"],
-    include_files=include_files
-)
+    excludes=[
+        "unittests", "__pycache__", "nose",
+        'PyQt5', 'numpy', 'meshlib', 'voxlib',
+        # "scipy.lib.lapack.flapack", "setuptools",
+        # "numpy.core._dotblas", "tkinter", "http",
+        # 'PyQt5', "html", "html", "email"
+        ],
+    bin_excludes=['setup.py'],
+    include_files=include_files,
+    silent=True
+    )
 
 executable_files = [
     Executable('smbedit.py', 'Console'),
-    Executable('smbeditGUI.py', base=base)
+    # Executable('smbeditGUI.py', base=base)
 ]
 
 setup(
@@ -50,7 +53,7 @@ setup(
     executables=executable_files
     )
 
-# Some issue with TCL can occur on Windows 
+# Some issue with TCL can occur on Windows
 #
 # see https://github.com/ContinuumIO/anaconda-issues/issues/36
 #

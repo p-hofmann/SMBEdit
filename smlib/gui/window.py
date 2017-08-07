@@ -1,33 +1,49 @@
-__author__ = 'Peter Hofmann'
-
-import sys
-if sys.version_info < (3,):
-    import Tkinter as tk
-else:
-    import tkinter as tk
 from .frames.mainframe import MainFrame
-from .actions.actionmain import ActionMain
-from .actions.actionautoshape import ActionAutoshape
-from .actions.actionmirror import ActionMirror
-from .actions.actionmiscellaneous import ActionMiscellaneous
-from .actions.actionmovecenter import ActionMoveCenter
-from .actions.actionreplace import ActionReplace
-from .actions.actionmenubar import ActionMenuBar
+from .frames.menubar import MenuBar
+from PyQt5.QtWidgets import QMainWindow
 
 
-class Window(tk.Tk, ActionMain, ActionAutoshape, ActionMirror, ActionMiscellaneous, ActionMoveCenter, ActionReplace, ActionMenuBar):
+class Window(QMainWindow):
     def __init__(self, smbedit):
         """
 
         @type smbedit: SMBEditGUI
         """
-        tk.Tk.__init__(self)
-        main_frame = MainFrame(self, width=75)
+        super().__init__()
 
-        ActionMain.__init__(self, main_frame, smbedit)
-        # ActionAutoshape.__init__(self, main_frame, smbedit)
-        # ActionMirror.__init__(self, main_frame, smbedit)
-        # ActionMiscellaneous.__init__(self, main_frame, smbedit)
-        # ActionMoveCenter.__init__(self, main_frame, smbedit)
-        # ActionReplace.__init__(self, main_frame, smbedit)
-        # ActionMenuBar.__init__(self, main_frame, smbedit)
+        # ################
+        # Status Bar
+        # ################
+        self.status_bar = self.statusBar()
+
+        main_frame = MainFrame(self.status_bar, smbedit)
+        self.setCentralWidget(main_frame)
+
+        # ################
+        # Menu Bar
+        # ################
+        self.menu_bar = MenuBar(self, main_frame, smbedit)
+
+        #                  x    y    w    h
+        self.setGeometry(150, 150, 550, 500)
+        self.status_bar.showMessage('Ready')
+
+    def print_progress_bar(self, iteration, total, prefix='', suffix='', decimals=1, length=20, fill='X'):
+        """
+        Original:
+            https://stackoverflow.com/questions/3173320/text-progress-bar-in-the-console
+
+        Call in a loop to create terminal progress bar
+        @params:
+            iteration   - Required  : current iteration (Int)
+            total       - Required  : total iterations (Int)
+            prefix      - Optional  : prefix string (Str)
+            suffix      - Optional  : suffix string (Str)
+            decimals    - Optional  : positive number of decimals in percent complete (Int)
+            length      - Optional  : character length of bar (Int)
+            fill        - Optional  : bar fill character (Str)
+        """
+        percent = ("{0:." + str(decimals) + "f}").format(100 * (iteration / float(total)))
+        filled_length = int(length * iteration // total)
+        bar = fill * filled_length + '+' * (length - filled_length)
+        self.status_bar.showMessage('%s |%s| %s%% %s' % (prefix, bar, percent, suffix))

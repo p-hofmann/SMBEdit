@@ -1,105 +1,90 @@
-__author__ = 'Peter Hofmann'
+from PyQt5.QtWidgets import (QLabel, QGridLayout, QComboBox, QPushButton, QVBoxLayout, QLineEdit, QFrame)
+from PyQt5.QtGui import QIntValidator
+from ...actions.actionmovecenter import ActionMoveCenter
 
 
-import sys
-if sys.version_info < (3,):
-    import Tkinter as tk
-    import ttk
-else:
-    import tkinter as tk
-    from tkinter import ttk
-from ...frames.widgets import Widgets
-
-
-class FrameMoveCenter(tk.LabelFrame):
+class FrameMoveCenter(ActionMoveCenter):
     """
-    @type button_block_id: ttk.Button
-    @type button_vector: ttk.Button
-    @type variable_block_id: ttk.StringVar
-    @type variable_x: ttk.StringVar
-    @type variable_y: ttk.StringVar
-    @type variable_z: ttk.StringVar
+    @type button_block_id: QPushButton
+    @type button_vector: QPushButton
     """
 
-    def __init__(self, master):
-        tk.LabelFrame.__init__(self, master, text="Move Center")
-        self._gui_move_center_by_block_id()
-        self._gui_move_center_by_vector()
+    def __init__(self, main_frame, smbedit):
+        super(FrameMoveCenter, self).__init__(main_frame, smbedit)
+        self.setTitle("Move Center")
+        v_box = QVBoxLayout()
+        self._gui_move_center_by_block_id(v_box)
+        self._gui_move_center_by_vector(v_box)
+        v_box.addStretch()
+        self.setLayout(v_box)
+
+        self.button_block_id.pressed.connect(self.button_press_block_id)
+        self.button_vector.pressed.connect(self.button_press_vector)
 
     # #################
     # GUI
     # #################
 
-    def _gui_move_center_by_block_id(self):
-        frame_main = tk.Frame(self)
-        vcmd = (frame_main.register(Widgets.validate_int), '%d', '%i', '%P', '%s', '%S', '%v', '%V', '%W')
+    def _gui_move_center_by_block_id(self, box):
+        self.button_block_id = QPushButton()
+        self.button_block_id.setText("Move to")
+        self.button_block_id.setToolTip("Move to a specific block")
 
-        # TOP
-        frame_top = tk.Frame(frame_main)
-        self.variable_block_id = tk.IntVar()
+        self.block_id_combobox = QComboBox()
+        self.block_id_combobox.setStyleSheet("combobox-popup: 0;")
+        self.block_id_combobox.setMaxVisibleItems(10)
+        # self.block_id_combobox.setEditable(True)
+        # Widgets.insert_items(self.block_id_combobox)
 
-        self.button_block_id = tk.Button(
-            text="To block id",
-            bd=2,
-            master=frame_top)
-        self.button_block_id.pack(fill=tk.X, side=tk.LEFT)
+        target_ids = {
+            123: "Build Block",
+            94: "Undeathinator",
+            347: "Shop Module",
+            56: "Gravity Unit",
+            }
+        for block_id, name in target_ids.items():
+            self.block_id_combobox.addItem(name, block_id)
 
-        textbox = tk.Entry(
-            frame_top, textvariable=self.variable_block_id, exportselection=0, validate='key', validatecommand=vcmd, width=4)
-        textbox.pack(side=tk.LEFT)
-        frame_top.pack(side=tk.TOP, anchor=tk.W)
-        # TOP END
+        grid = QGridLayout()
+        grid.addWidget(self.block_id_combobox, 0, 0)
+        grid.addWidget(self.button_block_id, 1, 0)
 
-        # BOTTOM
-        frame_bottom = tk.Frame(frame_main)
-        label = tk.Label(frame_main, relief=tk.RAISED, text='', width=9)
-        # label.propagate(tk.FALSE)
-        label.pack(side=tk.BOTTOM, fill=tk.X, expand=tk.TRUE)
-        self.variable_block_id.trace(
-            "w", lambda name, index, mode, text_variable=self.variable_block_id: Widgets.callback_block_id(
-                text_variable, label))
-        frame_bottom.pack(side=tk.BOTTOM)
-        # BOTTOM END
+        line = QFrame()
+        line.setFrameShape(QFrame.HLine)
+        grid.addWidget(line)
 
-        frame_main.pack(anchor=tk.W, fill=tk.X, padx=2, pady=2)
+        box.addLayout(grid)
 
-    def _gui_move_center_by_vector(self):
-        new_frame = tk.Frame(self)
+    def _gui_move_center_by_vector(self, box):
+        self.variable_x = QLineEdit()
+        self.variable_y = QLineEdit()
+        self.variable_z = QLineEdit()
+        self.variable_x.setText('0')
+        self.variable_y.setText('0')
+        self.variable_z.setText('0')
+        self.variable_x.setValidator(QIntValidator())
+        self.variable_y.setValidator(QIntValidator())
+        self.variable_z.setValidator(QIntValidator())
 
-        vcmd = (new_frame.register(Widgets.validate_int), '%d', '%i', '%P', '%s', '%S', '%v', '%V', '%W')
+        self.button_vector = QPushButton()
+        self.button_vector.setText("Move by")
+        self.button_vector.setToolTip("Move in a direction")
 
-        self.variable_x = tk.IntVar()
-        self.variable_x.set('0')
-        self.variable_y = tk.IntVar()
-        self.variable_y.set('0')
-        self.variable_z = tk.IntVar()
-        self.variable_z.set('0')
+        grid = QGridLayout()
+        grid.addWidget(QLabel("Right"), 0, 0)
+        grid.addWidget(QLabel("Up"), 0, 1)
+        grid.addWidget(QLabel("Forward"), 0, 2)
+        grid.addWidget(self.variable_x, 1, 0)
+        grid.addWidget(self.variable_y, 1, 1)
+        grid.addWidget(self.variable_z, 1, 2)
+        grid.addWidget(self.button_vector, 2, 0, 1, 3)
 
-        self.button_vector = tk.Button(
-            text=" By vector ",
-            bd=2,
-            master=new_frame)
-        self.button_vector.pack(fill=tk.X, side=tk.LEFT)
-
-        textbox = tk.Entry(
-            new_frame, textvariable=self.variable_x, exportselection=0, validate='key',
-            validatecommand=vcmd, width=4)
-        textbox.pack(fill=tk.X, side=tk.LEFT)
-        textbox = tk.Entry(
-            new_frame, textvariable=self.variable_y, exportselection=0, validate='key',
-            validatecommand=vcmd, width=4)
-        textbox.pack(fill=tk.X, side=tk.LEFT)
-        textbox = tk.Entry(
-            new_frame, textvariable=self.variable_z, exportselection=0, validate='key',
-            validatecommand=vcmd, width=4)
-        textbox.pack(fill=tk.X, side=tk.LEFT)
-
-        new_frame.pack(fill=tk.X, padx=2, pady=2)
+        box.addLayout(grid)
 
     def disable(self):
-        self.button_block_id.config(state=tk.DISABLED)
-        self.button_vector.config(state=tk.DISABLED)
+        self.button_block_id.setEnabled(False)
+        self.button_vector.setEnabled(False)
 
     def enable(self):
-        self.button_block_id.config(state=tk.NORMAL)
-        self.button_vector.config(state=tk.NORMAL)
+        self.button_block_id.setEnabled(True)
+        self.button_vector.setEnabled(True)

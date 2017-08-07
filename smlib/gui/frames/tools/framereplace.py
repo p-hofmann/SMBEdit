@@ -1,173 +1,104 @@
-__author__ = 'Peter Hofmann'
-
-
-import sys
-if sys.version_info < (3,):
-    import Tkinter as tk
-    import ttk
-else:
-    import tkinter as tk
-    from tkinter import ttk
+from PyQt5.QtWidgets import (QLabel, QGridLayout, QComboBox, QFormLayout,
+                             QPushButton, QVBoxLayout, QFrame)
 from ...frames.widgets import Widgets
-from ....utils.blockconfig import block_config
+from ...actions.actionreplace import ActionReplace
 
 
-class FrameReplace(tk.Frame):
+class FrameReplace(ActionReplace):
     """
-    @type variable_remove: ttk.StringVar
-    @type button_remove: ttk.Button
-
-    @type variable_block_original: ttk.StringVar
-    @type variable_block_replacement: ttk.StringVar
-    @type button_replace_block: ttk.Button
-
-    @type variable_hull_original: ttk.IntVar
-    @type variable_hull_replacement: ttk.IntVar
-    @type button_replace_hull: ttk.Button
     """
 
-    def __init__(self, master):
-        tk.Frame.__init__(self, master)
-        # , text="Remove/Replace"
-        self._gui_remove_block()
-        self._gui_replace_block()
-        self._gui_replace_hull_and_armor()
+    def __init__(self, main_frame, smbedit):
+        super(FrameReplace, self).__init__(main_frame, smbedit)
+        self.setTitle("Remove/Replace")
+
+        v_box = QVBoxLayout()
+        self._gui_remove_block(v_box)
+        self._gui_replace_block(v_box)
+        self._gui_replace_hull_and_armor(v_box)
+        v_box.addStretch()
+        self.setLayout(v_box)
+
+        self.button_remove.pressed.connect(self.button_press_remove)
+        self.button_replace_block.pressed.connect(self.button_press_replace_block)
+        self.button_replace_hull.pressed.connect(self.button_press_replace_hull)
 
     # #################
     # GUI
     # #################
 
-    def _gui_remove_block(self):
-        frame_main = tk.Frame(self)
-        vcmd = (frame_main.register(Widgets.validate_int), '%d', '%i', '%P', '%s', '%S', '%v', '%V', '%W')
-
+    def _gui_remove_block(self, box):
         # TOP
-        frame_top = tk.Frame(frame_main)
-        self.variable_remove = tk.IntVar()
+        self.combobox_remove_blocks = QComboBox()
+        self.combobox_remove_blocks.setEditable(True)
+        self.combobox_remove_blocks.setStyleSheet("combobox-popup: 0;")
+        self.combobox_remove_blocks.setMaxVisibleItems(10)
+        Widgets.insert_items(self.combobox_remove_blocks)
+        self.button_remove = QPushButton("Remove block type")
 
-        self.button_remove = tk.Button(
-            text="Remove block id",
-            bd=2,
-            master=frame_top)
-        self.button_remove.pack(fill=tk.X, side=tk.LEFT)
-
-        textbox = tk.Entry(
-            frame_top, textvariable=self.variable_remove, exportselection=0, validate='key',
-            validatecommand=vcmd, width=4)
-        textbox.pack(side=tk.LEFT)
-        frame_top.pack(side=tk.TOP, anchor=tk.W)
+        grid = QGridLayout()
+        grid.addWidget(self.combobox_remove_blocks)
+        grid.addWidget(self.button_remove)
+        line = QFrame()
+        line.setFrameShape(QFrame.HLine)
+        grid.addWidget(line)
+        box.addLayout(grid)
         # TOP END
 
-        # BOTTOM
-        frame_bottom = tk.Frame(frame_main)
-        label = tk.Label(frame_bottom, relief=tk.RAISED, text='', width=9)
-        label.pack(fill=tk.X, expand=tk.TRUE)
-        self.variable_remove.trace(
-            "w", lambda name, index, mode,
-            text_variable=self.variable_remove,
-            label_block=label: Widgets.callback_block_id(text_variable, label_block))
-        frame_bottom.pack(side=tk.BOTTOM, anchor=tk.W, fill=tk.X)
-        # BOTTOM END
+    def _gui_replace_block(self, box):
+        self.combobox_replace_original = QComboBox()
+        self.combobox_replace_original.setEditable(True)
+        self.combobox_replace_original.setStyleSheet("combobox-popup: 0;")
+        self.combobox_replace_original.setMaxVisibleItems(10)
+        Widgets.insert_items(self.combobox_replace_original)
 
-        frame_main.pack(anchor=tk.W, fill=tk.X, padx=2, pady=2)
+        self.combobox_replace_replacement = QComboBox()
+        self.combobox_replace_replacement.setEditable(True)
+        self.combobox_replace_replacement.setStyleSheet("combobox-popup: 0;")
+        self.combobox_replace_replacement.setMaxVisibleItems(10)
+        Widgets.insert_items(self.combobox_replace_replacement)
 
-    def _gui_replace_block(self):
-        frame_main = tk.Frame(self)
+        self.button_replace_block = QPushButton("Replace block type")
 
-        vcmd = (frame_main.register(Widgets.validate_int), '%d', '%i', '%P', '%s', '%S', '%v', '%V', '%W')
+        grid = QGridLayout()
+        grid.addWidget(self.combobox_replace_original)
+        grid.addWidget(self.combobox_replace_replacement)
+        grid.addWidget(self.button_replace_block)
+        line = QFrame()
+        line.setFrameShape(QFrame.HLine)
+        grid.addWidget(line)
+        box.addLayout(grid)
 
-        # TOP
-        frame_top = tk.Frame(frame_main)
-        self.variable_block_original = tk.IntVar()
-        self.variable_block_replacement = tk.IntVar()
+    def _gui_replace_hull_and_armor(self, box):
+        tiers = ["Hull", "Std. armor", "Adv. armor", "Crystal armor", "Hazard armor"]
+        self.combobox_replace_hull_original = QComboBox()
+        self.combobox_replace_hull_original.setStyleSheet("combobox-popup: 0;")
+        self.combobox_replace_hull_original.setMaxVisibleItems(10)
 
-        self.button_replace_block = tk.Button(
-            text="Replace block id",
-            bd=2,
-            master=frame_top)
-        self.button_replace_block.pack(fill=tk.X, side=tk.LEFT)
+        self.combobox_replace_hull_replacement = QComboBox()
+        self.combobox_replace_hull_replacement.setStyleSheet("combobox-popup: 0;")
+        self.combobox_replace_hull_replacement.setMaxVisibleItems(10)
+        for index, tier in enumerate(tiers):
+            self.combobox_replace_hull_original.addItem(tier)
+            if index > 2:
+                continue
+            self.combobox_replace_hull_replacement.addItem(tier)
+        self.combobox_replace_hull_original.addItem("All")
 
-        textbox = tk.Entry(
-            frame_top, textvariable=self.variable_block_original, exportselection=0, validate='key',
-            validatecommand=vcmd, width=4)
-        textbox.pack(fill=tk.X, side=tk.LEFT)
+        self.button_replace_hull = QPushButton("Replace")
 
-        textbox = tk.Entry(
-            frame_top, textvariable=self.variable_block_replacement, exportselection=0, validate='key',
-            validatecommand=vcmd, width=4)
-        textbox.pack(fill=tk.X, side=tk.LEFT)
-        frame_top.pack(side=tk.TOP, anchor=tk.W)
-        # TOP END
-
-        # BOTTOM
-        frame_bottom = tk.Frame(frame_main)
-
-        label_replace_block_original = tk.Label(frame_bottom, relief=tk.RAISED, text='', width=9)
-        label_replace_block_original.pack(side=tk.TOP, fill=tk.X, expand=tk.TRUE)
-        self.variable_block_original.trace(
-            "w", lambda name, index, mode,
-            text_variable_0=self.variable_block_original,
-            label0=label_replace_block_original: Widgets.callback_block_id(text_variable_0, label0))
-
-        label_replace_block_replacement = tk.Label(frame_bottom, relief=tk.RAISED, text='', width=9)
-        label_replace_block_replacement.pack(side=tk.BOTTOM, fill=tk.X, expand=tk.TRUE)
-        self.variable_block_replacement.trace(
-            "w", lambda name, index, mode,
-            text_variable_1=self.variable_block_replacement,
-            label1=label_replace_block_replacement: Widgets.callback_block_id(text_variable_1, label1))
-
-        frame_bottom.pack(side=tk.BOTTOM, anchor=tk.W, fill=tk.X)
-        # BOTTOM END
-
-        frame_main.pack(fill=tk.X, padx=2, pady=2)
-
-    def _gui_replace_hull_and_armor(self):
-        frame_main = tk.Frame(self)
-
-        # TOP
-        frame_top = tk.Frame(frame_main)
-        self.variable_hull_original = tk.IntVar()
-        self.variable_hull_replacement = tk.IntVar()
-
-        radio_box_0 = tk.LabelFrame(frame_top, relief=tk.RIDGE, text="From")
-        radio_box_1 = tk.LabelFrame(frame_top, relief=tk.RIDGE, text="To")
-
-        tiers = ["hull", "std. armor", "adv. armor", "crystal armor", "hazard armor"]
-        for index, tier_name in enumerate(tiers[:4]):
-            left = tk.Radiobutton(radio_box_0, text=tier_name, variable=self.variable_hull_original, value=index)
-            right = tk.Radiobutton(radio_box_1, text=tier_name, variable=self.variable_hull_replacement, value=index)
-            left.pack(anchor=tk.W)
-            right.pack(anchor=tk.W)
-            # left.grid()
-            # right.grid()
-        left = tk.Radiobutton(radio_box_0, text="All", variable=self.variable_hull_original, value=None)
-        left.pack(anchor=tk.W)
-
-        radio_box_0.pack(side=tk.LEFT, fill=tk.Y)
-        radio_box_1.pack(side=tk.LEFT, fill=tk.Y)
-        frame_top.pack(side=tk.TOP, anchor=tk.W)
-        # TOP END
-
-        # BOTTOM
-        frame_bottom = tk.Frame(frame_main)
-
-        self.button_replace_hull = tk.Button(
-            text="Replace",
-            bd=2,
-            master=frame_bottom)
-        self.button_replace_hull.pack(fill=tk.X, side=tk.LEFT)
-
-        frame_bottom.pack(side=tk.BOTTOM, anchor=tk.W, fill=tk.X)
-        # BOTTOM END
-
-        frame_main.pack(fill=tk.X, padx=2, pady=2)
+        form = QFormLayout()
+        form.addRow(QLabel("From"), self.combobox_replace_hull_original)
+        form.addRow(QLabel("To"), self.combobox_replace_hull_replacement)
+        box.addLayout(form)
+        box.addWidget(self.button_replace_hull)
 
     def disable(self):
-        self.button_remove.config(state=tk.DISABLED)
-        self.button_replace_block.config(state=tk.DISABLED)
-        self.button_replace_hull.config(state=tk.DISABLED)
+        self.button_remove.setEnabled(False)
+        self.button_replace_hull.setEnabled(False)
+        self.button_replace_block.setEnabled(False)
 
     def enable(self):
-        self.button_remove.config(state=tk.NORMAL)
-        self.button_replace_block.config(state=tk.NORMAL)
-        self.button_replace_hull.config(state=tk.NORMAL)
+        self.button_remove.setEnabled(True)
+        self.button_replace_hull.setEnabled(True)
+        self.button_replace_block.setEnabled(True)

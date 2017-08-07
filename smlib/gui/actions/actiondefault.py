@@ -1,7 +1,7 @@
-__author__ = 'Peter Hofmann'
+from PyQt5.QtWidgets import QWidget, QGroupBox
 
 
-class ActionDefault(object):
+class ActionDefault(QGroupBox):
     """
     Action class prototype
 
@@ -14,13 +14,6 @@ class ActionDefault(object):
         @type main_frame: smlib.gui.frames.mainframe.MainFrame
         @type smbedit: smbeditGUI.SMBEditGUI
         """
+        super().__init__()
         self._smbedit = smbedit
         self._main_frame = main_frame
-
-        self.set_commands()
-
-    def set_commands(self):
-        """
-        Set commands of components
-        """
-        pass

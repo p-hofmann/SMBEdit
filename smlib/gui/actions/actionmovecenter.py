@@ -1,6 +1,3 @@
-__author__ = 'Peter Hofmann'
-
-
 from .actiondefault import ActionDefault
 
 
@@ -11,32 +8,30 @@ class ActionMoveCenter(ActionDefault):
 
     def __init__(self, main_frame, smbedit):
         super(ActionMoveCenter, self).__init__(main_frame=main_frame, smbedit=smbedit)
-        ActionMoveCenter.set_commands(self)
-
-    def set_commands(self):
-        """
-        Set commands of components
-        """
-        self._main_frame.tool.tool_move_center.button_block_id.configure(command=self.button_press_block_id)
-        self._main_frame.tool.tool_move_center.button_vector.configure(command=self.button_press_vector)
 
     def button_press_block_id(self):
-        self._main_frame.status_bar.set("Moving center/core to specific block id ...".format())
+        self._main_frame.status_bar.showMessage("Moving center/core to specific block id ...".format())
         try:
-            self._smbedit.blueprint[self._main_frame.entities_combo_box.current()].move_center_by_block_id(
-                self._main_frame.tool.tool_move_center.variable_block_id.get())
-            self._main_frame.update_summary(self._smbedit)
-            self._main_frame.status_bar.set("Moving center/core to specific block id ... Done!".format())
+            current_index = self._main_frame.entities_combo_box.currentIndex()
+            index = self.block_id_combobox.currentIndex()
+            block_id = self.block_id_combobox.itemData(index)
+            self._smbedit.blueprint[current_index].move_center_by_block_id(block_id)
+            self._main_frame.update_summary()
+            self._main_frame.status_bar.showMessage("Moving center/core to specific block id ... Done!".format())
         except AssertionError as e:
-            self._main_frame.status_bar.set("{}".format(e))
+            self._main_frame.status_bar.showMessage("{}".format(e))
 
     def button_press_vector(self):
-        self._main_frame.status_bar.set("Moving center/core by vector ...".format())
-        self._smbedit.blueprint[self._main_frame.entities_combo_box.current()].move_center_by_vector(
-            (
-                self._main_frame.tool.tool_move_center.variable_x.get(),
-                self._main_frame.tool.tool_move_center.variable_y.get(),
-                self._main_frame.tool.tool_move_center.variable_z.get())
-            )
-        self._main_frame.update_summary(self._smbedit)
-        self._main_frame.status_bar.set("Moving center/core by vector ... Done!".format())
+        try:
+            x = int(self.variable_x.text())
+            y = int(self.variable_y.text())
+            z = int(self.variable_z.text())
+        except:
+            self._main_frame.status_bar.showMessage("Error: Bad value.".format())
+            return
+
+        current_index = self._main_frame.entities_combo_box.currentIndex()
+        self._main_frame.status_bar.showMessage("Moving center/core by vector ...".format())
+        self._smbedit.blueprint[current_index].move_center_by_vector((x, y, z))
+        self._main_frame.update_summary()
+        self._main_frame.status_bar.showMessage("Moving center/core by vector ... Done!".format())

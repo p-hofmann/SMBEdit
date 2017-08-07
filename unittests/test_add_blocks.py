@@ -24,18 +24,10 @@ class DefaultSetup(unittest.TestCase):
         # load block config 
         block_config.from_hard_coded()
 
-        # create the blueprint and populate it
-        self.bp = Blueprint("unittest_entity")
-        # set the entity to space station
-        self.bp.set_entity(2, 0)
-
         # create tempdir
         self.tmpdir = tempfile.mkdtemp()
 
     def tearDown(self):
-        # delete the blueprint
-        del self.bp
-
         # clean the tmpdir
         if os.path.exists(self.tmpdir):
             shutil.rmtree(self.tmpdir)
@@ -46,6 +38,11 @@ class TestAddBlocks(DefaultSetup):
     """
 
     def test_add_blocks(self):
+        # create the blueprint and populate it
+        self.bp = Blueprint("unittest_entity")
+        # set the entity to space station
+        self.bp.set_entity(2, 0)
+
         # define available rotations
         rotation_axes = {'+Y': 0b0,
                          '-Y': 0b1,
@@ -153,31 +150,11 @@ class TestAddBlocks(DefaultSetup):
         # test writing
 
         # write the data
-        self.bp.write(self.tmpdir)
+        output = tempfile.mkdtemp(dir=self.tmpdir)
+        self.bp.write(output)
 
-    # def test_positions(self):
-    #     self.assertEqual(599, 599)
-    #     self.bp.get_block_list()
-
-    def test_mesh_vox(self):
-        from voxlib.voxelize import voxelize
-        # file_path_stl = "./input_mesh/Dragon_2.5.stl"
-        # file_path_obj = "./input_mesh/Scaffold.obj"
-        file_path_stl = os.path.join(".", "input_mesh", "cube_corner.stl")
-        file_path_stl = os.path.abspath(file_path_stl)
-        input_path = file_path_stl
-        self.assertTrue(os.path.exists(input_path), file_path_stl)
-        resolution = 10
-        self.bp.add_blocks(
-            598,
-            positions=list(voxelize(input_path, resolution=resolution)),
-            offset=(16, 16, 16)
-        )
-        # name = os.path.splitext(os.path.basename(input_path))[0]
-        # output = "/tmp/test_{}_{}".format(name, resolution)
-        # if not os.path.exists(output):
-        #     os.mkdir(output)
-        # self.bp.write(output)
+        # delete the blueprint
+        del self.bp
 
 
 if __name__ == '__main__':

@@ -1,37 +1,37 @@
-__author__ = 'Peter Hofmann'
+from PyQt5.QtWidgets import QWidget
 
 
-from .actiondefault import ActionDefault
-
-
-class ActionMain(ActionDefault):
+class ActionMain(QWidget):
     """
     Dealing with component interactions
+
+    @type _smbedit: smbeditGUI.SMBEditGUI
     """
 
-    def __init__(self, main_frame, smbedit):
-        super(ActionMain, self).__init__(main_frame=main_frame, smbedit=smbedit)
-        ActionMain.set_commands(self)
+    def __init__(self, smbedit):
+        super().__init__()
+        self._smbedit = smbedit
+        self.entities_check_box = None
+        self.entities_combo_box = None
+        self.list_of_entity_names = []
 
-    def set_commands(self):
-        """
-        Set commands of components
-        """
-        self._main_frame.entities_check_box.configure(command=self.entities_check_box_onchange)
-        self._main_frame.entities_combo_box.bind('<<ComboboxSelected>>', self.entities_combo_box_onchange)
+    def entities_check_box_onchange(self, checked):
+        if not checked:
+            self.entities_combo_box.clear()
+            self.entities_combo_box.addItem('All')
+        elif len(self.list_of_entity_names) > 0:
+            self.entities_combo_box.clear()
+            for entity_name in self.list_of_entity_names:
+                self.entities_combo_box.addItem(entity_name)
+        self.update_summary()
 
-    def entities_check_box_onchange(self):
-        if not self._main_frame.entities_variable_checkbox.get():
-            self._main_frame.entities_combo_box['values'] = ['All']
-        elif len(self._main_frame.list_of_entity_names) > 0:
-            self._main_frame.entities_combo_box['values'] = self._main_frame.list_of_entity_names
-        self._main_frame.entities_combo_box.current(0)
-        self._main_frame.update_summary(self._smbedit)
-
-    def entities_combo_box_onchange(self, event):
+    def entities_combo_box_onchange(self, *__args):
         """
 
         @type event: tk.Event
         @return:
         """
-        self._main_frame.update_summary(self._smbedit)
+        self.update_summary()
+
+    def update_summary(self):
+        pass

@@ -1,9 +1,6 @@
 import struct
 
 
-__author__ = 'Peter Hofmann'
-
-
 class Vector(object):
     """
     Collection of vector calculations

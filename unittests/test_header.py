@@ -83,7 +83,7 @@ class TestHeader(DefaultSetup):
             self.assertEqual(quantity, 100)
 
     def test__get_measure(self):
-        self.assertEqual(self.object._get_measure(0), 4)
+        self.assertEqual(self.object._get_measure(0), 2)
 
     def test_get_type_name(self):
         self.assertEqual(self.object.get_type_name(), "Ship")
@@ -92,13 +92,13 @@ class TestHeader(DefaultSetup):
         self.assertEqual(self.object.get_classification_name(), "Mining")
 
     def test_get_width(self):
-        self.assertEqual(self.object.get_width(), 4)
+        self.assertEqual(self.object.get_width(), 2)
 
     def test_get_height(self):
-        self.assertEqual(self.object.get_height(), 4)
+        self.assertEqual(self.object.get_height(), 2)
 
     def test_get_length(self):
-        self.assertEqual(self.object.get_length(), 4)
+        self.assertEqual(self.object.get_length(), 2)
 
     def test_add(self):
         self.object.add(88, 100)
