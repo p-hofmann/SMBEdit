@@ -83,7 +83,7 @@ def main(sys_argv, description='Create a blueprint from a 3D model (obj/stl)'):
     # the name of the output folder that is used to name the ship
     bp = Blueprint('bp_vox')
     # set the entity to space station
-    bp.set_entity(2, 0)
+    bp.set_entity(0, 0)
 
     # populate the bp
     bp.add_blocks(
@@ -92,6 +92,12 @@ def main(sys_argv, description='Create a blueprint from a 3D model (obj/stl)'):
         offset=(16, 16, 16),
         rotation_axis=args.rotation_axis,
         rotation_number=args.rotation_number
+    )
+
+    # if it's a ship, add a ship core
+    bp.add_blocks(
+        1,
+        positions=[(16, 16, 16)]
     )
 
     # create output dir if not already existing
