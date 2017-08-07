@@ -1,13 +1,53 @@
-import struct
-
-
-__author__ = 'Peter Hofmann'
-
-
 class Vector(object):
     """
     Collection of vector calculations
     """
+
+    @staticmethod
+    def part1by2(position_index):
+        position_index &= 0x000003ff
+        position_index = (position_index ^ (position_index << 16)) & 0xff0000ff
+        position_index = (position_index ^ (position_index << 8)) & 0x0300f00f
+        position_index = (position_index ^ (position_index << 4)) & 0x030c30c3
+        position_index = (position_index ^ (position_index << 2)) & 0x09249249
+        return position_index
+
+    @staticmethod
+    def unpart1by2(position_index):
+        position_index &= 0x09249249
+        position_index = (position_index ^ (position_index >> 2)) & 0x030c30c3
+        position_index = (position_index ^ (position_index >> 4)) & 0x0300f00f
+        position_index = (position_index ^ (position_index >> 8)) & 0xff0000ff
+        position_index = (position_index ^ (position_index >> 16)) & 0x000003ff
+        return position_index
+
+    @staticmethod
+    def interleave3(x, y, z):
+        """
+
+        @type x: int
+        @type y: int
+        @type z: int
+
+        @return:
+        @rtype: int
+        """
+        return Vector.part1by2(x) | (Vector.part1by2(y) << 1) | (Vector.part1by2(z) << 2)
+
+    @staticmethod
+    def deinterleave3(position_index):
+        """
+
+        @param position_index:
+        @type position_index: int
+
+        @return:
+        @rtype: (int, int, int)
+        """
+        return (
+            Vector.unpart1by2(position_index),
+            Vector.unpart1by2(position_index >> 1),
+            Vector.unpart1by2(position_index >> 2))
 
     @staticmethod
     def get_index(position):
@@ -19,8 +59,7 @@ class Vector(object):
         @return:
         @rtype: int
         """
-        tmp = struct.pack("<hhhh", position[0], position[1], position[2], 0)
-        return struct.unpack("<q", tmp)[0]
+        return Vector.interleave3(position[0], position[1], position[2])
 
     @staticmethod
     def get_position(position_index):
@@ -32,9 +71,7 @@ class Vector(object):
         @return:
         @rtype: (int, int, int)
         """
-        # assert isinstance(position_index, int), position_index
-        tmp = struct.pack("<q", position_index)
-        return tuple(struct.unpack("<hhhh", tmp)[:3])
+        return Vector.deinterleave3(position_index)
 
     @staticmethod
     def shift_position_index(position_index, offset):
