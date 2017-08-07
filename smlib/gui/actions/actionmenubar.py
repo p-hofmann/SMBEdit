@@ -40,7 +40,7 @@ class ActionMenuBar(ActionDefault):
 
     def _dialog_file_import(self):
         blueprint_dir = None
-        if self._smbedit.directory_starmade:
+        if self._smbedit.directory_starmade and os.path.exists(self._smbedit.directory_starmade):
             blueprint_dir = os.path.join(self._smbedit.directory_starmade, 'blueprints')
 
         options = QFileDialog.Options()
@@ -60,7 +60,7 @@ class ActionMenuBar(ActionDefault):
         if not resolution:
             return
         self._window.status_bar.showMessage("Voxelizing 3D model ...")
-        voxel_positions = set(voxelize(file_path, resolution))
+        voxel_positions = set(voxelize(file_path, resolution, self._window.print_progress_bar))
         self._window.status_bar.showMessage("Making StarMade blueprint ...")
 
         entity_name = 'Main'
@@ -79,10 +79,14 @@ class ActionMenuBar(ActionDefault):
         self._main_frame.enable()
         self._window.status_bar.showMessage("Import complete.")
 
+    # #################
+    # Get Starmade directory
+    # #################
+
     def _dialog_directory_starmade(self):
-        blueprint_dir = None
-        if self._smbedit.directory_starmade:
-            blueprint_dir = os.path.join(self._smbedit.directory_starmade, 'blueprints')
+        starmade_dir = None
+        if self._smbedit.directory_starmade and os.path.exists(self._smbedit.directory_starmade):
+            starmade_dir = self._smbedit.directory_starmade
 
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
@@ -90,7 +94,7 @@ class ActionMenuBar(ActionDefault):
         file_dialog = QFileDialog()
         directory_input = file_dialog.getExistingDirectory(
             caption="Select 'StarMade' folder",
-            directory=blueprint_dir,
+            directory=starmade_dir,
             options=options)
 
         if not directory_input:
@@ -103,9 +107,13 @@ class ActionMenuBar(ActionDefault):
         self._smbedit.save_starmade_directory(directory_input)
         block_config.read(directory_input)
 
+    # #################
+    # Load Save Dialog
+    # #################
+
     def _dialog_file_load(self):
         blueprint_dir = None
-        if self._smbedit.directory_starmade:
+        if self._smbedit.directory_starmade and os.path.exists(self._smbedit.directory_starmade):
             blueprint_dir = os.path.join(self._smbedit.directory_starmade, 'blueprints')
 
         options = QFileDialog.Options()
@@ -137,7 +145,7 @@ class ActionMenuBar(ActionDefault):
 
     def _dialog_file_save(self):
         blueprint_dir = None
-        if self._smbedit.directory_starmade:
+        if self._smbedit.directory_starmade and os.path.exists(self._smbedit.directory_starmade):
             blueprint_dir = os.path.join(self._smbedit.directory_starmade, 'blueprints')
 
         options = QFileDialog.Options()
@@ -167,7 +175,7 @@ class ActionMenuBar(ActionDefault):
 
     def _dialog_directory_load(self):
         blueprint_dir = None
-        if self._smbedit.directory_starmade:
+        if self._smbedit.directory_starmade and os.path.exists(self._smbedit.directory_starmade):
             blueprint_dir = os.path.join(self._smbedit.directory_starmade, 'blueprints')
 
         options = QFileDialog.Options()
@@ -191,7 +199,7 @@ class ActionMenuBar(ActionDefault):
 
     def _dialog_directory_save(self):
         blueprint_dir = None
-        if self._smbedit.directory_starmade:
+        if self._smbedit.directory_starmade and os.path.exists(self._smbedit.directory_starmade):
             blueprint_dir = os.path.join(self._smbedit.directory_starmade, 'blueprints')
 
         options = QFileDialog.Options()
@@ -237,6 +245,7 @@ class ActionMenuBar(ActionDefault):
             if not os.path.exists(blueprint_output):
                 os.mkdir(blueprint_output)
             blueprint.write(blueprint_output, relative_path)
+        self._main_frame.clear_blueprint()
         self._window.status_bar.showMessage(msg + " Done")
 
     def load_blueprint(self, directory_base):
@@ -282,9 +291,9 @@ class ActionMenuBar(ActionDefault):
                 tmp_list_path.append(os.path.join(blueprint_path, folder_name))
                 self._main_frame.list_of_entity_names.append("{}{}".format(docked_entity_name_prefix, dock_index))
 
+        self._window.status_bar.showMessage(msg + " Done")
         self._main_frame.entities_combo_box.clear()
         self._main_frame.entities_combo_box.addItem('All')
         self._main_frame.entities_check_box.setChecked(False)
-        self._window.status_bar.showMessage(msg + " Done")
         self._main_frame.update_summary()
         self._main_frame.enable()

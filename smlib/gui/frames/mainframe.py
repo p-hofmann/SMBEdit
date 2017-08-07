@@ -1,6 +1,7 @@
 from PyQt5.QtWidgets import (QComboBox, QCheckBox, QVBoxLayout, QStatusBar,
                              QGridLayout, QHBoxLayout)
 from PyQt5.QtGui import QTextCursor
+from smlib.blueprint import Blueprint
 from .tools.frametool import FrameTool
 from .summary.framesummary import FrameSummary
 from ..actions.actionmain import ActionMain
@@ -154,6 +155,20 @@ class MainFrame(ActionMain):
             self.summary.text_box.append("  {}: {}".format(str(quantity).rjust(6), block_config[block_id].name))
 
         self.summary.text_box.append("")
+
+    def clear_blueprint(self):
+        entity_name = 'Main'
+        self.list_of_entity_names = [entity_name]
+        self._smbedit._directory_input = ['']
+        self._smbedit.blueprint = [Blueprint(entity_name, verbose=False, debug=False)]
+
+        self._smbedit.blueprint[0].set_entity(2, 0)
+
+        self.entities_combo_box.clear()
+        self.entities_combo_box.addItem('All')
+        self.entities_check_box.setChecked(False)
+        self.summary.text_box.clear()
+        self.disable()
 
     def disable(self):
         self.entities_combo_box.setEnabled(False)
