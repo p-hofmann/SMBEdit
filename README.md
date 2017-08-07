@@ -32,3 +32,9 @@ But this causes no known problems.
 ## Turrets / Docked entities
 
 Old style docked entities, docked to "Turret Docking Unit" or "Docking Module", are always converted to rail docked entities
+
+## Bug Report and Suggestions:
+To report a bug or make a suggestion an 'issue' can be opened on [Github](https://github.com/p-hofmann/SMBEdit/issues), or send me a message at [starmadedock.net](https://starmadedock.net/).
+
+## More information:
+https://github.com/p-hofmann/SMBEdit/wiki
