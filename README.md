@@ -44,7 +44,6 @@ The statistical info of an entity, read from the 'header.smbph' file, is not upd
 But this causes no known problems.
 
 ## Turrets / Docked entities
-
 Old style docked entities, docked to "Turret Docking Unit" or "Docking Module", are always converted to rail docked entities
 
 # Bug Report and Suggestions:
