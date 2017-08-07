@@ -401,8 +401,8 @@ class Smd(DefaultLogging):
         """
         min_vector = [16, 16, 16]
         max_vector = [16, 16, 16]
-        for position_block, block in self._block_list.items():
-            for index, value in enumerate(position_block):
+        for position_index, block in self._block_list.items():
+            for index, value in enumerate(Vector.get_position(position_index)):
                 if value < min_vector[index]:
                     min_vector[index] = value
                 if value > max_vector[index]:

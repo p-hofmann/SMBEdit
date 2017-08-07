@@ -22,10 +22,10 @@ class BlockList(object):
 
     def items(self):
         """
-        @rtype: Iterable[((int, int, int), StyleBasic)]
+        @rtype: Iterable[(int, StyleBasic)]
         """
         for position_index in self._position_index_to_instance:
-            yield Vector.get_position(position_index), self._position_index_to_instance[position_index]
+            yield position_index, self._position_index_to_instance[position_index]
 
     def __setitem__(self, position, block):
         """

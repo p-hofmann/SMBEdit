@@ -2,6 +2,7 @@ from .blocklist import BlockList
 from .blockconfig import block_config
 from .periphery import PeripheryBase
 from ..smblueprint.smdblock.blockpool import block_pool
+from .vector import Vector
 
 
 __author__ = 'Peter Hofmann'
@@ -33,14 +34,14 @@ class AutoShape(object):
         @type auto_tetra: bool
         """
         cube_id = block_config.get_shape_id('cube')
-        for position, block in self._block_list.items():
+        for position_index, block in self._block_list.items():
             block_id = block.get_id()
             if not block_config[block_id].is_hull():
                 continue
             if block_config[block_id].shape != cube_id:
                 continue
             orientation_simple = self._periphery.get_orientation_simple(
-                position, shape_wedge=auto_wedge, shape_tetra=auto_tetra)
+                Vector.get_position(position_index), shape_wedge=auto_wedge, shape_tetra=auto_tetra)
             if orientation_simple is None:
                 continue
             new_shape_id, [axis_rotation, rotations] = orientation_simple
@@ -48,7 +49,7 @@ class AutoShape(object):
             new_block_id = block_config.get_block_id_by_details(block_hull_tier, color_id, new_shape_id)
             new_block = block_pool(new_block_id).get_modified_block(
                 block_id=new_block_id, axis_rotation=axis_rotation, rotations=rotations)
-            self._block_list[position] = new_block
+            self._block_list[position_index] = new_block
 
     def auto_hull_shape_dependent(self, block_shape_id):
         """
@@ -58,13 +59,14 @@ class AutoShape(object):
         @type block_shape_id: int
         """
         cube_id = block_config.get_shape_id('cube')
-        for position, block in self._block_list.items():
+        for position_index, block in self._block_list.items():
             block_id = block.get_id()
             if not block_config[block_id].is_hull():
                 continue
             if block_config[block_id].shape != cube_id:
                 continue
-            orientation_complex = self._periphery.get_orientation_complex(position, block_shape_id)
+            orientation_complex = self._periphery.get_orientation_complex(
+                Vector.get_position(position_index), block_shape_id)
             if orientation_complex is None:
                 continue
             axis_rotation, rotations = orientation_complex
@@ -72,7 +74,7 @@ class AutoShape(object):
             new_block_id = block_config.get_block_id_by_details(block_hull_type, color, block_shape_id)
             new_block = block_pool(new_block_id).get_modified_block(
                 block_id=new_block_id, axis_rotation=axis_rotation, rotations=rotations)
-            self._block_list[position] = new_block
+            self._block_list[position_index] = new_block
 
     def auto_hull_shape(self, auto_wedge, auto_tetra, auto_corner, auto_hepta=None):
         """
