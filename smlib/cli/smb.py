@@ -4,8 +4,8 @@ import os
 
 from functools import partial
 
-from smbedit_cli.edit import main as cli_edit
-from smbedit_cli.voxelize import main as cli_voxelize
+from .edit import main as cli_edit
+from .voxelize import main as cli_voxelize
 
 def subcommand(func, description=None):
     """
