@@ -13,6 +13,20 @@ A manual for command prompt usage and examples can be found there:
 https://github.com/p-hofmann/SMBEdit/wiki/Command-prompt-usage  
 https://github.com/p-hofmann/SMBEdit/wiki/Examples  
 
+# Features:
+
+ * Import 3D model from .obj, .stl (GUI only, experimental)
+ * Auto-shape: Set wedges on edges or tetra/corner shapes on corners automatically.
+ * Change entity type
+ * Change entity class
+ * Exchange all hull blocks with std./adv. Armor blocks or the other way around.
+ * Mirror entity at core/center at each axis.
+ * Move core/center
+ * Remove blocks
+ * Removes outdated blocks
+ * Replaces old style docked entities with rail docked entities.
+ * Replace all blocks of a block type with another block type
+
 # Restrictions
 This editor works with StarMade blueprints from v0.199.253 to v0.199.651.  
 Older blueprint versions, smd2 and some old smd3, are not guaranteed to work.  
@@ -33,8 +47,9 @@ But this causes no known problems.
 
 Old style docked entities, docked to "Turret Docking Unit" or "Docking Module", are always converted to rail docked entities
 
-## Bug Report and Suggestions:
+# Bug Report and Suggestions:
 To report a bug or make a suggestion an 'issue' can be opened on [Github](https://github.com/p-hofmann/SMBEdit/issues), or send me a message at [starmadedock.net](https://starmadedock.net/).
 
-## More information:
+# More information:
 https://github.com/p-hofmann/SMBEdit/wiki
+````
