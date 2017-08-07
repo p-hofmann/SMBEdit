@@ -2,6 +2,7 @@ __author__ = 'Peter Hofmann'
 
 import os
 import sys
+import operator
 
 from .common.loggingwrapper import DefaultLogging
 from .utils.blockconfig import block_config
@@ -189,7 +190,7 @@ class Blueprint(DefaultLogging):
             position[axes[axis][0]], position[axes[axis][1]] = position[axes[axis][1]], -position[axes[axis][0]]
         else:
             position[axes[axis][0]], position[axes[axis][1]] = -position[axes[axis][1]], position[axes[axis][0]]
-        return tuple(position)
+        return position
 
     def add_blocks(self, block_id, positions,
                    rotations=None, offset=[0, 0, 0],
@@ -215,11 +216,9 @@ class Blueprint(DefaultLogging):
                 block_id += (rotation << 19)
             new_block = block_pool(block_id)
             self.smd3.add_block(new_block,
-                                self.rotate_position((position[0]+offset[0],
-                                                      position[1]+offset[1],
-                                                      position[2]+offset[2]),
-                                axis=rotation_axis,
-                                number=rotation_number,))
+                                tuple(map(operator.add,
+                                          self.rotate_position(position, axis=rotation_axis, number=rotation_number),
+                                          offset)),)
 
         self.logic.update(self.smd3)
         self.header.update(self.smd3)
