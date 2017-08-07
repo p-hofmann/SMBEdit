@@ -52,4 +52,3 @@ To report a bug or make a suggestion an 'issue' can be opened on [Github](https:
 
 # More information:
 https://github.com/p-hofmann/SMBEdit/wiki
-````
