@@ -72,6 +72,19 @@ def main(sys_argv, description='Create a blueprint from a 3D model (obj/stl)'):
         help="Number of times the model is rotated by 90 degrees",
         required=False)
 
+    parser.add_argument(
+        "-et", "--entity_type",
+        default=0,
+        type=int,
+        choices=[0, 1, 2, 3, 4],
+        help='''Change entity type to:
+        0: Ship
+        1: Shop
+        2: Space Station
+        3: Asteroid
+        4: Planet
+    ''')
+
     args = parser.parse_args(sys_argv)
 
     # load block config
@@ -82,8 +95,8 @@ def main(sys_argv, description='Create a blueprint from a 3D model (obj/stl)'):
     # for the moment, the name of the blueprint is not important since it is
     # the name of the output folder that is used to name the ship
     bp = Blueprint('bp_vox')
-    # set the entity to space station
-    bp.set_entity(0, 0)
+    # set the entity type
+    bp.set_entity(args.entity_type, 0)
 
     # populate the bp
     bp.add_blocks(
@@ -95,10 +108,11 @@ def main(sys_argv, description='Create a blueprint from a 3D model (obj/stl)'):
     )
 
     # if it's a ship, add a ship core
-    bp.add_blocks(
-        1,
-        positions=[(16, 16, 16)]
-    )
+    if args.entity_type == 0:
+        bp.add_blocks(
+            1,
+            positions=[(16, 16, 16)]
+        )
 
     # create output dir if not already existing
     if not os.path.exists(args.path_output):
