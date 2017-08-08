@@ -49,8 +49,8 @@ class FrameTurnTilt(ActionTurnTilt):
         grid.addWidget(self.button_tilt_down, 1, 1)
         grid.addWidget(self.button_tilt_right, 1, 2)
         grid.addWidget(QLabel("Warning:"), 2, 0, 1, 3)
-        grid.addWidget(QLabel("    Block faces are not turned."), 3, 0, 1, 3)
-        grid.addWidget(QLabel("    Will break docking."), 4, 0, 1, 3)
+        grid.addWidget(QLabel("  Block faces are not turned."), 3, 0, 1, 3)
+        grid.addWidget(QLabel("  Will break docking."), 4, 0, 1, 3)
         v_box.addLayout(grid)
         v_box.addStretch()
 
