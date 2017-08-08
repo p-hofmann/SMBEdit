@@ -173,8 +173,6 @@ class Blueprint(DefaultLogging):
  
         # rotate the position if needed
  
-        number %= 4
- 
         axes = dict(x=(1, 2), y=(2, 0), z=(0, 1))
 
         if (number == 0) or (axis not in axes):
@@ -182,11 +180,10 @@ class Blueprint(DefaultLogging):
  
         # tuples are immutable. Convert to a list before processing
         position = list(position)
+
         if number == 2:
-            position[axes[axis][0]] *= -1
-            position[axes[axis][1]] *= -1
- 
-        if number == 1:
+            position[axes[axis][0]], position[axes[axis][1]] = -position[axes[axis][0]], -position[axes[axis][1]]
+        elif number == 1:
             position[axes[axis][0]], position[axes[axis][1]] = position[axes[axis][1]], -position[axes[axis][0]]
         else:
             position[axes[axis][0]], position[axes[axis][1]] = -position[axes[axis][1]], position[axes[axis][0]]
@@ -205,6 +202,10 @@ class Blueprint(DefaultLogging):
         @type rotations: list[int]
         @param offset: if blocks centered around origin (0, 0, 0) then offset (16, 16, 16)
         @type offset: (int, int, int)
+        @param rotation_axis: rotation axis {x, y, z}
+        @type rotation_axis: str
+        @param rotation_number: number of 90 degrees rotation {0, 1, 2, 3}
+        @type rotation_number: int
         """
         # check if block_id is known
         assert block_id in block_config, "Unknown block id: {}".format(block_id)
