@@ -179,7 +179,6 @@ class TestRotatePosition(object):
         new_position = tuple(Blueprint.rotate_position(position,
                                                        axis=rotation_axis,
                                                        number=rotation_number))
-        print(new_position)
         assert new_position == result
 
 if __name__ == '__main__':
