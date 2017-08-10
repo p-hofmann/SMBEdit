@@ -35,7 +35,7 @@ def main(sys_argv, description='Create a blueprint from a 3D model (obj/stl)'):
     parser.add_argument(
         '-i', '--path_input',
         action=CheckExt({'obj', 'stl'}),
-        help="'*.obj' or '*.stl' file path.",
+        help="'*.obj' or '*.stl' file path",
         required=True)
 
     parser.add_argument('-r', '--resolution',
@@ -53,7 +53,7 @@ def main(sys_argv, description='Create a blueprint from a 3D model (obj/stl)'):
         '-o', '--path_output',
         default=None,
         type=str,
-        help="Output directory of modified blueprint or '*.sment' file path",
+        help="Output directory of the blueprint",
         required=True)
 
     parser.add_argument(
