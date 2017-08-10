@@ -162,7 +162,8 @@ class Blueprint(DefaultLogging):
     @staticmethod
     def rotate_position(position, axis=None, number=0):
         """
-        Rotate the position in the plane perpendicular to the given axis
+        Rotate clockwise the position in the plane perpendicular to
+        the given axis
  
         @type position: (int, int, int)
         @param axis: rotation axis {x, y, z}
@@ -171,22 +172,27 @@ class Blueprint(DefaultLogging):
         @type number: int
         """ 
  
-        # rotate the position if needed
- 
+        # available rotation axes
         axes = dict(x=(1, 2), y=(2, 0), z=(0, 1))
 
+        # rotate the position if needed
         if (number == 0) or (axis not in axes):
             return position
  
         # tuples are immutable. Convert to a list before processing
         position = list(position)
 
+        # 180 degrees
         if number == 2:
             position[axes[axis][0]], position[axes[axis][1]] = -position[axes[axis][0]], -position[axes[axis][1]]
+        # 90 degrees
         elif number == 1:
             position[axes[axis][0]], position[axes[axis][1]] = position[axes[axis][1]], -position[axes[axis][0]]
+        # 270 degrees
         else:
             position[axes[axis][0]], position[axes[axis][1]] = -position[axes[axis][1]], position[axes[axis][0]]
+
+        # return the new position
         return position
 
     def add_blocks(self, block_id, positions,
