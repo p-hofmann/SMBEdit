@@ -69,7 +69,7 @@ def main(sys_argv, description='Create a blueprint from a 3D model (obj/stl)'):
         default=0,
         type=int,
         choices=[0, 1, 2, 3],
-        help="Number of times the model is rotated by 90 degrees",
+        help="Number of times the model is rotated by 90 degrees clockwise",
         required=False)
 
     parser.add_argument(
