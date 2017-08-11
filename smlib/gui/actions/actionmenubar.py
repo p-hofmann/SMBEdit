@@ -50,7 +50,7 @@ class ActionMenuBar(ActionDefault):
         file_path, _ = file_dialog.getOpenFileName(
             caption='Import file',
             directory=blueprint_dir,
-            filter="3D model (*.obj *.stl);; All Files (*)",
+            filter="3D model (*.obj *.stl);; obj Archive (*.zip);; All Files (*)",
             options=options
         )
         if not file_path:
@@ -59,25 +59,29 @@ class ActionMenuBar(ActionDefault):
         resolution = self.get_resolution()
         if not resolution:
             return
-        self._window.status_bar.showMessage("Voxelizing 3D model ...")
-        voxel_positions = set(voxelize(file_path, resolution, self._window.print_progress_bar))
-        self._window.status_bar.showMessage("Making StarMade blueprint ...")
 
-        entity_name = 'Main'
-        self.list_of_entity_names = [entity_name]
-        self._smbedit._directory_input = ['']
-        self._smbedit.blueprint = [Blueprint(entity_name, verbose=False, debug=False)]
+        try:
+            self._window.status_bar.showMessage("Voxelizing 3D model ...")
+            voxel_positions = set(voxelize(file_path, resolution, self._window.print_progress_bar))
+            self._window.status_bar.showMessage("Making StarMade blueprint ...")
 
-        self._smbedit.blueprint[0].add_blocks(598, voxel_positions, offset=(16, 16, 16))
-        self._smbedit.blueprint[0].add_blocks(1, [(16, 16, 16)])
-        self._smbedit.blueprint[0].set_entity(0, 0)
+            entity_name = 'Main'
+            self.list_of_entity_names = [entity_name]
+            self._smbedit._directory_input = ['']
+            self._smbedit.blueprint = [Blueprint(entity_name, verbose=False, debug=False)]
 
-        self._main_frame.entities_combo_box.clear()
-        self._main_frame.entities_combo_box.addItem('All')
-        self._main_frame.entities_check_box.setChecked(False)
-        self._main_frame.update_summary()
-        self._main_frame.enable()
-        self._window.status_bar.showMessage("Import complete.")
+            self._smbedit.blueprint[0].add_blocks(598, voxel_positions, offset=(16, 16, 16))
+            self._smbedit.blueprint[0].add_blocks(1, [(16, 16, 16)])
+            self._smbedit.blueprint[0].set_entity(0, 0)
+
+            self._main_frame.entities_combo_box.clear()
+            self._main_frame.entities_combo_box.addItem('All')
+            self._main_frame.entities_check_box.setChecked(False)
+            self._main_frame.update_summary()
+            self._main_frame.enable()
+            self._window.status_bar.showMessage("Import complete.")
+        except AssertionError as e:
+            self._main_frame.status_bar.showMessage("Error: {}".format(e))
 
     # #################
     # Get Starmade directory

@@ -1,9 +1,12 @@
 from .frames.mainframe import MainFrame
 from .frames.menubar import MenuBar
-from PyQt5.QtWidgets import QMainWindow
+from PyQt5.QtWidgets import QMainWindow, QStatusBar
 
 
 class Window(QMainWindow):
+    """
+    @type status_bar: QStatusBar
+    """
     def __init__(self, smbedit):
         """
 
