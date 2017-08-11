@@ -2,6 +2,7 @@ __author__ = 'Peter Hofmann'
 
 import os
 import sys
+import operator
 
 from .common.loggingwrapper import DefaultLogging
 from .utils.blockconfig import block_config
@@ -158,7 +159,45 @@ class Blueprint(DefaultLogging):
                 entity_class = list(BlueprintEntity.entity_classification[entity_type].keys())[0]
                 self.header.set_class(entity_class)
 
-    def add_blocks(self, block_id, positions, rotations=None, offset=None):
+    @staticmethod
+    def rotate_position(position, axis=None, number=0):
+        """
+        Rotate clockwise the position in the plane perpendicular to
+        the given axis
+ 
+        @type position: (int, int, int)
+        @param axis: rotation axis {x, y, z}
+        @type axis: str
+        @param number: number of 90 degrees rotation {0, 1, 2, 3}
+        @type number: int
+        """ 
+ 
+        # available rotation axes
+        axes = dict(x=(1, 2), y=(2, 0), z=(0, 1))
+
+        # rotate the position if needed
+        if (number == 0) or (axis not in axes):
+            return position
+ 
+        # tuples are immutable. Convert to a list before processing
+        position = list(position)
+
+        # 180 degrees
+        if number == 2:
+            position[axes[axis][0]], position[axes[axis][1]] = -position[axes[axis][0]], -position[axes[axis][1]]
+        # 90 degrees
+        elif number == 1:
+            position[axes[axis][0]], position[axes[axis][1]] = position[axes[axis][1]], -position[axes[axis][0]]
+        # 270 degrees
+        else:
+            position[axes[axis][0]], position[axes[axis][1]] = -position[axes[axis][1]], position[axes[axis][0]]
+
+        # return the new position
+        return position
+
+    def add_blocks(self, block_id, positions,
+                   rotations=None, offset=[0, 0, 0],
+                   rotation_axis=None, rotation_number=0):
         """
         Add blocks with a specific ID with/at different rotations/positions
         Note: since this function is design to create the most recent
@@ -169,6 +208,10 @@ class Blueprint(DefaultLogging):
         @type rotations: list[int]
         @param offset: if blocks centered around origin (0, 0, 0) then offset (16, 16, 16)
         @type offset: (int, int, int)
+        @param rotation_axis: rotation axis {x, y, z}
+        @type rotation_axis: str
+        @param rotation_number: number of 90 degrees rotation {0, 1, 2, 3}
+        @type rotation_number: int
         """
         # check if block_id is known
         assert block_id in block_config, "Unknown block id: {}".format(block_id)
@@ -179,10 +222,11 @@ class Blueprint(DefaultLogging):
                 # the rotations correspond to the last 5 bits of the state (int_24)
                 block_id += (rotation << 19)
             new_block = block_pool(block_id)
-            if offset:
-                self.smd3.add_block(new_block, (position[0]+offset[0], position[1]+offset[1], position[2]+offset[2]))
-            else:
-                self.smd3.add_block(new_block, tuple(position))
+            self.smd3.add_block(new_block,
+                                tuple(map(operator.add,
+                                          self.rotate_position(position, axis=rotation_axis, number=rotation_number),
+                                          offset)),)
+
         self.logic.update(self.smd3)
         self.header.update(self.smd3)
 
