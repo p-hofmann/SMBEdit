@@ -14,6 +14,7 @@ setup(
     entry_points={
         "console_scripts": [
             "smbedit = smbedit:main",
+            "smb = smlib.cli.smb:main",
             ],
         "gui_scripts": [
             "smbeditGUI = smbeditGUI:main",

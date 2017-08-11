@@ -2,6 +2,7 @@ import unittest
 import tempfile
 import shutil
 import os
+import nose
 
 from smlib.blueprint import Blueprint
 from smlib.utils.blockconfig import block_config
@@ -21,7 +22,7 @@ class DefaultSetup(unittest.TestCase):
         self.bp = None
 
     def setUp(self):
-        # load block config 
+        # load block config
         block_config.from_hard_coded()
 
         # create tempdir
@@ -157,5 +158,29 @@ class TestAddBlocks(DefaultSetup):
         del self.bp
 
 
+class TestRotatePosition(object):
+
+    def test_rotate_position(self):
+        # expected positions
+        results = dict(x=[(1, 2, 3), (1, 3, -2), (1, -2, -3), (1, -3, 2)],
+                       y=[(1, 2, 3), (-3, 2, 1), (-1, 2, -3), (3, 2, -1)],
+                       z=[(1, 2, 3), (2, -1, 3), (-1, -2, 3), (-2, 1, 3)],)
+
+        # loop over all possibilities
+        for rotation_axis in ['x', 'y', 'z']:
+            for rotation_number in range(0, 4):
+                # use nose with generator to create multiple test cases
+                # src: http://nose.readthedocs.io/en/latest/writing_tests.html
+                yield self.check_position, (1, 2, 3), rotation_axis,\
+                    rotation_number, results[rotation_axis][rotation_number]
+
+    def check_position(self, position, rotation_axis, rotation_number, result):
+        # compute position with given rotation axis/number
+        new_position = tuple(Blueprint.rotate_position(position,
+                                                       axis=rotation_axis,
+                                                       number=rotation_number))
+        assert new_position == result
+
 if __name__ == '__main__':
-    unittest.main()
+    # run test using nose
+    nose.core.runmodule()

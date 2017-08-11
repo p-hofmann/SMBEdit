@@ -1,5 +1,5 @@
 from unittest import TestCase
-from smbedit import SMBEdit
+from smlib.cli.edit import SMBEdit
 from unittests.testinput import blueprint_handler
 from smlib.utils.blockconfig import block_config
 
