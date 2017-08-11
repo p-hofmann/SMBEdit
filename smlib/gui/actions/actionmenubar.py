@@ -4,10 +4,10 @@ import tempfile
 from ...common.validator import Validator
 from ...blueprint import Blueprint
 from ...utils.blockconfig import block_config
-from PyQt5.QtWidgets import QFileDialog, QInputDialog
-from smbedit import SMBEdit
-from voxlib.voxelize import voxelize
+from ...cli.edit import SMBEdit
 from.actiondefault import ActionDefault
+from voxlib.voxelize import voxelize
+from PyQt5.QtWidgets import QFileDialog, QInputDialog
 
 
 class ActionMenuBar(ActionDefault):
