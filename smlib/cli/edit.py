@@ -1,5 +1,3 @@
-__author__ = 'Peter Hofmann'
-
 import os
 import sys
 import zipfile

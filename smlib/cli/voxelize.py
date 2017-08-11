@@ -1,7 +1,6 @@
 import sys
 import argparse
 import os
-import numpy
 
 from voxlib.voxelize import voxelize
 from smlib.blueprint import Blueprint
