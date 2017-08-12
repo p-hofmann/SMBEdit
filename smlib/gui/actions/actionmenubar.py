@@ -61,6 +61,7 @@ class ActionMenuBar(ActionDefault):
             return
 
         try:
+            self._window.progressBar.setHidden(False)
             self._window.status_bar.showMessage("Voxelizing 3D model ...")
             voxel_positions = set(voxelize(file_path, resolution, self._window.print_progress_bar))
             self._window.status_bar.showMessage("Making StarMade blueprint ...")
@@ -81,7 +82,10 @@ class ActionMenuBar(ActionDefault):
             self._main_frame.enable()
             self._window.status_bar.showMessage("Import complete.")
         except AssertionError as e:
+            self._window.progressBar.setHidden(True)
             self._main_frame.status_bar.showMessage("Error: {}".format(e))
+        finally:
+            self._window.progressBar.setHidden(True)
 
     # #################
     # Get Starmade directory
