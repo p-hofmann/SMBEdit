@@ -6,7 +6,38 @@ __author__ = 'Peter Hofmann'
 class BlockConfigHardcoded(object):
     """
     Hardcoded block config
+
+    @type rgba_color_map_armor: dict[(float, float, float, float), int]
     """
+
+    rgba_color_map_armor = {
+        None                   :  63,  # glass
+        (0.5, 0.5, 0.5, 1.0)   : 598,  # grey
+        (0.25, 0.25, 0.25, 1.0): 828,  # dark grey
+        (0, 0, 0, 1.0)         : 603,  # black
+        (1.0, 1.0, 1.0, 1.0)   : 608,  # white
+        (0.5, 0, 0.5, 1.0)     : 613,  # purple
+        (0, 0, 1.0, 1.0)       : 618,  # blue
+        (0, 0.5, 0, 1.0)       : 623,  # green
+        (1.0, 1.0, 0, 1.0)     : 628,  # yellow
+        (1.0, 0.5, 0, 1.0)     : 633,  # orange
+        (1.0, 0, 0, 1.0)       : 638,  # red
+        (1.0, 0.75, 0.5, 1.0)  : 643,  # brown
+        (0, 0.5, 0.5, 1.0)     : 878,  # teal
+        (1.0, 0, 1.0, 1.0)     : 912,  # pink / fuchsia
+
+        (0, 0, 0, 0.5)         : 593,  # black
+        (1.0, 1.0, 1.0, 0.5)   : 507,  # white
+        (0.5, 0, 0.5, 0.5)     : 537,  # purple
+        (0, 0, 1.0, 0.5)       : 532,  # blue
+        (0, 0.5, 0, 0.5)       : 527,  # green
+        (1.0, 1.0, 0, 0.5)     : 522,  # yellow
+        (1.0, 0.5, 0, 0.5)     : 517,  # orange
+        (1.0, 0, 0, 0.5)       : 512,  # red
+        (1.0, 0.75, 0.5, 0.5)  : 690,  # brown
+        (0, 0.5, 0.5, 0.5)     : 883,  # teal
+        (1.0, 0, 1.0, 0.5)     : 917,  # pink / fuchsia
+    }
 
     _block_ids = dict()
 
