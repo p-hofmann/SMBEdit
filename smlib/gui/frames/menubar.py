@@ -16,7 +16,11 @@ class MenuBar(ActionMenuBar):
         # menu_file_new = QAction('New', window)
 
         # import 3D model
+        menu_file_import = QMenu('Import', window)
         self.menu_file_import_3d_model = QAction('Import ...', window)
+        self.menu_file_import_3d_model_colored = QAction('Import colored...', window)
+        menu_file_import.addAction(self.menu_file_import_3d_model)
+        menu_file_import.addAction(self.menu_file_import_3d_model_colored)
 
         # Load blueprint
         menu_file_load = QMenu('Load', window)
@@ -35,7 +39,7 @@ class MenuBar(ActionMenuBar):
         menu_file.addMenu(menu_file_load)
         menu_file.addMenu(menu_file_save)
         menu_file.addSeparator()
-        menu_file.addAction(self.menu_file_import_3d_model)
+        menu_file.addMenu(menu_file_import)
 
         # Tools
         menu_tools = menu_bar.addMenu('Tools')
@@ -76,6 +80,7 @@ class MenuBar(ActionMenuBar):
         menu_file.addAction(self.menu_file_exit)
 
         self.menu_file_import_3d_model.triggered.connect(self._dialog_file_import)
+        self.menu_file_import_3d_model_colored.triggered.connect(self._dialog_file_import_colored)
         self.menu_file_load_sment.triggered.connect(self._dialog_file_load)
         self.menu_file_load_blueprint.triggered.connect(self._dialog_directory_load)
         self.menu_file_save_sment.triggered.connect(self._dialog_file_save)

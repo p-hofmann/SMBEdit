@@ -38,7 +38,7 @@ class TestAddBlocks(DefaultSetup):
     """
 
     def test_mesh_vox(self):
-        from voxlib.voxelize import voxelize
+        from voxlib.voxelize import Voxelizer
         # from mesh_vox.voxelizer import get_voxels as voxelize
 
         input_paths = [
@@ -53,7 +53,7 @@ class TestAddBlocks(DefaultSetup):
         for input_path in input_paths:
             # voxelize mesh
             self.assertTrue(os.path.exists(input_path), input_path)
-            positions = set(voxelize(input_path, resolution=resolution))
+            positions = set(Voxelizer.voxelize(input_path, resolution=resolution))
             print(len(positions))
 
             # create blueprint and add blocks

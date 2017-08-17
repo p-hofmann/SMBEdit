@@ -1,20 +1,20 @@
 import os
 import zipfile
 import tempfile
+from PyQt5.QtWidgets import QFileDialog, QInputDialog
+from voxlib.voxelize import Voxelizer
 from ...common.validator import Validator
 from ...blueprint import Blueprint
 from ...utils.blockconfig import block_config
+from ...utils.blockconfighardcoded import BlockConfigHardcoded
 from ...cli.edit import SMBEdit
 from.actiondefault import ActionDefault
-from voxlib.voxelize import voxelize
-from PyQt5.QtWidgets import QFileDialog, QInputDialog
 
 
 class ActionMenuBar(ActionDefault):
     """
     Dealing with component interactions
 
-    @type _smbedit: smbeditGUI.SMBEditGUI
     """
     def __init__(self, window, main_frame, smbedit):
         """
@@ -37,6 +37,71 @@ class ActionMenuBar(ActionDefault):
         if confirmed:
             return value
         return None
+
+    def _dialog_file_import_colored(self):
+        blueprint_dir = None
+        if self._smbedit.directory_starmade and os.path.exists(self._smbedit.directory_starmade):
+            blueprint_dir = os.path.join(self._smbedit.directory_starmade, 'blueprints')
+
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+        options |= QFileDialog.AnyFile
+        file_dialog = QFileDialog()
+        file_path, _ = file_dialog.getOpenFileName(
+            caption='Import file',
+            directory=blueprint_dir,
+            filter="3D model (*.obj);; obj Archive (*.zip);; All Files (*)",
+            options=options
+        )
+        if not file_path:
+            return
+
+        resolution = self.get_resolution()
+        if not resolution:
+            return
+
+        try:
+            self._window.progressBar.setHidden(False)
+            self._window.status_bar.showMessage("Voxelizing 3D model ...")
+
+            voxel_positions = {}
+            for position, color in Voxelizer.voxelize(
+                file_path, resolution,
+                color_list=list(BlockConfigHardcoded.rgba_color_map_armor.keys()),
+                progress_bar=self._window.print_progress_bar):
+                block_id = BlockConfigHardcoded.rgba_color_map_armor[color]
+                if block_id not in voxel_positions:
+                    voxel_positions[block_id] = []
+                voxel_positions[block_id].append(position)
+
+            self._window.status_bar.showMessage("Making StarMade blueprint ...")
+
+            entity_name = 'Main'
+            self.list_of_entity_names = [entity_name]
+            self._smbedit._directory_input = ['']
+            self._smbedit.blueprint = [Blueprint(entity_name, verbose=False, debug=False)]
+
+            if 63 in voxel_positions:
+                # glass blocks first, to potentially overwrite them with other blocks from other triangles
+                glass_blocks = voxel_positions.pop(63)
+                self._smbedit.blueprint[0].add_blocks(63, glass_blocks, offset=(16, 16, 16))
+
+            for block_id, position_list in voxel_positions.items():
+                self._smbedit.blueprint[0].add_blocks(block_id, position_list, offset=(16, 16, 16))
+            self._smbedit.blueprint[0].add_blocks(1, [(16, 16, 16)])
+            self._smbedit.blueprint[0].set_entity(0, 0)
+
+            self._main_frame.entities_combo_box.clear()
+            self._main_frame.entities_combo_box.addItem('All')
+            self._main_frame.entities_check_box.setChecked(False)
+            self._main_frame.update_summary()
+            self._main_frame.enable()
+            self._window.status_bar.showMessage("Import complete.")
+        except (AssertionError, RuntimeError) as e:
+            self._window.progressBar.setHidden(True)
+            self._main_frame.status_bar.showMessage("Error: {}".format(e))
+        finally:
+            self._window.progressBar.setHidden(True)
 
     def _dialog_file_import(self):
         blueprint_dir = None
@@ -63,7 +128,9 @@ class ActionMenuBar(ActionDefault):
         try:
             self._window.progressBar.setHidden(False)
             self._window.status_bar.showMessage("Voxelizing 3D model ...")
-            voxel_positions = set(voxelize(file_path, resolution, self._window.print_progress_bar))
+            voxel_positions = set(Voxelizer.voxelize(
+                file_path, resolution,
+                progress_bar=self._window.print_progress_bar))
             self._window.status_bar.showMessage("Making StarMade blueprint ...")
 
             entity_name = 'Main'
