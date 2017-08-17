@@ -66,10 +66,10 @@ class ActionMenuBar(ActionDefault):
 
             voxel_positions = {}
             for position, color in Voxelizer.voxelize(
-                file_path, resolution,
-                color_list=list(BlockConfigHardcoded.rgba_color_map_armor.keys()),
-                progress_bar=self._window.print_progress_bar):
-                block_id = BlockConfigHardcoded.rgba_color_map_armor[color]
+                    file_path, resolution,
+                    color_list=list(BlockConfigHardcoded.rgba_color_map_armor.keys()),
+                    progress_bar=self._window.print_progress_bar):
+                block_id = BlockConfigHardcoded.rgba_color_map_armor[tuple(color[0:3])][color[3]]
                 if block_id not in voxel_positions:
                     voxel_positions[block_id] = []
                 voxel_positions[block_id].append(position)
@@ -97,7 +97,7 @@ class ActionMenuBar(ActionDefault):
             self._main_frame.update_summary()
             self._main_frame.enable()
             self._window.status_bar.showMessage("Import complete.")
-        except (AssertionError, RuntimeError) as e:
+        except (AssertionError, RuntimeError, ValueError) as e:
             self._window.progressBar.setHidden(True)
             self._main_frame.status_bar.showMessage("Error: {}".format(e))
         finally:
