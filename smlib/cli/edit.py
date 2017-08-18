@@ -20,20 +20,15 @@ class SMBEdit(ArgumentHandler):
     Works with blueprints made by StarMade v0.199.431
     """
 
-    def __init__(self, options, configuration):
+    def __init__(self, options, configuration=None):
         """
         Constructor of Starmade Blueprint Editor
-
-        @param logfile: file handler or file path to a log file
-        @type logfile: file | str
-        @param verbose: Not verbose means that only warnings and errors will be past to stream
-        @type verbose: bool
-        @param debug: Display debug messages
-        @type debug: bool
 
         @rtype: None
         """
         self._tmp_dir = None
+        if configuration is None:
+            configuration = Configuration(name='SMBEdit')
         super(SMBEdit, self).__init__(
             label="SMBEdit",
             options=options,

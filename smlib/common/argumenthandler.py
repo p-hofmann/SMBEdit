@@ -20,7 +20,7 @@ class ArgumentHandler(Validator):
     @type _directory_starmade: str
     """
 
-    def __init__(self, options, configuration, label="ArgumentHandler"):
+    def __init__(self, options, configuration=None, label="ArgumentHandler"):
         """
         Constructor of Argumenthandler
 
