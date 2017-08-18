@@ -39,9 +39,10 @@ class ActionMenuBar(ActionDefault):
         return None
 
     def _dialog_file_import_colored(self):
-        blueprint_dir = None
-        if self._smbedit.directory_starmade and os.path.exists(self._smbedit.directory_starmade):
-            blueprint_dir = os.path.join(self._smbedit.directory_starmade, 'blueprints')
+        directory_import = self._smbedit._get_directory_import()
+        if not directory_import or not os.path.exists(directory_import):
+            if self._smbedit.directory_starmade and os.path.exists(self._smbedit.directory_starmade):
+                directory_import = os.path.join(self._smbedit.directory_starmade, 'blueprints')
 
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
@@ -49,7 +50,7 @@ class ActionMenuBar(ActionDefault):
         file_dialog = QFileDialog()
         file_path, _ = file_dialog.getOpenFileName(
             caption='Import file',
-            directory=blueprint_dir,
+            directory=directory_import,
             filter="3D model (*.obj);; obj Archive (*.zip);; All Files (*)",
             options=options
         )
@@ -91,6 +92,9 @@ class ActionMenuBar(ActionDefault):
             self._smbedit.blueprint[0].add_blocks(1, [(16, 16, 16)])
             self._smbedit.blueprint[0].set_entity(0, 0)
 
+            directory_import = os.path.dirname(file_path)
+            self._smbedit.save_directory_import(directory_import)
+
             self._main_frame.entities_combo_box.clear()
             self._main_frame.entities_combo_box.addItem('All')
             self._main_frame.entities_check_box.setChecked(False)
@@ -104,9 +108,10 @@ class ActionMenuBar(ActionDefault):
             self._window.progressBar.setHidden(True)
 
     def _dialog_file_import(self):
-        blueprint_dir = None
-        if self._smbedit.directory_starmade and os.path.exists(self._smbedit.directory_starmade):
-            blueprint_dir = os.path.join(self._smbedit.directory_starmade, 'blueprints')
+        directory_import = self._smbedit._get_directory_import()
+        if not directory_import or not os.path.exists(directory_import):
+            if self._smbedit.directory_starmade and os.path.exists(self._smbedit.directory_starmade):
+                directory_import = os.path.join(self._smbedit.directory_starmade, 'blueprints')
 
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
@@ -114,7 +119,7 @@ class ActionMenuBar(ActionDefault):
         file_dialog = QFileDialog()
         file_path, _ = file_dialog.getOpenFileName(
             caption='Import file',
-            directory=blueprint_dir,
+            directory=directory_import,
             filter="3D model (*.obj *.stl);; obj Archive (*.zip);; All Files (*)",
             options=options
         )
@@ -141,6 +146,9 @@ class ActionMenuBar(ActionDefault):
             self._smbedit.blueprint[0].add_blocks(598, voxel_positions, offset=(16, 16, 16))
             self._smbedit.blueprint[0].add_blocks(1, [(16, 16, 16)])
             self._smbedit.blueprint[0].set_entity(0, 0)
+
+            directory_import = os.path.dirname(file_path)
+            self._smbedit.save_directory_import(directory_import)
 
             self._main_frame.entities_combo_box.clear()
             self._main_frame.entities_combo_box.addItem('All')
@@ -179,7 +187,7 @@ class ActionMenuBar(ActionDefault):
             self._window.status_bar.showMessage("Error: {}".format(msg_input_invalid))
             return
         self._smbedit.directory_starmade = directory_input
-        self._smbedit.save_starmade_directory(directory_input)
+        self._smbedit.save_directory_starmade(directory_input)
         block_config.read(directory_input)
 
     # #################

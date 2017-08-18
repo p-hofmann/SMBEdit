@@ -1,15 +1,12 @@
 import tempfile
 import sys
 
-from PyQt5.QtWidgets import QApplication
 from smlib import __version__ as version
 from smlib.common.validator import Validator
-from smlib.common.configparserwrapper import ConfigParserWrapper
-from smlib.common.argumenthandler import ArgumentHandler
+from smlib.common.configuration import Configuration
 from smlib.utils.blockconfig import block_config
 from smlib.blueprint import Blueprint
 from smlib.gui.window import Window
-# from smlib.gui.window import Window
 
 
 class SMBEditGUI(Validator):
@@ -19,10 +16,22 @@ class SMBEditGUI(Validator):
     @type blueprint: list[Blueprint]
     """
 
-    def __init__(self, temp_directory=None, logfile=None, verbose=False, debug=False):
+    def __init__(self, configuration, temp_directory=None):
+        """
+
+        @param configuration:
+        @type configuration: Configuration
+        @param temp_directory: directory path
+        @type temp_directory: str
+        """
         self.tmp_dir = None
+        self.configuration = configuration
         label = "SMBEditGUI " + version
-        super(Validator, self).__init__(label=label, logfile=logfile, verbose=verbose, debug=debug)
+        logfile = configuration.get_file_path_log()
+        verbose = configuration.verbose
+        debug = configuration.debug
+        super(SMBEditGUI, self).__init__(
+            label=label, logfile=logfile, verbose=verbose, debug=debug)
 
         # deal with temporary directory
         if temp_directory is None:
@@ -31,7 +40,7 @@ class SMBEditGUI(Validator):
             assert self.validate_dir(temp_directory)
             self.tmp_dir = tempfile.mkdtemp(prefix="{}_".format(label), dir=temp_directory)
 
-        self.directory_starmade = self._get_starmade_directory()
+        self.directory_starmade = self._get_directory_starmade()
         if self.directory_starmade is not None:
             self._logger.debug("StarMade: {}".format(self.directory_starmade))
             block_config.read(self.directory_starmade)
@@ -59,45 +68,75 @@ class SMBEditGUI(Validator):
             shutil.rmtree(self.tmp_dir)
         self.tmp_dir = None
 
-    def _get_starmade_directory(self):
-        # deal with StarMade directory
-        config_file_path = ArgumentHandler.get_config_file_path()
+    def _get_directory_starmade(self):
+        """
+        Deal with StarMade directory
 
-        # msg_bad_sm_dir = "Bad StarMade directory: '{}'."
-        config = ConfigParserWrapper(logfile=self._logfile, verbose=self._verbose)
-        if self.validate_file(config_file_path, silent=True):
-            config.read(config_file_path)
+        @rtype: str
+        """
         option = "starmade_dir"
         section = "main"
-        directory_starmade = config.get_value(option, section, is_path=True, silent=True)
+        directory_starmade = self.configuration.get_path(option=option, section=section)
         if directory_starmade and not self.validate_dir(directory_starmade, file_names=["StarMade.jar"], key='-sm'):
-            config.set_value(option, "", section)
-            config.write(config_file_path)
+            self.configuration.set(option=option, value="", section=section)
             return None
         return directory_starmade
 
-    def save_starmade_directory(self, directory_starmade):
-        config_file_path = ArgumentHandler.get_config_file_path()
-        config = ConfigParserWrapper(logfile=self._logfile, verbose=self._verbose)
-        if self.validate_file(config_file_path, silent=True):
-            config.read(config_file_path)
+    def _get_directory_import(self):
+        """
+        Deal with StarMade directory
+
+        @rtype: str
+        """
+        option = "import_dir"
+        section = "main"
+        directory_import = self.configuration.get_path(option=option, section=section)
+        if directory_import and not self.validate_dir(directory_import):
+            self.configuration.set(option=option, value="", section=section)
+            return None
+        return directory_import
+
+    def save_directory_starmade(self, directory):
         option = "starmade_dir"
         section = "main"
-        if directory_starmade and self.validate_dir(directory_starmade, file_names=["StarMade.jar"]):
-            config.set_value(option, directory_starmade, section)
-            config.write(config_file_path)
+        if directory and self.validate_dir(directory, file_names=["StarMade.jar"]):
+            self.configuration.set_path(option=option, value=directory, section=section)
+
+    def save_directory_import(self, directory):
+        option = "import_dir"
+        section = "main"
+        if directory and self.validate_dir(directory):
+            self.configuration.set_path(option=option, value=directory, section=section)
 
 
 def main():
-    app = QApplication(sys.argv)
-    # QApplication.setStyle(QStyleFactory.create('Cleanlooks'))
-    name = "SMBEdit " + version
-    with SMBEditGUI(verbose=False, debug=False) as smbedit_gui:
-        window = Window(smbedit_gui)
-        window.setWindowTitle(name)
-        window.show()
+    name = "SMBEdit"
+    configuration = Configuration(
+        name,
+        file_name_config="config.ini",
+        file_name_log="log.txt",
+        verbose=False,
+        debug=False)
+    configuration.load()
 
-    sys.exit(app.exec_())
+    try:
+        from PyQt5.QtWidgets import QApplication
+        app = QApplication(sys.argv)
+        smbedit_gui = SMBEditGUI(configuration)
+        window = Window(smbedit_gui)
+        title = name + " " + version
+        window.setWindowTitle(title)
+        window.show()
+        del smbedit_gui
+        sys.exit(app.exec_())
+    except Exception as e:
+        import datetime
+        import time
+        time_stamp = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
+        with open(configuration.get_file_path_log(), 'a') as output_stream:
+            output_stream.write("{}: {}\n".format(time_stamp, e))
+        sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

@@ -5,6 +5,7 @@ import shutil
 import traceback
 
 from smlib import __version__ as version
+from smlib.common.configuration import Configuration
 from smlib.common.argumenthandler import ArgumentHandler
 from smlib.utils.blockconfig import block_config
 from smlib.blueprint import Blueprint
@@ -19,7 +20,7 @@ class SMBEdit(ArgumentHandler):
     Works with blueprints made by StarMade v0.199.431
     """
 
-    def __init__(self, options, logfile=None, verbose=False, debug=False):
+    def __init__(self, options, configuration):
         """
         Constructor of Starmade Blueprint Editor
 
@@ -35,9 +36,7 @@ class SMBEdit(ArgumentHandler):
         super(SMBEdit, self).__init__(
             label="SMBEdit",
             options=options,
-            logfile=logfile,
-            verbose=verbose,
-            debug=debug)
+            configuration=configuration)
 
     @staticmethod
     def get_label():
@@ -284,14 +283,21 @@ def main():
     options = ArgumentHandler.get_parser_options(label=SMBEdit.get_label(), version=version)
     verbose = not options.silent
     debug = options.debug_mode
-    logfile = options.logfile
     error = None
+
+    name = "SMBEdit"
+    configuration = Configuration(
+        name,
+        file_name_config="config.ini",
+        file_name_log="log.txt",
+        verbose=verbose,
+        debug=debug)
+    configuration.load()
+
     try:
         with SMBEdit(
             options=options,
-            logfile=logfile,
-            verbose=verbose,
-            debug=debug
+            configuration=configuration
                 ) as manipulator:
             error = manipulator.run()
     except (KeyboardInterrupt, SystemExit, Exception, ValueError, RuntimeError) as e:

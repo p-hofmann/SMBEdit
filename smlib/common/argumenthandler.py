@@ -1,15 +1,10 @@
-__author__ = 'Peter Hofmann'
-__version__ = '0.1.0'
-
 import os
-import sys
 import shutil
 import tempfile
 import argparse
 import zipfile
 
 from .validator import Validator
-from .configparserwrapper import ConfigParserWrapper
 
 
 class ArgumentHandler(Validator):
@@ -25,21 +20,22 @@ class ArgumentHandler(Validator):
     @type _directory_starmade: str
     """
 
-    def __init__(self, options, label="ArgumentHandler", logfile=None, verbose=False, debug=False):
+    def __init__(self, options, configuration, label="ArgumentHandler"):
         """
         Constructor of Argumenthandler
 
-        @param logfile: file handler or file path to a log file
-        @type logfile: file | FileIO | StringIO | str
-        @param verbose: Not verbose means that only warnings and errors will be past to stream
-        @type verbose: bool
-        @param debug: Display debug messages
-        @type debug: bool
+        @param configuration: Configuration settings
+        @type configuration: smlib.common.configuration.Configuration
 
         @rtype: None
         """
         self._tmp_dir = None
-        config_file_path = self.get_config_file_path()
+
+        self.configuration = configuration
+        logfile = configuration.get_file_path_log()
+        verbose = configuration.verbose
+        debug = configuration.debug
+
         super(ArgumentHandler, self).__init__(
             label=label,
             logfile=logfile,
@@ -77,24 +73,16 @@ class ArgumentHandler(Validator):
             assert self.validate_dir(
                 self._directory_starmade, file_names=["StarMade.jar"], key='-sm', silent=True), msg_bad_sm_dir.format(
                 self._directory_starmade)
-        config = ConfigParserWrapper(logfile=logfile, verbose=verbose)
-        if self.validate_file(config_file_path, silent=True):
-            config.read(config_file_path)
-        option = "starmade_dir"
-        section = "main"
+
         if not self._directory_starmade:
-            self._directory_starmade = config.get_value(option, section, is_path=True, silent=True)
-            if self._directory_starmade:
-                if not self.validate_dir(self._directory_starmade, file_names=["StarMade.jar"], key='-sm'):
-                    config.set_value(option, "", section)
-                    config.write(config_file_path)
+            self._directory_starmade = self._get_directory_starmade()
+
         if self._directory_starmade is not None:
             if not self.validate_dir(self._directory_starmade, file_names=["StarMade.jar"], key='-sm', silent=True):
                 self._logger.warning(msg_bad_sm_dir.format(self._directory_starmade))
                 self._directory_starmade = None
             else:
-                config.set_value(option, self._directory_starmade, section)
-                config.write(config_file_path)
+                self.save_directory_starmade(self._directory_starmade)
 
         # deal with temporary directory
         if temp_directory is None:
@@ -165,6 +153,26 @@ class ArgumentHandler(Validator):
             shutil.rmtree(self._tmp_dir)
         self.tmp_dir = None
 
+    def _get_directory_starmade(self):
+        """
+        Deal with StarMade directory
+
+        @rtype: str
+        """
+        option = "starmade_dir"
+        section = "main"
+        directory_starmade = self.configuration.get_path(option=option, section=section)
+        if directory_starmade and not self.validate_dir(directory_starmade, file_names=["StarMade.jar"], key='-sm'):
+            self.configuration.set(option=option, value="", section=section)
+            return None
+        return directory_starmade
+
+    def save_directory_starmade(self, directory):
+        option = "starmade_dir"
+        section = "main"
+        if directory and self.validate_dir(directory, file_names=["StarMade.jar"]):
+            self.configuration.set_path(option=option, value=directory, section=section)
+
     # #######################################
     # ###  Read command line arguments
     # #######################################
@@ -220,11 +228,6 @@ class ArgumentHandler(Validator):
             action='store_true',
             default=False,
             help="Show debug messages and extensive information.")
-        parser.add_argument(
-            "-log", "--logfile",
-            default=None,
-            type=str,
-            help="Output will also be written to this log file.")
         parser.add_argument(
             "-tmp", "--tmp_dir",
             default=None,
@@ -389,22 +392,3 @@ class ArgumentHandler(Validator):
             return parser.parse_args()
         else:
             return parser.parse_args(args)
-
-    @staticmethod
-    def get_config_file_path():
-        app_name = ".SMBEdit"
-        file_name_config = "config.ini"
-        if sys.platform == "win32":
-            app_name = "SMBEdit"
-            root_dir = os.getenv("APPDATA")
-        else:
-            root_dir = ArgumentHandler.get_full_path("~")
-            if sys.platform == "darwin":
-                app_name = "SMBEdit"
-                root_dir = os.path.join(root_dir, "Library", "Application Support")
-        assert os.path.exists(root_dir)
-        assert os.path.isdir(root_dir)
-        app_dir = os.path.join(root_dir, app_name)
-        if not os.path.exists(app_dir):
-            os.mkdir(app_dir)
-        return os.path.join(app_dir, file_name_config)

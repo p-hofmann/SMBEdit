@@ -2,7 +2,7 @@ import sys
 import argparse
 import os
 
-from voxlib.voxelize import voxelize
+from voxlib.voxelize import Voxelizer
 from smlib.blueprint import Blueprint
 from smlib.utils.blockconfig import block_config
 
@@ -100,7 +100,7 @@ def main(sys_argv, description='Create a blueprint from a 3D model (obj/stl)'):
     # populate the bp
     bp.add_blocks(
         args.block_id,
-        positions=list(voxelize(args.path_input, resolution=args.resolution)),
+        positions=list(Voxelizer.voxelize(args.path_input, resolution=args.resolution)),
         offset=(16, 16, 16),
         rotation_axis=args.rotation_axis,
         rotation_number=args.rotation_number

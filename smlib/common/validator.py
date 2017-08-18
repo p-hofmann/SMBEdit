@@ -1,6 +1,3 @@
-__author__ = 'hofmann'
-__version__ = '0.1.8'
-
 import os
 import glob
 import math
@@ -8,6 +5,10 @@ import string
 import filecmp
 from numbers import Number
 from .loggingwrapper import DefaultLogging
+
+
+__author__ = 'hofmann'
+__version__ = '0.1.9'
 
 
 class Validator(DefaultLogging):
