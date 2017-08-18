@@ -30,11 +30,7 @@ class TestSMBEdit(DefaultSetup):
         for blueprint in self._blueprints:
             options = Options()
             options.path_input = blueprint
-            with SMBEdit(
-                    options=options,
-                    logfile=options.logfile,
-                    verbose=options.verbose,
-                    debug=options.debug) as manipulator:
+            with SMBEdit(options=options) as manipulator:
                 self.assertFalse(manipulator.run(), blueprint)
 
     def test_update(self):
@@ -42,11 +38,7 @@ class TestSMBEdit(DefaultSetup):
             options = Options()
             options.path_input = blueprint
             options.update = True
-            with SMBEdit(
-                    options=options,
-                    logfile=options.logfile,
-                    verbose=options.verbose,
-                    debug=options.debug) as manipulator:
+            with SMBEdit(options=options) as manipulator:
                 self.assertFalse(manipulator.run(), blueprint)
 
     def test_summary(self):
@@ -54,11 +46,7 @@ class TestSMBEdit(DefaultSetup):
             options = Options()
             options.path_input = blueprint
             options.summary = True
-            with SMBEdit(
-                    options=options,
-                    logfile=options.logfile,
-                    verbose=options.verbose,
-                    debug=options.debug) as manipulator:
+            with SMBEdit(options=options) as manipulator:
                 self.assertFalse(manipulator.run(), blueprint)
 
     def test_move_center(self):
@@ -66,11 +54,7 @@ class TestSMBEdit(DefaultSetup):
             options = Options()
             options.path_input = blueprint
             options.move_center = "2,-3,5"
-            with SMBEdit(
-                    options=options,
-                    logfile=options.logfile,
-                    verbose=options.verbose,
-                    debug=options.debug) as manipulator:
+            with SMBEdit(options=options) as manipulator:
                 self.assertFalse(manipulator.run(), blueprint)
 
     def test_entity_type(self):
@@ -78,11 +62,7 @@ class TestSMBEdit(DefaultSetup):
             options = Options()
             options.path_input = blueprint
             options.entity_type = 2
-            with SMBEdit(
-                    options=options,
-                    logfile=options.logfile,
-                    verbose=options.verbose,
-                    debug=options.debug) as manipulator:
+            with SMBEdit(options=options) as manipulator:
                 self.assertFalse(manipulator.run(), blueprint)
 
     def test_entity_class(self):
@@ -90,11 +70,7 @@ class TestSMBEdit(DefaultSetup):
             options = Options()
             options.path_input = blueprint
             options.entity_class = 2
-            with SMBEdit(
-                    options=options,
-                    logfile=options.logfile,
-                    verbose=options.verbose,
-                    debug=options.debug) as manipulator:
+            with SMBEdit(options=options) as manipulator:
                 self.assertFalse(manipulator.run(), blueprint)
 
     def test_replace(self):
@@ -102,11 +78,7 @@ class TestSMBEdit(DefaultSetup):
             options = Options()
             options.path_input = blueprint
             options.replace = "598:507"
-            with SMBEdit(
-                    options=options,
-                    logfile=options.logfile,
-                    verbose=options.verbose,
-                    debug=options.debug) as manipulator:
+            with SMBEdit(options=options) as manipulator:
                 self.assertFalse(manipulator.run(), blueprint)
 
     def test_remove_blocks(self):
@@ -114,11 +86,7 @@ class TestSMBEdit(DefaultSetup):
             options = Options()
             options.path_input = blueprint
             options.remove_blocks = "598,599"
-            with SMBEdit(
-                    options=options,
-                    logfile=options.logfile,
-                    verbose=options.verbose,
-                    debug=options.debug) as manipulator:
+            with SMBEdit(options=options) as manipulator:
                 self.assertFalse(manipulator.run(), blueprint)
 
     def test_replace_hull_blocks(self):
@@ -126,11 +94,7 @@ class TestSMBEdit(DefaultSetup):
             options = Options()
             options.path_input = blueprint
             options.replace_hull_blocks = ":a"
-            with SMBEdit(
-                    options=options,
-                    logfile=options.logfile,
-                    verbose=options.verbose,
-                    debug=options.debug) as manipulator:
+            with SMBEdit(options=options) as manipulator:
                 self.assertFalse(manipulator.run(), blueprint)
 
     def test_reset_hull_shape(self):
@@ -138,11 +102,7 @@ class TestSMBEdit(DefaultSetup):
             options = Options()
             options.path_input = blueprint
             options.reset_hull_shape = True
-            with SMBEdit(
-                    options=options,
-                    logfile=options.logfile,
-                    verbose=options.verbose,
-                    debug=options.debug) as manipulator:
+            with SMBEdit(options=options) as manipulator:
                 self.assertFalse(manipulator.run(), blueprint)
 
     def test_mirror_axis_x(self):
@@ -150,11 +110,7 @@ class TestSMBEdit(DefaultSetup):
             options = Options()
             options.path_input = blueprint
             options.mirror_axis = "x"
-            with SMBEdit(
-                    options=options,
-                    logfile=options.logfile,
-                    verbose=options.verbose,
-                    debug=options.debug) as manipulator:
+            with SMBEdit(options=options) as manipulator:
                 self.assertFalse(manipulator.run(), blueprint)
 
     def test_mirror_axis_xr(self):
@@ -162,11 +118,7 @@ class TestSMBEdit(DefaultSetup):
             options = Options()
             options.path_input = blueprint
             options.mirror_axis = "xr"
-            with SMBEdit(
-                    options=options,
-                    logfile=options.logfile,
-                    verbose=options.verbose,
-                    debug=options.debug) as manipulator:
+            with SMBEdit(options=options) as manipulator:
                 self.assertFalse(manipulator.run(), blueprint)
 
     def test_mirror_axis_y(self):
@@ -174,11 +126,7 @@ class TestSMBEdit(DefaultSetup):
             options = Options()
             options.path_input = blueprint
             options.mirror_axis = "y"
-            with SMBEdit(
-                    options=options,
-                    logfile=options.logfile,
-                    verbose=options.verbose,
-                    debug=options.debug) as manipulator:
+            with SMBEdit(options=options) as manipulator:
                 self.assertFalse(manipulator.run(), blueprint)
 
     def test_mirror_axis_yr(self):
@@ -186,11 +134,7 @@ class TestSMBEdit(DefaultSetup):
             options = Options()
             options.path_input = blueprint
             options.mirror_axis = "yr"
-            with SMBEdit(
-                    options=options,
-                    logfile=options.logfile,
-                    verbose=options.verbose,
-                    debug=options.debug) as manipulator:
+            with SMBEdit(options=options) as manipulator:
                 self.assertFalse(manipulator.run(), blueprint)
 
     def test_mirror_axis_z(self):
@@ -198,11 +142,7 @@ class TestSMBEdit(DefaultSetup):
             options = Options()
             options.path_input = blueprint
             options.mirror_axis = "z"
-            with SMBEdit(
-                    options=options,
-                    logfile=options.logfile,
-                    verbose=options.verbose,
-                    debug=options.debug) as manipulator:
+            with SMBEdit(options=options) as manipulator:
                 self.assertFalse(manipulator.run(), blueprint)
 
     def test_mirror_axis_zr(self):
@@ -210,11 +150,7 @@ class TestSMBEdit(DefaultSetup):
             options = Options()
             options.path_input = blueprint
             options.mirror_axis = "zr"
-            with SMBEdit(
-                    options=options,
-                    logfile=options.logfile,
-                    verbose=options.verbose,
-                    debug=options.debug) as manipulator:
+            with SMBEdit(options=options) as manipulator:
                 self.assertFalse(manipulator.run(), blueprint)
 
     def test_auto_wedge(self):
@@ -222,11 +158,7 @@ class TestSMBEdit(DefaultSetup):
             options = Options()
             options.path_input = blueprint
             options.auto_wedge = True
-            with SMBEdit(
-                    options=options,
-                    logfile=options.logfile,
-                    verbose=options.verbose,
-                    debug=options.debug) as manipulator:
+            with SMBEdit(options=options) as manipulator:
                 self.assertFalse(manipulator.run(), blueprint)
 
     def test_auto_tetra(self):
@@ -234,11 +166,7 @@ class TestSMBEdit(DefaultSetup):
             options = Options()
             options.path_input = blueprint
             options.auto_tetra = True
-            with SMBEdit(
-                    options=options,
-                    logfile=options.logfile,
-                    verbose=options.verbose,
-                    debug=options.debug) as manipulator:
+            with SMBEdit(options=options) as manipulator:
                 self.assertFalse(manipulator.run(), blueprint)
 
     def test_auto_corner(self):
@@ -246,11 +174,7 @@ class TestSMBEdit(DefaultSetup):
             options = Options()
             options.path_input = blueprint
             options.auto_corner = True
-            with SMBEdit(
-                    options=options,
-                    logfile=options.logfile,
-                    verbose=options.verbose,
-                    debug=options.debug) as manipulator:
+            with SMBEdit(options=options) as manipulator:
                 self.assertFalse(manipulator.run(), blueprint)
 
     def test_auto_hepta(self):
@@ -258,11 +182,7 @@ class TestSMBEdit(DefaultSetup):
             options = Options()
             options.path_input = blueprint
             options.auto_hepta = True
-            with SMBEdit(
-                    options=options,
-                    logfile=options.logfile,
-                    verbose=options.verbose,
-                    debug=options.debug) as manipulator:
+            with SMBEdit(options=options) as manipulator:
                 self.assertFalse(manipulator.run(), blueprint)
 
     def test_auto_shape(self):
@@ -273,11 +193,7 @@ class TestSMBEdit(DefaultSetup):
             options.auto_corner = True
             options.auto_tetra = True
             options.auto_hepta = True
-            with SMBEdit(
-                    options=options,
-                    logfile=options.logfile,
-                    verbose=options.verbose,
-                    debug=options.debug) as manipulator:
+            with SMBEdit(options=options) as manipulator:
                 self.assertFalse(manipulator.run(), blueprint)
 
 
