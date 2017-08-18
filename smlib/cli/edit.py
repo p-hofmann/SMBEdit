@@ -33,6 +33,7 @@ class SMBEdit(ArgumentHandler):
 
         @rtype: None
         """
+        self._tmp_dir = None
         super(SMBEdit, self).__init__(
             label="SMBEdit",
             options=options,
@@ -295,11 +296,12 @@ def main():
     configuration.load()
 
     try:
-        with SMBEdit(
+        manipulator = SMBEdit(
             options=options,
             configuration=configuration
-                ) as manipulator:
-            error = manipulator.run()
+                )
+        error = manipulator.run()
+        del manipulator
     except (KeyboardInterrupt, SystemExit, Exception, ValueError, RuntimeError) as e:
         if debug:
             sys.stderr.write("\n{}\n".format(traceback.format_exc()))
