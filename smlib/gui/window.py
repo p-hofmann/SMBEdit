@@ -34,7 +34,7 @@ class Window(QMainWindow):
         self.menu_bar = MenuBar(self, main_frame, smbedit)
 
         #                  x    y    w    h
-        self.setGeometry(150, 150, 550, 500)
+        self.setGeometry(0, 0, 550, 500)
         self.status_bar.showMessage('Ready')
 
     def print_progress_bar(self, iteration, total, prefix='', suffix='', decimals=1, length=20, fill='X'):
