@@ -238,7 +238,7 @@ class Logic(DefaultLogging):
         @param positions:
         @type positions: set[tuple[int]]
         """
-        assert isinstance(controller_position, tuple)
+        assert isinstance(controller_position, tuple), "Not a tuple: {}".format(controller_position)
         assert isinstance(group_id, int)
         assert isinstance(positions, set)
         assert len(positions) > 0

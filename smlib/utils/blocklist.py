@@ -169,7 +169,7 @@ class BlockList(object):
         for position_index in self._position_index_to_instance:
             if self[position_index].get_id() not in block_ids:
                 continue
-            position_indexes.add(position_index)
+            position_indexes.add(Vector.get_position(position_index))
         return position_indexes
 
     def search(self, block_id):

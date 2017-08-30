@@ -344,7 +344,7 @@ class Smd(DefaultLogging):
         @return: None or (x,y,z)
         @rtype: set[(int, int, int)]
         """
-        return self._block_list.search_positions(set(block_id))
+        return self._block_list.search_positions({block_id})
 
     def has_block_at(self, position):
         """
